@@ -3,12 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research - QYang</title>
+    <title>Research</title>
     <link rel="stylesheet" href="styles/style.css">
+    <style>
+        .figure-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .figure-container img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            object-fit: fill;
+            margin-bottom: 10px;
+        }
+        .arrow-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .left-arrow {
+            left: 10px;
+        }
+        .right-arrow {
+            right: 10px;
+        }
+        .figure-description {
+            /* text-align: center; */
+            /* max-width: 600px; */
+            display: none;
+        }
+        .active-description {
+            display: block;
+        }
+    </style>
+    <script>
+        let images = [
+            "images/Active_droplet.png",
+            "images/Janus.png",
+        ];
+
+        let descriptions = [
+            "figure-description-1",
+            "figure-description-2",
+        ];
+        
+        let currentIndex = 0;
+
+        function switchFigure(direction) {
+            document.getElementById(descriptions[currentIndex]).classList.remove("active-description");
+            currentIndex = (currentIndex + direction + images.length) % images.length;
+            document.getElementById("research-figure").src = images[currentIndex];
+            document.getElementById(descriptions[currentIndex]).classList.add("active-description");
+        }
+    </script>
 </head>
 <body>
     <header>
-        <h1>Research - QYang</h1>
+        <h1>Research</h1>
     </header>
     <nav>
         <a href="index.html">Home</a>
@@ -16,12 +76,37 @@
         <a href="research.html">Research</a>
         <a href="publications.html">Publications</a>
         <a href="videos.html">Videos</a>
-        <a href="contact.html">Contact</a>
+        <a href="activity.html">Activity</a>
     </nav>
     <div class="container">
         <h2>My Research</h2>
         <p>
-            My research focuses on...
+            Collective behavior is a fundamental characteristic of active matter, including bacterial colonies, confluent tissues, and engineered active agents. 
+            Understanding these collective phenomena is key to advancing both biological insights and technological innovations. Chemically active agents, 
+            such as Janus colloids and active droplets, are at the forefront of self-organized active materials research. Despite extensive experimental observations, 
+            the underlying self-organization mechanisms remain a significant challenge, driving ongoing research efforts. 
+        </p>
+        <p>
+            The primary goal of my PhD research project at the National University of Singapore (NUS) is to understand the mechanisms governing these self-organizations. 
+            This involves employing theoretical modeling and numerical simulations to investigate the role of hydrochemical interactions in suspensions of: 
+            (i) two-dimensional (2D) active droplets, and (ii) three-dimensional (3D) Janus colloids.
+        </p>
+        <h3>Collective Behaviors of Chemically Active Agents </h3>
+        <div class="figure-container">
+            <button class="arrow-button left-arrow" onclick="switchFigure(-1)">&#9665;</button>
+            <img id="research-figure" src="images/Active_droplet.png" alt="Active Droplet">
+            <button class="arrow-button right-arrow" onclick="switchFigure(1)">&#9655;</button>
+        </div>
+        <p id="figure-description-1" class="figure-description active-description">
+                In this work, we demonstrate remarkably that, tuning the activity of a phoretic active medium alone can shape its solid-liquid-gas phase transitions and subsequently, trigger laminar-turbulent transitions in fluid phases. 
+                We present our findings by examining suspensions of isotropic chemically-phoretic agents through large-scale, agent-resolved simulations that explicitly account for their many-body, long-range hydrochemical interactions.
+                <a href="https://www.nature.com/articles/s41467-024-46520-4" target="_blank">Nature Communications</a>
+                
+        </p>
+        <p id="figure-description-2" class="figure-description">
+                Particles that propel themselves naturally gather in areas where their motion is slower. At higher concentrations, their movement can be further hindered by biochemical factors or physical crowding. 
+                This dynamic establishes a reinforcing cycle, often resulting in motility-induced phase separation (MIPS), where distinct dense and sparse fluid regions form. 
+                In this work, we perform the fully resolved 3D numerical simulations to understand: can MIPS of Janus particles occurs in the presence of hydrodynamical interaction?
         </p>
     </div>
 </body>
