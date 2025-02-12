@@ -5,37 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Videos</title>
     <link rel="stylesheet" href="styles/style.css">
-    <style>
-        /* Add styles for the video carousel */
-        .video-carousel {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .video-container {
-            display: none;
-        }
-        .video-container.active {
-            display: block;
-        }
-        .carousel-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 24px;
-        }
-        .carousel-arrow.prev {
-            left: 10px;
-        }
-        .carousel-arrow.next {
-            right: 10px;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -51,92 +20,61 @@
     </nav>
     <div class="container">
         <h2>Collective Behaviors of Chemically Active Droplets</h2>
-        
-        <!-- Video Carousel -->
-        <div class="video-carousel">
-            <!-- Arrow for Previous Video -->
-            <button class="carousel-arrow prev" onclick="prevVideo()">&#10094;</button>
-
-            <!-- Video Containers -->
-            <div class="video-container active">
-                <h3>Role of hydrochemical interactions: Crossing and Reflecting</h3>
-                <video controls width="100%">
-                    <source src="videos/Movie S9.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="video-container">
-                <h3>Role of hydrochemical interactions: Swimming in Parallel</h3>
-                <video controls width="100%">
-                    <source src="videos/Movie S10.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="video-container">
-                <h3>Role of hydrochemical interactions: Mushroom-like Chain</h3>
-                <video controls width="100%">
-                    <source src="videos/Movie S11.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="video-container">
-                <h3>Role of hydrochemical interactions: Active Wigner Crystal</h3>
-                <video controls width="100%">
-                    <source src="videos/Movie S1.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="video-container">
-                <h3>Role of hydrochemical interactions: Oscillating Active Liquid</h3>
-                <video controls width="100%">
-                    <source src="videos/Movie S3.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="video-container">
-                <h3>Role of hydrochemical interactions: Gas-like Phase</h3>
-                <video controls width="100%">
-                    <source src="videos/Movie S2.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="video-container">
-                <h3>Role of hydrochemical interactions: Vortex Formation in Active Fluid Turbulence</h3>
-                <video controls width="100%">
-                    <source src="videos/Movie S8.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-
-            <!-- Arrow for Next Video -->
-            <button class="carousel-arrow next" onclick="nextVideo()">&#10095;</button>
+        <div class="video-container">
+            <h3>Role of hydrochemical interactions: Crossing and Reflecting</h3>
+            <video controls width="100%">
+                <source src="videos/Movie S9.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
+        <div class="video-container">
+            <h3>Role of hydrochemical interactions: Swimming in Parallel</h3>
+            <video controls width="100%">
+                <source src="videos/Movie S10.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <div class="video-container">
+            <h3>Role of hydrochemical interactions: Mushroom-like Chain</h3>
+            <video controls width="100%">
+                <source src="videos/Movie S11.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <div class="video-container">
+            <h3>Role of hydrochemical interactions: Active Wigner Crystal</h3>
+            <video controls width="100%">
+                <source src="videos/Movie S1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <div class="video-container">
+            <h3>Role of hydrochemical interactions: Oscillating Active Liquid</h3>
+            <video controls width="100%">
+                <source src="videos/Movie S3.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>     
+        
+        <div class="video-container">
+            <h3>Role of hydrochemical interactions: Gas-like Phase</h3>
+            <video controls width="100%">
+                <source src="videos/Movie S2.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div> 
+        
+        <div class="video-container">
+            <h3>Role of hydrochemical interactions: Vortex Formation in Active Fluid Turbulence</h3>
+            <video controls width="100%">
+                <source src="videos/Movie S8.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
     </div>
-
-    <script>
-        // JavaScript for Video Carousel
-        let currentVideoIndex = 0;
-        const videoContainers = document.querySelectorAll('.video-container');
-
-        function showVideo(index) {
-            // Hide all videos
-            videoContainers.forEach(container => container.classList.remove('active'));
-            // Show the selected video
-            videoContainers[index].classList.add('active');
-        }
-
-        function nextVideo() {
-            currentVideoIndex = (currentVideoIndex + 1) % videoContainers.length;
-            showVideo(currentVideoIndex);
-        }
-
-        function prevVideo() {
-            currentVideoIndex = (currentVideoIndex - 1 + videoContainers.length) % videoContainers.length;
-            showVideo(currentVideoIndex);
-        }
-
-        // Show the first video initially
-        showVideo(currentVideoIndex);
-    </script>
 </body>
 </html>
