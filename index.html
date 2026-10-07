@@ -1,34 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Active Flow Research</title>
-    <link rel="stylesheet" href="styles/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qianhong Yang</title>
+  <meta name="description" content="Qianhong Yang — AI Computing Architect at Black Sesame Technologies; Ph.D. (NUS) in computational fluid mechanics, active matter, and high-performance simulation.">
+  <meta name="author" content="Qianhong Yang">
+  <meta property="og:title" content="Qianhong Yang">
+  <meta property="og:description" content="Computational fluid mechanics · active matter · HPC simulation · AI accelerator performance modeling">
+  <meta property="og:image" content="https://qyang2025.github.io/assets/img/profile.jpg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d5a8c'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='white' text-anchor='middle'%3EQY%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script src="assets/js/main.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Qianhong Yang's Active Flow Research</h1>
-    </header>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="research.html">Research</a>
-        <a href="publications.html">Publications</a>
-        <a href="videos.html">Videos</a>
-        <a href="activity.html">Activity</a>
-    </nav>
-    <div class="container">
-        <img src="images/profile.jpeg" alt="Qianhong Yang" width="200">
-        <h2>Welcome to My Academic Portfolio</h2>
-        <p>
-            Hello! I am Qianhong Yang, a PhD candidate in the Department of Mechanical Engineering at the National University of Singapore (NUS).
-            My research focuses on integrating (computational) fluid mechanics, active matter physics, and machine learning to study the collective motion of active particles at low Reynolds numbers.
-        </p>
-        <footer>
-            <p>&copy; 2025 Qianhong Yang. All rights reserved.</p>
-        </footer>
-    </div>
+<div class="page">
 
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <img class="avatar" src="assets/img/profile.jpg" alt="Portrait of Qianhong Yang">
+    <h1 class="name">Qianhong Yang</h1>
+    <p class="role"><b>AI Computing Architect</b><br>Black Sesame Technologies, Singapore</p>
+    <p class="role">Ph.D., Mechanical Engineering<br>National University of Singapore</p>
+
+    <ul class="links">
+      <li><a href="mailto:qianhong@u.nus.edu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2.4V17h16V7.4l-8 5.3-8-5.3ZM5.6 7 12 11.2 18.4 7H5.6Z"/></svg>qianhong@u.nus.edu</a></li>
+      <li><a href="https://scholar.google.com/citations?user=_hQl2DIAAAAJ&amp;hl=en" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.24 13.77 0 9.5 12 0l12 9.5-5.24 4.27A7.5 7.5 0 0 0 12 9.5a7.5 7.5 0 0 0-6.76 4.27ZM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z"/></svg>Google Scholar</a></li>
+      <li><a href="https://www.researchgate.net/profile/Qianhong-Yang-2" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3V3Zm2 2v14h14V5H5Zm2.2 11V8h3.1c1.8 0 2.7.9 2.7 2.3 0 1-.5 1.7-1.4 2l1.8 3.7h-1.8l-1.6-3.4H8.8V16H7.2Zm1.6-4.8h1.4c.8 0 1.2-.3 1.2-.9s-.4-.9-1.2-.9H8.8v1.8Zm9.4 4.8h-1.1l-.1-.7c-.4.5-1 .8-1.7.8-1.5 0-2.4-1.2-2.4-2.9 0-1.8 1-3 2.6-3 1.2 0 2.1.7 2.3 1.8h-1.5c-.1-.4-.4-.6-.8-.6-.7 0-1.1.6-1.1 1.7 0 1.1.4 1.7 1.2 1.7.6 0 .9-.3 1-.8h-1v-1h2.6V16Z"/></svg>ResearchGate</a></li>
+      <li><a href="https://github.com/qyang2025" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 0-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.1 0 4.6-2.8 5.6-5.5 5.9.5.4.9 1.1.9 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3Z"/></svg>GitHub</a></li>
+      <li><a href="gallery.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v12h16V6H4Zm6 2.5 5 3.5-5 3.5v-7Z"/></svg>Simulation movies</a></li>
+    </ul>
+
+    <nav aria-label="Sections">
+      <ul class="toc">
+        <li><a href="#about">About</a></li>
+        <li><a href="#news">News</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#talks">Talks</a></li>
+        <li><a href="#awards">Honors &amp; Awards</a></li>
+        <li><a href="#teaching">Teaching</a></li>
+        <li><a href="#skills">Codes &amp; Skills</a></li>
+      </ul>
+    </nav>
+    <button class="theme-btn" id="theme-btn" type="button">Dark mode</button>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+
+    <section id="about">
+      <h2>About</h2>
+      <p class="lead">I am a computational engineer working where <em>physics-based simulation</em>, <em>high-performance computing</em>, and <em>machine learning</em> meet.</p>
+      <p>I am currently an <b>AI Computing Architect</b> at <a href="https://www.bst.ai/" target="_blank" rel="noopener">Black Sesame Technologies</a> in Singapore, where I build chip functional models and performance-modeling methodologies for AI/vision workloads on edge-AI and autonomous-driving SoCs.</p>
+      <p>I received my Ph.D. in Mechanical Engineering from the <a href="https://www.nus.edu.sg/" target="_blank" rel="noopener">National University of Singapore</a> in 2025, advised by Prof. Lailai Zhu. My doctoral work used large-scale, agent-resolved simulations to understand how chemically active particles &mdash; microswimmers and active droplets &mdash; self-organize into crystals, liquids, and active turbulence. Before that, I studied Petroleum Engineering at China University of Petroleum (East China), developing SPH solvers for multiphase flow in porous media.</p>
+      <ul class="interests" aria-label="Research interests">
+        <li>Computational fluid dynamics</li>
+        <li>Active matter &amp; microswimmers</li>
+        <li>LBM / IBM / SPH solvers</li>
+        <li>GPU &amp; parallel computing</li>
+        <li>Physics-informed ML</li>
+        <li>Reinforcement-learning control</li>
+        <li>Performance modeling</li>
+      </ul>
+    </section>
+
+    <section id="news">
+      <h2>News</h2>
+      <ul class="news">
+        <li><time>Sep 2026</time><span><a href="https://doi.org/10.1103/jq6g-pmq6" target="_blank" rel="noopener"><i>Active wave turbulence in hexatic phase</i></a> is published in <b>Physical Review Letters</b> <span class="tag hl">Editors' Suggestion</span></span></li>
+        <li><time>2026</time><span>Co-authored paper on particle partitioning at fracture bifurcations published in <i>International Journal of Multiphase Flow</i>.</span></li>
+        <li><time>Jan 2026</time><span>Joined <b>Black Sesame Technologies</b> (Singapore) as an AI Computing Architect.</span></li>
+        <li><time>Oct 2025</time><span>Completed my Ph.D. in Mechanical Engineering at NUS.</span></li>
+        <li><time>Mar 2025</time><span>Talk at the <b>APS March Meeting</b> on two-dimensional melting of active Wigner solids.</span></li>
+        <li><time>2024</time><span>Received the <b>NUS PhD Research Excellence Award</b>.</span></li>
+        <li><time>Apr 2024</time><span><a href="https://www.nature.com/articles/s41467-024-46520-4" target="_blank" rel="noopener"><i>Shaping active matter from crystalline solids to active turbulence</i></a> is published in <b>Nature Communications</b> <span class="tag hl">Editors' Highlights</span></span></li>
+      </ul>
+    </section>
+
+    <section id="research">
+      <h2>Research</h2>
+
+      <div class="theme">
+        <div>
+          <h3>Collective dynamics of chemically active droplets</h3>
+          <p>Tuning the activity of a phoretic medium alone can drive its solid&ndash;liquid&ndash;gas phase transitions and, in the fluid phases, laminar&ndash;turbulent transitions. Using agent-resolved simulations that capture many-body, long-range hydrochemical interactions, we map how isotropic autophoretic disks form active Wigner crystals, oscillating liquids, and active turbulence &mdash; reconciling seemingly conflicting experiments and suggesting routes to reconfigurable materials. <a href="#pub-nc24">[Nat. Commun. 2024]</a> <a href="#pub-prl26">[PRL 2026]</a></p>
+        </div>
+        <figure>
+          <img src="assets/img/active_droplet.jpg" alt="Simulations of a single active droplet, an active Wigner crystal, and a chain-forming fluid phase" loading="lazy">
+          <figcaption>A single active droplet in straight motion; an active Wigner crystal; chain formation in a fluid phase.</figcaption>
+        </figure>
+      </div>
+
+      <div class="theme">
+        <div>
+          <h3>Motility-induced phase separation of Janus colloids</h3>
+          <p>Self-propelled particles accumulate where they move slowly, and crowding can reinforce this into motility-induced phase separation (MIPS). With fully resolved 3D simulations of chemically active Janus particles confined in a Hele-Shaw cell, I examine whether &mdash; and how &mdash; MIPS survives once hydrodynamic and chemical interactions are taken into account.</p>
+        </div>
+        <figure>
+          <img src="assets/img/janus.jpg" alt="Schematic of a Janus particle with active and inert hemispheres, and a suspension of Janus particles in a Hele-Shaw cell" loading="lazy">
+          <figcaption>A Janus particle with active and inert caps (left) and a suspension confined in a Hele-Shaw cell (right).</figcaption>
+        </figure>
+      </div>
+
+      <div class="theme" style="margin-bottom:0">
+        <div>
+          <h3>Learning, control, and GPU simulation</h3>
+          <p>I also build physics-informed neural networks that solve fluid PDEs and recover governing equations via symbolic regression, and deep reinforcement-learning frameworks, coupled with real-time GPU (C/C++/CUDA) simulators, for trajectory optimization and cooperative control of multi-link microrobots in fluids.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="publications">
+      <h2>Publications</h2>
+      <p class="pub-note"><b>Underlined</b> = me. Full list on <a href="https://scholar.google.com/citations?user=_hQl2DIAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a>.</p>
+
+      <ul class="pubs">
+        <li class="pub" id="pub-prl26">
+          <a class="pub-thumb" href="https://doi.org/10.1103/jq6g-pmq6" target="_blank" rel="noopener"><img src="assets/img/pub_prl.jpg" alt="Hexatic arrangement of active particles" loading="lazy"></a>
+          <div>
+            <a class="pub-title" href="https://doi.org/10.1103/jq6g-pmq6" target="_blank" rel="noopener">Active wave turbulence in hexatic phase</a>
+            <div class="pub-authors"><span class="me">Qianhong Yang</span>, Xinxin Zhang, Maoqiang Jiang, Guangpu Zhu, Zhaohui Liu, Sébastien Galtier, Lailai Zhu</div>
+            <div class="pub-venue"><i>Physical Review Letters</i> 137, 128301 (2026) &nbsp;<span class="tag hl">Editors' Suggestion</span></div>
+            <div class="pub-links">
+              <a class="pill" href="https://doi.org/10.1103/jq6g-pmq6" target="_blank" rel="noopener">Paper</a>
+              <a class="pill" href="gallery.html">Movies</a>
+              <button class="pill" type="button" data-bib="bib-prl26" aria-expanded="false">BibTeX</button>
+            </div>
+<pre class="bib" id="bib-prl26">@article{yang2026active,
+  title   = {Active Wave Turbulence in Hexatic Phase},
+  author  = {Yang, Qianhong and Zhang, Xinxin and Jiang, Maoqiang and Zhu, Guangpu
+             and Liu, Zhaohui and Galtier, S{\'e}bastien and Zhu, Lailai},
+  journal = {Physical Review Letters},
+  volume  = {137},
+  pages   = {128301},
+  year    = {2026},
+  doi     = {10.1103/jq6g-pmq6}
+}</pre>
+          </div>
+        </li>
+
+        <li class="pub" id="pub-nc24">
+          <a class="pub-thumb" href="https://www.nature.com/articles/s41467-024-46520-4" target="_blank" rel="noopener"><img src="assets/img/pub_nc.jpg" alt="Active turbulence in a suspension of phoretic disks" loading="lazy"></a>
+          <div>
+            <a class="pub-title" href="https://www.nature.com/articles/s41467-024-46520-4" target="_blank" rel="noopener">Shaping active matter from crystalline solids to active turbulence</a>
+            <div class="pub-authors"><span class="me">Qianhong Yang</span>, Maoqiang Jiang, Francesco Picano, Lailai Zhu</div>
+            <div class="pub-venue"><i>Nature Communications</i> 15, 2874 (2024) &nbsp;<span class="tag hl">Editors' Highlights</span></div>
+            <p class="pub-desc">Activity alone governs solid&ndash;liquid&ndash;gas transitions and laminar&ndash;turbulent transitions in a phoretic active medium.</p>
+            <div class="pub-links">
+              <a class="pill" href="https://www.nature.com/articles/s41467-024-46520-4" target="_blank" rel="noopener">Paper (open access)</a>
+              <a class="pill" href="gallery.html">Movies</a>
+              <button class="pill" type="button" data-bib="bib-nc24" aria-expanded="false">BibTeX</button>
+            </div>
+<pre class="bib" id="bib-nc24">@article{yang2024shaping,
+  title   = {Shaping active matter from crystalline solids to active turbulence},
+  author  = {Yang, Qianhong and Jiang, Maoqiang and Picano, Francesco and Zhu, Lailai},
+  journal = {Nature Communications},
+  volume  = {15},
+  pages   = {2874},
+  year    = {2024},
+  doi     = {10.1038/s41467-024-46520-4}
+}</pre>
+          </div>
+        </li>
+      </ul>
+
+      <h3 class="subhead">Other journal articles</h3>
+      <ul class="pubs compact">
+        <li class="pub">
+          <div class="pub-thumb venue"><span>Int. J. Multiph. Flow<small>2026</small></span></div>
+          <div>
+            <a class="pub-title" href="https://doi.org/10.1016/j.ijmultiphaseflow.2026.105891" target="_blank" rel="noopener">Partitioning of neutrally buoyant particles at a fracture bifurcation</a>
+            <div class="pub-authors">S. Zheng, Z. Zhang, Y. Li, <span class="me">Q. Yang</span>, Z. Yu</div>
+            <div class="pub-venue"><i>International Journal of Multiphase Flow</i> 203, 105891 (2026)</div>
+          </div>
+        </li>
+        <li class="pub">
+          <div class="pub-thumb venue"><span>Fractals<small>2021</small></span></div>
+          <div>
+            <a class="pub-title" href="https://doi.org/10.1142/S0218348X21500377" target="_blank" rel="noopener">A fractal multiphase transport model in shale porous media with multiple transport mechanisms and rock&ndash;fluid interaction</a>
+            <div class="pub-authors">D. Wang, W. Song, J. Yao, <span class="me">Q. Yang</span>, X. Yan, H. Sun</div>
+            <div class="pub-venue"><i>Fractals</i> 29(02), 2150037 (2021)</div>
+          </div>
+        </li>
+        <li class="pub">
+          <div class="pub-thumb venue"><span>J. Pet. Sci. Eng.<small>2020</small></span></div>
+          <div>
+            <a class="pub-title" href="https://www.sciencedirect.com/science/article/pii/S0920410520303235" target="_blank" rel="noopener">Pore-scale investigation of petro-physical fluid behaviours based on multiphase SPH method</a>
+            <div class="pub-authors"><span class="me">Q. Yang</span>, J. Yao, Z. Huang, G. Zhu, L. Liu, W. Song</div>
+            <div class="pub-venue"><i>Journal of Petroleum Science and Engineering</i> 192, 107238 (2020)</div>
+          </div>
+        </li>
+        <li class="pub">
+          <div class="pub-thumb venue"><span>Comput. Fluids<small>2019</small></span></div>
+          <div>
+            <a class="pub-title" href="https://www.sciencedirect.com/science/article/abs/pii/S0045793019300982" target="_blank" rel="noopener">A comprehensive SPH model for three-dimensional multiphase interface simulation</a>
+            <div class="pub-authors"><span class="me">Q. Yang</span>, J. Yao, Z. Huang, M. Asif</div>
+            <div class="pub-venue"><i>Computers &amp; Fluids</i> 187, 98&ndash;106 (2019)</div>
+          </div>
+        </li>
+      </ul>
+
+      <h3 class="subhead">Under review</h3>
+      <ul class="pubs compact">
+        <li class="pub">
+          <div class="pub-thumb venue"><span>J. Fluid Mech.<small>under review</small></span></div>
+          <div>
+            <span class="pub-title">Deposition pattern of colloidal particles on a solid surface by bubbles in a confined channel</span>
+            <div class="pub-authors">Z. Li, Y. Zhang, X. Cao, R. Huang, <span class="me">Q. Yang</span>, L. Zhu, H. Teng, J. M. Floryan</div>
+            <div class="pub-venue"><i>Journal of Fluid Mechanics</i>, under review (2026)</div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="experience">
+      <h2>Experience</h2>
+      <ul class="tl">
+        <li>
+          <div class="when">Jan 2026 &ndash; now</div>
+          <div>
+            <h3>AI Computing Architect</h3>
+            <div class="org">Black Sesame Technologies (Singapore) Pte. Ltd.</div>
+            <ul>
+              <li>Chip functional models and performance-modeling methodologies for AI/vision workloads on edge-AI and autonomous-driving SoCs.</li>
+              <li>Design trade-off analysis across performance, implementation constraints, and compute efficiency at the hardware/software boundary.</li>
+              <li>Firmware/middleware frameworks and validation tooling that inform product and technology roadmaps.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="when">Aug 2025 &ndash; Feb 2026</div>
+          <div>
+            <h3>Research Assistant &mdash; Deep RL control of multi-link robots in fluids</h3>
+            <div class="org">National University of Singapore &middot; with Prof. Lailai Zhu</div>
+            <ul>
+              <li>Deep reinforcement-learning frameworks for trajectory optimization and control of microrobots.</li>
+              <li>GPU simulation platforms (C/C++/CUDA) for real-time cooperative multi-agent simulation.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="when">Aug 2021 &ndash; Oct 2025</div>
+          <div>
+            <h3>Ph.D. Researcher &mdash; Collective simulations of active particles as microfluidic robots</h3>
+            <div class="org">National University of Singapore &middot; with Prof. Lailai Zhu</div>
+            <ul>
+              <li>Parallel PDE simulation framework (C++/MPI/OpenMP) for large-scale multi-agent fluid&ndash;structure interaction, up to ~100&times; faster than baseline.</li>
+              <li>Benchmarked predictions against theory and experiments; automated analysis and visualization pipelines (MATLAB/Python/ParaView).</li>
+              <li>Results in <i>Nature Communications</i> and <i>Physical Review Letters</i>.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="when">Mar 2024 &ndash; Jul 2024</div>
+          <div>
+            <h3>Research Assistant &mdash; Physics-informed neural networks</h3>
+            <div class="org">National University of Singapore</div>
+            <ul>
+              <li>PINN-based solvers for fluid PDEs, combined with symbolic regression to discover governing equations.</li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <div class="when">Sep 2017 &ndash; Jun 2020</div>
+          <div>
+            <h3>M.Eng. Research &mdash; Porous-media flow via smoothed particle hydrodynamics</h3>
+            <div class="org">China University of Petroleum (East China) &middot; with Prof. Jun Yao</div>
+            <ul>
+              <li>SPH multiphase flow solver (Fortran + OpenMP) for pore-scale reservoir flow and interface evolution.</li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="education">
+      <h2>Education</h2>
+      <ul class="tl">
+        <li>
+          <div class="when">2021 &ndash; 2025</div>
+          <div>
+            <h3>Ph.D., Mechanical Engineering</h3>
+            <div class="org">National University of Singapore &middot; Advisor: Prof. Lailai Zhu; Co-advisor: Prof. Teo Chiang Juay</div>
+          </div>
+        </li>
+        <li>
+          <div class="when">2017 &ndash; 2020</div>
+          <div>
+            <h3>M.Eng., Petroleum Engineering</h3>
+            <div class="org">China University of Petroleum (East China) &middot; Advisor: Prof. Jun Yao</div>
+          </div>
+        </li>
+        <li>
+          <div class="when">2013 &ndash; 2017</div>
+          <div>
+            <h3>B.Eng., Petroleum Engineering</h3>
+            <div class="org">China University of Petroleum (East China)</div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="talks">
+      <h2>Talks &amp; Conferences</h2>
+      <ul class="rows">
+        <li><span class="when">Mar 2025</span><span><b>Two-dimensional melting of active Wigner solids in dense phoretic disk suspensions</b><br><span class="where">APS March Meeting, California, USA</span></span></li>
+        <li><span class="when">Sep 2022</span><span><b>Emerging states of isotropic autophoretic disks: from crystalline solids to active turbulence</b><br><span class="where">The Physics of Biological Systems Summer School, Madrid, Spain</span></span></li>
+        <li><span class="when">Oct 2018</span><span><b>Microscale shale gas flow simulation based on the SPH method</b><br><span class="where">10th National Conference on Fluid Mechanics, Hangzhou, China</span></span></li>
+        <li><span class="when">Aug 2018</span><span><b>Three-dimensional multiphase flow SPH simulation based on CSF</b><br><span class="where">Mesh-Free Particle Methods: Progress and Applications Seminar, Xi'an, China</span></span></li>
+      </ul>
+    </section>
+
+    <section id="awards">
+      <h2>Honors &amp; Awards</h2>
+      <ul class="rows">
+        <li><span class="when">2024</span><span><b>PhD Research Excellence Award</b> <span class="where">&middot; National University of Singapore</span></span></li>
+        <li><span class="when">2016 &ndash; 2019</span><span><b>First-class Scholarship</b> <span class="where">&middot; China University of Petroleum (East China)</span></span></li>
+        <li><span class="when">2016</span><span><b>First Prize</b>, National Undergraduate Mathematical Contest in Modeling <span class="where">&middot; Chinese Mathematical Society</span></span></li>
+        <li><span class="when">2016</span><span><b>Third Prize (Team)</b>, 7th China Petroleum Engineering Design Competition</span></li>
+        <li><span class="when">2015</span><span><b>National Endeavor Scholarship</b>; Progress Scholarship <span class="where">&middot; China University of Petroleum (East China)</span></span></li>
+      </ul>
+    </section>
+
+    <section id="teaching">
+      <h2>Teaching</h2>
+      <ul class="rows">
+        <li><span class="when">Aug &ndash; Oct 2022</span><span><b>ME2134</b> Fluid Mechanics I Lab: Flow and Energy Loss <span class="where">&middot; Teaching Assistant, NUS</span></span></li>
+        <li><span class="when">Jan &ndash; Apr 2022</span><span><b>ME2121</b> Engineering Thermodynamics and Heat Transfer <span class="where">&middot; Teaching Assistant, NUS</span></span></li>
+      </ul>
+    </section>
+
+    <section id="skills">
+      <h2>In-house Codes &amp; Skills</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3><code>PFlows-GPU</code></h3>
+          <p>LBM&ndash;IBM fluid&ndash;structure interaction solver for many active particles and multi-link swimmers. C/C++ with GPU acceleration; large-scale 2D.</p>
+        </div>
+        <div class="card">
+          <h3><code>PFlows-Phoretic-CPU</code></h3>
+          <p>LBM&ndash;IBM solver for phoretic active particles. C/C++ with MPI; 2D and 3D.</p>
+        </div>
+        <div class="card">
+          <h3><code>SPH-Porous</code></h3>
+          <p>SPH solver for multiphase, thermal, and reactive flows in porous media. Fortran with OpenMP; 2D and 3D.</p>
+        </div>
+        <div class="card">
+          <h3>Languages &amp; HPC</h3>
+          <div class="chips"><span>C/C++</span><span>Fortran</span><span>Python</span><span>MATLAB</span><span>Shell</span><span>MPI</span><span>OpenMP</span><span>CUDA</span><span>OpenACC</span></div>
+        </div>
+        <div class="card">
+          <h3>Methods</h3>
+          <div class="chips"><span>CFD</span><span>LBM</span><span>IBM</span><span>SPH</span><span>PINNs</span><span>Reinforcement learning</span><span>Statistical physics</span><span>Performance modeling</span></div>
+        </div>
+        <div class="card">
+          <h3>Tools</h3>
+          <div class="chips"><span>COMSOL</span><span>ParaView</span><span>Git</span><span>LaTeX</span><span>FFmpeg</span><span>Illustrator</span></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      &copy; <span id="year">2026</span> Qianhong Yang &middot; Last updated October 2026
+    </footer>
+  </main>
+</div>
 </body>
 </html>
