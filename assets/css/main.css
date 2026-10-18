@@ -133,7 +133,8 @@ a.pub-title:hover { color: var(--accent); }
 .subhead { font: 600 14px var(--sans); color: var(--muted); margin: 34px 0 14px; }
 .pubs.compact { gap: 12px; }
 .pubs.compact .pub { grid-template-columns: 132px minmax(0, 1fr); }
-.pubs.compact .pub-thumb { aspect-ratio: auto; height: 64px; }
+.pub-thumb.fig { background: #fff; }
+.pub-thumb.fig img { object-fit: contain; }
 
 /* ---------- timeline (experience / education) ---------- */
 .tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
@@ -191,7 +192,7 @@ footer { margin-top: 12px; padding-top: 22px; border-top: 1px solid var(--line);
   .name { margin-top: 14px; }
   .pub, .pubs.compact .pub { grid-template-columns: 1fr; gap: 10px; }
   .pub-thumb { width: 100%; aspect-ratio: 16 / 7; }
-  .pubs.compact .pub-thumb { display: none; }
+  .pub-thumb.fig { aspect-ratio: 16 / 9; }
   .tl li, .rows li { grid-template-columns: 1fr; gap: 2px; }
   .news li { grid-template-columns: 1fr; gap: 0; }
   .grid2, .gallery { grid-template-columns: 1fr; }
