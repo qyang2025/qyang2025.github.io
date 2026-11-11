@@ -1,11 +1,11 @@
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper01-20261111';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
 import {applyProgressiveReveal} from './progressive-reveal.mjs';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs';
-import {lessonSections,isOutline} from './course-outline.mjs';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=paper01-20261111';
+import {lessonSections,isOutline} from './course-outline.mjs?v=paper01-20261111';
 import {TeachingPointer,attentionTarget} from './attention.mjs';
 import {schematicHtml} from './schematic.mjs';
 import {mathHtml,proseHtml} from './math.mjs';
@@ -79,10 +79,10 @@ function render(){
  $('activity-hold').hidden=!player.activityHold;if(player.activityHold)$('activity-hold').textContent=t('Pause for reflection. Click Continue lesson when ready.','请先思考，准备好后点击继续讲解。');
  $('sources').innerHTML=lesson.sources.map(s=>`<li><a href="${escape(s.url.startsWith('/')?new URL('.'+s.url,import.meta.url).href:s.url)}" rel="noopener">${escape(s.name)}</a></li>`).join('');
 }
-async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`);if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
+async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`,{cache:'no-cache'});if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
 $('play').onclick=()=>player.playing?player.pauseAtVisible():player.play();$('previous').onclick=()=>player.seek(player.displayPosition().slide-1);$('next').onclick=()=>player.seek(player.displayPosition().slide+1);
 $('next-step').onclick=()=>{const p=player.displayPosition();player.pauseAtVisible();const slide=player.lesson.slides[p.slide];let beat=p.beat,sentence=p.sentence+1;if(sentence>=sentences(slide.beats[beat].text,language).length){sentence=0;beat++;}if(beat>=slide.beats.length){if(p.slide+1<player.lesson.slides.length)player.seek(p.slide+1);return;}Object.assign(player,{beat,sentence,activityHold:null});player.syncPresentation();player.emit();const next=player.displayPosition(),current=player.lesson.slides[next.slide];syncPaperDemo({audioTime:0,duration:1},next,current,language);syncHeatRod({audioTime:0,duration:1},next,current,language);syncPinnDemo({audioTime:0,duration:1},next,current,language);};
 $('rate').onchange=()=>{player.rate=Number($('rate').value);if(player.playing)player.play();};
 $('chapter-select').onchange=()=>loadChapter(Number($('chapter-select').value));$('chapter-prev').onclick=()=>loadChapter(chapter-1);$('chapter-next').onclick=()=>loadChapter(chapter+1);
 $('language-select').onchange=()=>{const nextLanguage=$('language-select').value;player.pauseAtVisible();language=nextLanguage;player.voiceURI=language==='en'?'bm_george':'zm_010';player.setLanguage(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));};
-try{if(requestedPaper){const catalog=await(await fetch('courses/pinns-papers/catalog.json')).json();const entry=catalog.papers.find(p=>p.id===requestedPaper);if(!entry)throw Error('Paper not available');courseRoot=entry.courseRoot;courseKey=entry.id;}[manifest,audioPack]=await Promise.all([courseRoot+'/manifest.json','published-audio.json'].map(async url=>{const r=await fetch(url);if(!r.ok)throw Error('Course files unavailable');return r.json();}));await speech.configure();await loadChapter(Math.max(0,Math.min(manifest.modules.length-1,(Number(new URLSearchParams(location.search).get('chapter'))||1)-1)));}catch(error){$('play').textContent=t('Course unavailable','课程暂不可用');toast(error.message);}
+try{if(requestedPaper){const catalog=await(await fetch('courses/pinns-papers/catalog.json',{cache:'no-cache'})).json();const entry=catalog.papers.find(p=>p.id===requestedPaper);if(!entry)throw Error('Paper not available');courseRoot=entry.courseRoot;courseKey=entry.id;}[manifest,audioPack]=await Promise.all([courseRoot+'/manifest.json','published-audio.json'].map(async url=>{const r=await fetch(url,{cache:'no-cache'});if(!r.ok)throw Error('Course files unavailable');return r.json();}));await speech.configure();await loadChapter(Math.max(0,Math.min(manifest.modules.length-1,(Number(new URLSearchParams(location.search).get('chapter'))||1)-1)));}catch(error){$('play').textContent=t('Course unavailable','课程暂不可用');toast(error.message);}

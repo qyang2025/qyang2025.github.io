@@ -1,7 +1,7 @@
 import {mathHtml} from './math.mjs';
 import {sentences} from './player.mjs';
 let trace;
-if(typeof window!=='undefined')fetch(new URL('./courses/pinns-papers/01-raissi-2017/trace.json',import.meta.url)).then(r=>r.ok?r.json():null).then(value=>{trace=value;const host=document.querySelector('[data-paper-demo]');if(host)draw(host,Number(host.dataset.progress||0));}).catch(()=>{});
+if(typeof window!=='undefined')fetch(new URL('./courses/pinns-papers/01-raissi-2017/trace.json',import.meta.url),{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(value=>{trace=value;const host=document.querySelector('[data-paper-demo]');if(host)draw(host,Number(host.dataset.progress||0));}).catch(()=>{});
 export function paperProgress(slide,position,activity={},language='en'){
  const counts=slide.beats.map(b=>sentences(language==='en'?b.textEn:b.text,language).length);
  if(['training','comparison'].includes(slide.paperDemo)){const fraction=activity.reason==='ended'?1:activity.duration>0?Math.min(1,activity.audioTime/activity.duration):0;return position.beat>0?1:Math.max(0,Math.min(1,(position.sentence-1+fraction)/Math.max(1,counts[0]-1)));}
