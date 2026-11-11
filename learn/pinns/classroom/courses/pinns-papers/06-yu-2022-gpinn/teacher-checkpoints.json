@@ -1,0 +1,14 @@
+{
+  "paper": "06",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "gpinn-exercise",
+      "questionEn": "Predict before changing the points or weight",
+      "questionZh": "先预测改变点数与权重的影响",
+      "answerEn": "Neither more points nor a larger derivative penalty guarantees improvement under a fixed optimisation budget. The saved dense ordinary control is already accurate, and the preferred enhancement weight varies by seed. Check temperature and slope errors separately, plus held-out residual and residual-gradient errors. Extra derivatives have a computational cost, and zero residual values and slopes at finitely many points are not a global certificate.",
+      "answerZh": "在固定优化预算下，更多点和更大导数惩罚都不保证改善。保存的稠密普通对照已经很准确，较好的增强权重也随种子改变。分别检查温度和斜率误差，以及独立残差和残差梯度误差。额外求导有计算成本；有限点处残差值和斜率为零，不是全局正确性的证明。",
+      "equation": ""
+    }
+  ]
+}

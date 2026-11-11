@@ -1,5 +1,5 @@
-import {drawCpinn} from './cpinn-demo.mjs?v=night-08a';
-import {drawSampling} from './sampling-demo.mjs?v=night-07a';
+import {drawCpinn} from './cpinn-demo.mjs?v=night-08b';
+import {drawSampling} from './sampling-demo.mjs?v=night-08b';
 import {drawGPinn} from './gpinn-demo.mjs?v=night-06a';
 import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs';
 import {drawCausal,causalKinds} from './causal-demo.mjs?v=night-05a';

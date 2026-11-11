@@ -1,0 +1,14 @@
+{
+  "paper": "07",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "sampling-exercise",
+      "questionEn": "Narrow the layer and predict the sampling needs first",
+      "questionZh": "把薄层再变窄，先预测选点需求",
+      "answerEn": "The characteristic exponential layer width shrinks with nu. For the fixed32-midpoint grid, the final nu-wide strip contains two points at nu=.05 but only one at nu=.03; the512-point candidate pool contains26 and15 respectively. The replay counter instead always uses x>.9, so it is not a rescaled one-layer-width count. Better coverage and a higher sampling weight still do not guarantee lower solution error.",
+      "answerZh": "指数边界层的特征宽度随 nu 缩小。对于固定三十二中点网格，最后一个 nu 宽度条带在 nu 为零点零五时有两个点，在零点零三时只有一个点；五百一十二候选池分别有二十六和十五个点。回放计数却始终使用 x 大于零点九，因此不是按一个层宽缩放的计数。更好覆盖和更大抽样权重，也不保证解误差更低。",
+      "equation": "\\delta=O(\\nu)"
+    }
+  ]
+}

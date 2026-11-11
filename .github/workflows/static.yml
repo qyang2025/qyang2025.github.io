@@ -31,6 +31,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up classroom validation runtime
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Check classroom assets and narration
+        run: node scripts/check-pinns-site.mjs
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

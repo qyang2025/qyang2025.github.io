@@ -1,0 +1,14 @@
+{
+  "paper": "02",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "inverse-exercise",
+      "questionEn": "Change only the noise level and predict the effect",
+      "questionZh": "只改变噪声水平，先作预测",
+      "answerEn": "Five-percent observation noise need not multiply both coefficient errors by five. The nonlinear joint fit can change bias and field accuracy differently for the two coefficients. Keep coordinates, network and budget fixed; compare both coefficient errors and independent field/residual errors. One noise draw cannot support confidence intervals or a universal robustness claim.",
+      "answerZh": "百分之五观测噪声，不代表两系数误差都变成五倍。非线性联合拟合可能让两系数偏差和场精度以不同方式变化。保持坐标、网络和预算不变，比较两系数误差及独立场和残差误差。单次噪声实现不能支持置信区间或普遍稳健性结论。",
+      "equation": ""
+    }
+  ]
+}

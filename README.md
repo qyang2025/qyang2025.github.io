@@ -19,78 +19,57 @@ To add a news item or paper, edit the `#news` / `#publications` sections in `ind
 
 ## Professor Vee learning series
 
-The homepage Teaching section and sidebar link to `learn/`. The first topic is the
-PINNs series at `learn/pinns/`; its six-chapter static classroom is at
-`learn/pinns/classroom/`. No Node server is required on GitHub Pages.
+The homepage Teaching section and sidebar link to [Learning series](learn/). The
+[PINNs series](learn/pinns/) contains 7 paper presentations and 165 slides,
+plus a separate six-chapter foundation course. Everything published here is
+static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 
-Published features: 3D Professor Vee, authored progressive reveals, physical
-animations, linked schematic/formula highlights, laser pointer, prepared British
-English Kokoro narration (453 sentence clips), bilingual slides/transcripts,
-step-by-step reading, teaching guide and downloadable Python experiments.
-Chinese recordings are not yet cached for this course, so Chinese is explicitly
-reading mode. Narration starts only after a click and stops on page hiding;
-Web Locks coordinate a single audible classroom per origin.
+| Paper | Reference | Slides | English clips | Chinese clips | Classroom |
+|---|---|---:|---:|---:|---|
+| 01 | Raissi 2017 Part I | 21 | 122/122 | 122/122 | [Open](learn/pinns/classroom/?paper=raissi2017&language=en) |
+| 02 | Raissi 2017 Part II | 24 | 141/141 | 141/141 | [Open](learn/pinns/classroom/?paper=raissi2017ii&language=en) |
+| 03 | Wang 2020 · Gradients | 24 | 141/141 | 140/140 | [Open](learn/pinns/classroom/?paper=wang2020&language=en) |
+| 04 | Krishnapriyan 2021 · Curriculum | 23 | 136/136 | 134/134 | [Open](learn/pinns/classroom/?paper=krishnapriyan2021&language=en) |
+| 05 | Wang 2022 · Causality | 24 | 142/142 | 140/140 | [Open](learn/pinns/classroom/?paper=wang2022&language=en) |
+| 06 | Yu 2022 · gPINN | 24 | 141/141 | 135/135 | [Open](learn/pinns/classroom/?paper=yu2022&language=en) |
+| 07 | Wu 2023 · Sampling | 25 | 148/148 | 32/144 | [Open](learn/pinns/classroom/?paper=wu2023&language=en) |
 
-Live questions, Codex-generated supplementary slides, model inference and new
-voice generation stay in the local application. No credentials, browser profiles,
-model weights, job records or local API server are included in this static export.
+Foundation course recordings: English 453/453; Chinese 0/345.
+Incomplete recording sets stay in reading mode. A classroom language becomes
+playable only when all of that presentation's clips are available.
 
-To preview: `python -m http.server 4320 --bind 127.0.0.1` from the repository root,
-then open `http://127.0.0.1:4320/learn/`.
+The professor, captions, progressive equations, schematic highlights, laser and
+recorded experiment replays follow the actual sentence audio clock. Physical
+introduction diagrams appear from the first sentence. Formula pages reveal in
+stages. The Mute control gates sound without disabling the analyser-driven mouth
+animation. Playback requires a click, pauses when the page is hidden, and uses
+Web Locks to keep one audible classroom per origin. It opens no playback window.
 
-To update PINNs from the local teaching app:
+Every paper states its CPU settings, controls, adaptations, validation and limits.
+The download contains executable Python, dependencies, saved measurements and a
+mathematical teacher guide. The browser replays saved arrays rather than trains
+models. Missing-condition ablations and failed runs are retained. Planned lesson
+minutes include discussion and exercises, not just uninterrupted recorded speech.
+
+Live questions, local Codex supplements and new voice generation remain in the
+local teaching app. This export contains no credentials, browser profiles, model
+weights or job records.
+
+Preview with Python's HTTP server from the repository root on port4320. To update
+from the separate local teaching-app checkout, pre-generate both narration
+languages, package each checked experiment, export with the desired paper cutoff,
+and run its update-series-site script. Validate this repository with:
+
+```sh
+node scripts/check-pinns-site.mjs
+# Require every published Chinese recording as well:
+node scripts/check-pinns-site.mjs --require-chinese
 ```
-node C:/Users/YangQianhong/virtual-professor/scripts/export-website.mjs <this-repository>
-node C:/Users/YangQianhong/virtual-professor/scripts/check-website.mjs <this-repository>
-```
-The exporter uses the app's existing soundfile installation to compress selected
-cached narration into Ogg Vorbis. It refuses an incomplete English course rather
-than publishing broken narration. The exported learning section is about 26.7 MB.
 
-To add a future topic: publish its own overview/classroom under `learn/<topic>/`
-and append an entry to `learn/series.json`. `learn/series.mjs` renders the catalogue;
-the PINNs card remains a fallback if JavaScript is unavailable. Each topic is a
-separate series; chapters are the lessons inside that series.
+The Pages workflow runs the first check before uploading. It verifies transcript
+identity, coverage metadata, Ogg assets, LaTeX, module/font dependencies, series
+links and the absence of popup playback calls. Browser visual and media-clock QA
+is separate from this file-integrity check.
 
-Validation: all English narration sentences matched the authored text; local
-course links/imports resolved; browser checks covered homepage navigation,
-classroom loading, English/Chinese switching, progressive equation/physical
-schematic reveals and the Python-demo page. No narration was started during the
-website integration check. The static.yml workflow deploys this site to GitHub Pages after a push to main.
-
-
-## Paper-by-paper PINNs (Paper 01)
-
-The PINNs landing page now organises one paper per presentation. The first
-implemented paper is Raissi, Perdikaris & Karniadakis (2017), Part I, section 2.1.
-Open learn/pinns/classroom/?paper=raissi2017&language=en. Its 21 bilingual slides
-and 122 prepared English clips share the existing professor and classroom assets.
-The six-chapter general primer keeps its existing URL as optional preparation.
-Chinese is explicitly reading mode until its narration is prepared.
-
-Paper 01 includes physical Burgers evolution, residual/condition schematics,
-LaTeX equations, derivative code and actual CPU-training replay. Final-error
-narration starts only after the replay reaches its final checkpoint. The saved
-experiment uses 1297 parameters, 384 collocation points, four CPU threads and
-seed 11. The time window is shortened to [0,0.2]; this is a small method
-implementation, not a full benchmark reproduction. Measured PINN runtime 14.3 s,
-held-out relative error 2.07%; data-only control 2.8 s and 31.15%. Single seed,
-unequal derivative cost, no universal performance claim. Code, complete traces,
-reference checks and a standalone mathematical guide are downloadable.
-
-learn/pinns/roadmap.json records the paper progression and CPU budget. Papers
-02–05 are clearly planned, not completed. Future courses should implement one
-named paper, state each adaptation and include independently checked results.
-The browser replays traces; it never launches training or accesses local Codex.
-
-Validation: 110 tests pass in the authoring project. Static checks match all 575
-English clips to the primer and paper scripts. Browser checks covered physical
-reveal, joint equation/diagram presentation, actual-result replay, final-number
-alignment, language switching with paper selection preserved, and the old primer
-link. This new-paper check remained silent and paused.
-
-Paper 02: Raissi 2017 Part II, 24 slides and 141 English clips. CPU coefficient identification uses 256 observations, viscosity 0.05 and time end 0.5; these deliberately differ from the original benchmark. Code and actual traces are downloadable.
-
-Paper 03 adds 24 slides and 141 English clips on Wang et al. (2020) gradient pathologies: twelve actual Poisson CPU runs, paired seeds, explicit numerical guards and retained controller failures. Guarded proposals saturate every update; no universal improvement is claimed.
-
-Papers 04 and 05 add 47 slides and 278 English clips: periodic convection/coefficient curricula and a causal-weighted oscillator. Paired controls, independent analytic references, all capped runs and actual update counts are published. Extra-budget curriculum is labelled explicitly; near-unit causal weights are not treated as an accuracy certificate. The paper series now has five implemented papers and 116 slides (the six-chapter primer remains separate).
+New topics belong under learn/<topic>/ with a matching learn/series.json entry;
+papers are presentations within a topic, not separate unrelated series.

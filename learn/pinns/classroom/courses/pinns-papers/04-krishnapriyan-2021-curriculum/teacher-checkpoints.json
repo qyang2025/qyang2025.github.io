@@ -1,0 +1,14 @@
+{
+  "paper": "04",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "transport-exercise",
+      "questionEn": "Predict before changing the target speed",
+      "questionZh": "先预测，再改变目标速度",
+      "answerEn": "The spatial wavelength and amplitude remain unchanged, while the profile moves faster and temporal variation scales with beta. The curriculum becomes[1,3,6,12], so its final jump is6 rather than4. Equal total updates still do not mean equal target-equation exposure. Report the extra-budget diagnostic separately and retain actual cap flags; no error ranking follows from the analytic shift alone.",
+      "answerZh": "空间波长与幅值不变，但轮廓移动更快，时间变化尺度随 beta 增长。课程变成一、三、六、十二，所以最后跳变为六而不是四。总更新次数相同，仍不表示目标方程训练量相同。额外预算诊断要分开报告，并保留实际上限标记；仅凭解析平移无法推出误差排名。",
+      "equation": "u_*(x,t)=\\sin(x-12t)"
+    }
+  ]
+}

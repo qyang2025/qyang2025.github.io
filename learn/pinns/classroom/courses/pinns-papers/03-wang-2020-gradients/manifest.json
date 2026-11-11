@@ -49,5 +49,6 @@
       "url": "/courses/pinns-papers/03-wang-2020-gradients/trace.json",
       "text": "Three paired seeds, four loss-weight policies, 64 residual points, two boundary values, 1273 parameters, four CPU threads. All failures and all guarded weight saturations are retained."
     }
-  ]
+  ],
+  "downloadSha256": "aa6c67ad8c955e233401427debbb3e36db672ecd83267d732b09ee5723aac421"
 }

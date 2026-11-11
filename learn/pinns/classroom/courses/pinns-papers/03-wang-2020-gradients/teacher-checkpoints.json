@@ -1,0 +1,14 @@
+{
+  "paper": "03",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "gradient-exercise",
+      "questionEn": "Change one factor and explain the trajectory",
+      "questionZh": "只改变一个因素，再解释轨迹",
+      "answerEn": "For sin(Cx), taking two spatial derivatives introduces the factor minus C squared. Moving C from4 to6 changes the source amplitude scale from16 to36, a factor2.25, and also changes the right endpoint value to sin(6). This does not prove which weighting policy will win. Compare every seed, held-out errors and controller clipping; a saturated guard is not a freely adaptive optimum.",
+      "answerZh": "对于 sin(Cx)，两次空间求导会引入负的 C 平方。C 从四改到六，源项幅度尺度由十六变为三十六，即二点二五倍；右端点值也变为 sin(6)。这不能证明哪种权重策略必胜。比较全部种子、独立误差及控制器限幅；饱和的保护器不等于自由自适应最优。",
+      "equation": "\\frac{6^2}{4^2}=\\frac94"
+    }
+  ]
+}

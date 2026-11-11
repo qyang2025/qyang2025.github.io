@@ -43,5 +43,6 @@
       "url": "/courses/pinns-papers/07-wu-2023-sampling/trace.json",
       "text": "Four policies, three paired seeds,32 active residual points,512 fixed candidates,4000 updates. All training fields, failures, selections and candidate-search overhead are retained."
     }
-  ]
+  ],
+  "downloadSha256": "29696c464a7502a5b6d17e3beadebb430e48c9746bb190ed254c5221b3ccb6fd"
 }

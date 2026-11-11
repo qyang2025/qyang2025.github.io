@@ -49,5 +49,6 @@
       "url": "/courses/pinns-papers/02-raissi-2017-part-ii/trace.json",
       "text": "256 scattered observations, residual tests at the same coordinates, four CPU threads, float64, 1299 parameters, network seed 11. Synthetic viscosity 0.05 and time end 0.5. Three actual runs, plus independent analytical-reference and observation-placement checks."
     }
-  ]
+  ],
+  "downloadSha256": "55b17a31465f51df692bd4327dd017c9d93c8b322f5edd57d5b06b1aee88887c"
 }

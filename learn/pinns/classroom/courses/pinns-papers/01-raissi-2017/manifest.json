@@ -49,5 +49,6 @@
       "url": "/courses/pinns-papers/01-raissi-2017/trace.json",
       "text": "Seed 11, float64, four CPU threads, 1297 parameters, 384 collocation points, t in [0,0.2]. Independent Cole-Hopf quadrature and separate validation points. Not an original-paper accuracy reproduction."
     }
-  ]
+  ],
+  "downloadSha256": "ec05f8b9fd8c197987c0a1ff37e814bdfc7a30fca01fdfaf97c86bc02283e917"
 }

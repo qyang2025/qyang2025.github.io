@@ -1,0 +1,14 @@
+{
+  "paper": "05",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "causal-exercise",
+      "questionEn": "Predict gates and errors before increasing frequency",
+      "questionZh": "增加频率之前，先预测门控与误差",
+      "answerEn": "The phase advance grows from6 to8 radians over the unit time interval, while the normalised exact energy remains one. The residual terms contain omega, but parameter-gradient norms also depend on the current network, so there is no universal4/3 gradient ratio. Larger early residuals may close later causal gates more strongly; measure gates, completed updates, full-state errors and energy drift instead of assuming faster or better training.",
+      "answerZh": "单位时间内相位推进从六弧度增至八弧度，而归一化精确能量仍为一。残差项含 omega，但参数梯度范数也依赖当前网络，因此不存在普遍的三分之四梯度比。较大的早期残差可能更强地关闭后期门控；应测量门控、完成更新数、全状态误差和能量漂移，不能假定训练必然更快或更好。",
+      "equation": "u^2+v^2=1"
+    }
+  ]
+}

@@ -43,5 +43,6 @@
       "url": "/courses/pinns-papers/06-yu-2022-gpinn/trace.json",
       "text": "Three paired seeds; PINN16, PINN32, gPINN16 weight0.01 and weight1. Network1273 parameters, 4000 Adam updates, four CPU threads. All fields, slopes and independent residual checks retained."
     }
-  ]
+  ],
+  "downloadSha256": "8384c2f62c685ed2e05e3ce5561e9a5af7d61549ad13e17b9365d6adfe39a68e"
 }

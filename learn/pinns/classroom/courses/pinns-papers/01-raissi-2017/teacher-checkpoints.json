@@ -1,0 +1,14 @@
+{
+  "paper": "01",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "one-change-exercise",
+      "questionEn": "Change one setting and predict the outcome",
+      "questionZh": "只改变一个设置，先预测结果",
+      "answerEn": "A longer window changes the physical field and spreads the same samples across more space-time. Predict possible deterioration, but do not assert monotonic increases of either validation error or residual error. Check actual optimiser budgets, independent field error and residuals. Recheck Cole–Hopf quadrature refinement at the new times before treating that reference as accurate.",
+      "answerZh": "更长时间窗改变物理场，并把相同样本分散到更大的时空范围。可以预测困难增加，但不能断言验证误差或残差必然单调增长。检查实际优化预算、独立场误差和残差。还要在新时间上重新检查 Cole–Hopf 积分加密误差，才能把它当作可靠参考。",
+      "equation": ""
+    }
+  ]
+}
