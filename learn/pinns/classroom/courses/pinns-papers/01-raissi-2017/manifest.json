@@ -1,6 +1,8 @@
 {
   "id": "raissi2017",
   "paper": {
+    "number": 1,
+    "shortTitle": "Raissi 2017 Part I",
     "title": "Raissi, Perdikaris & Karniadakis (2017), Physics Informed Deep Learning, Part I",
     "url": "https://arxiv.org/html/1711.10561v1",
     "year": 2017,

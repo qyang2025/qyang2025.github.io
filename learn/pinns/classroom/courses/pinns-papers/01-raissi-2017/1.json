@@ -2870,8 +2870,8 @@
         },
         {
           "id": "next-paper-b1",
-          "text": "下一篇计划讲述关于微分方程数据驱动发现的第二部分。将复用小型 Burgers 问题，加入未知系数，再研究什么观测能让它们可识别。这是后续计划，不是已经完成的反演实验。",
-          "textEn": "The next planned paper is Part II on data-driven discovery of differential equations. We will reuse a small Burgers problem and add unknown coefficients, then study what observations make them identifiable. It is a planned next lesson, not an already completed inverse experiment.",
+          "text": "下一篇讲述关于微分方程数据驱动发现的第二部分。将复用小型 Burgers 模型，加入未知系数，并检验观测和噪声的作用。打开第二篇课件，就能从求解一个场继续走向识别它的规律。",
+          "textEn": "The next presentation studies Part II on data-driven discovery of differential equations. We will reuse a small Burgers model with unknown coefficients, then test the role of observations and noise. Open Paper 02 to continue from solving a field to identifying its law.",
           "focus": 0,
           "scene": {
             "formula": "",

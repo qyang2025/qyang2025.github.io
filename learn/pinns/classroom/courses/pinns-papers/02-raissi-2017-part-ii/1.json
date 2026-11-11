@@ -1,0 +1,3347 @@
+{
+  "id": "139afec2-2017-4002-8002-000000000002",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-02",
+  "chapterIndex": 0,
+  "title": "论文 02：Raissi 2017 Part II · Burgers 系数识别",
+  "titleEn": "Paper 02: Raissi 2017 Part II · Identify Burgers coefficients",
+  "summary": "由观测同时识别输运与扩散系数。含干净数据、噪声、无物理项对照和可识别性。",
+  "summaryEn": "Joint identification of transport and diffusion coefficients, with clean/noisy observations, a data-only control and an identifiability check.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "raissi2017-ii",
+      "name": "Raissi, Perdikaris & Karniadakis (2017), Physics Informed Deep Learning, Part II",
+      "url": "https://arxiv.org/html/1711.10566v1",
+      "text": "Primary paper: section 2.1, equations 3–5. Joint Burgers coefficient identification uses the same coordinates for observations and residual tests. Other PDEs and discrete-time discovery are outside this lesson."
+    },
+    {
+      "id": "author-exposition",
+      "name": "Authors’ explanation of physics-informed solutions and discovery",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Author overview and original code links. This is an independent small PyTorch adaptation, not the full original benchmark."
+    },
+    {
+      "id": "torch-parameter",
+      "name": "PyTorch Parameter registration and differentiation",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html",
+      "text": "Official trainable-parameter registration documentation; the implementation registers two coefficient variables with the network."
+    },
+    {
+      "id": "inverse-local-run",
+      "name": "Executed CPU identification, controls and reference checks",
+      "url": "/courses/pinns-papers/02-raissi-2017-part-ii/trace.json",
+      "text": "256 scattered observations, residual tests at the same coordinates, four CPU threads, float64, 1299 parameters, network seed 11. Synthetic viscosity 0.05 and time end 0.5. Three actual runs, plus independent analytical-reference and observation-placement checks."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "反问题与观测",
+      "titleEn": "Inverse question"
+    },
+    {
+      "slide": 6,
+      "title": "联合目标与代码",
+      "titleEn": "Joint objective"
+    },
+    {
+      "slide": 14,
+      "title": "识别证据与边界",
+      "titleEn": "Identification evidence"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "从观测识别 Burgers 方程系数",
+      "titleEn": "Identify Burgers coefficients from observations",
+      "eyebrow": "PINNs 论文 02 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 02 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把观测、联合训练与识别证据连起来"
+      ],
+      "bulletsEn": [
+        "Connect observations, joint training and identification evidence"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "反问题与观测",
+            "labelEn": "Inverse question",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "联合目标与代码",
+            "labelEn": "Joint objective",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "系数与可识别性",
+            "labelEn": "Identification evidence",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "构造方法",
+            "labelEn": "Build the method"
+          },
+          {
+            "label": "独立检验",
+            "labelEn": "Test independently"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "第一篇把已知系数的 Burgers 方程写成了 PINN，现在我们用第二部分论文识别未知系数。先问观测提供了什么，再把场和系数连入同一个训练目标。最后检查真实参数轨迹、噪声对照和传感器位置，判断识别结果是否有依据。",
+          "textEn": "Part I turned a Burgers equation with known coefficients into a PINN, so today we use Part II to identify unknown coefficients. First we will ask what information observations provide, then connect the field and coefficients through one training objective. Finally, we will inspect actual parameter trajectories, a noise comparison and sensor placement to judge the evidence for identification.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "inverse-question",
+      "title": "从求解一个场转向识别一条规律",
+      "titleEn": "From predicting a field to identifying its law",
+      "eyebrow": "论文 02 / 2",
+      "eyebrowEn": "PAPER 02 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从求解一个场转向识别一条规律"
+      ],
+      "bulletsEn": [
+        "From predicting a field to identifying its law"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "已知系数",
+            "labelEn": "Known coefficients",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "未知系数",
+            "labelEn": "Unknown coefficients",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "inverse-question-b0",
+          "text": "第一篇在系数已知时预测了一个场，但如果系数未知，该怎么办？在正问题中，已知系数帮助确定场。反问题从观测场值出发，追问哪些系数能解释这些观测的演化。",
+          "textEn": "Part I gave us a field prediction when the equation coefficients were known, so the next unresolved question is what to do when they are not. In a forward problem, known coefficients help determine the field. An inverse problem starts with observed field values and asks which coefficients explain their evolution.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "inverse-question-b1",
+          "text": "第二个框改变的是科学问题，而不是简单增大网络。第二部分让方程系数和网络一起参与训练。本课将检查这种依赖关系，运行小型 Burgers 实验，并检验观测究竟能识别什么。",
+          "textEn": "The second box changes the scientific question rather than simply increasing network size. Part II makes the coefficients trainable alongside the network. Today we will inspect that dependency, run a small Burgers experiment and test what the observations can actually identify.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "inverse-physical",
+      "title": "先看观测到的物理演化",
+      "titleEn": "Start from the observed physical evolution",
+      "eyebrow": "论文 02 / 3",
+      "eyebrowEn": "PAPER 02 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看观测到的物理演化"
+      ],
+      "bulletsEn": [
+        "Start from the observed physical evolution"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "inverse-physical-b0",
+          "text": "要从数据识别规律，先看清数据描述的物理过程。横轴 x 是位置，纵轴 u 是无量纲的类速度场，t 表示时间。蓝色虚线给出初始轮廓，金色曲线表示演化后的形状。",
+          "textEn": "To identify a law from data, first picture the phenomenon that the data describe. Position x is horizontal, the dimensionless velocity-like field u is vertical, and t denotes time. The cyan dashed curve is the starting profile, while the gold curve shows its evolving shape.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "inverse-physical-b1",
+          "text": "非线性输运使轮廓趋于变陡，正的扩散则使它平滑。同一个初始形状，在不同平衡下会产生不同演化。反问题要从观测推断这种平衡，而不是预先把答案告诉优化器。",
+          "textEn": "Nonlinear transport tends to steepen the profile while positive diffusion smooths it. Different balances can produce different histories even from the same starting shape. The inverse task is to infer that balance from observations, not to tell the optimiser the answer in advance.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "physical",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "observed-values",
+      "title": "我们到底向模型提供什么？",
+      "titleEn": "What information do we actually give the model?",
+      "eyebrow": "论文 02 / 4",
+      "eyebrowEn": "PAPER 02 / 4",
+      "visual": "steps",
+      "formula": "y_i=u(x_i,t_i)+\\epsilon_i",
+      "formulaEn": "y_i=u(x_i,t_i)+\\epsilon_i",
+      "bullets": [
+        "我们到底向模型提供什么？"
+      ],
+      "bulletsEn": [
+        "What information do we actually give the model?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "observed-values-b0",
+          "text": "连续场并不是实验直接给模型的东西，因此现在明确实际输入。每个点表示一个观测位置 x 和时间 t，y i 是该点测得的场值。金色表示正值，蓝色表示负值，并不表示测量质量。",
+          "textEn": "The evolving field is continuous, but an experiment supplies samples, so we now describe the actual input data. Each dot marks an observed position x and time t, and y i denotes its measured field value. Gold marks positive field values and cyan marks negative values, not measurement quality.",
+          "focus": 0,
+          "scene": {
+            "formula": "y_i=u(x_i,t_i)+\\epsilon_i",
+            "formulaEn": "y_i=u(x_i,t_i)+\\epsilon_i",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "observed-values-b1",
+          "text": "i 是观测点编号，epsilon i 表示附加的测量误差。干净数据将误差设为零，噪声数据加入高斯噪声，其标准差为干净观测标准差的百分之一。图中位置就是已保存实验实际使用的二百五十六个训练坐标。",
+          "textEn": "The symbol i indexes an observation, and epsilon i is its additive measurement error. Our clean case sets that error to zero, and our noisy case adds Gaussian noise with standard deviation one percent of the clean observation standard deviation. The plotted locations are the actual two hundred fifty-six training coordinates used in the saved experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "inverse-observations",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "unknown-law",
+      "title": "哪些系数需要识别？",
+      "titleEn": "Which coefficients are unknown?",
+      "eyebrow": "论文 02 / 5",
+      "eyebrowEn": "PAPER 02 / 5",
+      "visual": "steps",
+      "formula": "u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}=0",
+      "formulaEn": "u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}=0",
+      "bullets": [
+        "哪些系数需要识别？"
+      ],
+      "bulletsEn": [
+        "Which coefficients are unknown?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "unknown-law-b0",
+          "text": "观测提供了场值，但还需要描述这些值怎样演化。下标 t、x 和两个 x 分别表示时间变化、空间斜率和空间曲率。lambda 一乘在非线性输运项上，lambda 二乘在扩散项上。",
+          "textEn": "Measurements give field values, so we still need a model of how those values evolve. The subscripts t, x and double x mean time change, spatial slope and spatial curvature. Lambda one multiplies nonlinear transport, while lambda two multiplies diffusion.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}=0",
+            "formulaEn": "u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "unknown-law-b1",
+          "text": "在本无量纲教学问题中，两者都是未知标量，同时假设扩散为正。负号来自把扩散项移到平衡方程左侧。动画轮廓和公式描述的是同一个演化场，不是两个独立模型。",
+          "textEn": "In this dimensionless teaching problem both coefficients are unknown scalars, and diffusion is assumed positive. The negative sign comes from moving diffusion to the left side of the balance law. The animated profile and the equation describe the same evolving field, not two independent models.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "physical",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "two-parameter-groups",
+      "title": "网络参数和物理系数分开承担什么？",
+      "titleEn": "What do network weights and physical coefficients do?",
+      "eyebrow": "论文 02 / 6",
+      "eyebrowEn": "PAPER 02 / 6",
+      "visual": "steps",
+      "formula": "u_\\theta(x,t),\\qquad\\lambda=(\\lambda_1,\\lambda_2)",
+      "formulaEn": "u_\\theta(x,t),\\qquad\\lambda=(\\lambda_1,\\lambda_2)",
+      "bullets": [
+        "网络参数和物理系数分开承担什么？"
+      ],
+      "bulletsEn": [
+        "What do network weights and physical coefficients do?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "网络参数 $\\theta$",
+            "labelEn": "Network weights $\\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "物理系数 $\\lambda$",
+            "labelEn": "Physical coefficients $\\lambda$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "two-parameter-groups-b0",
+          "text": "未知方程引入了第二类可训练量，因此先区分各自作用。theta 是网络权重和偏置组成的向量，用来塑造光滑场预测 u theta。它不是一个物理系数。",
+          "textEn": "The unknown equation introduces a second group of trainable quantities, so we should separate their roles. Theta is the vector of network weights and biases, which shapes a smooth field prediction u theta. It is not a single physical coefficient.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta(x,t),\\qquad\\lambda=(\\lambda_1,\\lambda_2)",
+            "formulaEn": "u_\\theta(x,t),\\qquad\\lambda=(\\lambda_1,\\lambda_2)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "two-parameter-groups-b1",
+          "text": "lambda 是这个模型在所有坐标上共享的一对物理系数。改变 theta 可以改变整个预测函数，改变 lambda 则改变这些导数应满足的平衡。联合训练要找到相互兼容的场和系数。",
+          "textEn": "Lambda is the pair of physical coefficients shared by every coordinate in this model. Changing theta can change the whole predicted function, while changing lambda changes how its derivatives must balance. Joint training must therefore find a compatible field and coefficient pair.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "inverse-residual",
+      "title": "怎样把候选系数放入物理检验？",
+      "titleEn": "How do candidate coefficients enter the physics test?",
+      "eyebrow": "论文 02 / 7",
+      "eyebrowEn": "PAPER 02 / 7",
+      "visual": "steps",
+      "formula": "f_{\\theta,\\lambda}=u_{\\theta,t}+\\lambda_1u_\\theta u_{\\theta,x}-\\lambda_2u_{\\theta,xx}",
+      "formulaEn": "f_{\\theta,\\lambda}=u_{\\theta,t}+\\lambda_1u_\\theta u_{\\theta,x}-\\lambda_2u_{\\theta,xx}",
+      "bullets": [
+        "怎样把候选系数放入物理检验？"
+      ],
+      "bulletsEn": [
+        "How do candidate coefficients enter the physics test?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "场与坐标导数",
+            "labelEn": "Field and coordinate derivatives",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "候选物理平衡",
+            "labelEn": "Candidate physical balance",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "inverse-residual-b0",
+          "text": "只有在计算上把两类量连起来，这种区分才有用，因此现在构造残差。自动微分给出同一光滑网络的坐标导数。把这些导数与候选 lambda 值组合，就得到局部方程失配 f。",
+          "textEn": "Separating the roles is useful only if we connect them computationally, so now we form the residual. Automatic differentiation supplies coordinate derivatives of the same smooth network. We combine those derivatives with candidate lambda values to obtain f, the local equation mismatch.",
+          "focus": 0,
+          "scene": {
+            "formula": "f_{\\theta,\\lambda}=u_{\\theta,t}+\\lambda_1u_\\theta u_{\\theta,x}-\\lambda_2u_{\\theta,xx}",
+            "formulaEn": "f_{\\theta,\\lambda}=u_{\\theta,t}+\\lambda_1u_\\theta u_{\\theta,x}-\\lambda_2u_{\\theta,xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "inverse-residual-b1",
+          "text": "第二个框表示某个坐标上的候选平衡。它同时依赖 theta 和 lambda，所以残差损失能把梯度传到两类量。残差小本身仍不能说明预测场符合观测。",
+          "textEn": "The second box is that candidate balance at one coordinate. Its value depends on both theta and lambda, so a residual loss can send gradients into both groups. A small residual by itself still cannot tell us whether the predicted field matches the observations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "observation-loss",
+      "title": "先要求网络解释观测",
+      "titleEn": "First require the field to explain the observations",
+      "eyebrow": "论文 02 / 8",
+      "eyebrowEn": "PAPER 02 / 8",
+      "visual": "steps",
+      "formula": "\\mathcal L_u=\\frac1N\\sum_{i=1}^{N}\\left|u_\\theta(x_i,t_i)-y_i\\right|^2",
+      "formulaEn": "\\mathcal L_u=\\frac1N\\sum_{i=1}^{N}\\left|u_\\theta(x_i,t_i)-y_i\\right|^2",
+      "bullets": [
+        "先要求网络解释观测"
+      ],
+      "bulletsEn": [
+        "First require the field to explain the observations"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "预测减观测",
+            "labelEn": "Prediction minus observation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "平均平方误差",
+            "labelEn": "Mean squared error",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "平方并平均",
+            "labelEn": "Square and average"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "observation-loss-b0",
+          "text": "物理检验需要观测作为锚点，因此先计算场值失配。N 是观测总数，i 选取其中一个坐标对及测量值。用该位置、该时间的网络预测减去 y i。",
+          "textEn": "The physical test needs an observational anchor, so we first measure field mismatch. N is the number of observations, and i selects one coordinate pair and its measured value. Subtract y i from the network prediction at that same position and time.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_u=\\frac1N\\sum_{i=1}^{N}\\left|u_\\theta(x_i,t_i)-y_i\\right|^2",
+            "formulaEn": "\\mathcal L_u=\\frac1N\\sum_{i=1}^{N}\\left|u_\\theta(x_i,t_i)-y_i\\right|^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "observation-loss-b1",
+          "text": "将差平方，并对 N 个样本取平均，就得到 L u。这一项直接约束 theta，因为场网络是 u theta。在这个结构下，它没有直接使用 lambda，这一点会在对照实验中变得很重要。",
+          "textEn": "Square the difference and average over the N samples to obtain L u. This term directly constrains theta, because the field network is u theta. With this architecture it does not directly use lambda, a distinction that will matter in our control experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "same-coordinate-loss",
+      "title": "在哪里检验方程？",
+      "titleEn": "Where do we test the equation?",
+      "eyebrow": "论文 02 / 9",
+      "eyebrowEn": "PAPER 02 / 9",
+      "visual": "steps",
+      "formula": "\\mathcal L_f=\\frac1N\\sum_{i=1}^{N}\\left|f_{\\theta,\\lambda}(x_i,t_i)\\right|^2",
+      "formulaEn": "\\mathcal L_f=\\frac1N\\sum_{i=1}^{N}\\left|f_{\\theta,\\lambda}(x_i,t_i)\\right|^2",
+      "bullets": [
+        "在哪里检验方程？"
+      ],
+      "bulletsEn": [
+        "Where do we test the equation?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "观测坐标",
+            "labelEn": "Observation coordinates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "同位置的残差",
+            "labelEn": "Residuals at the same locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "same-coordinate-loss-b0",
+          "text": "场值损失锚定了数值，但反问题还需要方程检验。在第二部分的 Burgers 算例中，残差就在观测坐标上计算。本实现不会悄悄增加另一组独立配点。",
+          "textEn": "The field loss anchors values, but the inverse formulation still needs equation tests. In this Burgers example from Part II, the residual is evaluated at the same coordinates as the observations. We do not silently add a second set of independent collocation points.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_f=\\frac1N\\sum_{i=1}^{N}\\left|f_{\\theta,\\lambda}(x_i,t_i)\\right|^2",
+            "formulaEn": "\\mathcal L_f=\\frac1N\\sum_{i=1}^{N}\\left|f_{\\theta,\\lambda}(x_i,t_i)\\right|^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "same-coordinate-loss-b1",
+          "text": "把这些残差平方后取平均，就得到 L f。观测值用于数据项，观测坐标则被物理项再次使用。本实现沿用这种安排，使用二百五十六个观测和同位置的二百五十六次方程检验。",
+          "textEn": "Square those residuals and average them to obtain L f. The observed values are used by the data term, while their coordinates are reused by the physics term. Our implementation follows that arrangement with two hundred fifty-six observations and two hundred fifty-six co-located equation tests.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "joint-loss",
+      "title": "怎样同时更新两类未知量？",
+      "titleEn": "How do we update both groups of unknowns?",
+      "eyebrow": "论文 02 / 10",
+      "eyebrowEn": "PAPER 02 / 10",
+      "visual": "steps",
+      "formula": "\\min_{\\theta,\\lambda}\\;\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta,\\lambda)",
+      "formulaEn": "\\min_{\\theta,\\lambda}\\;\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta,\\lambda)",
+      "bullets": [
+        "怎样同时更新两类未知量？"
+      ],
+      "bulletsEn": [
+        "How do we update both groups of unknowns?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "解释数据",
+            "labelEn": "Explain the data",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "满足物理",
+            "labelEn": "Respect the physics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "joint-loss-b0",
+          "text": "现在已有两个相互关联的检验，所以联合训练对 theta 和 lambda 最小化两项损失之和。数据项抵制不符合测量的场预测。物理项抵制不符合候选方程的导数平衡。",
+          "textEn": "We now have two connected tests, so joint training minimises their sum over theta and lambda. The data term resists field predictions that disagree with measurements. The physical term resists derivative balances that disagree with the candidate equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\min_{\\theta,\\lambda}\\;\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta,\\lambda)",
+            "formulaEn": "\\min_{\\theta,\\lambda}\\;\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta,\\lambda)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "joint-loss-b1",
+          "text": "两项都更新网络，而物理项还更新系数。即使固定场时系数在线性形式中出现，整体仍是耦合的非线性优化问题。总损失小或数据误差小，都不能保证系数估计正确。",
+          "textEn": "Both terms update the network, while the physical term also updates the coefficients. This is a coupled nonlinear optimisation problem, even though the coefficients appear linearly when the field is fixed. Neither a low total loss nor a small data error guarantees correct coefficient estimates.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "positive-diffusion",
+      "title": "怎样保证扩散系数为正？",
+      "titleEn": "How do we keep diffusion positive?",
+      "eyebrow": "论文 02 / 11",
+      "eyebrowEn": "PAPER 02 / 11",
+      "visual": "steps",
+      "formula": "\\lambda_2=\\operatorname{softplus}(\\beta)=\\log(1+e^\\beta)",
+      "formulaEn": "\\lambda_2=\\operatorname{softplus}(\\beta)=\\log(1+e^\\beta)",
+      "bullets": [
+        "怎样保证扩散系数为正？"
+      ],
+      "bulletsEn": [
+        "How do we keep diffusion positive?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "无约束变量 $\\beta$",
+            "labelEn": "Unconstrained variable $\\beta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "正扩散系数",
+            "labelEn": "Positive diffusion coefficient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "positive-diffusion-b0",
+          "text": "联合训练可能把系数改到不合理的方向，因此显式加入已知的物理限制。beta 是一个无约束标量，softplus 函数把它光滑地映射为正的 lambda 二。公式就是一加 beta 的指数，再取对数。",
+          "textEn": "Joint training can change a coefficient in the wrong direction, so we encode a known physical restriction. Beta is an unconstrained scalar, and the softplus function maps it smoothly to a positive lambda two. The formula is the logarithm of one plus the exponential of beta.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\lambda_2=\\operatorname{softplus}(\\beta)=\\log(1+e^\\beta)",
+            "formulaEn": "\\lambda_2=\\operatorname{softplus}(\\beta)=\\log(1+e^\\beta)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "positive-diffusion-b1",
+          "text": "优化器更新 beta，而不是每步之后截断 lambda 二。正性假设是明确说明的教学实现选择，不是提前知道真值。lambda 一保持无约束，系数大小仍必须由观测决定。",
+          "textEn": "The optimiser updates beta rather than clipping lambda two after each step. This positivity assumption is an explicit teaching implementation choice, not knowledge of the true value. Lambda one remains unconstrained, and the observations must determine the coefficient magnitudes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "registered-coefficients",
+      "title": "代码里最容易漏掉哪一步？",
+      "titleEn": "Which coding step is easy to miss?",
+      "eyebrow": "论文 02 / 12",
+      "eyebrowEn": "PAPER 02 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "代码里最容易漏掉哪一步？"
+      ],
+      "bulletsEn": [
+        "Which coding step is easy to miss?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "registered-coefficients-b0",
+          "text": "数学变量已定义，现在必须把它们真正交给优化器。把 nn Parameter 放在模型属性上，就会将其注册为可训练参数。这里 lambda 一从零点五开始，beta 零则选为使 softplus 的初值等于零点一。",
+          "textEn": "The mathematical variables are now defined, so we must make them real optimiser variables. Assigning an nn Parameter to the model registers it as trainable. Here lambda one starts at zero point five, while beta zero is chosen so that softplus initially gives zero point one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "registered-coefficients-b1",
+          "text": "调用 model parameters 会把网络权重与两个系数变量一起交给 Adam。忘记注册系数，或者只传入内部网络参数，都会妨碍预期更新。下载程序检查了物理损失确实产生非零系数梯度。",
+          "textEn": "Calling model parameters gives Adam the network weights and both coefficient variables together. Forgetting coefficient registration, or passing only the inner network parameters, prevents their intended updates. The downloadable program checks that the physical loss produces nonzero coefficient gradients.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "inverse-code",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "residual-code",
+      "title": "怎样在代码中保留这条梯度路径？",
+      "titleEn": "How does the code preserve the gradient path?",
+      "eyebrow": "论文 02 / 13",
+      "eyebrowEn": "PAPER 02 / 13",
+      "visual": "steps",
+      "formula": "f=u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}",
+      "formulaEn": "f=u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}",
+      "bullets": [
+        "怎样在代码中保留这条梯度路径？"
+      ],
+      "bulletsEn": [
+        "How does the code preserve the gradient path?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "residual-code-b0",
+          "text": "注册参数还不够，因此现在检查损失怎样使用它们。坐标批次 q 按 x、t 排列，求导函数依次返回场值、时间导数、空间斜率和曲率。它使用开启 create graph 的自动微分，让参数梯度能够穿过这些导数。",
+          "textEn": "Registration is necessary but not sufficient, so we now inspect how the loss uses those parameters. The coordinate batch q is ordered as x then t, and the derivative helper returns the field, time derivative, spatial slope and curvature. It uses automatic differentiation with create graph so parameter gradients can pass through the derivatives.",
+          "focus": 0,
+          "scene": {
+            "formula": "f=u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}",
+            "formulaEn": "f=u_t+\\lambda_1u\\,u_x-\\lambda_2u_{xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "residual-code-b1",
+          "text": "残差将这些输出与模型中的 lambda 一和 lambda 二相组合。然后在同一批坐标上，将观测失配与残差均方相加。下载包里的完整求导函数还包含屏幕简写所省略的梯度输出参数。",
+          "textEn": "The residual combines those outputs with model lambda one and model lambda two. The loss then adds observation mismatch and mean squared residual at the same coordinates. The full helper in the download includes the gradient-output arguments omitted by this short display.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "inverse-loss-code",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "data-only-dependency",
+      "title": "去掉物理项，系数还会动吗？",
+      "titleEn": "Do coefficients move if the physics term is removed?",
+      "eyebrow": "论文 02 / 14",
+      "eyebrowEn": "PAPER 02 / 14",
+      "visual": "steps",
+      "formula": "\\frac{\\partial\\mathcal L_u}{\\partial\\lambda}=0",
+      "formulaEn": "\\frac{\\partial\\mathcal L_u}{\\partial\\lambda}=0",
+      "bullets": [
+        "去掉物理项，系数还会动吗？"
+      ],
+      "bulletsEn": [
+        "Do coefficients move if the physics term is removed?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "只拟合场值",
+            "labelEn": "Fit field values only",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "系数未被使用",
+            "labelEn": "Coefficients are unused",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "data-only-dependency-b0",
+          "text": "代码给出了一个很清楚的对照：只移除物理项。在当前结构中，数据损失包含 theta，却从未使用 lambda。因此对系数变量的偏导数为零，自动微分会报告这些梯度未被使用。",
+          "textEn": "The code reveals a precise control experiment: remove only the physical term. In this architecture the data loss contains theta but never uses lambda. Its partial derivative with respect to the coefficient variables is therefore zero, and autograd reports unused gradients.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\frac{\\partial\\mathcal L_u}{\\partial\\lambda}=0",
+            "formulaEn": "\\frac{\\partial\\mathcal L_u}{\\partial\\lambda}=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "data-only-dependency-b1",
+          "text": "已记录的对照把系数留在 0.5 和 0.1。另一种方法可以先拟合导数再回归系数，但那不是这里这个纯数据目标。这个对照检验的是实际实现中的梯度依赖，而不是否定所有数据驱动识别方法。",
+          "textEn": "The recorded control leaves the coefficients at 0.5 and 0.1. A different method could fit derivatives and then regress coefficients, but that is not this particular data-only objective. This control tests the implemented gradient dependency, not every possible data-driven identification method.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "inverse-cpu-protocol",
+      "title": "为了本机运行，哪些条件改变了？",
+      "titleEn": "What changes to fit this experiment on a CPU?",
+      "eyebrow": "论文 02 / 15",
+      "eyebrowEn": "PAPER 02 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为了本机运行，哪些条件改变了？"
+      ],
+      "bulletsEn": [
+        "What changes to fit this experiment on a CPU?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "原论文基准",
+            "labelEn": "Original benchmark",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本机教学实验",
+            "labelEn": "Local CPU experiment",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "inverse-cpu-protocol-b0",
+          "text": "目标已指定，但只有说明资源和问题设置，结果才有意义。原论文基准使用两千个散布观测，黏性更小，等于零点零一除以圆周率。这里不声称复现它报告的精度。",
+          "textEn": "The objective is specified, but a result is meaningful only with its resource and problem settings. The paper benchmark uses two thousand scattered observations and a smaller viscosity, zero point zero one divided by pi. We do not claim to reproduce its reported accuracy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "inverse-cpu-protocol-b1",
+          "text": "教学真值为 lambda 一等于一、lambda 二等于零点零五，时间终点为零点五。我们使用二百五十六个观测，在四个 CPU 线程上训练 1299 个参数。较高黏性使例子更光滑，每次训练各有九十秒上限。",
+          "textEn": "Our teaching truth is lambda one equal to one and lambda two equal to zero point zero five, with time ending at zero point five. We use two hundred fifty-six observations and 1299 total trainable parameters on four CPU threads. Higher viscosity keeps the example smoother, and a ninety-second training cap applies separately to each run.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "inverse-field-fit",
+      "title": "场拟合得好，是否就识别对了？",
+      "titleEn": "Does an accurate field imply correct coefficients?",
+      "eyebrow": "论文 02 / 16",
+      "eyebrowEn": "PAPER 02 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "场拟合得好，是否就识别对了？"
+      ],
+      "bulletsEn": [
+        "Does an accurate field imply correct coefficients?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "inverse-field-fit-b0",
+          "text": "协议已说明，现在先检查真实记录的场，再决定是否相信系数。横轴是 x，纵轴是终止时刻的 u。蓝色是独立参考解，金色回放联合训练的 PINN，粉色是纯数据模型的最终场。",
+          "textEn": "With the protocol clear, we can look at the actual recorded fields before trusting any coefficient. The horizontal axis is x and the vertical axis is u at the final time. Cyan is the independent reference, gold is the jointly trained PINN replay and pink is the final data-only field.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "inverse-field-fit-b1",
+          "text": "干净数据 PINN 的相对场误差为百分之 0.51，纯数据对照为百分之 0.52。二者都能较好地拟合这个观测充分的场，但对照的系数仍然错误。屏幕误差在独立的完整时空网格上计算，不只是图中终止时刻的切片。",
+          "textEn": "The clean PINN has 0.51 percent relative field error, and the data-only control has 0.52 percent. Both can fit this well-observed field closely, yet the control still has the wrong coefficients. The displayed error uses a separate full space-time grid, not only this final-time slice.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "comparison",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "lambda-one-history",
+      "title": "输运系数怎样被识别出来？",
+      "titleEn": "How is the transport coefficient identified?",
+      "eyebrow": "论文 02 / 17",
+      "eyebrowEn": "PAPER 02 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "输运系数怎样被识别出来？"
+      ],
+      "bulletsEn": [
+        "How is the transport coefficient identified?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "lambda-one-history-b0",
+          "text": "场比较说明，必须直接检查系数的学习过程。纵轴是 lambda 一，横轴按保存的检查点排序，并不表示运行时间。蓝色是干净数据，金色是百分之一噪声数据，虚线是真值一。",
+          "textEn": "The field comparison shows why we must inspect coefficient learning directly. This vertical axis is lambda one, and the horizontal axis orders saved checkpoints rather than elapsed time. Cyan shows the clean run, gold shows the one-percent-noise run and the dashed line is the synthetic truth of one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "lambda-one-history-b1",
+          "text": "两条曲线都从零点五开始，最终接近参考线。干净数据的最终估计是 0.99136，噪声数据是 0.98336。这是两条实际记录的优化路径，不是不确定性区间，也不是多种子性能研究。",
+          "textEn": "Both curves start from zero point five and finish near the reference line. The final clean estimate is 0.99136, and the noisy estimate is 0.98336. These are two actual recorded optimisation paths, not an uncertainty band or a many-seed performance study.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "inverse-a",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "lambda-two-history",
+      "title": "扩散系数也能被识别吗？",
+      "titleEn": "Can we identify the diffusion coefficient too?",
+      "eyebrow": "论文 02 / 18",
+      "eyebrowEn": "PAPER 02 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "扩散系数也能被识别吗？"
+      ],
+      "bulletsEn": [
+        "Can we identify the diffusion coefficient too?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "lambda-two-history-b0",
+          "text": "输运只是平衡的一部分，所以现在单独检查 lambda 二。坐标轴和颜色含义与上一页相同，但纵轴现在表示扩散。虚线真值为零点零五，两次运行都从零点一开始。",
+          "textEn": "Transport is only one part of the balance, so we now inspect lambda two on its own scale. The axes and colours have the same meanings as before, but the vertical axis now measures diffusion. The dashed truth is zero point zero five, while both runs begin at zero point one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "lambda-two-history-b1",
+          "text": "干净数据的最终估计为 0.049467，噪声数据为 0.049225。仅凭一幅光滑的场图，不能确立这些值。必须把实际估计与合成真值比较，再问观测设计是否支持这样的识别。",
+          "textEn": "The clean run finishes at 0.049467, and the noisy run at 0.049225. A smooth-looking field alone would not establish these values. We must compare the actual estimates with known synthetic truth and later ask whether the observation design supports such identification.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "inverse-b",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "noise-effect",
+      "title": "百分之一噪声改变了多少？",
+      "titleEn": "How much did one-percent noise change the estimates?",
+      "eyebrow": "论文 02 / 19",
+      "eyebrowEn": "PAPER 02 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "百分之一噪声改变了多少？"
+      ],
+      "bulletsEn": [
+        "How much did one-percent noise change the estimates?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "干净观测",
+            "labelEn": "Clean observations",
+            "detail": "$(0.9914,0.04947)$",
+            "detailEn": "$(0.9914,0.04947)$",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "百分之一噪声",
+            "labelEn": "One-percent noise",
+            "detail": "$(0.9834,0.04923)$",
+            "detailEn": "$(0.9834,0.04923)$",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "noise-effect-b0",
+          "text": "两条轨迹提示了噪声影响，因此现在直接比较最终估计。每一对数都先列 lambda 一，再列 lambda 二。干净数据的两个系数误差分别是百分之 0.86 和 1.07。",
+          "textEn": "The two trajectories suggest a noise effect, so let us compare their final estimates explicitly. Each pair lists lambda one first and lambda two second. The clean run has coefficient errors of 0.86 and 1.07 percent respectively.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "noise-effect-b1",
+          "text": "按前面明确的噪声定义，噪声数据的误差分别为百分之 1.66 和 1.55。本次扰动带来有限变化，但不能证明对其他噪声水平和传感器布置都稳健。要估计波动范围，还需要重复噪声实现。",
+          "textEn": "The noisy run has errors of 1.66 and 1.55 percent under the stated noise definition. This one perturbation changes the estimates modestly, but does not prove robustness for other noise levels or sensor patterns. Repeated noise realisations would be needed to estimate variability.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "inverse-validation",
+      "title": "怎样检验系数，而不仅仅看损失？",
+      "titleEn": "How do we validate coefficients beyond the training loss?",
+      "eyebrow": "论文 02 / 20",
+      "eyebrowEn": "PAPER 02 / 20",
+      "visual": "steps",
+      "formula": "E_j=100\\,\\frac{|\\widehat\\lambda_j-\\lambda_j^\\star|}{|\\lambda_j^\\star|}",
+      "formulaEn": "E_j=100\\,\\frac{|\\widehat\\lambda_j-\\lambda_j^\\star|}{|\\lambda_j^\\star|}",
+      "bullets": [
+        "怎样检验系数，而不仅仅看损失？"
+      ],
+      "bulletsEn": [
+        "How do we validate coefficients beyond the training loss?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "参数真值",
+            "labelEn": "Parameter truth",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "独立场与残差",
+            "labelEn": "Independent field and residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "inverse-validation-b0",
+          "text": "噪声比较使用了误差，因此需要明确检验了什么。公式中的 j 选择第一个或第二个系数，帽号表示估计，星号表示合成真值。E j 是拟合之后才计算的百分比相对误差。",
+          "textEn": "The noise comparison uses errors, so we should define what was checked. In this formula j selects coefficient one or two, the hat marks an estimate and the star marks synthetic truth. E j is its percentage relative error, evaluated only after fitting.",
+          "focus": 0,
+          "scene": {
+            "formula": "E_j=100\\,\\frac{|\\widehat\\lambda_j-\\lambda_j^\\star|}{|\\lambda_j^\\star|}",
+            "formulaEn": "E_j=100\\,\\frac{|\\widehat\\lambda_j-\\lambda_j^\\star|}{|\\lambda_j^\\star|}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "inverse-validation-b1",
+          "text": "优化器拿到的是观测和候选残差，不是真实系数或参考导数。我们还在独立的八十一乘二十一网格上计算场误差，在五百一十二个新坐标上计算残差误差。另外通过加密 Cole-Hopf 求积和导数检验检查实现正确性，但不会把答案送进训练。",
+          "textEn": "The optimiser receives observations and candidate residuals, not the true coefficients or reference derivatives. We also evaluate field error on an independent eighty-one by twenty-one grid and residual error at five hundred twelve new coordinates. Separate reference checks refine the Cole-Hopf quadrature and verify the derivative implementation without feeding those answers into training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sensor-identifiability",
+      "title": "如果传感器一直读零呢？",
+      "titleEn": "What if the sensor always reads zero?",
+      "eyebrow": "论文 02 / 21",
+      "eyebrowEn": "PAPER 02 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "如果传感器一直读零呢？"
+      ],
+      "bulletsEn": [
+        "What if the sensor always reads zero?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sensor-identifiability-b0",
+          "text": "一次成功的合成拟合，不保证任何传感器布局都包含所需信息。这三条曲线来自三组不同系数，但使用相同的奇对称初值和对称区域。白色传感器位于中心，也就是 x 等于零，三种场在那里始终为零。",
+          "textEn": "A successful synthetic fit does not guarantee that every sensor layout contains the needed information. These three curves come from three different coefficient pairs but the same odd starting profile and symmetric domain. The white sensor sits at the centre, x equal to zero, where all three fields remain zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sensor-identifiability-b1",
+          "text": "因此，只在这个位置测量，会为不同物理系数记录同样的历史。仅凭这些读数，任何优化器都无法区分这些候选情况。实验需要具有信息的时空变化，而不是单纯增加迭代次数。",
+          "textEn": "A sensor only at that location therefore records the same history for different physical coefficients. No optimiser can distinguish those alternatives from those readings alone. The experiment needs observations with informative spatial and temporal variation, rather than simply more iterations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "inverse-identifiability",
+      "paperTrace": "paper02"
+    },
+    {
+      "id": "inverse-limits",
+      "title": "这次成功不能推出什么？",
+      "titleEn": "What does this successful run not prove?",
+      "eyebrow": "论文 02 / 22",
+      "eyebrowEn": "PAPER 02 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这次成功不能推出什么？"
+      ],
+      "bulletsEn": [
+        "What does this successful run not prove?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "本次教学证据",
+            "labelEn": "This teaching evidence",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "尚未检验的范围",
+            "labelEn": "Untested conditions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "inverse-limits-b0",
+          "text": "除了观测设计的限制，本实验还有其他边界。它使用合成散布数据、较光滑的黏性和较短时间区间。没有复现原文小黏性基准、原文精度或其他方程算例。",
+          "textEn": "Observation design limits what can be inferred, and our experiment has further limits too. It uses synthetic scattered data, a smoother viscosity and a short time window. We did not reproduce the original low-viscosity benchmark, its reported precision or its other PDE examples.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "inverse-limits-b1",
+          "text": "本机干净数据和噪声运行分别用时 16.6 和 15.0 秒，对照用时 4.4 秒。三者计算代价不同，单个种子不能支持普遍的速度或精度排名。未知模型项、有偏传感器和不确定性校准仍是另外的研究问题。",
+          "textEn": "The clean and noisy runs took 16.6 and 15.0 seconds on this computer, while the control took 4.4 seconds. Their computational costs are not identical, and one seed cannot support universal speed or accuracy rankings. Unknown model terms, biased sensors and uncertainty calibration remain separate research questions.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "inverse-exercise",
+      "title": "只改变噪声水平，先作预测",
+      "titleEn": "Change only the noise level and predict the effect",
+      "eyebrow": "论文 02 / 23",
+      "eyebrowEn": "PAPER 02 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "只改变噪声水平，先作预测"
+      ],
+      "bulletsEn": [
+        "Change only the noise level and predict the effect"
+      ],
+      "sourceIds": [
+        "raissi2017-ii",
+        "inverse-local-run"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "预测系数变化",
+            "labelEn": "Predict coefficient changes",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "有预算地复测",
+            "labelEn": "Repeat within the budget",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "inverse-exercise-b0",
+          "text": "这些边界提示了一个受控练习，而不是更大的模拟。固定观测坐标和网络，把噪声从百分之一增至百分之五，先预测两个系数会怎样变化。不要假定两个相对误差会按相同比例增长。",
+          "textEn": "The limits suggest a controlled next exercise rather than a larger simulation. Predict how the two coefficient estimates might change if noise grows from one percent to five percent while the observation coordinates and network remain fixed. Do not assume that their relative errors will grow by the same factor.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "inverse-exercise-b1",
+          "text": "运行下载脚本，把 noise 设为零点零五，并保留相同的单次训练上限。程序会写入新的轨迹文件，同时报告系数误差和场误差。先比较结果与预算标志，再改动其他条件，也不要覆盖已经发布的实验记录。",
+          "textEn": "Run the downloadable script with noise set to zero point zero five and keep the same per-run time cap. It writes a new trace file and reports both coefficient and field errors. Compare results and budget flags before changing anything else, and do not overwrite the published experiment record.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "next-gradient-paper",
+      "title": "为什么下一篇研究梯度病态？",
+      "titleEn": "Why should the next paper study gradient imbalance?",
+      "eyebrow": "论文 02 / 24",
+      "eyebrowEn": "PAPER 02 / 24",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么下一篇研究梯度病态？"
+      ],
+      "bulletsEn": [
+        "Why should the next paper study gradient imbalance?"
+      ],
+      "sourceIds": [
+        "raissi2017-ii"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "数据和物理损失",
+            "labelEn": "Data and physics losses",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不同的梯度尺度",
+            "labelEn": "Different gradient scales",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "next-gradient-paper-b0",
+          "text": "第二篇说明了系数怎样进入训练，但还没有解释为何各项损失能够以合适的速率共同学习。数据失配和基于导数的物理约束，可能产生大小很不同的梯度。因此，增加物理信息也可能让优化更困难。",
+          "textEn": "Part II has shown how coefficients enter training, but we have not explained why all loss terms should learn at compatible rates. Data mismatch and derivative-based physics can produce gradients of very different sizes. Adding more physical information can therefore also make optimisation harder.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "next-gradient-paper-b1",
+          "text": "下一篇计划用另一个小型 CPU 算例研究梯度病态与平衡方法。会先观察相互竞争的梯度，再检验改进措施。下一篇仍是计划，而本篇已经实现并独立检验了系数识别算例。",
+          "textEn": "The next planned paper studies gradient pathologies and balancing strategies using another small CPU example. We will inspect the competing gradients before testing a remedy. That next presentation is planned, while this one has implemented and independently checked the coefficient-identification example.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

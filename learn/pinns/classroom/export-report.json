@@ -149,9 +149,22 @@
           "ready": 0
         }
       }
+    ],
+    "raissi2017ii": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 141,
+          "ready": 141
+        },
+        "zh": {
+          "total": 141,
+          "ready": 0
+        }
+      }
     ]
   },
-  "clips": 575,
+  "clips": 714,
   "features": [
     "progressive-reveal",
     "physical-animation",

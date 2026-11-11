@@ -30,11 +30,12 @@
     },
     {
       "number": "02",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Raissi, Perdikaris & Karniadakis (2017), Part II",
       "source": "https://arxiv.org/abs/1711.10566",
       "topic": "From a known equation to unknown coefficients",
-      "scope": "Reuse a small Burgers problem, then examine coefficient recovery, observation placement and identifiability."
+      "scope": "256 observations; joint field/coefficient fitting; clean/noisy/data-only controls; sensor identifiability. Teaching viscosity 0.05, time end 0.5.",
+      "classroom": "classroom/?paper=raissi2017ii&language=en"
     },
     {
       "number": "03",

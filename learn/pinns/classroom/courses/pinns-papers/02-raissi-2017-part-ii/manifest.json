@@ -1,0 +1,53 @@
+{
+  "id": "raissi2017ii",
+  "paper": {
+    "number": 2,
+    "shortTitle": "Raissi 2017 Part II",
+    "title": "Raissi, Perdikaris & Karniadakis (2017), Physics Informed Deep Learning, Part II",
+    "url": "https://arxiv.org/html/1711.10566v1",
+    "year": 2017,
+    "scope": "Continuous-time Burgers coefficient identification, section 2.1"
+  },
+  "title": "Paper 02: Raissi 2017 Part II · Identify Burgers coefficients",
+  "titleZh": "论文 02：Raissi 2017 Part II · Burgers 系数识别",
+  "totalMinutes": 40,
+  "download": "paper-02.zip",
+  "modules": [
+    {
+      "id": "139afec2-2017-4002-8002-000000000002",
+      "index": 0,
+      "title": "论文 02：Raissi 2017 Part II · Burgers 系数识别",
+      "titleEn": "Paper 02: Raissi 2017 Part II · Identify Burgers coefficients",
+      "file": "1.json",
+      "pages": 24,
+      "sentenceCount": 141,
+      "plannedMinutes": 40
+    }
+  ],
+  "sources": [
+    {
+      "id": "raissi2017-ii",
+      "name": "Raissi, Perdikaris & Karniadakis (2017), Physics Informed Deep Learning, Part II",
+      "url": "https://arxiv.org/html/1711.10566v1",
+      "text": "Primary paper: section 2.1, equations 3–5. Joint Burgers coefficient identification uses the same coordinates for observations and residual tests. Other PDEs and discrete-time discovery are outside this lesson."
+    },
+    {
+      "id": "author-exposition",
+      "name": "Authors’ explanation of physics-informed solutions and discovery",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Author overview and original code links. This is an independent small PyTorch adaptation, not the full original benchmark."
+    },
+    {
+      "id": "torch-parameter",
+      "name": "PyTorch Parameter registration and differentiation",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html",
+      "text": "Official trainable-parameter registration documentation; the implementation registers two coefficient variables with the network."
+    },
+    {
+      "id": "inverse-local-run",
+      "name": "Executed CPU identification, controls and reference checks",
+      "url": "/courses/pinns-papers/02-raissi-2017-part-ii/trace.json",
+      "text": "256 scattered observations, residual tests at the same coordinates, four CPU threads, float64, 1299 parameters, network seed 11. Synthetic viscosity 0.05 and time end 0.5. Three actual runs, plus independent analytical-reference and observation-placement checks."
+    }
+  ]
+}

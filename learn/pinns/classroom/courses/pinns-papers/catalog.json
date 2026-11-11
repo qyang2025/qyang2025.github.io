@@ -5,6 +5,12 @@
       "number": 1,
       "courseRoot": "courses/pinns-papers/01-raissi-2017",
       "published": true
+    },
+    {
+      "id": "raissi2017ii",
+      "number": 2,
+      "courseRoot": "courses/pinns-papers/02-raissi-2017-part-ii",
+      "published": true
     }
   ]
 }
