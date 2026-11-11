@@ -1,0 +1,22 @@
+/* Teaching board inspired by the sparse, progressive SVD lightboard lectures. */
+.slide{--lecture-body:18px;background:#101b28;color:#f2f5fa;border-color:#26364a;border-radius:8px;aspect-ratio:auto;min-height:560px;padding:32px;overflow:visible;box-shadow:0 12px 32px #10203016;font-family:KaTeX_Main,"Microsoft YaHei",serif}
+.slide-eyebrow{color:#79cdeb;font:13px/1.5 "Segoe UI","Microsoft YaHei",sans-serif;letter-spacing:1px}
+.slide h2,.slide[lang="en"] h2{font-family:KaTeX_Main,"Microsoft YaHei",serif;font-weight:500;font-size:clamp(25px,2.5vw,34px);line-height:1.4;letter-spacing:0;margin-bottom:24px;color:#fff}
+.slide .visual{min-height:210px;flex:1;width:100%}
+.slide .scene-content{gap:18px;min-width:0}
+.slide .formula-box,.slide .board-equation{background:none;border:0;border-radius:0;color:#f5f7fb;padding:16px 0;width:100%;font-size:clamp(22px,2.2vw,30px);overflow-x:auto;overflow-y:hidden}
+.slide .katex{font-size:1em}.slide .katex-display{margin:.5em 0}.slide .katex-display>.katex{white-space:nowrap}
+.slide .scene-caption,.slide[lang="en"] .scene-caption{background:none;color:#91dcf3;font-size:var(--lecture-body);line-height:1.65;padding:4px 0;border-radius:0}
+.slide .slide-bullets{gap:8px;margin-top:22px}.slide .slide-bullets li,.slide[lang="en"] .slide-bullets li{font-size:var(--lecture-body);line-height:1.65;color:#c6d2df;padding:6px 12px;border-left:3px solid transparent}
+.slide .slide-bullets li.focus{background:#203447;color:#fff;border-left-color:#f4b860;border-radius:0}
+.slide .slide-footer{font:11px/1.6 "Segoe UI","Microsoft YaHei",sans-serif;color:#aab9ca;gap:14px;letter-spacing:0;border-top:1px solid #304052;padding-top:12px}
+.slide .concept-card{background:none;border:0;padding:26px 0;gap:18px}.slide .concept-card span{font-size:14px;color:#91dcf3;letter-spacing:0}.slide .concept-card strong{font-size:25px;color:#fff;font-weight:400}
+.teaching-chart{font-size:var(--lecture-body);font-family:KaTeX_Main,"Microsoft YaHei",serif}
+.plot-frame{position:relative;width:100%;padding:0 18px 18px 0}.slide .plot-frame svg{display:block;width:100%;max-height:none;overflow:visible}
+.plot-grid{stroke:#273848;stroke-width:1;fill:none}.plot-axis{stroke:#aab9ca;stroke-width:1.5;fill:none}.principal-direction{stroke:#f4b860;stroke-width:2.5;fill:none}.projection-guide{stroke:#a3b8cb;stroke-width:1;stroke-dasharray:3 3}
+.plot-label{position:absolute;font-size:var(--lecture-body);line-height:1;color:#eff7ff}.axis-x{right:0;bottom:12px}.axis-y{left:6%;top:0}
+.plot-legend{display:flex;justify-content:center;align-items:baseline;gap:12px;color:#f4b860;font-size:var(--lecture-body);line-height:1.6;flex-wrap:wrap}.plot-note{font-size:var(--lecture-body);text-align:center;line-height:1.6;color:#bdcbd9;margin-top:8px}
+.teaching-chart[data-stage="0"] .principal-direction,.teaching-chart[data-stage="0"] .plot-legend{visibility:hidden}
+.math-error{font-family:"Segoe UI","Microsoft YaHei",sans-serif;font-size:18px;color:#ffb6a4}
+@media(min-width:1100px){.workspace{grid-template-columns:210px minmax(0,1fr) 230px;max-width:1600px;gap:28px}}
+@media(max-width:720px){.slide{--lecture-body:17px;padding:24px 18px;min-height:540px}.slide h2,.slide[lang="en"] h2{font-size:26px}.slide .formula-box,.slide .board-equation{font-size:22px}.slide .concept-card strong{font-size:23px}.plot-frame{padding-right:18px}.axis-y{left:2%}}

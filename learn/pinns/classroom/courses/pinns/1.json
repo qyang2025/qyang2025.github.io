@@ -1,0 +1,1629 @@
+{
+  "id": "9bdbea62-8e72-8e60-4813-875637e716b0",
+  "origin": "codex",
+  "courseId": "pinns",
+  "chapterIndex": 0,
+  "sectionLabels": [
+    [
+      "热问题",
+      "Heat problem"
+    ],
+    [
+      "函数网络",
+      "Field network"
+    ],
+    [
+      "物理残差",
+      "Physics residual"
+    ]
+  ],
+  "title": "PINNs 1: 问题、物理与函数",
+  "titleEn": "PINNs 1: From physics to a trainable function",
+  "summary": "研究生英文主讲、中文可切换。图与公式同步解释，含练习、实验和来源。",
+  "summaryEn": "Postgraduate lecture with linked schematics and equations, narrated experiments, exercises and traceable sources.",
+  "sources": [
+    {
+      "id": "raissi2017",
+      "name": "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (2017), Parts I and II",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Open author exposition and code for differentiable solution networks, PDE residuals, initial/boundary observations, and forward/inverse modelling. Author manuscripts: https://arxiv.org/abs/1711.10561 and https://arxiv.org/abs/1711.10566 ."
+    },
+    {
+      "id": "wang2023",
+      "name": "Wang, Sankaran, Wang & Perdikaris, An Expert’s Guide to Training PINNs (2023)",
+      "url": "https://arxiv.org/html/2308.08468v1",
+      "text": "Open manuscript covering nondimensionalization, architecture, loss balancing, temporal causality, curriculum, sampling and boundary constraints. Practical methods are problem-dependent and are not universal convergence guarantees."
+    },
+    {
+      "id": "failure2021",
+      "name": "Krishnapriyan et al., Characterizing Possible Failure Modes in PINNs (2021)",
+      "url": "https://arxiv.org/html/2109.01050v1",
+      "text": "Open manuscript demonstrating optimisation failures for convection, reaction and reaction-diffusion problems and investigating curriculum and sequential-in-time training. Expressive networks need not be easy to optimize."
+    },
+    {
+      "id": "torchdocs",
+      "name": "PyTorch official autograd tutorial",
+      "url": "https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html",
+      "text": "Official graph-based automatic differentiation documentation. The independent lab uses torch.autograd.grad(create_graph=True) for coordinate derivatives that remain differentiable with respect to network weights."
+    },
+    {
+      "id": "heatdocs",
+      "name": "DeepXDE official heat-equation example",
+      "url": "https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/heat.html",
+      "text": "Official heat example with sinusoidal initial data and zero Dirichlet boundaries. This course independently chooses a dimensionless unit domain, alpha=0.1 and exp(-alpha*pi^2*t)*sin(pi*x), rather than reproducing published accuracy claims."
+    },
+    {
+      "id": "course-demo",
+      "name": "Independent locally executed PINN experiment",
+      "url": "/demos/pinns_train.py",
+      "text": "Synthetic dimensionless heat problem: alpha=0.1, sine initial data, zero boundary values. Small smooth PyTorch networks trained on CPU with seed 7 in forward, inverse and omitted-initial-condition configurations. Held-out relative L2 and independent residual checks are logged. Inverse observations include Gaussian noise with standard deviation 0.005. These are teaching runs, not paper benchmarks."
+    },
+    {
+      "id": "gradients2020",
+      "name": "Wang, Teng & Perdikaris, Understanding and mitigating gradient pathologies in PINNs (2020)",
+      "url": "https://arxiv.org/abs/2001.04536",
+      "text": "Primary study of imbalanced back-propagated gradients in composite PINN objectives, with adaptive training strategies. Used for the diagnosis of conflicting loss components, not as a guarantee that a specific weighting rule always works."
+    },
+    {
+      "id": "ntk2020",
+      "name": "Wang, Yu & Perdikaris, When and why PINNs fail to train (2020)",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Primary neural-tangent-kernel analysis of discrepant convergence rates and training difficulties, under its stated assumptions. Its limiting analysis is not an exact description of every finite nonlinear network."
+    },
+    {
+      "id": "causality2022",
+      "name": "Wang, Sankaran & Perdikaris, Respecting causality is all you need for training PINNs (2022)",
+      "url": "https://arxiv.org/abs/2203.07404",
+      "text": "Primary temporal-training study motivating the need to respect causal evolution in difficult time-dependent problems. Its title should not be interpreted as a universal guarantee across all PDEs."
+    },
+    {
+      "id": "operator2020",
+      "name": "Li et al., Fourier Neural Operator (2020); Lu et al., DeepONet (2019)",
+      "url": "https://arxiv.org/abs/2010.08895",
+      "text": "Primary operator-learning papers: https://arxiv.org/abs/2010.08895 and https://arxiv.org/abs/1910.03193 . Learning a mapping between functions across a problem family is distinct from fitting one coordinate network to one fixed PDE instance."
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "问题、物理与函数",
+      "titleEn": "From physics to a trainable function",
+      "eyebrow": "第 1 章 / 学习路线",
+      "eyebrowEn": "CHAPTER 1 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "建立本章的推理链"
+      ],
+      "bulletsEn": [
+        "Follow the reasoning in this chapter"
+      ],
+      "sourceIds": [],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "热问题",
+            "labelEn": "Heat problem",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "函数网络",
+            "labelEn": "Field network",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "物理残差",
+            "labelEn": "Physics residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "连接",
+            "labelEn": "Connect"
+          },
+          {
+            "label": "检验",
+            "labelEn": "Check"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "focus": 0,
+          "text": "这是研究生 PINNs 课程的第 1 章：问题、物理与函数。我们从热问题连接到函数网络。最后通过物理残差检验理解。",
+          "textEn": "This is chapter 1 of our postgraduate PINNs session: from physics to a trainable function. We will connect heat problem to field network. Finally, we will use physics residual to check what we have learned.",
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pinn-1-motivation",
+      "title": "为何不只拟合数据？",
+      "titleEn": "Why not just fit observations?",
+      "eyebrow": "1.1 / 一个核心问题",
+      "eyebrowEn": "1.1 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "稀疏观测",
+        "物理约束"
+      ],
+      "bulletsEn": [
+        "Sparse observations",
+        "Physical constraints"
+      ],
+      "beats": [
+        {
+          "id": "motivation-b0",
+          "focus": 0,
+          "text": "在写数学之前，先看一个实际问题：测量稀疏时，为什么还需要物理约束。 物理信息神经网络，简称 PINNs，把函数模型和物理约束结合起来。设想受热细杆只有少量温度传感器，左边是测量，右边是方程提供的信息。我们希望得到传感器之间的连续温度场，而不是一组不受约束的猜测。",
+          "textEn": "Before defining the mathematics, let us start with the practical question that makes physical constraints useful when measurements are sparse. Physics-informed neural networks, or PINNs, combine a function model with physical constraints. Imagine a heated rod with only a few temperature sensors. The left part of our schematic represents measurements, and the right part represents information supplied by an equation. We want a continuous temperature field between sensors, rather than an unconstrained collection of guesses.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "motivation-b1",
+          "focus": 1,
+          "text": "这是一种建模策略，不保证优于传统求解器。我们会依次定义热传导问题、构造可微残差、训练网络，再检验正确和误导性的答案，最后识别未知系数。请始终追问：哪些信息选择了这个解，哪些证据支持信任它？",
+          "textEn": "This is a modelling strategy, not a promise to outperform a numerical solver. Our route is to formulate one heat problem, turn its equation into a differentiable residual, train a network, and then test both accurate and misleading answers. Later we will infer an unknown coefficient. Keep asking what information selects the solution and what evidence would justify trusting it.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "稀疏观测",
+            "labelEn": "Sparse observations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "物理约束",
+            "labelEn": "Physical constraints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "共同约束",
+            "labelEn": "constrain together"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-1-heat",
+      "title": "热方程连接什么？",
+      "titleEn": "What does the heat equation connect?",
+      "eyebrow": "1.2 / 一个核心问题",
+      "eyebrowEn": "1.2 / One central question",
+      "visual": "equation",
+      "formula": "u_t=\\alpha u_{xx},\\quad x,t\\in[0,1]",
+      "formulaEn": "u_t=\\alpha u_{xx},\\quad x,t\\in[0,1]",
+      "bullets": [
+        "温度 $u(x,t)$",
+        "扩散系数 $\\alpha$"
+      ],
+      "bulletsEn": [
+        "Temperature $u(x,t)$",
+        "Diffusivity $\\alpha$"
+      ],
+      "beats": [
+        {
+          "id": "heat-b0",
+          "focus": 0,
+          "text": "上一页说明了为什么要结合测量与物理，现在需要明确的演化规律，告诉温度模型什么才是符合物理的变化。 热方程是一种偏微分方程，英文简称 PDE。x 是位置，t 是时间，u 是相对参考水平的温度。教学例子的坐标和温度均无量纲，alpha 为有效扩散系数，正问题取零点一。下标 t 是时间一阶偏导，下标 x x 是空间二阶偏导。彩色细杆和下方曲线表示同一个温度分布，从中间较热、两端保持冷却的状态开始演化。橙色较暖、蓝色较冷，虚线保留初始正弦分布以供比较。观察热量流向冷端时中间逐渐降温，实线温度曲线保持正弦形状而幅度降低。",
+          "textEn": "We have motivated combining measurements with physics, so we now need a precise evolution law that tells our temperature model what physically consistent behaviour means. The heat equation is a partial differential equation, or PDE. Here x is position, t is time, and u of x and t is temperature relative to a reference level. Our teaching coordinates and temperature are dimensionless. Alpha is the effective diffusion coefficient, set to zero point one in the forward experiment. A subscript t means a first time derivative, and x x means a second spatial derivative. The coloured rod and the curve below it show the same temperature profile evolving from a warm middle with both ends held cold. Orange means warmer, blue means colder, and the dashed curve preserves the initial sine profile for comparison. Watch the middle cool as heat flows toward the cold ends, while the solid temperature curve decays without changing its sine shape.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "u_t=\\alpha u_{xx},\\quad x,t\\in[0,1]",
+            "formulaEn": "u_t=\\alpha u_{xx},\\quad x,t\\in[0,1]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 5,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 6,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 7,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 5,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 6,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 7,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 8,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "heat-b1",
+          "focus": 1,
+          "text": "图中两部分一起解释方程：局部温度变化与空间曲率成正比。正的 alpha 使分布平滑，直线分布曲率为零，因此局部没有变化。不过演化规律没有指定初始状态与端点状态，我们还需要这些条件。",
+          "textEn": "The two schematic quantities explain the equation together: local temperature changes in proportion to spatial curvature. Positive alpha smooths a profile. A straight spatial profile has zero curvature and therefore no local change under this equation. But the evolution law does not specify how the rod starts or how its ends are held. Those conditions select a particular experiment.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "sourceIds": [
+        "heatdocs"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "温度 $u(x,t)$",
+            "labelEn": "Temperature $u(x,t)$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "rod",
+            "revealAt": 0
+          },
+          {
+            "label": "扩散系数 $\\alpha$",
+            "labelEn": "Diffusivity $\\alpha$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "field",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "时间变化与曲率",
+            "labelEn": "time change and curvature"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-1-conditions",
+      "title": "条件选择哪一个解？",
+      "titleEn": "Conditions select the particular solution",
+      "eyebrow": "1.3 / 一个核心问题",
+      "eyebrowEn": "1.3 / One central question",
+      "visual": "equation",
+      "formula": "u(x,0)=\\sin(\\pi x),\\quad u(0,t)=u(1,t)=0",
+      "formulaEn": "u(x,0)=\\sin(\\pi x),\\quad u(0,t)=u(1,t)=0",
+      "bullets": [
+        "初始截面",
+        "两端温度"
+      ],
+      "bulletsEn": [
+        "Initial profile",
+        "Endpoint temperatures"
+      ],
+      "beats": [
+        {
+          "id": "conditions-b0",
+          "focus": 0,
+          "text": "上一页的热方程告诉模型温度怎样演化，却没有选定初始分布和端点温度，因此现在必须加入初始条件和边界条件。 第一个式子固定零时刻的初始温度，pi 是圆周率，x 仍是位置。第二个式子把所有时刻的两个端点固定为零，这是 Dirichlet 边界条件。在时空图中，它们分别是一条初始线和两条边界线。",
+          "textEn": "The heat equation tells our model how temperature evolves, but it cannot select the starting profile or endpoint temperatures, which is why we now introduce initial and boundary conditions. The first expression fixes the initial temperature profile at time zero. Pi is the circle constant and x remains the position. The second expression fixes both endpoints at zero for every time, a Dirichlet boundary condition. In space-time these are distinct sets: one initial line and two boundary lines, represented by the two schematic parts.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "u(x,0)=\\sin(\\pi x),\\quad u(0,t)=u(1,t)=0",
+            "formulaEn": "u(x,0)=\\sin(\\pi x),\\quad u(0,t)=u(1,t)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        },
+        {
+          "id": "conditions-b1",
+          "focus": 1,
+          "text": "两个函数可以满足同一个热方程，却具有不同初始分布，因此描述不同实验。我们需要分别满足方程、初始条件和边界条件，稍后它们各自成为训练项。接下来选取具有解析参考解的情形，让数值结论可以核查。",
+          "textEn": "Two functions can satisfy the same heat equation while describing different starting profiles. They solve different experiments even if both have zero interior residual. We therefore need an equation constraint, an initial constraint and a boundary constraint. Keep their roles separate, because each will become its own training term. Next we choose a case with an exact reference solution so our numerical claims can be checked.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "sourceIds": [
+        "heatdocs"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "初始截面",
+            "labelEn": "Initial profile",
+            "detail": "",
+            "detailEn": "",
+            "icon": "rod",
+            "revealAt": 0
+          },
+          {
+            "label": "两端温度",
+            "labelEn": "Endpoint temperatures",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "共同确定解",
+            "labelEn": "select the solution"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-1-exact",
+      "title": "为何保留解析参考解？",
+      "titleEn": "Why keep an exact reference solution?",
+      "eyebrow": "1.4 / 一个核心问题",
+      "eyebrowEn": "1.4 / One central question",
+      "visual": "equation",
+      "formula": "u^*(x,t)=e^{-\\alpha\\pi^2t}\\sin(\\pi x)",
+      "formulaEn": "u^*(x,t)=e^{-\\alpha\\pi^2t}\\sin(\\pi x)",
+      "bullets": [
+        "空间形状",
+        "时间衰减"
+      ],
+      "bulletsEn": [
+        "Spatial shape",
+        "Temporal decay"
+      ],
+      "beats": [
+        {
+          "id": "exact-b0",
+          "focus": 0,
+          "text": "方程和条件已经确定，接下来需要一个解析解，用来核查训练后的模型是否真正解对了这个具体问题。 星号表示参考解，不是学习参数。正弦因子给出空间形状，指数因子给出时间衰减。时间求导产生负 alpha pi 平方，二次空间求导产生负 pi 平方，所以热方程两边一致。",
+          "textEn": "We have specified the equation and its conditions, and an exact solution will now give us a way to check whether a trained model actually solves that particular problem. The star marks a reference solution, not a learned parameter. The sine factor gives spatial shape and the exponential factor gives temporal decay. Differentiating in time produces minus alpha pi squared, while two spatial derivatives of the sine produce minus pi squared. Thus the two sides of the heat equation agree, directly connecting each factor in the schematic to the equation.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "u^*(x,t)=e^{-\\alpha\\pi^2t}\\sin(\\pi x)",
+            "formulaEn": "u^*(x,t)=e^{-\\alpha\\pi^2t}\\sin(\\pi x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "exact-b1",
+          "focus": 1,
+          "text": "零时刻指数为一，端点处正弦为零，因此条件也满足。正问题训练时不提供内部参考值，之后用它们独立检验解误差。最小化训练目标和恢复正确物理场是相关但不同的事情。",
+          "textEn": "At time zero the exponential is one, and the sine vanishes at both endpoints, so the conditions also hold. During forward training we withhold these interior reference values. Afterwards they provide an independent test of solution error. That separation matters: minimising the training objective and recovering the correct physical field are related but different achievements.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "空间形状",
+            "labelEn": "Spatial shape",
+            "detail": "",
+            "detailEn": "",
+            "icon": "rod",
+            "revealAt": 0
+          },
+          {
+            "label": "时间衰减",
+            "labelEn": "Temporal decay",
+            "detail": "",
+            "detailEn": "",
+            "icon": "field",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "相乘",
+            "labelEn": "multiply"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-1-tasks",
+      "title": "正问题与反问题",
+      "titleEn": "Forward and inverse problems",
+      "eyebrow": "1.5 / 一个核心问题",
+      "eyebrowEn": "1.5 / One central question",
+      "visual": "equation",
+      "formula": "\\alpha\\to u\\qquad u_{\\text{观测}}\\to\\alpha",
+      "formulaEn": "\\alpha\\to u\\qquad u_{\\rm obs}\\to\\alpha",
+      "bullets": [
+        "已知系数",
+        "未知系数"
+      ],
+      "bulletsEn": [
+        "Known coefficient",
+        "Unknown coefficient"
+      ],
+      "beats": [
+        {
+          "id": "tasks-b0",
+          "focus": 0,
+          "text": "解析解展示了扩散系数怎样影响温度，因此现在可以区分两种任务：已知系数预测场，以及通过测量反推未知系数。 正问题已知 alpha 和条件，求未知温度场。反问题的 u 下标 obs 表示观测温度，alpha 也成为未知量。箭头代表推断方向，不保证任意少量观测都能识别系数。两类任务可以共享残差结构。",
+          "textEn": "The exact solution shows how diffusivity controls temperature, which lets us distinguish predicting a field from a known coefficient and inferring an unknown coefficient from measurements. In a forward problem alpha and the conditions are known, and the temperature field is unknown. In an inverse problem, u subscript obs denotes observed temperatures, and alpha becomes an additional unknown. The arrows describe inference, not a guarantee that any small dataset identifies the coefficient. The same residual machinery can support both tasks.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\alpha\\to u\\qquad u_{\\text{观测}}\\to\\alpha",
+            "formulaEn": "\\alpha\\to u\\qquad u_{\\rm obs}\\to\\alpha",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "tasks-b1",
+          "focus": 1,
+          "text": "本例只在零时刻观测无法识别 alpha，因为初始正弦与它无关。正时间测量包含衰减信息，但噪声可能削弱识别能力。我们先解决正问题，再讨论联合拟合场和系数需要什么信息。",
+          "textEn": "For example, observations only at time zero do not identify alpha in our example because the prescribed initial sine does not depend on it. Positive-time measurements contain decay information, although noise can weaken the inference. We will solve the forward case first and return to this information question before jointly fitting a field and coefficient.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "已知系数",
+            "labelEn": "Known coefficient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "未知系数",
+            "labelEn": "Unknown coefficient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "改变未知量",
+            "labelEn": "change the unknowns"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-1-network",
+      "title": "网络表示整个连续场",
+      "titleEn": "The network represents a continuous field",
+      "eyebrow": "1.6 / 一个核心问题",
+      "eyebrowEn": "1.6 / One central question",
+      "visual": "equation",
+      "formula": "(x,t)\\mapsto u_\\theta(x,t)",
+      "formulaEn": "(x,t)\\mapsto u_\\theta(x,t)",
+      "bullets": [
+        "坐标 $(x,t)$",
+        "预测 $u_\\theta$"
+      ],
+      "bulletsEn": [
+        "Coordinates $(x,t)$",
+        "Prediction $u_\\theta$"
+      ],
+      "beats": [
+        {
+          "id": "network-b0",
+          "focus": 0,
+          "text": "我们已经知道各类任务要求解哪些未知量，下一步是确定神经网络怎样表示未知温度场。 theta 是全部可训练权重和偏置，下标 theta 表明这是神经网络预测。每对坐标产生一个温度，多次查询描述连续场。所有预测共享 theta，而不是每个训练位置都拥有独立自由值。",
+          "textEn": "We now know which quantities each task must recover, so the next step is to choose how a neural network will represent the unknown temperature field. Theta denotes all trainable weights and biases. The subscript on u labels a neural prediction rather than the exact solution. One coordinate pair produces one predicted temperature, and many queries describe a continuous field. All these predictions share theta, so this is not a separate free value at each training location.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "(x,t)\\mapsto u_\\theta(x,t)",
+            "formulaEn": "(x,t)\\mapsto u_\\theta(x,t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "network-b1",
+          "focus": 1,
+          "text": "共享参数让一处约束通过更新影响其他位置，也使训练成为耦合优化问题。我们采用平滑双曲正切激活，因为残差需要二阶坐标导数。表示能力强不保证优化成功，后面会检验看似合理却错误的场。",
+          "textEn": "Shared parameters allow a constraint at one location to influence other predictions through an update. They also make training a coupled optimisation problem. We use smooth hyperbolic-tangent activations because the residual requires second coordinate derivatives. Expressive function classes do not guarantee successful optimisation, a distinction we will revisit when the network produces an apparently plausible but incorrect field.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "坐标 $(x,t)$",
+            "labelEn": "Coordinates $(x,t)$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "network",
+            "revealAt": 0
+          },
+          {
+            "label": "预测 $u_\\theta$",
+            "labelEn": "Prediction $u_\\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "field",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "共享参数 $\\theta$",
+            "labelEn": "shared parameters $\\theta$"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-1-residual",
+      "title": "把方程变成局部失配",
+      "titleEn": "Turn the equation into local mismatch",
+      "eyebrow": "1.7 / 一个核心问题",
+      "eyebrowEn": "1.7 / One central question",
+      "visual": "equation",
+      "formula": "r_\\theta=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+      "formulaEn": "r_\\theta=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+      "bullets": [
+        "预测及导数",
+        "残差 $r_\\theta$"
+      ],
+      "bulletsEn": [
+        "Prediction and derivatives",
+        "Residual $r_\\theta$"
+      ],
+      "beats": [
+        {
+          "id": "residual-b0",
+          "focus": 0,
+          "text": "上一页的网络给出了温度预测，但还缺少可计算的检查方法来判断预测是否遵守热方程，因此现在构造残差。 r 表示残差：把预测场代入热方程并移到同一边。偏导是坐标导数，不是 theta 更新。某处残差为零，表示预测时间变化与 alpha 乘空间曲率一致。",
+          "textEn": "The network gives us a temperature prediction, but we still need a computable test of whether that prediction obeys the heat equation, so we construct the residual. The letter r denotes a residual: substitute the predicted field into the heat equation and move all terms to one side. Partial t and partial x x are coordinate derivatives, not updates of theta. Residual zero means predicted time change agrees with alpha times predicted curvature at that queried location.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "r_\\theta=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+            "formulaEn": "r_\\theta=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "residual-b1",
+          "focus": 1,
+          "text": "示意图把公式解释为局部一致性检查，但它不检查初始状态是否正确。有限点的平均残差小，也不证明处处都小。下一道预测题说明，残差为什么必须与条件一起使用。",
+          "textEn": "The schematic therefore interprets the formula as a test of local consistency. It does not test whether we chose the correct initial state. Nor does a small residual averaged over finitely many points prove that it is small everywhere. We now have the central PINN mechanism, but the next prediction question exposes exactly why residual information must be combined with conditions.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "预测及导数",
+            "labelEn": "Prediction and derivatives",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "残差 $r_\\theta$",
+            "labelEn": "Residual $r_\\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "derivative",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "代入方程",
+            "labelEn": "substitute into the PDE"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-1-zero-predict",
+      "title": "预测：零温度合格吗？",
+      "titleEn": "Predict: is the zero field acceptable?",
+      "eyebrow": "1.8 / 一个核心问题",
+      "eyebrowEn": "1.8 / One central question",
+      "visual": "equation",
+      "formula": "u_\\theta\\equiv0\\Rightarrow r_\\theta=0",
+      "formulaEn": "u_\\theta\\equiv0\\Rightarrow r_\\theta=0",
+      "bullets": [
+        "残差为零",
+        "初始条件？"
+      ],
+      "bulletsEn": [
+        "Zero residual",
+        "Initial condition?"
+      ],
+      "beats": [
+        {
+          "id": "zero-predict-b0",
+          "focus": 0,
+          "text": "我们把残差为零解释为局部方程一致，接下来用零场检验：只有这一点，是否足以确定我们需要的物理实验。 训练前先预测：如果网络处处输出零，它的导数与残差都为零，也满足端点值。这是不是本实验的解？请用初始正弦判断，不要把残差零当成充分证明。",
+          "textEn": "We have defined residual zero as local equation consistency, and a simple zero-field prediction will now test whether that condition is enough to identify our intended experiment. Before seeing any training curves, suppose the network predicts zero temperature everywhere. Its derivatives are zero, so its residual is zero. It also satisfies both endpoint values. Is it the solution of our experiment? Use the initial sine profile to decide rather than treating residual zero as a sufficient certificate.",
+          "pauseAfter": 120,
+          "scene": {
+            "formula": "u_\\theta\\equiv0\\Rightarrow r_\\theta=0",
+            "formulaEn": "u_\\theta\\equiv0\\Rightarrow r_\\theta=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 5,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "zero-predict-b1",
+          "focus": 1,
+          "text": "用两分钟列出它满足和违反的要求。答案是内部初始温度不正确，所以不是目标解。稍后会训练故意缺少条件的模型检验此失效，下一章先实现求导和独立损失项。",
+          "textEn": "Work in pairs for two minutes: list the requirements it satisfies and the one it violates. The answer is that the interior initial temperatures are wrong, so this is not our solution. We will later train an intentionally incomplete model to see this failure numerically. Next we implement the derivatives and the separate loss terms that prevent it.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 120,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "残差为零",
+            "labelEn": "Zero residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "初始条件？",
+            "labelEn": "Initial condition?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "检查条件",
+            "labelEn": "check the conditions"
+          }
+        ]
+      }
+    }
+  ]
+}

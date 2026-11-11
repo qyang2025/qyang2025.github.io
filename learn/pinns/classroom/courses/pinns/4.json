@@ -1,0 +1,1544 @@
+{
+  "id": "edc4ab3c-c2b0-bfb2-d735-b535bff25688",
+  "origin": "codex",
+  "courseId": "pinns",
+  "chapterIndex": 3,
+  "sectionLabels": [
+    [
+      "未知系数",
+      "Coefficient"
+    ],
+    [
+      "观测数据",
+      "Observations"
+    ],
+    [
+      "敏感度",
+      "Sensitivity"
+    ]
+  ],
+  "title": "PINNs 4: 从温度观测识别参数",
+  "titleEn": "PINNs 4: Infer a physical parameter from observations",
+  "summary": "研究生英文主讲、中文可切换。图与公式同步解释，含练习、实验和来源。",
+  "summaryEn": "Postgraduate lecture with linked schematics and equations, narrated experiments, exercises and traceable sources.",
+  "sources": [
+    {
+      "id": "raissi2017",
+      "name": "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (2017), Parts I and II",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Open author exposition and code for differentiable solution networks, PDE residuals, initial/boundary observations, and forward/inverse modelling. Author manuscripts: https://arxiv.org/abs/1711.10561 and https://arxiv.org/abs/1711.10566 ."
+    },
+    {
+      "id": "wang2023",
+      "name": "Wang, Sankaran, Wang & Perdikaris, An Expert’s Guide to Training PINNs (2023)",
+      "url": "https://arxiv.org/html/2308.08468v1",
+      "text": "Open manuscript covering nondimensionalization, architecture, loss balancing, temporal causality, curriculum, sampling and boundary constraints. Practical methods are problem-dependent and are not universal convergence guarantees."
+    },
+    {
+      "id": "failure2021",
+      "name": "Krishnapriyan et al., Characterizing Possible Failure Modes in PINNs (2021)",
+      "url": "https://arxiv.org/html/2109.01050v1",
+      "text": "Open manuscript demonstrating optimisation failures for convection, reaction and reaction-diffusion problems and investigating curriculum and sequential-in-time training. Expressive networks need not be easy to optimize."
+    },
+    {
+      "id": "torchdocs",
+      "name": "PyTorch official autograd tutorial",
+      "url": "https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html",
+      "text": "Official graph-based automatic differentiation documentation. The independent lab uses torch.autograd.grad(create_graph=True) for coordinate derivatives that remain differentiable with respect to network weights."
+    },
+    {
+      "id": "heatdocs",
+      "name": "DeepXDE official heat-equation example",
+      "url": "https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/heat.html",
+      "text": "Official heat example with sinusoidal initial data and zero Dirichlet boundaries. This course independently chooses a dimensionless unit domain, alpha=0.1 and exp(-alpha*pi^2*t)*sin(pi*x), rather than reproducing published accuracy claims."
+    },
+    {
+      "id": "course-demo",
+      "name": "Independent locally executed PINN experiment",
+      "url": "/demos/pinns_train.py",
+      "text": "Synthetic dimensionless heat problem: alpha=0.1, sine initial data, zero boundary values. Small smooth PyTorch networks trained on CPU with seed 7 in forward, inverse and omitted-initial-condition configurations. Held-out relative L2 and independent residual checks are logged. Inverse observations include Gaussian noise with standard deviation 0.005. These are teaching runs, not paper benchmarks."
+    },
+    {
+      "id": "gradients2020",
+      "name": "Wang, Teng & Perdikaris, Understanding and mitigating gradient pathologies in PINNs (2020)",
+      "url": "https://arxiv.org/abs/2001.04536",
+      "text": "Primary study of imbalanced back-propagated gradients in composite PINN objectives, with adaptive training strategies. Used for the diagnosis of conflicting loss components, not as a guarantee that a specific weighting rule always works."
+    },
+    {
+      "id": "ntk2020",
+      "name": "Wang, Yu & Perdikaris, When and why PINNs fail to train (2020)",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Primary neural-tangent-kernel analysis of discrepant convergence rates and training difficulties, under its stated assumptions. Its limiting analysis is not an exact description of every finite nonlinear network."
+    },
+    {
+      "id": "causality2022",
+      "name": "Wang, Sankaran & Perdikaris, Respecting causality is all you need for training PINNs (2022)",
+      "url": "https://arxiv.org/abs/2203.07404",
+      "text": "Primary temporal-training study motivating the need to respect causal evolution in difficult time-dependent problems. Its title should not be interpreted as a universal guarantee across all PDEs."
+    },
+    {
+      "id": "operator2020",
+      "name": "Li et al., Fourier Neural Operator (2020); Lu et al., DeepONet (2019)",
+      "url": "https://arxiv.org/abs/2010.08895",
+      "text": "Primary operator-learning papers: https://arxiv.org/abs/2010.08895 and https://arxiv.org/abs/1910.03193 . Learning a mapping between functions across a problem family is distinct from fitting one coordinate network to one fixed PDE instance."
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "从温度观测识别参数",
+      "titleEn": "Infer a physical parameter from observations",
+      "eyebrow": "第 4 章 / 学习路线",
+      "eyebrowEn": "CHAPTER 4 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "建立本章的推理链"
+      ],
+      "bulletsEn": [
+        "Follow the reasoning in this chapter"
+      ],
+      "sourceIds": [],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "未知系数",
+            "labelEn": "Coefficient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "观测数据",
+            "labelEn": "Observations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "敏感度",
+            "labelEn": "Sensitivity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "连接",
+            "labelEn": "Connect"
+          },
+          {
+            "label": "检验",
+            "labelEn": "Check"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "focus": 0,
+          "text": "这是研究生 PINNs 课程的第 4 章：从温度观测识别参数。我们从未知系数连接到观测数据。最后通过敏感度检验理解。",
+          "textEn": "This is chapter 4 of our postgraduate PINNs session: infer a physical parameter from observations. We will connect coefficient to observations. Finally, we will use sensitivity to check what we have learned.",
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pinn-4-unknown-alpha",
+      "title": "把扩散系数也当成未知量",
+      "titleEn": "Make diffusivity an additional unknown",
+      "eyebrow": "4.1 / 一个核心问题",
+      "eyebrowEn": "4.1 / One central question",
+      "visual": "equation",
+      "formula": "r_{\\theta,\\alpha}=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+      "formulaEn": "r_{\\theta,\\alpha}=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+      "bullets": [
+        "未知场 $u_\\theta$",
+        "未知系数 $\\alpha$"
+      ],
+      "bulletsEn": [
+        "Unknown field $u_\\theta$",
+        "Unknown coefficient $\\alpha$"
+      ],
+      "beats": [
+        {
+          "id": "unknown-alpha-b0",
+          "focus": 0,
+          "text": "正问题流程在扩散系数已知时恢复了温度场，现在追问：当系数本身也未知时，还需要补充什么信息。 残差现在同时含未知网络参数 theta 和物理系数 alpha。本例的 alpha 是一个正标量，不是每个位置一个值。相同的温度导数共同约束场和系数，但方程本身可能允许多组场与系数。",
+          "textEn": "The forward workflow recovered a field with known diffusivity, and we now ask what extra information is needed when diffusivity itself must be learned. The residual now carries two unknowns: the network parameters theta and the physical coefficient alpha. Alpha remains one positive scalar in this example, not a separate value at every point. The same temperature derivatives that constrain the field also constrain the coefficient. But the equation alone can admit many field-and-coefficient pairs, so we need observations that contain information about diffusion.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "r_{\\theta,\\alpha}=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+            "formulaEn": "r_{\\theta,\\alpha}=\\partial_tu_\\theta-\\alpha\\partial_{xx}u_\\theta",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "unknown-alpha-b1",
+          "focus": 1,
+          "text": "我们保留已知初始、边界条件，再加入正时间温度。应把它理解为联合校准，而不是任意数据都能神奇地产生物理常数。关键是考虑网络自由度与噪声后，不同 alpha 是否仍可区分。",
+          "textEn": "We retain the known initial and boundary conditions and add temperatures at selected positive times. Treat this as joint model calibration, not a magical conversion of any dataset into a physical constant. The question is whether distinct alpha values can be distinguished after accounting for field flexibility and measurement noise. We first write exactly how these observations enter the objective.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "未知场 $u_\\theta$",
+            "labelEn": "Unknown field $u_\\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "未知系数 $\\alpha$",
+            "labelEn": "Unknown coefficient $\\alpha$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "共享同一残差",
+            "labelEn": "share one residual"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-4-observations",
+      "title": "观测损失联系测量与预测",
+      "titleEn": "Observation loss connects measurements and predictions",
+      "eyebrow": "4.2 / 一个核心问题",
+      "eyebrowEn": "4.2 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_d=\\frac1{N_d}\\sum_i\\left[u_\\theta(x_i,t_i)-y_i\\right]^2",
+      "formulaEn": "\\mathcal L_d=\\frac1{N_d}\\sum_i\\left[u_\\theta(x_i,t_i)-y_i\\right]^2",
+      "bullets": [
+        "传感器读数 $y_i$",
+        "同位置预测"
+      ],
+      "bulletsEn": [
+        "Sensor readings $y_i$",
+        "Prediction at the same location"
+      ],
+      "beats": [
+        {
+          "id": "observations-b0",
+          "focus": 0,
+          "text": "方程本身不能选定唯一的场与系数组合，因此接下来明确测量温度怎样约束这个联合反问题。 L_d 是数据损失，N_d 是观测数，y_i 是相应坐标处的测量温度。预测必须查询完全相同的坐标。反问题实验用六十四个内部点，并加入标准差零点零零五的高斯噪声。",
+          "textEn": "The equation alone does not select a unique field and coefficient pair, so we next specify how measured temperatures constrain that joint inverse problem. L subscript d is data loss, N d is the number of observations, and y i is the measured temperature at coordinate pair x i, t i. The prediction must be queried at exactly those coordinates. In the synthetic inverse run, sixty-four interior observations are generated from the exact solution with additive Gaussian noise of standard deviation zero point zero zero five.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\mathcal L_d=\\frac1{N_d}\\sum_i\\left[u_\\theta(x_i,t_i)-y_i\\right]^2",
+            "formulaEn": "\\mathcal L_d=\\frac1{N_d}\\sum_i\\left[u_\\theta(x_i,t_i)-y_i\\right]^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "observations-b1",
+          "focus": 1,
+          "text": "因为实验是合成的，我们知道真系数，但训练不会把它当标签使用。观测点、只评估残差的配点和留出参考值必须区分，否则会夸大反问题结果的可信度。",
+          "textEn": "The true coefficient is known to us because we created the experiment, but it is not supplied as a training target. Observations are different from residual-only collocation points, and withheld reference values are still reserved for evaluation. Confusing these roles makes an inverse result look more convincing than it is. We next enforce the prior physical requirement that diffusivity be positive.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "传感器读数 $y_i$",
+            "labelEn": "Sensor readings $y_i$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "field",
+            "revealAt": 0
+          },
+          {
+            "label": "同位置预测",
+            "labelEn": "Prediction at the same location",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "比较相同坐标",
+            "labelEn": "compare matching coordinates"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-4-positive",
+      "title": "如何保持扩散系数为正？",
+      "titleEn": "Keep diffusivity positive during optimisation",
+      "eyebrow": "4.3 / 一个核心问题",
+      "eyebrowEn": "4.3 / One central question",
+      "visual": "equation",
+      "formula": "\\alpha=\\log(1+e^\\beta)+\\varepsilon",
+      "formulaEn": "\\alpha=\\log(1+e^\\beta)+\\varepsilon",
+      "bullets": [
+        "自由标量 $\\beta$",
+        "正系数 $\\alpha$"
+      ],
+      "bulletsEn": [
+        "Unconstrained scalar $\\beta$",
+        "Positive coefficient $\\alpha$"
+      ],
+      "beats": [
+        {
+          "id": "positive-b0",
+          "focus": 0,
+          "text": "测量为系数提供信息，但参数表示还必须遵守扩散系数为正的要求，因此拟合之前先加入正性变换。 beta 是自由实标量，epsilon 是小的固定正偏移，代码中为百万分之一。softplus 用稳定库函数计算，保证任意 beta 都对应正 alpha，而不是更新后直接裁剪。",
+          "textEn": "Measurements provide information about the coefficient, but our parameterisation must also respect positive diffusivity, so we introduce a positive transformation before fitting it. Beta is a freely optimised real scalar and epsilon is a small fixed positive offset, one millionth in our code. The logarithmic expression is the softplus function, evaluated with a numerically stable library routine. This transformation makes alpha positive for every beta and avoids clipping a parameter after each update. The diagram maps a mathematical optimisation variable to a physically admissible coefficient.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\alpha=\\log(1+e^\\beta)+\\varepsilon",
+            "formulaEn": "\\alpha=\\log(1+e^\\beta)+\\varepsilon",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "positive-b1",
+          "focus": 1,
+          "text": "正性只是适用于扩散问题的模型假设，不证明识别数值正确。变换还会改变梯度敏感度，极端 beta 可能梯度很小。报告实验时要记录变换与初始化。",
+          "textEn": "Positivity is a modelling assumption appropriate for this diffusion problem, not evidence that the inferred magnitude is correct. It also changes parameter sensitivities through the chain rule, and extreme beta values can have small gradients. Record the transformation and initialisation when reporting the experiment. We then optimise this scalar and the network parameters together while keeping their meanings distinct.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "自由标量 $\\beta$",
+            "labelEn": "Unconstrained scalar $\\beta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "正系数 $\\alpha$",
+            "labelEn": "Positive coefficient $\\alpha$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "softplus 变换",
+            "labelEn": "softplus transform"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-4-joint-fit",
+      "title": "场与系数如何共同更新？",
+      "titleEn": "Fit the field and coefficient jointly",
+      "eyebrow": "4.4 / 一个核心问题",
+      "eyebrowEn": "4.4 / One central question",
+      "visual": "equation",
+      "formula": "\\min_{\\theta,\\beta}\\ \\mathcal L_r+10\\mathcal L_0+\\mathcal L_b+10\\mathcal L_d",
+      "formulaEn": "\\min_{\\theta,\\beta}\\ \\mathcal L_r+10\\mathcal L_0+\\mathcal L_b+10\\mathcal L_d",
+      "bullets": [
+        "场参数 $\\theta$",
+        "系数参数 $\\beta$"
+      ],
+      "bulletsEn": [
+        "Field parameters $\\theta$",
+        "Coefficient parameter $\\beta$"
+      ],
+      "beats": [
+        {
+          "id": "joint-fit-b0",
+          "focus": 0,
+          "text": "现在既能表示正系数，也能比较预测和观测，因此可以把两类未知量组合进同一个可微拟合目标。 最小化同时针对 theta 与 beta，alpha 由正性变换得到。显示的权重只是教学设置。数据把场拉向观测，条件选择实验，残差把场导数与 alpha 联系起来。",
+          "textEn": "We can now represent a positive coefficient and compare predictions with observations, which lets us combine both unknowns in one differentiable fitting objective. The minimum is over theta and beta, with alpha obtained through the positive transformation. The displayed weights are our teaching-run settings, not universal defaults. Data loss ties the field to observed temperatures, conditions select the physical experiment, and the residual links the field derivatives to alpha. Both kinds of parameter receive gradients through that combined computation.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\min_{\\theta,\\beta}\\ \\mathcal L_r+10\\mathcal L_0+\\mathcal L_b+10\\mathcal L_d",
+            "formulaEn": "\\min_{\\theta,\\beta}\\ \\mathcal L_r+10\\mathcal L_0+\\mathcal L_b+10\\mathcal L_d",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "joint-fit-b1",
+          "focus": 1,
+          "text": "扭曲的场与系数可能相互补偿，所以联合目标小不证明唯一性或不确定度可信。合成实验中要分别检查场与系数误差，并进一步改变噪声与初始化。首先要问：哪些观测时间真正提供了识别信息？",
+          "textEn": "There can be compensation between a distorted field and a distorted coefficient. A small joint objective does not establish uniqueness or calibrated uncertainty. Evaluate field error and coefficient error separately when a synthetic truth is available, then repeat across noise realisations and initialisations for a stronger investigation. Before interpreting a fitted number, ask which observation times could have distinguished it.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "场参数 $\\theta$",
+            "labelEn": "Field parameters $\\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "系数参数 $\\beta$",
+            "labelEn": "Coefficient parameter $\\beta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "共同优化",
+            "labelEn": "joint optimisation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-4-identifiability",
+      "title": "零时刻为何不能识别系数？",
+      "titleEn": "Why do initial-time data not identify diffusivity?",
+      "eyebrow": "4.5 / 一个核心问题",
+      "eyebrowEn": "4.5 / One central question",
+      "visual": "equation",
+      "formula": "\\partial_\\alpha u^*(x,t)=-\\pi^2t\\,u^*(x,t)",
+      "formulaEn": "\\partial_\\alpha u^*(x,t)=-\\pi^2t\\,u^*(x,t)",
+      "bullets": [
+        "参数敏感度",
+        "观测时空位置"
+      ],
+      "bulletsEn": [
+        "Parameter sensitivity",
+        "Observation locations"
+      ],
+      "beats": [
+        {
+          "id": "identifiability-b0",
+          "focus": 0,
+          "text": "联合目标说明怎样拟合系数，却没有说明测量能否区分不同系数，因此现在分析参数敏感度。 对 alpha 的偏导表示温度对扩散系数变化的敏感度。本例求导得到负 pi 平方乘 t 再乘 u 星号，因此零时刻敏感度为零，零温度端点也不提供系数信息。",
+          "textEn": "A joint objective tells us how to fit a coefficient, but not whether measurements can distinguish it, so we now examine parameter sensitivity. The partial derivative with respect to alpha measures how much the predicted reference temperature changes when diffusivity changes. Differentiating our exact sine-mode solution gives minus pi squared times t times u star. At time zero this sensitivity vanishes. At rod endpoints the temperature also vanishes, so those homogeneous endpoint readings provide no diffusivity information in this example.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\partial_\\alpha u^*(x,t)=-\\pi^2t\\,u^*(x,t)",
+            "formulaEn": "\\partial_\\alpha u^*(x,t)=-\\pi^2t\\,u^*(x,t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "identifiability-b1",
+          "focus": 1,
+          "text": "正时间内部位置含有信息，但并非越晚越好：温度接近噪声水平后信息又变弱。这是本例的敏感度分析，不是所有反问题的普遍定理。传感器时空位置应由前向物理指导。",
+          "textEn": "At positive interior locations there is information, but later is not always better: if the temperature has decayed near the noise floor, measurements become weak again. This is an example-specific sensitivity calculation, not a general theorem about every inverse PDE. It tells us to choose observation times and locations using the forward physics rather than selecting sensors only for convenience.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "参数敏感度",
+            "labelEn": "Parameter sensitivity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "观测时空位置",
+            "labelEn": "Observation locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "决定可识别信息",
+            "labelEn": "determine information"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-4-noise",
+      "title": "点估计不等于置信区间",
+      "titleEn": "A point estimate is not an uncertainty interval",
+      "eyebrow": "4.6 / 一个核心问题",
+      "eyebrowEn": "4.6 / One central question",
+      "visual": "equation",
+      "formula": "y_i=u^*(x_i,t_i)+\\epsilon_i",
+      "formulaEn": "y_i=u^*(x_i,t_i)+\\epsilon_i",
+      "bullets": [
+        "带噪测量",
+        "参数估计"
+      ],
+      "bulletsEn": [
+        "Noisy measurements",
+        "Parameter estimate"
+      ],
+      "beats": [
+        {
+          "id": "noise-b0",
+          "focus": 0,
+          "text": "敏感度指出了有信息的测量位置，但噪声仍可能让估计不稳定，因此必须区分拟合出的数字与可信的不确定度。 epsilon_i 表示测量噪声，与正性变换的小偏移不同。实验加入独立零均值高斯噪声。拟合 alpha 是依赖这组数据、网络和优化设置的点估计，多写小数不会提高可靠性。",
+          "textEn": "Sensitivity identified informative measurement locations, but noisy readings can still produce an unstable estimate, so we must separate a fitted number from trustworthy uncertainty. Epsilon i denotes observation noise, distinct from the small positivity offset used earlier. In our synthetic dataset this noise is independent zero-mean Gaussian with known chosen scale. A fitted alpha is a point estimate conditioned on that dataset, architecture, objective and optimiser. Reporting extra decimal places does not make it more reliable.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "y_i=u^*(x_i,t_i)+\\epsilon_i",
+            "formulaEn": "y_i=u^*(x_i,t_i)+\\epsilon_i",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "noise-b1",
+          "focus": 1,
+          "text": "可以重新生成噪声、更换传感器位置和训练种子以检查稳定性。正式不确定度方法还需额外假设与验证。单次演示不提供经过校准的置信区间，只展示可复现联合反演。",
+          "textEn": "To assess stability, regenerate noise, resample sensors and restart training with different seeds. More formal uncertainty methods require additional modelling assumptions and validation. We do not claim calibrated confidence intervals from this one demonstration. Its purpose is to show a reproducible joint inverse fit and to make the difference between known synthetic truth and uncertain real-world inference explicit.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "带噪测量",
+            "labelEn": "Noisy measurements",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "参数估计",
+            "labelEn": "Parameter estimate",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "检验稳定性",
+            "labelEn": "test stability"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-4-inverse-demo",
+      "title": "Python 实验：找回扩散系数",
+      "titleEn": "Python experiment: recover diffusivity",
+      "eyebrow": "4.7 / 一个核心问题",
+      "eyebrowEn": "4.7 / One central question",
+      "visual": "equation",
+      "formula": "\\alpha_{\\text{真}}=0.1,\\quad\\alpha=\\operatorname{softplus}(\\beta)+10^{-6}",
+      "formulaEn": "\\alpha_{\\rm true}=0.1,\\quad\\alpha=\\operatorname{softplus}(\\beta)+10^{-6}",
+      "bullets": [
+        "联合训练代码",
+        "系数与场的记录"
+      ],
+      "bulletsEn": [
+        "Joint-training code",
+        "Coefficient and field trace"
+      ],
+      "beats": [
+        {
+          "id": "inverse-demo-b0",
+          "focus": 0,
+          "text": "明确目标、信息要求和噪声限制后，现在可以解释温度场与扩散系数的真实联合训练记录。 这里回放的是反问题而非正问题。每个检查点的 alpha 来自学习到的 beta，零点一真值只供评估。温度曲线仍取零点五时刻，请同时观察系数和留出场误差。",
+          "textEn": "With the objective, information requirements and noise limitations clear, we can now interpret the actual joint-training trace for the field and diffusivity. The code and animation now use the inverse run rather than the forward run. The displayed alpha is transformed from the learned beta at each saved checkpoint, and its reference value zero point one is used only for evaluation. Temperature curves still correspond to time one half. Watch both the coefficient and the held-out field error, because improvement in one does not logically guarantee improvement in the other.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\alpha_{\\text{真}}=0.1,\\quad\\alpha=\\operatorname{softplus}(\\beta)+10^{-6}",
+            "formulaEn": "\\alpha_{\\rm true}=0.1,\\quad\\alpha=\\operatorname{softplus}(\\beta)+10^{-6}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "concerned"
+          }
+        },
+        {
+          "id": "inverse-demo-b1",
+          "focus": 1,
+          "text": "这次固定种子的训练找到了接近合成真值的系数，但不是普遍可识别性的证明。复现后可以删去正时间观测或增加噪声，先预测再运行，判断结果依赖哪些信息。",
+          "textEn": "This particular seeded run recovers a coefficient close to the synthetic value. That is evidence about a small controlled example, not proof of general identifiability. Reproduce the run, then remove positive-time observations or increase noise to test its dependence on information. The following exercise asks you to predict those outcomes before changing the code.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": "inverse",
+      "activitySeconds": 180,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "联合训练代码",
+            "labelEn": "Joint-training code",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "系数与场的记录",
+            "labelEn": "Coefficient and field trace",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "对照合成真值",
+            "labelEn": "compare with synthetic truth"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-4-inverse-exercise",
+      "title": "练习：设计更有信息的观测",
+      "titleEn": "Exercise: choose informative observations",
+      "eyebrow": "4.8 / 一个核心问题",
+      "eyebrowEn": "4.8 / One central question",
+      "visual": "equation",
+      "formula": "\\left|\\partial_\\alpha u\\right|\\quad\\text{与噪声比较}",
+      "formulaEn": "\\left|\\partial_\\alpha u\\right|\\quad\\text{versus noise}",
+      "bullets": [
+        "候选传感器",
+        "可识别的变化"
+      ],
+      "bulletsEn": [
+        "Candidate sensors",
+        "Distinguishable changes"
+      ],
+      "beats": [
+        {
+          "id": "inverse-exercise-b0",
+          "focus": 0,
+          "text": "反问题回放恢复了一个合成系数，接下来的练习检验你能否预判哪些传感器选择会删除识别所需的信息。 用三分钟比较三组数据：只有初始温度、只有端点温度、或多个正时间的内部温度。用敏感度解释选择，并指出衰减后可能失去信息的时段。若多个 alpha 都同样拟合，应如何报告？",
+          "textEn": "The inverse replay recovered one synthetic coefficient, and the next exercise tests whether you can predict which sensor choices would remove the information that made recovery possible. Allow three minutes to choose between three datasets: initial-time temperatures only, endpoint temperatures only, or interior temperatures at several positive times. Explain your choice using the sensitivity formula, and identify a time range that could become uninformative after strong decay. Then say what you would report if several alpha values fit equally well.",
+          "pauseAfter": 180,
+          "scene": {
+            "formula": "\\left|\\partial_\\alpha u\\right|\\quad\\text{与噪声比较}",
+            "formulaEn": "\\left|\\partial_\\alpha u\\right|\\quad\\text{versus noise}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "inverse-exercise-b1",
+          "focus": 1,
+          "text": "对本例，第三组可能含有识别信息，前两组没有。若不同系数仍与观测相容，应报告歧义而不是虚假精度。下一章讨论即使形式正确，为何训练仍可能严重失效。",
+          "textEn": "The third dataset can contain useful coefficient information, while the first two do not for this exact setup. If distinct coefficients remain consistent with observations, report the ambiguity rather than a falsely precise estimate. We now have a working forward and inverse workflow. The next chapter examines why the same formal ingredients can still produce serious optimisation and approximation failures.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 180,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "候选传感器",
+            "labelEn": "Candidate sensors",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "可识别的变化",
+            "labelEn": "Distinguishable changes",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "比较敏感度与噪声",
+            "labelEn": "compare sensitivity with noise"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+.classroom-fitted .heat-lesson{width:880px!important;gap:16px!important}
+.heat-scene{display:flex;align-items:center;gap:24px;margin:0!important}
+.rod-visual{width:620px;flex:none;border:1px solid #53626d;border-radius:8px;padding:10px 14px;box-sizing:border-box}
+.rod-heading,.rod-readout,.rod-coefficient{font-size:24px;text-align:center;color:#edf5fa}
+.rod-visual svg{width:100%;height:180px;display:block;overflow:visible;fill:#dbe8ed;font-family:KaTeX_Main,serif}
+.rod-readout{margin-top:9px;font-size:22px}.rod-readout .katex{font-size:1em}
+.rod-coefficient{width:200px;display:flex;flex-direction:column;align-items:center;gap:12px;border:1px solid #53626d;padding:14px 8px;border-radius:8px}
+.rod-coefficient span{font-size:24px}
+.classroom-fitted .heat-lesson>.formula-box{width:620px!important;margin:0!important;text-align:center}
+
+.heat-lesson{width:100%;gap:16px!important}.heat-scene{min-width:0}.rod-visual{min-width:0;flex:1 1 620px;width:auto}.rod-coefficient{flex:0 0 200px;box-sizing:border-box}
+.rod-heading .katex-display,.rod-readout .katex-display{display:inline-block;margin:0}.rod-heading .katex,.rod-coefficient .katex{font-size:1em}.rod-coefficient .katex-display{margin:0}.rod-coefficient .katex{white-space:normal}.rod-coefficient span{overflow-wrap:normal}
+@media(max-width:720px){.heat-scene{flex-direction:column;gap:12px}.rod-visual{flex:none;width:100%}.rod-visual svg{height:160px}.rod-coefficient{flex:none;width:100%;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px;padding:8px}.rod-coefficient span{font-size:20px}.rod-heading{font-size:24px}.heat-lesson>.formula-box{max-width:100%;overflow-x:auto}}
+
+/* The physical picture and its equation share the same left edge and panel width. */
+.heat-lesson{align-items:flex-start!important;--rod-panel-width:620px}
+.heat-lesson .heat-scene{display:grid;grid-template-columns:minmax(0,var(--rod-panel-width)) 200px;width:844px;max-width:100%;align-self:flex-start}
+.heat-lesson .rod-visual{width:100%;min-width:0}
+.heat-lesson>.formula-box,.classroom-fitted .heat-lesson>.formula-box{align-self:flex-start;width:var(--rod-panel-width)!important;max-width:100%;box-sizing:border-box;margin:0!important}
+@media(max-width:720px){.heat-lesson{--rod-panel-width:100%}.heat-lesson .heat-scene{grid-template-columns:minmax(0,1fr);width:100%;gap:12px}}
+
+.heat-lesson .rod-coefficient{align-self:start;gap:8px}

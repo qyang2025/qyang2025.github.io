@@ -1,0 +1,11 @@
+/* Readable subtitles on the same pure-black surface as the lecture board. */
+.caption{background:#000;border:1px solid #252525;border-radius:8px;display:flex;flex-direction:column;gap:8px;padding:18px 22px;min-height:112px}
+.caption .caption-label{font-size:12px;line-height:1.4;color:#b8b8b8;padding:0;letter-spacing:.06em}
+.caption p{font-size:clamp(22px,1.7vw,26px);line-height:1.65;color:#faf7ee;margin:0;min-height:2em;overflow-wrap:anywhere}
+.caption mark{background:#f1ce7733;color:#ffe29a;border-radius:3px;padding:1px 0;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+@media(max-width:720px){.caption{padding:16px;gap:7px;min-height:105px}.caption p{font-size:20px;line-height:1.7}.caption .caption-label{font-size:11px}}
+.course-roadmap{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 14px}.course-roadmap button{font-family:inherit;font-size:13px;line-height:1.4;background:#f9faf5;color:#61725e;border:1px solid #d3dbcd;border-radius:6px;padding:8px 10px;text-align:left}.course-roadmap button[aria-current="step"]{background:#294b3e;color:#fff5d6;border-color:#294b3e}.voice-settings #accent-controls{margin-bottom:14px}.voice-settings #voice-accent{font-size:12px}
+@media(max-width:720px){.course-roadmap button{font-size:12px;padding:7px 8px}}
+/* Custom labels avoid browser-native English file-input text in Chinese mode. */
+.file-picker,.qa-audio-panel label{position:relative;cursor:pointer}.file-name{display:block;margin-top:8px;font-size:12px;overflow-wrap:anywhere}
+#document-file,#qa-audio-file{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)}

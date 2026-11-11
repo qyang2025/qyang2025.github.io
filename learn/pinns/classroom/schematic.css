@@ -1,0 +1,13 @@
+.schematic{width:100%;margin:0 0 18px;font-family:KaTeX_Main,"Microsoft YaHei",serif;font-size:var(--lecture-body);color:#f5f7fa}
+.schematic-body{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;flex-wrap:nowrap}
+.schematic-node{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:9px;padding:15px 8px;border:1px solid #56616b;border-radius:9px}
+.schematic-node[hidden],.schematic-link[hidden],.schematic-branch[hidden],.schematic-return[hidden]{display:none}
+.schematic-node>svg{width:48px;height:48px;max-height:none;fill:none;stroke:#79d4ef;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.schematic-node strong{font-size:1em;line-height:1.5;font-weight:400;overflow-wrap:anywhere}.schematic-node>span{font-size:1em;line-height:1.5;color:#bac8d0;overflow-wrap:anywhere}
+.schematic .node-current{border-color:#f4b860;animation:write-on .7s ease-out both}.schematic .node-current>svg{stroke:#f4b860}
+.schematic-link{flex:0 0 96px;display:flex;flex-direction:column;align-items:center;text-align:center;color:#91dcf3;gap:5px;font-size:1em;line-height:1.4;overflow-wrap:normal;word-break:normal}.schematic-link b{font-size:28px;font-weight:400}
+.schematic-compare .schematic-node:first-child>svg{stroke:#79d4ef}.schematic-compare .schematic-node:last-child>svg{stroke:#f4b860}
+.schematic-tree>.schematic-body{flex-direction:column}.schematic-tree>.schematic-body>.schematic-node{min-width:45%}.schematic-branches{display:flex;align-items:flex-start;gap:12px;width:100%;justify-content:center}.schematic-branch{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}.schematic-tree .schematic-link{flex:auto}
+.schematic-cycle .schematic-body{flex-wrap:wrap}.schematic-return{flex:0 0 100%;text-align:center;color:#91dcf3;font-size:1em}
+@media(max-width:640px){.schematic-flow .schematic-body,.schematic-cycle .schematic-body{flex-direction:column}.schematic-flow .schematic-node,.schematic-cycle .schematic-node{width:100%}.schematic-flow .schematic-link,.schematic-cycle .schematic-link{flex:auto}.schematic-flow .schematic-link b,.schematic-cycle .schematic-link b{transform:rotate(90deg)}.schematic-branches{flex-direction:column;align-items:stretch}.schematic-node{padding:13px 8px}}
+@media(prefers-reduced-motion:reduce){.schematic *{animation:none!important}}

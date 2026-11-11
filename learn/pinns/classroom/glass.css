@@ -1,0 +1,22 @@
+/* Transparent writing plane above a pure black stage, like a lightboard. */
+.lecture-stage{position:relative;isolation:isolate;background:#000;border-radius:0;overflow:hidden}
+.lecture-stage .slide{position:relative;z-index:2;background:transparent;border:0;border-radius:0;box-shadow:none;min-height:570px;pointer-events:none}
+.lecture-stage .slide .formula-box{pointer-events:auto}
+.lecture-stage .avatar-stage{position:absolute;z-index:1;right:4px;bottom:0;width:145px;height:180px;margin:0;pointer-events:none;filter:none}
+.lecture-stage #professor{height:180px;width:164px;opacity:.92}
+.lecture-stage .avatar-halo,.lecture-stage .avatar-state{display:none}
+.lecture-stage .slide-footer{min-height:118px;align-items:flex-end;padding-right:140px;border:0}
+.lecture-stage .slide-bullets li.focus{background:none;border-left-color:#f4b860;text-shadow:0 0 8px #ffffff18}
+.lecture-stage .plot-grid{stroke:#1c1c1c}.lecture-stage .plot-axis{stroke:#aeb7be}
+.derivation-steps{width:100%;display:flex;flex-direction:column;gap:8px;min-width:0}
+.slide .derivation-steps .formula-box{padding:5px 0;margin:0}.prior-step{opacity:.58}.current-step{animation:write-on .85s ease-out both}
+.slide .scene-content{animation:none}.slide .scene-caption{animation:write-on .7s ease-out both}
+.slide-bullets li.focus{animation:write-on .75s ease-out both}.slide-bullets li.upcoming{visibility:hidden}
+.teaching-chart[data-stage="0"] circle{animation:point-on .45s ease-out both}
+.teaching-chart[data-stage="0"] circle:nth-of-type(3n){animation-delay:.12s}.teaching-chart[data-stage="0"] circle:nth-of-type(3n + 1){animation-delay:.25s}.teaching-chart[data-stage="0"] circle:nth-of-type(3n + 2){animation-delay:.4s}
+.principal-direction{animation:write-on 1s ease-out both}.projection-guide{animation:write-on .9s ease-out both}
+@keyframes write-on{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(3px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:none}}
+@keyframes draw-line{from{stroke-dashoffset:420}to{stroke-dashoffset:0}}
+@keyframes point-on{from{opacity:0}to{opacity:1}}
+@media(max-width:720px){.lecture-stage .avatar-stage{position:absolute;right:0;bottom:0;width:110px;height:145px}.lecture-stage #professor{height:145px;width:132px}.lecture-stage .slide-footer{padding-right:100px;min-height:105px}}
+@media(prefers-reduced-motion:reduce){.lecture-stage *{animation:none!important;clip-path:none!important}}

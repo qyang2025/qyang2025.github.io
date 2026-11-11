@@ -1,0 +1,1747 @@
+{
+  "id": "f28a2cdd-b9cc-4195-579f-9376a27e3c1b",
+  "origin": "codex",
+  "courseId": "pinns",
+  "chapterIndex": 2,
+  "sectionLabels": [
+    [
+      "缩放与配点",
+      "Scaling"
+    ],
+    [
+      "训练步骤",
+      "Training"
+    ],
+    [
+      "独立验证",
+      "Validation"
+    ]
+  ],
+  "title": "PINNs 3: 训练、验证与正问题实验",
+  "titleEn": "PINNs 3: Train, validate and test the forward problem",
+  "summary": "研究生英文主讲、中文可切换。图与公式同步解释，含练习、实验和来源。",
+  "summaryEn": "Postgraduate lecture with linked schematics and equations, narrated experiments, exercises and traceable sources.",
+  "sources": [
+    {
+      "id": "raissi2017",
+      "name": "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (2017), Parts I and II",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Open author exposition and code for differentiable solution networks, PDE residuals, initial/boundary observations, and forward/inverse modelling. Author manuscripts: https://arxiv.org/abs/1711.10561 and https://arxiv.org/abs/1711.10566 ."
+    },
+    {
+      "id": "wang2023",
+      "name": "Wang, Sankaran, Wang & Perdikaris, An Expert’s Guide to Training PINNs (2023)",
+      "url": "https://arxiv.org/html/2308.08468v1",
+      "text": "Open manuscript covering nondimensionalization, architecture, loss balancing, temporal causality, curriculum, sampling and boundary constraints. Practical methods are problem-dependent and are not universal convergence guarantees."
+    },
+    {
+      "id": "failure2021",
+      "name": "Krishnapriyan et al., Characterizing Possible Failure Modes in PINNs (2021)",
+      "url": "https://arxiv.org/html/2109.01050v1",
+      "text": "Open manuscript demonstrating optimisation failures for convection, reaction and reaction-diffusion problems and investigating curriculum and sequential-in-time training. Expressive networks need not be easy to optimize."
+    },
+    {
+      "id": "torchdocs",
+      "name": "PyTorch official autograd tutorial",
+      "url": "https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html",
+      "text": "Official graph-based automatic differentiation documentation. The independent lab uses torch.autograd.grad(create_graph=True) for coordinate derivatives that remain differentiable with respect to network weights."
+    },
+    {
+      "id": "heatdocs",
+      "name": "DeepXDE official heat-equation example",
+      "url": "https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/heat.html",
+      "text": "Official heat example with sinusoidal initial data and zero Dirichlet boundaries. This course independently chooses a dimensionless unit domain, alpha=0.1 and exp(-alpha*pi^2*t)*sin(pi*x), rather than reproducing published accuracy claims."
+    },
+    {
+      "id": "course-demo",
+      "name": "Independent locally executed PINN experiment",
+      "url": "/demos/pinns_train.py",
+      "text": "Synthetic dimensionless heat problem: alpha=0.1, sine initial data, zero boundary values. Small smooth PyTorch networks trained on CPU with seed 7 in forward, inverse and omitted-initial-condition configurations. Held-out relative L2 and independent residual checks are logged. Inverse observations include Gaussian noise with standard deviation 0.005. These are teaching runs, not paper benchmarks."
+    },
+    {
+      "id": "gradients2020",
+      "name": "Wang, Teng & Perdikaris, Understanding and mitigating gradient pathologies in PINNs (2020)",
+      "url": "https://arxiv.org/abs/2001.04536",
+      "text": "Primary study of imbalanced back-propagated gradients in composite PINN objectives, with adaptive training strategies. Used for the diagnosis of conflicting loss components, not as a guarantee that a specific weighting rule always works."
+    },
+    {
+      "id": "ntk2020",
+      "name": "Wang, Yu & Perdikaris, When and why PINNs fail to train (2020)",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Primary neural-tangent-kernel analysis of discrepant convergence rates and training difficulties, under its stated assumptions. Its limiting analysis is not an exact description of every finite nonlinear network."
+    },
+    {
+      "id": "causality2022",
+      "name": "Wang, Sankaran & Perdikaris, Respecting causality is all you need for training PINNs (2022)",
+      "url": "https://arxiv.org/abs/2203.07404",
+      "text": "Primary temporal-training study motivating the need to respect causal evolution in difficult time-dependent problems. Its title should not be interpreted as a universal guarantee across all PDEs."
+    },
+    {
+      "id": "operator2020",
+      "name": "Li et al., Fourier Neural Operator (2020); Lu et al., DeepONet (2019)",
+      "url": "https://arxiv.org/abs/2010.08895",
+      "text": "Primary operator-learning papers: https://arxiv.org/abs/2010.08895 and https://arxiv.org/abs/1910.03193 . Learning a mapping between functions across a problem family is distinct from fitting one coordinate network to one fixed PDE instance."
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "训练、验证与正问题实验",
+      "titleEn": "Train, validate and test the forward problem",
+      "eyebrow": "第 3 章 / 学习路线",
+      "eyebrowEn": "CHAPTER 3 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "建立本章的推理链"
+      ],
+      "bulletsEn": [
+        "Follow the reasoning in this chapter"
+      ],
+      "sourceIds": [],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "缩放与配点",
+            "labelEn": "Scaling",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "训练步骤",
+            "labelEn": "Training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "独立验证",
+            "labelEn": "Validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "连接",
+            "labelEn": "Connect"
+          },
+          {
+            "label": "检验",
+            "labelEn": "Check"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "focus": 0,
+          "text": "这是研究生 PINNs 课程的第 3 章：训练、验证与正问题实验。我们从缩放与配点连接到训练步骤。最后通过独立验证检验理解。",
+          "textEn": "This is chapter 3 of our postgraduate PINNs session: train, validate and test the forward problem. We will connect scaling to training. Finally, we will use validation to check what we have learned.",
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pinn-3-nondim",
+      "title": "先给坐标选择尺度",
+      "titleEn": "Choose coordinate scales before training",
+      "eyebrow": "3.1 / 一个核心问题",
+      "eyebrowEn": "3.1 / One central question",
+      "visual": "equation",
+      "formula": "\\hat x=x_{\\text{物理}}/L,\\quad \\hat t=t_{\\text{物理}}/T",
+      "formulaEn": "\\hat x=x_{\\rm phys}/L,\\quad \\hat t=t_{\\rm phys}/T",
+      "bullets": [
+        "物理坐标",
+        "无量纲坐标"
+      ],
+      "bulletsEn": [
+        "Physical coordinates",
+        "Dimensionless coordinates"
+      ],
+      "beats": [
+        {
+          "id": "nondim-b0",
+          "focus": 0,
+          "text": "我们已经知道需要哪些损失，但数值表现还取决于坐标尺度，因此运行优化器之前先检查单位与缩放。 帽子表示无量纲变量，x_phys、t_phys 是测得的位置与时间，L、T 是特征长度和时间。除以尺度后坐标进入合适的数值范围，我们先前的单位区域已完成这一步。",
+          "textEn": "We know which losses are needed, but their numerical behaviour depends on coordinate scales, so we first check the units before running an optimiser. The hats denote dimensionless variables. Here x physical and t physical are measured position and time, L is a characteristic length, and T is a characteristic time. Dividing by these scales brings coordinate ranges to useful numerical magnitudes. Our earlier unit-domain example had already undergone this step, which is why its coordinates had no physical units.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\hat x=x_{\\text{物理}}/L,\\quad \\hat t=t_{\\text{物理}}/T",
+            "formulaEn": "\\hat x=x_{\\rm phys}/L,\\quad \\hat t=t_{\\rm phys}/T",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "nondim-b1",
+          "focus": 1,
+          "text": "不能只归一化网络输入却保留未变的物理微分方程。坐标导数会产生链式法则因子，温度也可按特征温差缩放。下一式明确展示系数如何改变。",
+          "textEn": "Do not simply normalise inputs and keep an unchanged physical differential equation. Coordinate derivatives acquire chain-rule factors, so preprocessing must be reflected in the residual. Temperature can similarly be scaled by a characteristic difference, using a reference offset when appropriate. This is a physical consistency requirement before it is an optimisation convenience, and the next equation makes the coefficient change explicit.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "wang2023"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理坐标",
+            "labelEn": "Physical coordinates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "无量纲坐标",
+            "labelEn": "Dimensionless coordinates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "长度 $L$、时间 $T$",
+            "labelEn": "length $L$, time $T$"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-scaled-pde",
+      "title": "缩放也改变残差系数",
+      "titleEn": "Scaling changes the coefficient in the residual",
+      "eyebrow": "3.2 / 一个核心问题",
+      "eyebrowEn": "3.2 / One central question",
+      "visual": "equation",
+      "formula": "\\hat u_{\\hat t}=\\hat\\alpha\\hat u_{\\hat x\\hat x},\\quad\\hat\\alpha=\\alpha_{\\text{物理}}T/L^2",
+      "formulaEn": "\\hat u_{\\hat t}=\\hat\\alpha\\hat u_{\\hat x\\hat x},\\quad\\hat\\alpha=\\alpha_{\\rm phys}T/L^2",
+      "bullets": [
+        "物理扩散系数",
+        "有效系数 $\\hat\\alpha$"
+      ],
+      "bulletsEn": [
+        "Physical diffusivity",
+        "Effective $\\hat\\alpha$"
+      ],
+      "beats": [
+        {
+          "id": "scaled-pde-b0",
+          "focus": 0,
+          "text": "坐标缩放也会改变导数，因此现在必须推导变换后的扩散系数，不能悄悄沿用原来的方程。 物理 alpha 的量纲是长度平方除以时间，alpha 帽子无量纲。时间导数带来一除 T，二次空间导数带来一除 L 平方，消去温度尺度后就得到这里的有效系数。",
+          "textEn": "Rescaling coordinates also rescales their derivatives, so we must now derive the transformed diffusion coefficient rather than silently training with the old equation. Alpha physical has dimensions of length squared per time, while alpha hat is dimensionless. A time derivative contributes one over T and two spatial derivatives contribute one over L squared. Cancelling the temperature scale yields the coefficient alpha physical times T divided by L squared. The schematic is a dimensional explanation of the same equation, not an extra empirical correction.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\hat u_{\\hat t}=\\hat\\alpha\\hat u_{\\hat x\\hat x},\\quad\\hat\\alpha=\\alpha_{\\text{物理}}T/L^2",
+            "formulaEn": "\\hat u_{\\hat t}=\\hat\\alpha\\hat u_{\\hat x\\hat x},\\quad\\hat\\alpha=\\alpha_{\\rm phys}T/L^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "scaled-pde-b1",
+          "focus": 1,
+          "text": "已知 alpha 时可选择让系数等于一的时间尺度。反问题中不要让缩放依赖待识别未知量，应采用固定且记录清楚的参考尺度。无量纲化可能改善条件，但不解决所有训练困难。",
+          "textEn": "Choosing T equal to L squared divided by alpha physical makes this coefficient one when alpha is known. In an inverse problem that choice can depend on the very unknown we seek, so use fixed documented reference scales instead. Scaling can improve conditioning but does not solve every training pathology. After checking the algebra and units, we can choose the actual sample locations.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "wang2023"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理扩散系数",
+            "labelEn": "Physical diffusivity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "有效系数 $\\hat\\alpha$",
+            "labelEn": "Effective $\\hat\\alpha$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "链式法则",
+            "labelEn": "chain-rule factors"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-sampling",
+      "title": "配点不是额外温度标签",
+      "titleEn": "Collocation points are not temperature labels",
+      "eyebrow": "3.3 / 一个核心问题",
+      "eyebrowEn": "3.3 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_r=\\frac1{N_r}\\sum_{i=1}^{N_r}r_\\theta(x_i,t_i)^2",
+      "formulaEn": "\\mathcal L_r=\\frac1{N_r}\\sum_{i=1}^{N_r}r_\\theta(x_i,t_i)^2",
+      "bullets": [
+        "内部配点",
+        "残差评估"
+      ],
+      "bulletsEn": [
+        "Interior collocation points",
+        "Residual evaluation"
+      ],
+      "beats": [
+        {
+          "id": "sampling-b0",
+          "focus": 0,
+          "text": "缩放后的方程已经保持一致，接下来选择在哪里检查残差，并把这些位置与提供已知温度的位置区分开。 N_r 是内部残差样本数，i 为索引。每个坐标只用于把当前网络代入微分方程，不提供真实内部温度；初始和边界点另行采样。本地实验固定内部点以便复现比较。",
+          "textEn": "With the scaled equation consistent, we next choose where to evaluate its residual and separate those locations from points carrying known temperature values. N subscript r is the number of interior residual samples and i indexes them. At each coordinate pair we evaluate the differential equation using the current network; we do not supply the true interior temperature. Initial and boundary samples are separate because they enforce separate information. In our lab the interior sample set is held fixed to make comparisons reproducible.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\mathcal L_r=\\frac1{N_r}\\sum_{i=1}^{N_r}r_\\theta(x_i,t_i)^2",
+            "formulaEn": "\\mathcal L_r=\\frac1{N_r}\\sum_{i=1}^{N_r}r_\\theta(x_i,t_i)^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 5,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-b1",
+          "focus": 1,
+          "text": "也可以重采样或按残差引导采样，但仍应在不同位置独立验证。有限配点可能遗漏困难区域。使用复杂策略之前，先检查覆盖和数据隔离，避免把评估标签泄露给优化器。",
+          "textEn": "Random resampling and residual-guided sampling are alternative design choices. Neither justifies checking only training locations. A finite collection of small residuals can miss difficult regions, so independent probes must use different points. Before adding a sophisticated sampling strategy, confirm that each sample set covers the intended part of the domain and that no evaluation labels leak into optimisation.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "内部配点",
+            "labelEn": "Interior collocation points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "field",
+            "revealAt": 0
+          },
+          {
+            "label": "残差评估",
+            "labelEn": "Residual evaluation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "不需要内部真值",
+            "labelEn": "no interior labels"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-training-loop",
+      "title": "一次训练步的完整闭环",
+      "titleEn": "The complete loop in one training step",
+      "eyebrow": "3.4 / 一个核心问题",
+      "eyebrowEn": "3.4 / One central question",
+      "visual": "equation",
+      "formula": "\\theta\\leftarrow\\theta-\\eta\\nabla_\\theta\\mathcal L",
+      "formulaEn": "\\theta\\leftarrow\\theta-\\eta\\nabla_\\theta\\mathcal L",
+      "bullets": [
+        "损失及梯度",
+        "参数更新"
+      ],
+      "bulletsEn": [
+        "Loss and gradients",
+        "Parameter update"
+      ],
+      "beats": [
+        {
+          "id": "training-loop-b0",
+          "focus": 0,
+          "text": "采样位置确定了目标检查什么，接下来把预测、求导、计算损失和更新参数组织成一次完整训练循环。 eta 是学习率尺度，左箭头表示用新值替换参数。显示的是简单梯度下降示意，本地代码实际用维护矩估计的 Adam。一次训练步包含预测、求坐标导数、构造损失、清空旧梯度、反向传播和更新。",
+          "textEn": "The sample locations define what the objective checks, and we can now put prediction, differentiation, loss evaluation and parameter updates into one training loop. Eta is a learning-rate scale, and the left arrow means replacing the parameter vector by an updated value. The displayed rule is a simple gradient-descent illustration; our executable run uses Adam, which also maintains moment estimates. A training step queries the network, forms coordinate derivatives and losses, clears old parameter gradients, backpropagates the loss, and updates the parameters.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\theta\\leftarrow\\theta-\\eta\\nabla_\\theta\\mathcal L",
+            "formulaEn": "\\theta\\leftarrow\\theta-\\eta\\nabla_\\theta\\mathcal L",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "training-loop-b1",
+          "focus": 1,
+          "text": "PyTorch 默认累积梯度，因此要显式清空。记录日志时取脱离计算图的数值，避免存储整段历史图。复现还需要种子、网络、精度、样本数与优化设置，不能用平滑动画代替可核查实验。",
+          "textEn": "Clearing gradients matters because PyTorch normally accumulates them. Logging detached numerical values avoids accidentally storing an entire history of computation graphs. Reproducibility also requires a seed, architecture, dtype, sample counts and optimiser settings. Our logs record these alongside held-out errors, so a smooth-looking animation cannot substitute for a verifiable numerical experiment.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "sourceIds": [
+        "torchdocs"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "损失及梯度",
+            "labelEn": "Loss and gradients",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "参数更新",
+            "labelEn": "Parameter update",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "步长 $\\eta$",
+            "labelEn": "step size $\\eta$"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-optimisers",
+      "title": "优化器是选择，不是定理",
+      "titleEn": "An optimiser choice is not a convergence guarantee",
+      "eyebrow": "3.5 / 一个核心问题",
+      "eyebrowEn": "3.5 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "随机梯度方法",
+        "拟牛顿方法"
+      ],
+      "bulletsEn": [
+        "Adaptive first-order method",
+        "Quasi-Newton method"
+      ],
+      "beats": [
+        {
+          "id": "optimisers-b0",
+          "focus": 0,
+          "text": "训练循环说明何时更新参数，但更新方法本身还需要选择，因此接下来比较 Adam 与拟牛顿精修的作用。 Adam 是自适应一阶优化器，L-BFGS 是利用历史估计曲率的有限内存拟牛顿方法。PINN 有时先用 Adam 再做 L-BFGS 精修，但不是普遍规则。教学实验只用 Adam，保持实现简短、可复现。",
+          "textEn": "The loop tells us when parameters are updated, but the update method itself is a separate choice, so we compare the roles of Adam and quasi-Newton refinement. Adam is an adaptive first-order optimiser. L-BFGS is a limited-memory quasi-Newton method that uses curvature information estimated from optimisation history. Many PINN workflows use an Adam phase and sometimes an L-BFGS refinement, but this is a practical option rather than a universal rule. Our logged teaching runs deliberately use Adam alone so the implementation remains short and reproducible.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "optimisers-b1",
+          "focus": 1,
+          "text": "尝试 L-BFGS 时应检查 closure、线搜索及重采样兼容性，并比较实际耗时和物理误差。优化器无法修复缺失条件或错误残差，这也是先核查问题定义的原因。",
+          "textEn": "If trying L-BFGS, inspect its closure requirements, line-search behaviour and compatibility with changing samples. Compare wall-clock time and physical accuracy, not merely iteration counts. No optimiser fixes a missing condition or an incorrect residual. That is why we checked the problem formulation first and will evaluate independent errors after training.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "wang2023"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "随机梯度方法",
+            "labelEn": "Adaptive first-order method",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "拟牛顿方法",
+            "labelEn": "Quasi-Newton method",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "比较成本与稳定性",
+            "labelEn": "compare cost and stability"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-hard-boundary",
+      "title": "让结构严格满足零边界",
+      "titleEn": "A construction can enforce zero boundaries exactly",
+      "eyebrow": "3.6 / 一个核心问题",
+      "eyebrowEn": "3.6 / One central question",
+      "visual": "equation",
+      "formula": "u_\\theta(x,t)=x(1-x)v_\\theta(x,t)",
+      "formulaEn": "u_\\theta(x,t)=x(1-x)v_\\theta(x,t)",
+      "bullets": [
+        "自由网络 $v_\\theta$",
+        "端点严格为零"
+      ],
+      "bulletsEn": [
+        "Free network $v_\\theta$",
+        "Exactly zero endpoints"
+      ],
+      "beats": [
+        {
+          "id": "hard-boundary-b0",
+          "focus": 0,
+          "text": "优化器只能尽量降低软惩罚，因此现在追问：能否直接通过网络表示严格保证端点条件。 v_theta 是自由的平滑网络。乘以 x(1-x) 后，无论参数如何，两个端点的温度都严格为零，这是代数结构保证，而不是有限惩罚训练的结果。",
+          "textEn": "An optimiser can only reduce a soft penalty, so we next ask whether the network representation itself can guarantee the endpoint conditions exactly. V theta is an unconstrained smooth neural function. Multiplying it by x times one minus x makes the temperature exactly zero at x equal to zero and one, regardless of its parameters. This hard construction enforces our homogeneous endpoint values by algebra rather than a finite penalty. The diagram shows why the factor, not optimiser success, gives the guarantee.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "u_\\theta(x,t)=x(1-x)v_\\theta(x,t)",
+            "formulaEn": "u_\\theta(x,t)=x(1-x)v_\\theta(x,t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "hard-boundary-b1",
+          "focus": 1,
+          "text": "它不会自动满足初始正弦，还改变了残差中的导数。必须对完整 u 求导，不能只对 v 求导。复杂几何和边界类型可能更难构造。主实验保留软条件，以便看到各项训练误差。",
+          "textEn": "It does not automatically enforce the initial sine profile, and it changes the derivatives entering the residual. Always differentiate the full constructed u rather than only v. Hard constraints can be useful when a suitable construction is available, but complicated geometries and boundary types may require more care. Our main run keeps soft conditions to make their separate training errors visible.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "wang2023"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "自由网络 $v_\\theta$",
+            "labelEn": "Free network $v_\\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "端点严格为零",
+            "labelEn": "Exactly zero endpoints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "乘边界因子",
+            "labelEn": "multiply a boundary factor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-validation",
+      "title": "用独立指标判断解的质量",
+      "titleEn": "Validate the solution independently of training",
+      "eyebrow": "3.7 / 一个核心问题",
+      "eyebrowEn": "3.7 / One central question",
+      "visual": "equation",
+      "formula": "E_{\\rm rel}=\\frac{\\|u_\\theta-u^*\\|_2}{\\|u^*\\|_2}",
+      "formulaEn": "E_{\\rm rel}=\\frac{\\|u_\\theta-u^*\\|_2}{\\|u^*\\|_2}",
+      "bullets": [
+        "未参与训练的点",
+        "参考误差与残差"
+      ],
+      "bulletsEn": [
+        "Held-out locations",
+        "Reference error and residual"
+      ],
+      "beats": [
+        {
+          "id": "validation-b0",
+          "focus": 0,
+          "text": "即使端点严格正确，也不能保证内部场准确，因此现在建立独立检查，区分训练损失小与解真正正确。 E_rel 是相对误差，这里二范数作用于独立时空网格上的离散值。u 星号来自教学例子的解析解，评估网格不同于全部训练点，同时另采随机点检查残差。",
+          "textEn": "Even exact endpoints would not guarantee an accurate interior field, so we now define independent checks that can distinguish a low training loss from a correct solution. E subscript rel is relative error, and the norm here is the Euclidean norm of values on a held-out space-time grid. The reference u star is available only because we chose a solvable teaching example. The evaluation grid is different from all training points. We also probe residuals on a separate random set and inspect initial and boundary behaviour.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "E_{\\rm rel}=\\frac{\\|u_\\theta-u^*\\|_2}{\\|u^*\\|_2}",
+            "formulaEn": "E_{\\rm rel}=\\frac{\\|u_\\theta-u^*\\|_2}{\\|u^*\\|_2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "validation-b1",
+          "focus": 1,
+          "text": "这是离散相对二范数估计，不是精确连续范数。没有解析解时，应使用可信数值收敛、守恒检查、留出观测和敏感性测试。训练损失低并不充分，接下来查看真实训练记录。",
+          "textEn": "This is a discrete relative L two estimate, not an exact continuous norm. If no analytical reference exists, use trusted numerical convergence studies, conservation checks, held-out observations and sensitivity tests instead. A single low training loss is insufficient. We now have enough safeguards to look at an actual training trace without mistaking a visual fit for evidence.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "未参与训练的点",
+            "labelEn": "Held-out locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "参考误差与残差",
+            "labelEn": "Reference error and residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "独立评估",
+            "labelEn": "independent evaluation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-forward-demo",
+      "title": "Python 实验：从初值到预测",
+      "titleEn": "Python experiment: learn the heat solution",
+      "eyebrow": "3.8 / 一个核心问题",
+      "eyebrowEn": "3.8 / One central question",
+      "visual": "equation",
+      "formula": "r_\\theta=u_t-0.1u_{xx}",
+      "formulaEn": "r_\\theta=u_t-0.1u_{xx}",
+      "bullets": [
+        "可运行 Python",
+        "真实训练记录"
+      ],
+      "bulletsEn": [
+        "Runnable Python",
+        "Executed training trace"
+      ],
+      "beats": [
+        {
+          "id": "forward-demo-b0",
+          "focus": 0,
+          "text": "训练流程和独立评估标准已经具备，因此现在可以解释真实 Python 训练记录，而不是只凭一条曲线判断成功。 代码对应本机实际执行的 PyTorch 实验，图形回放保存的训练检查点，不是人为模拟改善。epoch 在这里指一次全批量参数更新。蓝线是零点五时刻解析温度，黄线是同一时刻预测；相对误差在完整留出时空网格计算。",
+          "textEn": "We now have a training procedure and independent evaluation criteria, so we can interpret an actual Python training trace rather than judging success from a curve alone. The code panel describes the actual local PyTorch run, and the graph replays saved training checkpoints rather than simulating improvement. Epoch means one parameter-update iteration in this full-batch teaching run. The blue reference curve is the exact temperature at time one half, and the yellow curve is the network prediction at that same time. The displayed relative error uses the full held-out space-time grid, not just the curve.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "r_\\theta=u_t-0.1u_{xx}",
+            "formulaEn": "r_\\theta=u_t-0.1u_{xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "forward-demo-b1",
+          "focus": 1,
+          "text": "讲解时检查点随语音推进，各损失和误差显示真实记录。请分开读初始、边界和残差损失。单个时刻接近并不代表处处准确。可以下载代码复现，再设计更有说服力的验证。",
+          "textEn": "As the professor speaks, checkpoints advance and the logged losses and error change. Read the initial loss separately from the residual and boundary loss. A visually close time slice is encouraging but not a complete test, because errors elsewhere could remain. After the narrated replay, use the downloadable code to reproduce the seed and compare its final metrics. The following activity asks you to design a more convincing validation.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": "forward",
+      "activitySeconds": 180,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "可运行 Python",
+            "labelEn": "Runnable Python",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "真实训练记录",
+            "labelEn": "Executed training trace",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "对照解析解",
+            "labelEn": "compare with exact solution"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-3-validation-exercise",
+      "title": "练习：设计可信验证",
+      "titleEn": "Exercise: design a convincing validation",
+      "eyebrow": "3.9 / 一个核心问题",
+      "eyebrowEn": "3.9 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "训练观察",
+        "独立证据"
+      ],
+      "bulletsEn": [
+        "Training observations",
+        "Independent evidence"
+      ],
+      "beats": [
+        {
+          "id": "validation-exercise-b0",
+          "focus": 0,
+          "text": "回放展示了一次成功训练，但单个时刻的曲线证据有限，因此接下来请设计能够发现其他位置误差的检查。 用四分钟设计三种独立检查：至少一项检查条件，一项检查内部，一项不用训练点，并说明哪些检查依赖解析解。请解释为何零点五时刻曲线正确，不足以验证全部时刻。",
+          "textEn": "The replay showed one successful run, but one time slice is limited evidence, so your next task is to design checks that could expose errors elsewhere. Allow four minutes to design three independent checks for this forward problem. At least one must examine conditions, one must examine the interior, and one must avoid using the training point set. Say which check is possible only because the example has an analytical solution. If the temperature curve looks correct at time one half, explain why that alone does not validate all times.",
+          "pauseAfter": 240,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "validation-exercise-b1",
+          "focus": 1,
+          "text": "可以包括留出时空相对误差、独立随机残差和显式初始或边界检查，再增加种子与采样敏感性研究。它们回答不同问题。十分钟休息后，我们将用相同结构识别未知 alpha。",
+          "textEn": "A strong answer includes held-out relative error across space-time, independently sampled residuals, and explicit initial or boundary checks, with multiple seeds or sampling sensitivities as an additional investigation. These checks answer different questions and should not be collapsed into a single number. After a ten-minute break, we will reuse the same machinery to infer alpha rather than treating it as known.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 240,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "训练观察",
+            "labelEn": "Training observations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "独立证据",
+            "labelEn": "Independent evidence",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "列出三个检查",
+            "labelEn": "name three checks"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,1529 @@
+{
+  "id": "479020db-859a-8b53-6ed9-b3afc6ee9374",
+  "origin": "codex",
+  "courseId": "pinns",
+  "chapterIndex": 4,
+  "sectionLabels": [
+    [
+      "失效证据",
+      "Failure"
+    ],
+    [
+      "训练病态",
+      "Pathologies"
+    ],
+    [
+      "对照诊断",
+      "Diagnosis"
+    ]
+  ],
+  "title": "PINNs 5: 失效、诊断与改进",
+  "titleEn": "PINNs 5: Failure modes, diagnosis and remedies",
+  "summary": "研究生英文主讲、中文可切换。图与公式同步解释，含练习、实验和来源。",
+  "summaryEn": "Postgraduate lecture with linked schematics and equations, narrated experiments, exercises and traceable sources.",
+  "sources": [
+    {
+      "id": "raissi2017",
+      "name": "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (2017), Parts I and II",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Open author exposition and code for differentiable solution networks, PDE residuals, initial/boundary observations, and forward/inverse modelling. Author manuscripts: https://arxiv.org/abs/1711.10561 and https://arxiv.org/abs/1711.10566 ."
+    },
+    {
+      "id": "wang2023",
+      "name": "Wang, Sankaran, Wang & Perdikaris, An Expert’s Guide to Training PINNs (2023)",
+      "url": "https://arxiv.org/html/2308.08468v1",
+      "text": "Open manuscript covering nondimensionalization, architecture, loss balancing, temporal causality, curriculum, sampling and boundary constraints. Practical methods are problem-dependent and are not universal convergence guarantees."
+    },
+    {
+      "id": "failure2021",
+      "name": "Krishnapriyan et al., Characterizing Possible Failure Modes in PINNs (2021)",
+      "url": "https://arxiv.org/html/2109.01050v1",
+      "text": "Open manuscript demonstrating optimisation failures for convection, reaction and reaction-diffusion problems and investigating curriculum and sequential-in-time training. Expressive networks need not be easy to optimize."
+    },
+    {
+      "id": "torchdocs",
+      "name": "PyTorch official autograd tutorial",
+      "url": "https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html",
+      "text": "Official graph-based automatic differentiation documentation. The independent lab uses torch.autograd.grad(create_graph=True) for coordinate derivatives that remain differentiable with respect to network weights."
+    },
+    {
+      "id": "heatdocs",
+      "name": "DeepXDE official heat-equation example",
+      "url": "https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/heat.html",
+      "text": "Official heat example with sinusoidal initial data and zero Dirichlet boundaries. This course independently chooses a dimensionless unit domain, alpha=0.1 and exp(-alpha*pi^2*t)*sin(pi*x), rather than reproducing published accuracy claims."
+    },
+    {
+      "id": "course-demo",
+      "name": "Independent locally executed PINN experiment",
+      "url": "/demos/pinns_train.py",
+      "text": "Synthetic dimensionless heat problem: alpha=0.1, sine initial data, zero boundary values. Small smooth PyTorch networks trained on CPU with seed 7 in forward, inverse and omitted-initial-condition configurations. Held-out relative L2 and independent residual checks are logged. Inverse observations include Gaussian noise with standard deviation 0.005. These are teaching runs, not paper benchmarks."
+    },
+    {
+      "id": "gradients2020",
+      "name": "Wang, Teng & Perdikaris, Understanding and mitigating gradient pathologies in PINNs (2020)",
+      "url": "https://arxiv.org/abs/2001.04536",
+      "text": "Primary study of imbalanced back-propagated gradients in composite PINN objectives, with adaptive training strategies. Used for the diagnosis of conflicting loss components, not as a guarantee that a specific weighting rule always works."
+    },
+    {
+      "id": "ntk2020",
+      "name": "Wang, Yu & Perdikaris, When and why PINNs fail to train (2020)",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Primary neural-tangent-kernel analysis of discrepant convergence rates and training difficulties, under its stated assumptions. Its limiting analysis is not an exact description of every finite nonlinear network."
+    },
+    {
+      "id": "causality2022",
+      "name": "Wang, Sankaran & Perdikaris, Respecting causality is all you need for training PINNs (2022)",
+      "url": "https://arxiv.org/abs/2203.07404",
+      "text": "Primary temporal-training study motivating the need to respect causal evolution in difficult time-dependent problems. Its title should not be interpreted as a universal guarantee across all PDEs."
+    },
+    {
+      "id": "operator2020",
+      "name": "Li et al., Fourier Neural Operator (2020); Lu et al., DeepONet (2019)",
+      "url": "https://arxiv.org/abs/2010.08895",
+      "text": "Primary operator-learning papers: https://arxiv.org/abs/2010.08895 and https://arxiv.org/abs/1910.03193 . Learning a mapping between functions across a problem family is distinct from fitting one coordinate network to one fixed PDE instance."
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "失效、诊断与改进",
+      "titleEn": "Failure modes, diagnosis and remedies",
+      "eyebrow": "第 5 章 / 学习路线",
+      "eyebrowEn": "CHAPTER 5 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "建立本章的推理链"
+      ],
+      "bulletsEn": [
+        "Follow the reasoning in this chapter"
+      ],
+      "sourceIds": [],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "失效证据",
+            "labelEn": "Failure",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "训练病态",
+            "labelEn": "Pathologies",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "对照诊断",
+            "labelEn": "Diagnosis",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "连接",
+            "labelEn": "Connect"
+          },
+          {
+            "label": "检验",
+            "labelEn": "Check"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "focus": 0,
+          "text": "这是研究生 PINNs 课程的第 5 章：失效、诊断与改进。我们从失效证据连接到训练病态。最后通过对照诊断检验理解。",
+          "textEn": "This is chapter 5 of our postgraduate PINNs session: failure modes, diagnosis and remedies. We will connect failure to pathologies. Finally, we will use diagnosis to check what we have learned.",
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pinn-5-residual-error",
+      "title": "残差小为何仍可能错？",
+      "titleEn": "Why can a small residual accompany a wrong answer?",
+      "eyebrow": "5.1 / 一个核心问题",
+      "eyebrowEn": "5.1 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_r\\approx0\\ \\not\\Rightarrow\\ \\|u_\\theta-u^*\\|\\approx0",
+      "formulaEn": "\\mathcal L_r\\approx0\\ \\not\\Rightarrow\\ \\|u_\\theta-u^*\\|\\approx0",
+      "bullets": [
+        "局部方程一致",
+        "目标解的误差"
+      ],
+      "bulletsEn": [
+        "Local equation consistency",
+        "Error in the desired solution"
+      ],
+      "beats": [
+        {
+          "id": "residual-error-b0",
+          "focus": 0,
+          "text": "受控条件下的正反问题已经成功，但现在需要理解：为什么残差很小，解仍然可能严重错误。 划掉的蕴含表示左边不足以证明右边。残差检查微分关系，解误差则比较满足全部条件所选择的具体场。零场反例无需复杂理论：方程和端点正确，初始分布仍错。",
+          "textEn": "The forward and inverse examples worked under controlled settings, but we now need to understand why a small residual can coexist with a seriously wrong solution. The crossed implication means the statement on the left is not sufficient to establish the statement on the right. A residual checks a differential relation, whereas solution error compares with the specific field selected by all conditions. Our zero-field counterexample makes this distinction without any optimisation theory: the PDE and endpoints can be satisfied while the initial profile is wrong.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\mathcal L_r\\approx0\\ \\not\\Rightarrow\\ \\|u_\\theta-u^*\\|\\approx0",
+            "formulaEn": "\\mathcal L_r\\approx0\\ \\not\\Rightarrow\\ \\|u_\\theta-u^*\\|\\approx0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "residual-error-b1",
+          "focus": 1,
+          "text": "即使损失项完整，有限采样、不稳定形式和优化失败仍可能妨碍精度。误差界需要问题稳定性与残差范数等假设。诊断时应先检查信息和证据，不要把所有失败归因于网络不够大。",
+          "textEn": "Even with all losses present, finite sampling, unstable formulations and unsuccessful optimisation can obstruct accuracy. Error bounds require assumptions about the problem, stability and residual norms, rather than an unqualified statement that small loss implies correctness. Diagnose what information and numerical evidence are actually available before attributing every failure to network size.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "failure2021"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "局部方程一致",
+            "labelEn": "Local equation consistency",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "目标解的误差",
+            "labelEn": "Error in the desired solution",
+            "detail": "",
+            "detailEn": "",
+            "icon": "derivative",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "不能直接等同",
+            "labelEn": "not equivalent"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-5-gradient-balance",
+      "title": "损失大小不等于更新影响",
+      "titleEn": "Loss values do not measure gradient influence",
+      "eyebrow": "5.2 / 一个核心问题",
+      "eyebrowEn": "5.2 / One central question",
+      "visual": "equation",
+      "formula": "g_j=\\|\\nabla_\\theta(\\lambda_j\\mathcal L_j)\\|_2",
+      "formulaEn": "g_j=\\|\\nabla_\\theta(\\lambda_j\\mathcal L_j)\\|_2",
+      "bullets": [
+        "各损失分量",
+        "参数梯度 $g_j$"
+      ],
+      "bulletsEn": [
+        "Individual loss terms",
+        "Parameter-gradient size $g_j$"
+      ],
+      "beats": [
+        {
+          "id": "gradient-balance-b0",
+          "focus": 0,
+          "text": "信息缺失是一类误差来源，但即使目标完整，各项训练仍可能失衡，因此现在检查损失分量的梯度怎样相互作用。 j 表示损失分量，g_j 是加权分量对网络参数的梯度二范数。标量损失接近，产生的梯度幅度仍可能差很多，方向也可能互相对抗。仅看总曲线会遗漏被忽视的物理要求。",
+          "textEn": "Missing information is one cause of error, but even a complete objective can train unevenly, so we next inspect how its component gradients compete. Here j indexes loss components and g j is the norm of the weighted component gradient with respect to network parameters. The lambda weights are numerical trade-offs, not physical coefficients. Two losses with similar scalar values can produce very different gradients, and their gradient directions can oppose one another. That is why looking only at the total curve can miss a neglected physical requirement.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "g_j=\\|\\nabla_\\theta(\\lambda_j\\mathcal L_j)\\|_2",
+            "formulaEn": "g_j=\\|\\nabla_\\theta(\\lambda_j\\mathcal L_j)\\|_2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-balance-b1",
+          "focus": 1,
+          "text": "诊断时记录分量值、实际条件误差及代表性的梯度幅度或方向。重加权、缩放和课程策略可能有用，但应由独立解指标检验，不能只让曲线看起来相似。",
+          "textEn": "As a diagnosis, record individual values, physical constraint errors and representative gradient magnitudes or directions. Reweighting, rescaling or curriculum changes may help particular problems, but they should be evaluated by independent solution metrics. A weighting method that merely makes curves look similar is not enough. This is a training interaction, separate from whether the function class can express the solution.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "gradients2020"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "各损失分量",
+            "labelEn": "Individual loss terms",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "参数梯度 $g_j$",
+            "labelEn": "Parameter-gradient size $g_j$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "derivative",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "检查实际影响",
+            "labelEn": "inspect update influence"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-5-frequencies",
+      "title": "高频为什么更难处理？",
+      "titleEn": "Why are high-frequency features troublesome?",
+      "eyebrow": "5.3 / 一个核心问题",
+      "eyebrowEn": "5.3 / One central question",
+      "visual": "equation",
+      "formula": "\\partial_{xx}\\sin(k\\pi x)=-(k\\pi)^2\\sin(k\\pi x)",
+      "formulaEn": "\\partial_{xx}\\sin(k\\pi x)=-(k\\pi)^2\\sin(k\\pi x)",
+      "bullets": [
+        "频率 $k$",
+        "导数放大因子"
+      ],
+      "bulletsEn": [
+        "Frequency index $k$",
+        "Derivative amplification"
+      ],
+      "beats": [
+        {
+          "id": "frequencies-b0",
+          "focus": 0,
+          "text": "梯度失衡涉及目标之间的相互作用，而空间频率会改变导数本身的尺度，因此接下来分析这个不同的困难来源。 k 是正整数频率索引，越大表示空间振荡越密。二阶导数把幅度乘以 k pi 的平方，残差再平方会产生很强的频率尺度差异，因此场的小误差可能造成较大的微分误差。",
+          "textEn": "Gradient imbalance concerns the interaction between objectives, while spatial frequency changes derivative scales themselves, so we next examine that separate source of difficulty. K is a positive integer frequency index. A higher k produces more spatial oscillations, and the second derivative multiplies their amplitude by k pi squared. Squaring a residual can therefore create strong frequency-dependent numerical scales. The schematic connects oscillatory structure to derivative amplification, showing one reason a visually small field error may have a large differential effect.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\partial_{xx}\\sin(k\\pi x)=-(k\\pi)^2\\sin(k\\pi x)",
+            "formulaEn": "\\partial_{xx}\\sin(k\\pi x)=-(k\\pi)^2\\sin(k\\pi x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "frequencies-b1",
+          "focus": 1,
+          "text": "训练也可能对不同频率学习速度不同，即常说的谱偏差。Fourier 特征或其他网络可能改善部分问题，但频率和采样仍需匹配。应区分这里的代数放大关系与特定网络的经验或极限核结论。",
+          "textEn": "Neural training can also learn some frequency components more slowly than others, often discussed as spectral bias. Fourier features and different architectures can help selected problems, but the appropriate frequency scales and sampling still matter. Distinguish the algebraic derivative factor shown here from empirical claims about a particular network or a limiting kernel analysis. Both motivate tests beyond smooth low-frequency examples.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "ntk2020"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "频率 $k$",
+            "labelEn": "Frequency index $k$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "导数放大因子",
+            "labelEn": "Derivative amplification",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "二阶导数放大",
+            "labelEn": "second derivatives amplify"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-5-causal",
+      "title": "全时域拟合可能忽略时间顺序",
+      "titleEn": "Whole-domain fitting can neglect temporal structure",
+      "eyebrow": "5.4 / 一个核心问题",
+      "eyebrowEn": "5.4 / One central question",
+      "visual": "equation",
+      "formula": "[0,T]=[0,T_1]\\cup[T_1,T_2]\\cup\\cdots",
+      "formulaEn": "[0,T]=[0,T_1]\\cup[T_1,T_2]\\cup\\cdots",
+      "bullets": [
+        "早期时间窗",
+        "后续时间窗"
+      ],
+      "bulletsEn": [
+        "Early-time window",
+        "Later-time windows"
+      ],
+      "beats": [
+        {
+          "id": "causal-b0",
+          "focus": 0,
+          "text": "空间结构会产生困难的尺度，时间问题还增加了另一层依赖：后续预测需要可靠的早期状态。 T_1、T_2 是中间时间边界，T 是终止时间。物理从初始状态传播，但全时空目标可能在早期解尚不可靠时先降低晚期残差。图中先建立早期窗口，再把端点信息传给下一窗口。",
+          "textEn": "Spatial structure can create difficult scales, and time-dependent problems add another issue because later predictions depend on an accurate earlier state. T one and T two mark intermediate time boundaries, while capital T is the final time horizon. Time-dependent physics propagates information from an initial state. A global space-time objective may nevertheless reduce later-time residuals before the earlier solution is accurate. The diagram suggests one alternative: establish an early window and use its endpoint information to support the next.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "[0,T]=[0,T_1]\\cup[T_1,T_2]\\cup\\cdots",
+            "formulaEn": "[0,T]=[0,T_1]\\cup[T_1,T_2]\\cup\\cdots",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-b1",
+          "focus": 1,
+          "text": "时间窗、因果权重和课程训练相关，但不等价，也非普遍解法。窗口界面可能传递误差，须检查连续性与累积误差。简单短时热实验不代表已经解决混沌或长时间问题。",
+          "textEn": "Sequential windows, causal weighting and curriculum strategies are related ideas, not interchangeable universal cures. Errors can also propagate across window interfaces, so interface continuity and accumulated error must be checked. Our short heat experiment does not demonstrate a difficult chaotic regime; this slide explains a research direction and why longer-time benchmarks require more than reusing the easy training settings.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "causality2022"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "早期时间窗",
+            "labelEn": "Early-time window",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "后续时间窗",
+            "labelEn": "Later-time windows",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "传播可信状态",
+            "labelEn": "propagate a credible state"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-5-adaptive",
+      "title": "把采样预算用在哪里？",
+      "titleEn": "Where should additional collocation points go?",
+      "eyebrow": "5.5 / 一个核心问题",
+      "eyebrowEn": "5.5 / One central question",
+      "visual": "equation",
+      "formula": "(x,t)_{\\text{新增}}\\ \\text{靠近大残差}\\ |r_\\theta|",
+      "formulaEn": "(x,t)_{\\rm new}\\ \\text{near large}\\ |r_\\theta|",
+      "bullets": [
+        "候选区域",
+        "新增配点"
+      ],
+      "bulletsEn": [
+        "Candidate regions",
+        "New collocation points"
+      ],
+      "beats": [
+        {
+          "id": "adaptive-b0",
+          "focus": 0,
+          "text": "时间窗改变了时间问题的组织方式，而自适应采样提供另一种干预：改变残差检查的计算投入位置。 残差绝对值可提示当前近似在哪里不满足方程，new 下标是新增采样位置，不是新物理量。残差引导方法把计算分配给困难区域，但仍应保持区域与条件的充分覆盖。",
+          "textEn": "Time windows change how we organise the temporal problem, and adaptive sampling offers a different intervention by changing where we spend residual-evaluation effort. The absolute residual can suggest where the current approximation poorly satisfies the equation. The subscript new denotes proposed additional sample coordinates, not a new physical variable. A residual-guided strategy allocates computation toward difficult locations rather than adding the same number of points everywhere. It must still preserve adequate coverage of the domain and conditions.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "(x,t)_{\\text{新增}}\\ \\text{靠近大残差}\\ |r_\\theta|",
+            "formulaEn": "(x,t)_{\\rm new}\\ \\text{near large}\\ |r_\\theta|",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "adaptive-b1",
+          "focus": 1,
+          "text": "改变采样分布可能改变实际经验目标，必要时要相应加权。错误场也可能在某些区域残差很小。应继续在固定独立网格或明确分布上评估，把自适应采样视为需要检验的干预。",
+          "textEn": "Changing the sampling distribution can change the effective empirical objective unless weighting is adjusted appropriately. It can also miss regions where an incorrect field has a deceptively small residual. Continue reporting independent checks on a fixed evaluation grid or a documented evaluation distribution. Treat adaptive sampling as a testable intervention rather than proof that all important physics has been found.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "wang2023"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "候选区域",
+            "labelEn": "Candidate regions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "新增配点",
+            "labelEn": "New collocation points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "检查遗漏区域",
+            "labelEn": "inspect missed regions"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-5-failure-demo",
+      "title": "Python 实验：删除初始条件",
+      "titleEn": "Python experiment: omit the initial condition",
+      "eyebrow": "5.6 / 一个核心问题",
+      "eyebrowEn": "5.6 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_{\\text{缺项}}=\\mathcal L_r+\\mathcal L_b",
+      "formulaEn": "\\mathcal L_{\\rm bad}=\\mathcal L_r+\\mathcal L_b",
+      "bullets": [
+        "不完整训练代码",
+        "错误场与低残差"
+      ],
+      "bulletsEn": [
+        "Incomplete training code",
+        "Wrong field and small residual"
+      ],
+      "beats": [
+        {
+          "id": "failure-demo-b0",
+          "focus": 0,
+          "text": "我们已经讨论几种可能的失效机制，因此现在用真实训练隔离一个明确原因，而不是把一次失败同时归因于所有机制。 这里单独训练了一个删除初始损失的模型，系数和边界保持不变，以隔离不完整目标的影响。蓝线仍是所需解析解，黄线是拟合场；即使初始误差未进入目标，也要检查它。",
+          "textEn": "We have discussed several possible failure mechanisms, so we now isolate one known cause in a real training run instead of attributing failure to every mechanism at once. This replay uses a separately executed model trained without initial loss. The known coefficient and boundary requirement are unchanged, so the experiment isolates an intentionally incomplete objective rather than changing every setting at once. The blue curve remains the required exact solution, and the yellow curve shows the fitted field. Inspect the initial error even though it was not included in the optimiser objective.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\mathcal L_{\\text{缺项}}=\\mathcal L_r+\\mathcal L_b",
+            "formulaEn": "\\mathcal L_{\\rm bad}=\\mathcal L_r+\\mathcal L_b",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "failure-demo-b1",
+          "focus": 1,
+          "text": "这次网络接近零场，方程残差很小，解误差却接近百分之百。这正是先前预测的反例，但不表示所有低损失失败都由同一原因造成。诊断约束应先于调大网络或展示漂亮收敛图。",
+          "textEn": "In this run the network approaches an almost-zero field, with a solution error close to one hundred percent despite a small equation residual. This is the counterexample we predicted before seeing the code. It does not establish that every small-loss failure has this cause. It demonstrates why diagnosing the specified constraints comes before architecture tuning or impressive-looking convergence plots.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": "missing-ic",
+      "activitySeconds": 180,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "不完整训练代码",
+            "labelEn": "Incomplete training code",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "错误场与低残差",
+            "labelEn": "Wrong field and small residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "对照完整实验",
+            "labelEn": "compare with the complete run"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-5-diagnosis",
+      "title": "从症状出发建立诊断顺序",
+      "titleEn": "Diagnose symptoms before choosing a remedy",
+      "eyebrow": "5.7 / 一个核心问题",
+      "eyebrowEn": "5.7 / One central question",
+      "visual": "equation",
+      "formula": "\\text{问题定义}\\to\\text{导数}\\to\\text{训练}\\to\\text{验证}",
+      "formulaEn": "\\text{formulation}\\to\\text{derivatives}\\to\\text{training}\\to\\text{validation}",
+      "bullets": [
+        "发现异常",
+        "定位原因"
+      ],
+      "bulletsEn": [
+        "Observe a symptom",
+        "Test a cause"
+      ],
+      "beats": [
+        {
+          "id": "diagnosis-b0",
+          "focus": 0,
+          "text": "缺失条件的实验给出了已知原因，接下来需要一套调查流程，处理事先不知道原因的情况。 可按问题与条件、导数代码、尺度和分量、独立解误差的顺序调查，箭头只是检查顺序。边界错误与边界正确但内部振荡，需要不同诊断。",
+          "textEn": "The omitted-condition run gave us a known failure cause, and we now need an investigation procedure for cases where the cause is not known in advance. A useful diagnosis order is to check the physical problem and conditions, verify derivative code on a known function, inspect scaling and loss components, and finally examine independent field errors. The arrows show an investigation order, not a causal theorem. A model that violates boundary data needs a different investigation from one with accurate boundaries but oscillatory interior error.",
+          "pauseAfter": 180,
+          "scene": {
+            "formula": "\\text{问题定义}\\to\\text{导数}\\to\\text{训练}\\to\\text{验证}",
+            "formulaEn": "\\text{formulation}\\to\\text{derivatives}\\to\\text{training}\\to\\text{validation}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "diagnosis-b1",
+          "focus": 1,
+          "text": "用三分钟选一个症状，提出一次受控改变和能推翻解释的指标。例如补回初始项、检查坐标列交换、或改变采样后评估留出残差。请明确什么结果会让你放弃原诊断。",
+          "textEn": "For three minutes, choose a symptom and propose one controlled change plus a metric that could falsify your explanation. Examples include restoring a missing initial term, checking a coordinate-column swap, or comparing held-out residuals after changing sampling. State what outcome would make you reject your diagnosis. This habit leads naturally to the research experiment design in the final chapter.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "failure2021"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 180,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "发现异常",
+            "labelEn": "Observe a symptom",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "定位原因",
+            "labelEn": "Test a cause",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "一次改变一个因素",
+            "labelEn": "change one factor at a time"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-5-limits-remedies",
+      "title": "改进方法必须经过对照",
+      "titleEn": "A remedy needs a controlled comparison",
+      "eyebrow": "5.8 / 一个核心问题",
+      "eyebrowEn": "5.8 / One central question",
+      "visual": "equation",
+      "formula": "\\Delta E=E_{\\text{基线}}-E_{\\text{干预}}",
+      "formulaEn": "\\Delta E=E_{\\rm baseline}-E_{\\rm intervention}",
+      "bullets": [
+        "基线设置",
+        "单项干预"
+      ],
+      "bulletsEn": [
+        "Baseline settings",
+        "One intervention"
+      ],
+      "beats": [
+        {
+          "id": "limits-remedies-b0",
+          "focus": 0,
+          "text": "诊断提出原因，但只有受控比较能够检验解释，改进方案才有说服力，因此现在明确基线与干预。 Delta E 表示基线与干预之间的评估误差差异，还应同时记录重复种子、耗时、采样预算和改动项。把方程变简单，不等于优化器在原问题上变好。",
+          "textEn": "A diagnosis proposes a cause, but a remedy is convincing only if a controlled comparison can test that proposal, so we now define the baseline and intervention. Delta E is the change in a documented evaluation error between a baseline and an intervention. An apparent improvement should be interpreted alongside repeated seeds, runtime, sampling budget and all changed hyperparameters. Keeping the differential problem fixed matters: solving an easier equation is not a fair demonstration that an optimiser has improved on the original problem.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\Delta E=E_{\\text{基线}}-E_{\\text{干预}}",
+            "formulaEn": "\\Delta E=E_{\\rm baseline}-E_{\\rm intervention}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "limits-remedies-b1",
+          "focus": 1,
+          "text": "消融检验组件贡献，敏感性研究系统改变设置，单张成功截图都不能替代它们。我们的实验只支持小规模正反问题和一个受控失效，不能据此声称在困难应用上也有相同性能。",
+          "textEn": "An ablation removes or changes one component to test its contribution, while a sensitivity study varies a setting systematically. Neither is supplied by one successful screenshot. We have shown one intentionally controlled failure and a compact forward and inverse run. The final chapter broadens the PDE and research context without claiming these tiny experiments establish performance on harder applications.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "failure2021"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "基线设置",
+            "labelEn": "Baseline settings",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "单项干预",
+            "labelEn": "One intervention",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "比较独立误差",
+            "labelEn": "compare independent error"
+          }
+        ]
+      }
+    }
+  ]
+}

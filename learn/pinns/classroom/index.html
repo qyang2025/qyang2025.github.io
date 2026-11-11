@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PINNs · Professor Vee · Qianhong Yang</title>
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="teaching.css"><link rel="stylesheet" href="lecture.css"><link rel="stylesheet" href="glass.css"><link rel="stylesheet" href="schematic.css"><link rel="stylesheet" href="attention.css"><link rel="stylesheet" href="typography.css"><link rel="stylesheet" href="expression.css"><link rel="stylesheet" href="captions.css"><link rel="stylesheet" href="classroom-viewport.css"><link rel="stylesheet" href="python-demo.css"><link rel="stylesheet" href="course-panel.css"><link rel="stylesheet" href="heat-rod.css"><link rel="stylesheet" href="published.css">
+</head><body>
+<header class="topbar"><a class="brand" href="/learn/"><span class="brand-icon">V</span><span id="brand-name">Professor Vee<small>QIANHONG YANG · LEARNING SERIES</small></span></a><div class="top-actions"><a id="series-link" href="../">PINNs series</a><a id="home-link" href="/">Personal homepage</a><label><span id="language-label">Language</span> <select id="language-select"><option value="en">English</option><option value="zh">中文</option></select></label></div></header>
+<main class="workspace"><aside class="outline-panel"><div class="section-label" id="series-label">SERIES 01 · PINNs</div><h1 id="course-title">Physics-informed neural networks</h1><p id="course-summary"></p><label for="chapter-select" id="chapter-label">Chapter</label><select id="chapter-select"></select><nav id="outline" aria-label="Slides"></nav><a id="guide-link" href="courses/pinns/guide.html">Full teacher guide</a><a id="download-link" href="courses/pinns/pinns-course.zip" download>Download materials &amp; Python</a></aside>
+<section class="lecture-column"><nav id="course-roadmap" class="course-roadmap" aria-label="Course outline"></nav><div class="lecture-meta"><span id="lesson-kind">PINNs series</span><span id="page-count"></span></div><div class="lecture-stage" id="lecture-stage"><div id="lecture-canvas" class="lecture-canvas"><article id="slide" class="slide"></article>      <div class="avatar-stage" id="avatar-stage">
+        <div class="avatar-halo"></div>
+        <svg id="professor" viewBox="0 0 300 330" role="img" aria-label="戴眼镜、穿白色外套的Q版教授">
+          <ellipse cx="150" cy="310" rx="76" ry="10" fill="#c4c4b5" opacity=".3"/>
+          <g class="avatar-body"><path d="M105 244 L100 299 Q116 314 136 300 L145 255Z" fill="#465a57"/><path d="M155 255 L162 302 Q183 315 200 299 L192 244Z" fill="#465a57"/>
+          <path d="M103 294 Q93 298 95 307 L137 307 L136 296Z" fill="#283c39"/><path d="M164 297 L164 308 L207 308 Q207 296 196 295Z" fill="#283c39"/>
+          <path d="M102 174 Q150 157 194 175 L206 258 Q152 281 91 257Z" fill="#fafbf5" stroke="#cbd3c4" stroke-width="2"/>
+          <path d="M134 172 L150 238 L170 172" fill="#8da898"/><path d="M133 172 L119 196 L135 210 L127 228 L149 254" fill="none" stroke="#d3d9cd" stroke-width="3"/>
+          <path d="M172 171 L184 196 L169 210 L177 230 L152 255" fill="none" stroke="#d3d9cd" stroke-width="3"/>
+          <path d="M105 179 Q78 188 78 229 L98 236 L115 195" fill="#fafbf5" stroke="#cbd3c4" stroke-width="2"/><ellipse cx="87" cy="237" rx="12" ry="14" fill="#edc7a6"/>
+          <g class="pointing-arm"><path d="M190 180 Q222 174 225 203 L207 223 L182 202" fill="#fafbf5" stroke="#cbd3c4" stroke-width="2"/><path d="M219 207 Q234 203 236 190 Q239 180 231 179 Q226 179 222 190 Q209 183 206 195 Q205 202 210 210" fill="#edc7a6"/></g>
+          <rect x="173" y="225" width="21" height="16" rx="3" fill="#e5ece2"/><path d="M178 222 L179 233" stroke="#d3944b" stroke-width="3"/>
+          <g class="avatar-head"><path d="M138 154 L138 178 Q150 190 164 177 L164 155" fill="#edc7a6"/>
+          <ellipse cx="79" cy="109" rx="14" ry="22" fill="#edc7a6"/><ellipse cx="222" cy="109" rx="14" ry="22" fill="#edc7a6"/>
+          <path d="M78 75 Q76 25 147 21 Q221 17 224 79 L218 135 Q205 173 151 174 Q96 172 83 136Z" fill="#f3d3b3"/>
+          <path d="M79 100 Q59 57 83 37 Q93 14 120 18 Q148 -1 168 16 Q208 8 220 38 Q239 54 221 100 L211 73 Q185 78 165 47 Q145 80 92 72Z" fill="#e4e7db" stroke="#c4cbbb" stroke-width="2"/>
+          <path class="brow-left" d="M93 88 Q109 80 124 87" fill="none" stroke="#69736a" stroke-width="4" stroke-linecap="round"/><path class="brow-right" d="M174 87 Q189 80 205 88" fill="none" stroke="#69736a" stroke-width="4" stroke-linecap="round"/>
+          <g class="eyes"><ellipse cx="111" cy="107" rx="5" ry="7" fill="#344840"/><ellipse cx="188" cy="107" rx="5" ry="7" fill="#344840"/></g>
+          <g fill="none" stroke="#384c46" stroke-width="5"><rect x="86" y="91" width="51" height="35" rx="13"/><rect x="162" y="91" width="51" height="35" rx="13"/><path d="M137 102 Q149 94 162 102 M76 96 L86 100 M213 100 L224 95"/></g>
+          <path d="M147 112 Q139 127 151 127" fill="none" stroke="#ce9f7c" stroke-width="3" stroke-linecap="round"/>
+          <ellipse class="cheek" cx="103" cy="133" rx="12" ry="6" fill="#e7a996" opacity=".45"/><ellipse class="cheek" cx="194" cy="133" rx="12" ry="6" fill="#e7a996" opacity=".45"/>
+          <path class="mouth-closed" d="M137 144 Q151 155 165 143" fill="none" stroke="#9f6551" stroke-width="3" stroke-linecap="round"/>
+          <ellipse class="mouth-open" cx="151" cy="146" rx="9" ry="7" fill="#9f6551"/><text class="expression-mark" x="230" y="48" text-anchor="middle" aria-hidden="true"></text></g>
+          </g>
+        </svg>
+        <div class="avatar-state" id="avatar-state">准备好，一起弄明白。</div>
+      </div>
+</div></div>
+<div class="playback"><div class="timeline"><div id="timeline-fill"></div></div><div class="playback-row"><div class="play-buttons"><button id="previous" class="icon-button" aria-label="Previous slide">‹</button><button id="play" class="play-button" disabled>Loading…</button><button id="next" class="icon-button" aria-label="Next slide">›</button><button id="next-step" class="button secondary">Next step</button></div><span id="beat-label"></span><select id="rate" aria-label="Narration speed"><option value="0.8" selected>0.8×</option><option value="0.9">0.9×</option><option value="1">1.0×</option></select></div><p id="activity-hold" hidden></p></div>
+<div class="caption"><span class="caption-label" id="caption-label">Transcript</span><p id="caption-text" aria-live="polite"></p></div>
+<div class="question-area"><p id="course-note">Published course: no automatic playback. Narration stops when you hide this page. Live AI questions require the local classroom application.</p></div></section>
+<aside class="professor-panel"><h2 id="professor-name">Professor Vee</h2><p class="professor-description" id="professor-description">From physical intuition to equations.</p><p id="audio-status" role="status"></p><div class="course-chapter-buttons"><button id="chapter-prev">Previous chapter</button><button id="chapter-next">Next chapter</button></div><h3 id="sources-title">Primary sources</h3><ul id="sources"></ul><p id="publication-note">A 120-minute teaching plan including exercises and a ten-minute break. Python demonstrations replay recorded local experiments.</p></aside></main><div id="toast" role="status" hidden></div><script type="module" src="published-classroom.mjs"></script></body></html>

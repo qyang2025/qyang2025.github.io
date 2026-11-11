@@ -1,0 +1,9 @@
+/* Computer Modern-style Latin + the Song face commonly paired with Chinese LaTeX. */
+@font-face{font-family:LectureSong;src:local('SimSun'),local('Songti SC'),local('Noto Serif CJK SC');font-style:normal;font-weight:100 900;font-display:swap}
+:root{--text-font:KaTeX_Main,LectureSong,SimSun,"Noto Serif CJK SC",serif;--mono-font:KaTeX_Typewriter,LectureSong,SimSun,monospace;font-family:var(--text-font)}
+body,body :is(button,input,textarea,select,option,dialog,h1,h2,h3,h4,p,label,small,strong,span,div,li,nav,a,footer,header,section,aside,article,figure,figcaption,output):not(.katex):not(.katex *){font-family:var(--text-font)!important}
+body pre,body code{font-family:var(--mono-font)!important}
+body .katex .cjk_fallback{font-family:LectureSong,SimSun,"Noto Serif CJK SC",serif!important}
+.voice-filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.voice-filter-row label{min-width:0}.voice-filter-row select{margin-top:6px}
+.voice-settings #voice-profile-note{font-size:12px;line-height:1.65;color:#66775d;margin:9px 0 12px}.voice-settings #voice-preview-text{font-size:13px;line-height:1.65;color:#4f6354}.voice-settings #preview-voice{width:100%;margin:3px 0 8px}
+.voice-settings label,.voice-settings select{font-size:13px;line-height:1.5}.voice-settings select{padding:8px 6px}

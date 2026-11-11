@@ -1,0 +1,86 @@
+{
+  "course": "pinns",
+  "language": "en",
+  "voice": "bm_george",
+  "state": "ready",
+  "modules": [
+    {
+      "chapter": 1,
+      "id": "88c2ae5b-9807-4be1-a65a-7bdb4631d676",
+      "status": "ready",
+      "completed": 80,
+      "total": 80,
+      "cacheHits": 76,
+      "message": "音频缓存就绪 80/80（复用 76）",
+      "lessonId": "9bdbea62-8e72-8e60-4813-875637e716b0",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "chapter": 2,
+      "id": "ccf824d8-3862-48d2-a0fb-ac43f4b1996b",
+      "status": "ready",
+      "completed": 72,
+      "total": 72,
+      "cacheHits": 72,
+      "message": "音频缓存就绪 72/72（复用 72）",
+      "lessonId": "66ca6674-77b3-0ea0-f19e-74d8b4e71e2e",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "chapter": 3,
+      "id": "d3cd756c-e1a4-4bc4-8613-7f9dfbb5a4f4",
+      "status": "ready",
+      "completed": 85,
+      "total": 85,
+      "cacheHits": 85,
+      "message": "音频缓存就绪 85/85（复用 85）",
+      "lessonId": "f28a2cdd-b9cc-4195-579f-9376a27e3c1b",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "chapter": 4,
+      "id": "be5e301b-b8df-4116-a863-e08ab57698f4",
+      "status": "ready",
+      "completed": 72,
+      "total": 72,
+      "cacheHits": 72,
+      "message": "音频缓存就绪 72/72（复用 72）",
+      "lessonId": "edc4ab3c-c2b0-bfb2-d735-b535bff25688",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "chapter": 5,
+      "id": "8fc114b8-6041-4f5d-a71a-c65e29fbb40a",
+      "status": "ready",
+      "completed": 71,
+      "total": 71,
+      "cacheHits": 71,
+      "message": "音频缓存就绪 71/71（复用 71）",
+      "lessonId": "479020db-859a-8b53-6ed9-b3afc6ee9374",
+      "languages": [
+        "en"
+      ]
+    },
+    {
+      "chapter": 6,
+      "id": "0cf9dd4d-4b09-4fd7-bc01-2a8c04db8eb9",
+      "status": "ready",
+      "completed": 73,
+      "total": 73,
+      "cacheHits": 73,
+      "message": "音频缓存就绪 73/73（复用 73）",
+      "lessonId": "b479510d-9acb-91ee-b911-0795484b4a4c",
+      "languages": [
+        "en"
+      ]
+    }
+  ]
+}

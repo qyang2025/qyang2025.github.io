@@ -1,0 +1,1546 @@
+{
+  "id": "b479510d-9acb-91ee-b911-0795484b4a4c",
+  "origin": "codex",
+  "courseId": "pinns",
+  "chapterIndex": 5,
+  "sectionLabels": [
+    [
+      "迁移方程",
+      "New equations"
+    ],
+    [
+      "任务比较",
+      "Comparisons"
+    ],
+    [
+      "研究设计",
+      "Experiment design"
+    ]
+  ],
+  "title": "PINNs 6: 研究设计与迁移",
+  "titleEn": "PINNs 6: Research design and transfer beyond the toy problem",
+  "summary": "研究生英文主讲、中文可切换。图与公式同步解释，含练习、实验和来源。",
+  "summaryEn": "Postgraduate lecture with linked schematics and equations, narrated experiments, exercises and traceable sources.",
+  "sources": [
+    {
+      "id": "raissi2017",
+      "name": "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (2017), Parts I and II",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Open author exposition and code for differentiable solution networks, PDE residuals, initial/boundary observations, and forward/inverse modelling. Author manuscripts: https://arxiv.org/abs/1711.10561 and https://arxiv.org/abs/1711.10566 ."
+    },
+    {
+      "id": "wang2023",
+      "name": "Wang, Sankaran, Wang & Perdikaris, An Expert’s Guide to Training PINNs (2023)",
+      "url": "https://arxiv.org/html/2308.08468v1",
+      "text": "Open manuscript covering nondimensionalization, architecture, loss balancing, temporal causality, curriculum, sampling and boundary constraints. Practical methods are problem-dependent and are not universal convergence guarantees."
+    },
+    {
+      "id": "failure2021",
+      "name": "Krishnapriyan et al., Characterizing Possible Failure Modes in PINNs (2021)",
+      "url": "https://arxiv.org/html/2109.01050v1",
+      "text": "Open manuscript demonstrating optimisation failures for convection, reaction and reaction-diffusion problems and investigating curriculum and sequential-in-time training. Expressive networks need not be easy to optimize."
+    },
+    {
+      "id": "torchdocs",
+      "name": "PyTorch official autograd tutorial",
+      "url": "https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html",
+      "text": "Official graph-based automatic differentiation documentation. The independent lab uses torch.autograd.grad(create_graph=True) for coordinate derivatives that remain differentiable with respect to network weights."
+    },
+    {
+      "id": "heatdocs",
+      "name": "DeepXDE official heat-equation example",
+      "url": "https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/heat.html",
+      "text": "Official heat example with sinusoidal initial data and zero Dirichlet boundaries. This course independently chooses a dimensionless unit domain, alpha=0.1 and exp(-alpha*pi^2*t)*sin(pi*x), rather than reproducing published accuracy claims."
+    },
+    {
+      "id": "course-demo",
+      "name": "Independent locally executed PINN experiment",
+      "url": "/demos/pinns_train.py",
+      "text": "Synthetic dimensionless heat problem: alpha=0.1, sine initial data, zero boundary values. Small smooth PyTorch networks trained on CPU with seed 7 in forward, inverse and omitted-initial-condition configurations. Held-out relative L2 and independent residual checks are logged. Inverse observations include Gaussian noise with standard deviation 0.005. These are teaching runs, not paper benchmarks."
+    },
+    {
+      "id": "gradients2020",
+      "name": "Wang, Teng & Perdikaris, Understanding and mitigating gradient pathologies in PINNs (2020)",
+      "url": "https://arxiv.org/abs/2001.04536",
+      "text": "Primary study of imbalanced back-propagated gradients in composite PINN objectives, with adaptive training strategies. Used for the diagnosis of conflicting loss components, not as a guarantee that a specific weighting rule always works."
+    },
+    {
+      "id": "ntk2020",
+      "name": "Wang, Yu & Perdikaris, When and why PINNs fail to train (2020)",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Primary neural-tangent-kernel analysis of discrepant convergence rates and training difficulties, under its stated assumptions. Its limiting analysis is not an exact description of every finite nonlinear network."
+    },
+    {
+      "id": "causality2022",
+      "name": "Wang, Sankaran & Perdikaris, Respecting causality is all you need for training PINNs (2022)",
+      "url": "https://arxiv.org/abs/2203.07404",
+      "text": "Primary temporal-training study motivating the need to respect causal evolution in difficult time-dependent problems. Its title should not be interpreted as a universal guarantee across all PDEs."
+    },
+    {
+      "id": "operator2020",
+      "name": "Li et al., Fourier Neural Operator (2020); Lu et al., DeepONet (2019)",
+      "url": "https://arxiv.org/abs/2010.08895",
+      "text": "Primary operator-learning papers: https://arxiv.org/abs/2010.08895 and https://arxiv.org/abs/1910.03193 . Learning a mapping between functions across a problem family is distinct from fitting one coordinate network to one fixed PDE instance."
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "研究设计与迁移",
+      "titleEn": "Research design and transfer beyond the toy problem",
+      "eyebrow": "第 6 章 / 学习路线",
+      "eyebrowEn": "CHAPTER 6 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "建立本章的推理链"
+      ],
+      "bulletsEn": [
+        "Follow the reasoning in this chapter"
+      ],
+      "sourceIds": [],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "迁移方程",
+            "labelEn": "New equations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "任务比较",
+            "labelEn": "Comparisons",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "研究设计",
+            "labelEn": "Experiment design",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "连接",
+            "labelEn": "Connect"
+          },
+          {
+            "label": "检验",
+            "labelEn": "Check"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "focus": 0,
+          "text": "这是研究生 PINNs 课程的第 6 章：研究设计与迁移。我们从迁移方程连接到任务比较。最后通过研究设计检验理解。",
+          "textEn": "This is chapter 6 of our postgraduate PINNs session: research design and transfer beyond the toy problem. We will connect new equations to comparisons. Finally, we will use experiment design to check what we have learned.",
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pinn-6-burgers",
+      "title": "非线性项改变了残差",
+      "titleEn": "A nonlinear term changes the residual",
+      "eyebrow": "6.1 / 一个核心问题",
+      "eyebrowEn": "6.1 / One central question",
+      "visual": "equation",
+      "formula": "r_\\theta=u_t+u_\\theta u_x-\\nu u_{xx}",
+      "formulaEn": "r_\\theta=u_t+u_\\theta u_x-\\nu u_{xx}",
+      "bullets": [
+        "输运 $u_\\theta u_x$",
+        "扩散 $\\nu u_{xx}$"
+      ],
+      "bulletsEn": [
+        "Transport $u_\\theta u_x$",
+        "Diffusion $\\nu u_{xx}$"
+      ],
+      "beats": [
+        {
+          "id": "burgers-b0",
+          "focus": 0,
+          "text": "前面的诊断围绕同一个热问题建立，现在用非线性方程说明哪些流程可以迁移，哪些部分必须重新考虑。 nu 是 Burgers 例子的正黏性系数，u 现在是类似速度的标量，不再是杆温度。u 乘 u_x 是非线性输运项，其他偏导符号沿用原义。图中直接解释输运和扩散如何进入残差。",
+          "textEn": "Our diagnosis methods were developed around one heat problem, and a nonlinear equation will now show what transfers and what must be reconsidered. Nu is a positive viscosity coefficient in this Burgers-equation example, and u is now a velocity-like scalar rather than the rod temperature. The product u times u x is a nonlinear transport term. U t and u x x retain their derivative meanings, while theta still labels network parameters. The two schematic parts explain how transport and diffusion enter the displayed residual with different signs.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "r_\\theta=u_t+u_\\theta u_x-\\nu u_{xx}",
+            "formulaEn": "r_\\theta=u_t+u_\\theta u_x-\\nu u_{xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "burgers-b1",
+          "focus": 1,
+          "text": "原始 PINN 工作包含这类非线性问题，但本课实际代码只求热方程。扩展必须更换残差、条件和验证方法，不能把热动画改名冒充 Burgers 模拟。可迁移的是流程，难度与证据仍需重新评估。",
+          "textEn": "The original PINN work includes this type of nonlinear example, but our executed classroom code solves the heat problem only. Extending it requires a new residual, compatible initial and boundary conditions, and a trustworthy reference or validation strategy. Do not relabel a heat animation as a Burgers simulation. The general workflow transfers, while the difficulty and evidence must be reassessed.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "输运 $u_\\theta u_x$",
+            "labelEn": "Transport $u_\\theta u_x$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "扩散 $\\nu u_{xx}$",
+            "labelEn": "Diffusion $\\nu u_{xx}$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "共同决定演化",
+            "labelEn": "jointly determine evolution"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-6-classical",
+      "title": "PINN 何时值得与网格法比较？",
+      "titleEn": "When is a PINN worth comparing with a mesh solver?",
+      "eyebrow": "6.2 / 一个核心问题",
+      "eyebrowEn": "6.2 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "数值网格法",
+        "坐标神经网络"
+      ],
+      "bulletsEn": [
+        "Mesh-based solver",
+        "Coordinate neural network"
+      ],
+      "beats": [
+        {
+          "id": "classical-b0",
+          "focus": 0,
+          "text": "更换方程改变了数值难度，但评估神经方法还需要与传统求解器进行公平比较。 网格法在离散化上表示场，坐标网络通过共享参数表示可微函数，但这种区别本身不证明谁更好。简单一维正问题中，传统求解器可能是很好的高效基线。数据融合或反演可能使 PINN 有吸引力，但仍需实验证明。",
+          "textEn": "Extending the equation changes the numerical challenge, but evaluating a neural method also requires a fair comparison with conventional solvers. A mesh method represents a field on a numerical discretisation, whereas our coordinate network represents a differentiable function with shared parameters. This difference alone establishes neither superiority nor inferiority. For a simple one-dimensional forward heat problem, a conventional solver can be an excellent and efficient baseline. PINNs can be attractive when data fusion or inverse calibration is central, but that advantage must be demonstrated for the task.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "classical-b1",
+          "focus": 1,
+          "text": "应比较相同条件下的物理精度，分别记录训练、推断成本和输入信息，还考虑稳健性与实现成熟度。可微和方便接入传感器是能力，不是可靠证据的替代品。",
+          "textEn": "Compare physical accuracy at matched conditions and report training cost, inference cost and information supplied to each method. Include implementation maturity and robustness, not just a single wall-clock number. Differentiability and convenient sensor integration are capabilities; they are not substitutes for reliable numerical evidence. A research claim should make clear which capability its experiment actually evaluates.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "数值网格法",
+            "labelEn": "Mesh-based solver",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "坐标神经网络",
+            "labelEn": "Coordinate neural network",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "比较相同任务",
+            "labelEn": "compare the same task"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-6-operator",
+      "title": "一次求解与算子学习不同",
+      "titleEn": "One PDE instance is not an operator-learning dataset",
+      "eyebrow": "6.3 / 一个核心问题",
+      "eyebrowEn": "6.3 / One central question",
+      "visual": "equation",
+      "formula": "g\\mapsto u_g\\qquad\\text{versus}\\qquad(x,t)\\mapsto u_\\theta(x,t)",
+      "formulaEn": "g\\mapsto u_g\\qquad\\text{versus}\\qquad(x,t)\\mapsto u_\\theta(x,t)",
+      "bullets": [
+        "函数输入 $g$",
+        "解函数 $u_g$"
+      ],
+      "bulletsEn": [
+        "Function input $g$",
+        "Solution function $u_g$"
+      ],
+      "beats": [
+        {
+          "id": "operator-b0",
+          "focus": 0,
+          "text": "只有学习任务一致，表示方法的比较才有意义，因此现在区分拟合单个物理实例与学习一族解函数。 g 表示输入函数，例如初始分布，u_g 是对应的解函数。算子学习跨多个实例学习函数到函数的映射；先前 PINN 则针对一个给定条件集合拟合坐标到温度。",
+          "textEn": "Comparing representations is useful only when the learning tasks match, so we now distinguish fitting one physical instance from learning a family of solution functions. Here g denotes an input function, such as an initial profile, and u subscript g denotes the corresponding solution. An operator-learning model aims to learn this function-to-function mapping across many instances. Our earlier PINN instead fits coordinate-to-temperature values for one specified set of conditions. These are different learning tasks even when both use neural networks and physical equations.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "g\\mapsto u_g\\qquad\\text{versus}\\qquad(x,t)\\mapsto u_\\theta(x,t)",
+            "formulaEn": "g\\mapsto u_g\\qquad\\text{versus}\\qquad(x,t)\\mapsto u_\\theta(x,t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "operator-b1",
+          "focus": 1,
+          "text": "DeepONet 和 Fourier 神经算子属于算子学习，也可结合物理约束。未经测试，不应把跨实例泛化归给单实例 PINN。研究前先明确是一次反演、同一场的重复查询，还是跨问题族快速求解。",
+          "textEn": "DeepONet and Fourier neural operators are examples of operator-learning approaches, and physical constraints can also be incorporated into such models. Do not attribute across-instance generalisation to a single-instance PINN without testing it. Identify whether your intended use is one costly inverse fit, repeated forward queries for one field, or fast solutions across a parameter or function family.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "operator2020"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "函数输入 $g$",
+            "labelEn": "Function input $g$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "解函数 $u_g$",
+            "labelEn": "Solution function $u_g$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "跨问题族学习",
+            "labelEn": "learn across a problem family"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-6-research-design",
+      "title": "把研究问题写成受控实验",
+      "titleEn": "Turn a research question into a controlled experiment",
+      "eyebrow": "6.4 / 一个核心问题",
+      "eyebrowEn": "6.4 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "可被推翻的假设",
+        "独立比较"
+      ],
+      "bulletsEn": [
+        "Falsifiable hypothesis",
+        "Independent comparison"
+      ],
+      "beats": [
+        {
+          "id": "research-design-b0",
+          "focus": 0,
+          "text": "明确任务与基线后，现在可以把改进设想变成能够被受控实验推翻的假设。 有效假设必须可能被结果推翻。例如认为初始拟合差来自梯度失衡，就只改变一项干预，保持问题和采样预算固定，并用独立场与条件误差评估。",
+          "textEn": "With the task and baseline clearly defined, we can now turn a proposed improvement into a hypothesis that a controlled experiment could disprove. A useful hypothesis predicts an outcome that could fail. For example, suppose poor initial matching is caused by gradient imbalance rather than missing information. Define one intervention, keep the problem and sampling budget fixed, and choose independent field and condition errors as outcomes. The arrows describe the experiment design, not a guaranteed improvement.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "research-design-b1",
+          "focus": 1,
+          "text": "应多种子运行，记录失败，声称效率时匹配计算预算，并给出复现设置。若同时改变多个机制，只能说明一套配方有效，不能识别单个组件的贡献。",
+          "textEn": "Run multiple seeds and document failures as well as successes. Compare at a common computational budget when claiming efficiency, and report settings needed to reproduce every curve. If several mechanisms change at once, the result may demonstrate a working recipe but not the contribution of one component. This distinction is central when reading recent PINN papers critically.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "failure2021"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "可被推翻的假设",
+            "labelEn": "Falsifiable hypothesis",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "独立比较",
+            "labelEn": "Independent comparison",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "明确对照与指标",
+            "labelEn": "specify controls and metrics"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-6-reading",
+      "title": "怎样审读一篇 PINN 文献？",
+      "titleEn": "How should you audit a PINN paper?",
+      "eyebrow": "6.5 / 一个核心问题",
+      "eyebrowEn": "6.5 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "方法与假设",
+        "证据与边界"
+      ],
+      "bulletsEn": [
+        "Method and assumptions",
+        "Evidence and scope"
+      ],
+      "beats": [
+        {
+          "id": "reading-b0",
+          "focus": 0,
+          "text": "设计可证伪实验也告诉我们阅读论文时应寻找什么证据，因此现在把相同问题用于批判性阅读。 先找出方程、区域、条件、可用数据和未知量，再检查导数、约束与采样实现。误差由什么参考支持，评估点是否独立，超参数选择是否使用了实际任务中不可获得的信息？",
+          "textEn": "Designing a falsifiable experiment also tells us what evidence to seek in a paper, so we now apply the same questions to critical reading. Begin by identifying the exact equation, domain, conditions, data access and unknowns. Then inspect how derivatives, constraints and sampling are implemented. Ask which reference solution or baseline supports the error claim, whether evaluation points differ from training points, and whether hyperparameter selection used information unavailable in the intended application.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "reading-b1",
+          "focus": 1,
+          "text": "再检查耗时定义、种子、消融、参数范围和失败案例。新表示、训练启发式与理论保证需要不同证据。阅读单同时包括原始方法、实践指南和失效分析，避免只相信单个成功例子。",
+          "textEn": "Next examine runtime definitions, seeds, ablations, parameter regimes and failure cases. Separate a new representation, a training heuristic and a theoretical guarantee; they demand different evidence. Our reading list includes the original formulation, training guidance and explicit failure analysis so you can compare claims rather than relying on a single successful example. Use open author manuscripts and their documented code where available.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017",
+        "wang2023",
+        "failure2021"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "方法与假设",
+            "labelEn": "Method and assumptions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "证据与边界",
+            "labelEn": "Evidence and scope",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "逐项核查",
+            "labelEn": "audit each claim"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-6-assessment",
+      "title": "综合题：诊断一个错误结果",
+      "titleEn": "Assessment: diagnose a misleading result",
+      "eyebrow": "6.6 / 一个核心问题",
+      "eyebrowEn": "6.6 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_r\\downarrow,\\quad E_{\\rm rel}\\uparrow",
+      "formulaEn": "\\mathcal L_r\\downarrow,\\quad E_{\\rm rel}\\uparrow",
+      "bullets": [
+        "残差下降",
+        "误差上升"
+      ],
+      "bulletsEn": [
+        "Residual decreases",
+        "Error increases"
+      ],
+      "beats": [
+        {
+          "id": "assessment-b0",
+          "focus": 0,
+          "text": "阅读清单说明应该检查什么，接下来的案例要求你在损失与独立精度不一致时实际运用这些问题。 假设报告中残差损失下降，留出解误差却上升。用四分钟提出两个不同解释，说明额外什么证据能区分它们，并设计一项受控实验。至少涉及一项问题或信息因素，以及一项数值训练或评估因素。",
+          "textEn": "The reading checklist identifies what to inspect, and the next case asks you to use it when reported loss and independent accuracy disagree. Imagine that a report shows decreasing residual loss but increasing held-out solution error. You have four minutes to propose two distinct explanations, specify what extra evidence separates them, and design one controlled experiment. Your answer must mention at least one issue of formulation or information and one issue of numerical training or evaluation.",
+          "pauseAfter": 240,
+          "scene": {
+            "formula": "\\mathcal L_r\\downarrow,\\quad E_{\\rm rel}\\uparrow",
+            "formulaEn": "\\mathcal L_r\\downarrow,\\quad E_{\\rm rel}\\uparrow",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "assessment-b1",
+          "focus": 1,
+          "text": "可能是遗漏初始约束、导数代码错误、评估不一致，或降低残差时牺牲了条件。不同原因需要不同检验。好的回答包含可推翻解释的结果，而不是只建议加大网络。",
+          "textEn": "Possible explanations include an omitted initial requirement, a coordinate derivative bug, an evaluation mismatch, or optimisation that sacrifices a condition while reducing interior residual. Different causes require different tests. A strong answer names a falsifying result rather than simply recommending a larger network. Compare your reasoning with the teacher notes before treating this as a solved research diagnosis.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 240,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "残差下降",
+            "labelEn": "Residual decreases",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "误差上升",
+            "labelEn": "Error increases",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "提出可检验解释",
+            "labelEn": "propose a testable explanation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-6-reproduce",
+      "title": "把课堂结果变成可复现记录",
+      "titleEn": "Make the classroom result reproducible",
+      "eyebrow": "6.7 / 一个核心问题",
+      "eyebrowEn": "6.7 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "可运行材料",
+        "可核查记录"
+      ],
+      "bulletsEn": [
+        "Runnable materials",
+        "Auditable records"
+      ],
+      "beats": [
+        {
+          "id": "reproduce-b0",
+          "focus": 0,
+          "text": "解释听起来合理还不够，还需要可复现的检验，因此现在把诊断连接到核查所需的代码、轨迹和实验记录。 材料包包括 Python 源码、数值轨迹、版本信息、讲稿和来源。重跑固定种子实验应得到相同定性结论：正问题拟合良好、合成系数可恢复、删去初始要求后场错误。硬软件数值差异应按容差判断。",
+          "textEn": "A plausible explanation is not enough without a reproducible test, so we now connect your diagnosis to the code, traces and records needed to check it. The course package includes the Python source, saved numeric traces, version information, lecture notes and source links. Re-running the three seeded experiments should reproduce the same qualitative conclusions: a good forward fit, recovery of the synthetic coefficient, and a wrong field when the initial requirement is deliberately omitted. Small numerical differences across software or hardware should be assessed against explicit tolerances.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "reproduce-b1",
+          "focus": 1,
+          "text": "扩展时只改变一个因素，先预测再运行，记录改变项、对照和独立指标。可研究噪声、观测时间、配点或初始频率。单个玩具实验不能证明普遍方法改进。",
+          "textEn": "For an extension project, change one physical or numerical factor and predict its effect before training. Record the changed factor, unchanged controls and independent metrics. Examples include observation noise, time locations, collocation sampling or a harder initial frequency. Do not claim a universal method improvement from one toy run. Use the example as a transparent starting point for a better experiment.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "可运行材料",
+            "labelEn": "Runnable materials",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "可核查记录",
+            "labelEn": "Auditable records",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "独立复现",
+            "labelEn": "reproduce independently"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-6-summary",
+      "title": "把整条推理链连接起来",
+      "titleEn": "Connect the complete reasoning chain",
+      "eyebrow": "6.8 / 一个核心问题",
+      "eyebrowEn": "6.8 / One central question",
+      "visual": "equation",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "物理问题与表示",
+        "验证与研究判断"
+      ],
+      "bulletsEn": [
+        "Problem and representation",
+        "Validation and judgement"
+      ],
+      "beats": [
+        {
+          "id": "summary-b0",
+          "focus": 0,
+          "text": "现在已经具备复现与质疑这些例子的材料，最后把各项技术串联成一套有证据支持的科学工作流程。 我们从稀疏传感器热问题和连续坐标网络出发，用自动微分把场接到方程，用初始和边界项选择实验，用独立检验区分低损失与正确解。反问题还需要有信息的观测与明确系数约束。",
+          "textEn": "We now have the materials needed to reproduce and challenge the examples, so we finish by connecting the individual techniques into one defensible scientific workflow. We began with a sparse-sensor heat problem and a continuous coordinate network. Automatic differentiation connected its field to the heat equation, while initial and boundary terms selected the intended experiment. Independent tests separated low optimisation loss from an accurate solution. In the inverse task, informative observations and explicit coefficient constraints were essential.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "summary-b1",
+          "focus": 1,
+          "text": "核心是一套严谨流程，而不是物理会自动保证网络正确的口号。解释变量、核查残差、检查全部约束、独立验证并说明证据边界。你可以随时向虚拟教授提问，要求推导、反例或补充讲解，再回到主线。",
+          "textEn": "The main takeaway is a disciplined workflow rather than a slogan that physics makes a neural network correct. Explain every variable, verify the residual, inspect all constraints, test the field independently and state the limits of your evidence. You can now interrupt the virtual professor at any point to request a derivation, a counterexample or a supplementary explanation, then return to the main course.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": false,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理问题与表示",
+            "labelEn": "Problem and representation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "验证与研究判断",
+            "labelEn": "Validation and judgement",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "回到最初问题",
+            "labelEn": "return to the initial question"
+          }
+        ]
+      }
+    }
+  ]
+}

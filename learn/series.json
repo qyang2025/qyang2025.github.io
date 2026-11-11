@@ -1,0 +1,18 @@
+{
+  "series": [
+    {
+      "id": "pinns",
+      "number": 1,
+      "title": "Physics-informed neural networks",
+      "presenter": "Professor Vee",
+      "audience": "postgraduate",
+      "chapters": 6,
+      "slides": 55,
+      "plannedMinutes": 120,
+      "url": "pinns/",
+      "classroom": "pinns/classroom/",
+      "description": "Build a PINN from the heat equation, then learn to train, validate, diagnose and extend it. Follow Professor Vee through six linked postgraduate chapters.",
+      "cover": "pinns/cover.svg"
+    }
+  ]
+}

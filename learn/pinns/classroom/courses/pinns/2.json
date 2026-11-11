@@ -1,0 +1,1544 @@
+{
+  "id": "66ca6674-77b3-0ea0-f19e-74d8b4e71e2e",
+  "origin": "codex",
+  "courseId": "pinns",
+  "chapterIndex": 1,
+  "sectionLabels": [
+    [
+      "坐标导数",
+      "Derivatives"
+    ],
+    [
+      "条件损失",
+      "Conditions"
+    ],
+    [
+      "完整目标",
+      "Objective"
+    ]
+  ],
+  "title": "PINNs 2: 从自动微分到训练目标",
+  "titleEn": "PINNs 2: From derivatives to the training objective",
+  "summary": "研究生英文主讲、中文可切换。图与公式同步解释，含练习、实验和来源。",
+  "summaryEn": "Postgraduate lecture with linked schematics and equations, narrated experiments, exercises and traceable sources.",
+  "sources": [
+    {
+      "id": "raissi2017",
+      "name": "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (2017), Parts I and II",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Open author exposition and code for differentiable solution networks, PDE residuals, initial/boundary observations, and forward/inverse modelling. Author manuscripts: https://arxiv.org/abs/1711.10561 and https://arxiv.org/abs/1711.10566 ."
+    },
+    {
+      "id": "wang2023",
+      "name": "Wang, Sankaran, Wang & Perdikaris, An Expert’s Guide to Training PINNs (2023)",
+      "url": "https://arxiv.org/html/2308.08468v1",
+      "text": "Open manuscript covering nondimensionalization, architecture, loss balancing, temporal causality, curriculum, sampling and boundary constraints. Practical methods are problem-dependent and are not universal convergence guarantees."
+    },
+    {
+      "id": "failure2021",
+      "name": "Krishnapriyan et al., Characterizing Possible Failure Modes in PINNs (2021)",
+      "url": "https://arxiv.org/html/2109.01050v1",
+      "text": "Open manuscript demonstrating optimisation failures for convection, reaction and reaction-diffusion problems and investigating curriculum and sequential-in-time training. Expressive networks need not be easy to optimize."
+    },
+    {
+      "id": "torchdocs",
+      "name": "PyTorch official autograd tutorial",
+      "url": "https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html",
+      "text": "Official graph-based automatic differentiation documentation. The independent lab uses torch.autograd.grad(create_graph=True) for coordinate derivatives that remain differentiable with respect to network weights."
+    },
+    {
+      "id": "heatdocs",
+      "name": "DeepXDE official heat-equation example",
+      "url": "https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/heat.html",
+      "text": "Official heat example with sinusoidal initial data and zero Dirichlet boundaries. This course independently chooses a dimensionless unit domain, alpha=0.1 and exp(-alpha*pi^2*t)*sin(pi*x), rather than reproducing published accuracy claims."
+    },
+    {
+      "id": "course-demo",
+      "name": "Independent locally executed PINN experiment",
+      "url": "/demos/pinns_train.py",
+      "text": "Synthetic dimensionless heat problem: alpha=0.1, sine initial data, zero boundary values. Small smooth PyTorch networks trained on CPU with seed 7 in forward, inverse and omitted-initial-condition configurations. Held-out relative L2 and independent residual checks are logged. Inverse observations include Gaussian noise with standard deviation 0.005. These are teaching runs, not paper benchmarks."
+    },
+    {
+      "id": "gradients2020",
+      "name": "Wang, Teng & Perdikaris, Understanding and mitigating gradient pathologies in PINNs (2020)",
+      "url": "https://arxiv.org/abs/2001.04536",
+      "text": "Primary study of imbalanced back-propagated gradients in composite PINN objectives, with adaptive training strategies. Used for the diagnosis of conflicting loss components, not as a guarantee that a specific weighting rule always works."
+    },
+    {
+      "id": "ntk2020",
+      "name": "Wang, Yu & Perdikaris, When and why PINNs fail to train (2020)",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Primary neural-tangent-kernel analysis of discrepant convergence rates and training difficulties, under its stated assumptions. Its limiting analysis is not an exact description of every finite nonlinear network."
+    },
+    {
+      "id": "causality2022",
+      "name": "Wang, Sankaran & Perdikaris, Respecting causality is all you need for training PINNs (2022)",
+      "url": "https://arxiv.org/abs/2203.07404",
+      "text": "Primary temporal-training study motivating the need to respect causal evolution in difficult time-dependent problems. Its title should not be interpreted as a universal guarantee across all PDEs."
+    },
+    {
+      "id": "operator2020",
+      "name": "Li et al., Fourier Neural Operator (2020); Lu et al., DeepONet (2019)",
+      "url": "https://arxiv.org/abs/2010.08895",
+      "text": "Primary operator-learning papers: https://arxiv.org/abs/2010.08895 and https://arxiv.org/abs/1910.03193 . Learning a mapping between functions across a problem family is distinct from fitting one coordinate network to one fixed PDE instance."
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "从自动微分到训练目标",
+      "titleEn": "From derivatives to the training objective",
+      "eyebrow": "第 2 章 / 学习路线",
+      "eyebrowEn": "CHAPTER 2 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "建立本章的推理链"
+      ],
+      "bulletsEn": [
+        "Follow the reasoning in this chapter"
+      ],
+      "sourceIds": [],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "坐标导数",
+            "labelEn": "Derivatives",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "条件损失",
+            "labelEn": "Conditions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "完整目标",
+            "labelEn": "Objective",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "连接",
+            "labelEn": "Connect"
+          },
+          {
+            "label": "检验",
+            "labelEn": "Check"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "focus": 0,
+          "text": "这是研究生 PINNs 课程的第 2 章：从自动微分到训练目标。我们从坐标导数连接到条件损失。最后通过完整目标检验理解。",
+          "textEn": "This is chapter 2 of our postgraduate PINNs session: from derivatives to the training objective. We will connect derivatives to conditions. Finally, we will use objective to check what we have learned.",
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pinn-2-smooth",
+      "title": "二阶导数需要平滑网络",
+      "titleEn": "Second derivatives need a smooth representation",
+      "eyebrow": "2.1 / 一个核心问题",
+      "eyebrowEn": "2.1 / One central question",
+      "visual": "equation",
+      "formula": "h=\\tanh(Wq+b),\\quad q=(x,t)^\\mathsf{T}",
+      "formulaEn": "h=\\tanh(Wq+b),\\quad q=(x,t)^\\mathsf{T}",
+      "bullets": [
+        "坐标 $q$",
+        "平滑隐层 $h$"
+      ],
+      "bulletsEn": [
+        "Coordinates $q$",
+        "Smooth hidden state $h$"
+      ],
+      "beats": [
+        {
+          "id": "smooth-b0",
+          "focus": 0,
+          "text": "零场反例说明只有方程残差还不够，而在组合全部损失之前，我们先要选择能够计算所需坐标导数的网络。 q 是坐标列向量，h 是隐层输出，W 是权重矩阵，b 是偏置，转置符号把坐标对写成列。图与式子是同一映射：线性组合经过平滑双曲正切。",
+          "textEn": "The zero-field example showed why we need more than an equation residual, and before assembling all the losses we must choose a network whose coordinate derivatives can actually be computed. Here q is the column vector of coordinates, h is a hidden-layer output, W is a weight matrix, and b is a bias vector. The superscript T denotes transpose, turning the written coordinate pair into a column. The schematic follows the same mapping as the equation: a linear combination of coordinates is passed through the smooth hyperbolic tangent.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "h=\\tanh(Wq+b),\\quad q=(x,t)^\\mathsf{T}",
+            "formulaEn": "h=\\tanh(Wq+b),\\quad q=(x,t)^\\mathsf{T}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "smooth-b1",
+          "focus": 1,
+          "text": "热残差需要二阶空间导数。普通 ReLU 网络对输入分段线性，二阶导数几乎处处为零，拐点处还有问题，因此不适合这里的强形式残差。这不排除所有分段线性科学模型，但说明本例选择平滑激活的原因。",
+          "textEn": "We need this smoothness because the heat residual contains a second spatial derivative. A standard ReLU network is piecewise linear in its inputs, so its second derivative is zero almost everywhere and problematic at the kinks for this strong-form residual. That does not prohibit every piecewise-linear scientific model, but it motivates a smooth choice here. Next we see how a computational graph supplies derivatives without finite differences.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "torchdocs"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "坐标 $q$",
+            "labelEn": "Coordinates $q$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "network",
+            "revealAt": 0
+          },
+          {
+            "label": "平滑隐层 $h$",
+            "labelEn": "Smooth hidden state $h$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "权重 $W$ 与偏置 $b$",
+            "labelEn": "weights $W$ and bias $b$"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-2-chain",
+      "title": "自动微分沿计算图使用链式法则",
+      "titleEn": "Automatic differentiation follows the chain rule",
+      "eyebrow": "2.2 / 一个核心问题",
+      "eyebrowEn": "2.2 / One central question",
+      "visual": "equation",
+      "formula": "\\frac{du}{dx}=\\frac{du}{dh}\\frac{dh}{dx}",
+      "formulaEn": "\\frac{du}{dx}=\\frac{du}{dh}\\frac{dh}{dx}",
+      "bullets": [
+        "中间量 $h$",
+        "导数 $du/dx$"
+      ],
+      "bulletsEn": [
+        "Intermediate $h$",
+        "Derivative $du/dx$"
+      ],
+      "beats": [
+        {
+          "id": "chain-b0",
+          "focus": 0,
+          "text": "平滑网络让所需导数有意义，接下来用自动微分说明怎样沿计算图实际求出这些导数。 du/dh 和 dh/dx 表示计算图两条边上的敏感度，这里先用标量链说明。自动微分对记录的基本运算应用链式法则，不需要用小步长扰动坐标。",
+          "textEn": "A smooth network makes the required derivatives meaningful, and automatic differentiation now supplies a practical way to evaluate them through the computation graph. The symbols d u over d h and d h over d x describe sensitivities along two edges of a computation. Here we temporarily consider a scalar chain to make the rule visible. Automatic differentiation applies this chain rule to recorded elementary operations, evaluating derivatives of the represented numerical function rather than perturbing the coordinate by a small step.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\frac{du}{dx}=\\frac{du}{dh}\\frac{dh}{dx}",
+            "formulaEn": "\\frac{du}{dx}=\\frac{du}{dh}\\frac{dh}{dx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "chain-b1",
+          "focus": 1,
+          "text": "它不一定生成可读的符号公式，也不免疫浮点误差，并且求的是所建网络的导数，不是真实物理场的导数。PINN 先求一阶再求二阶坐标导数，因此必须保留第一次求导的计算图。",
+          "textEn": "It is not symbolic algebra that necessarily produces a human-readable expression, and it is not immune to floating-point error. It also differentiates the network we actually built, not the true physical field. In a PINN we apply the mechanism once for first coordinate derivatives and again for second derivatives. Keeping the graph of the first derivative is therefore essential.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "sourceIds": [
+        "torchdocs"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "中间量 $h$",
+            "labelEn": "Intermediate $h$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "导数 $du/dx$",
+            "labelEn": "Derivative $du/dx$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "derivative",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "链式法则",
+            "labelEn": "chain rule"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-2-two-gradients",
+      "title": "坐标求导与参数更新不同",
+      "titleEn": "Coordinate derivatives are not parameter updates",
+      "eyebrow": "2.3 / 一个核心问题",
+      "eyebrowEn": "2.3 / One central question",
+      "visual": "equation",
+      "formula": "\\partial_xu_\\theta\\qquad\\nabla_\\theta\\mathcal L",
+      "formulaEn": "\\partial_xu_\\theta\\qquad\\nabla_\\theta\\mathcal L",
+      "bullets": [
+        "坐标导数",
+        "参数梯度"
+      ],
+      "bulletsEn": [
+        "Coordinate derivative",
+        "Parameter gradient"
+      ],
+      "beats": [
+        {
+          "id": "two-gradients-b0",
+          "focus": 0,
+          "text": "链式法则已经说明导数怎样计算，但必须区分坐标导数与更新网络参数的梯度。 偏导 x u theta 描述固定参数时预测场随位置的变化。nabla theta L 则是训练目标对全部参数的梯度，L 表示稍后构造的损失。求 PDE 导数本身不是一次学习更新。",
+          "textEn": "We have seen how the chain rule computes derivatives, but we must separate derivatives with respect to coordinates from gradients that update the network parameters. Partial x u theta tells us how the current predicted field changes as position changes while theta is held fixed. Nabla theta L is the gradient of the training loss with respect to all trainable weights and biases. L denotes the objective we will construct shortly. The two schematic roles prevent a common confusion: evaluating a PDE derivative is not itself a learning step.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\partial_xu_\\theta\\qquad\\nabla_\\theta\\mathcal L",
+            "formulaEn": "\\partial_xu_\\theta\\qquad\\nabla_\\theta\\mathcal L",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "two-gradients-b1",
+          "focus": 1,
+          "text": "先用网络和坐标导数构造残差与标量损失，再反向求参数梯度并由优化器更新。因此坐标导数操作仍需对参数可微。PyTorch 的 create_graph=True 保留了训练穿过这些导数所需的图。",
+          "textEn": "First the network and coordinate derivatives form the residual and the scalar loss. Then backpropagation differentiates that loss with respect to theta, and the optimiser updates theta. Consequently the coordinate-derivative operations must remain differentiable with respect to parameters. In PyTorch, create graph equals true provides the graph needed to differentiate through these derivatives during training.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "torchdocs"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "坐标导数",
+            "labelEn": "Coordinate derivative",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "参数梯度",
+            "labelEn": "Parameter gradient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "derivative",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "不同的求导对象",
+            "labelEn": "different differentiation variables"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-2-residual-code",
+      "title": "两次求导如何形成热残差？",
+      "titleEn": "Two derivative calls build the heat residual",
+      "eyebrow": "2.4 / 一个核心问题",
+      "eyebrowEn": "2.4 / One central question",
+      "visual": "equation",
+      "formula": "u_t,\\ u_x\\ \\longrightarrow\\ u_{xx}\\ \\longrightarrow\\ r_\\theta",
+      "formulaEn": "u_t,\\ u_x\\ \\longrightarrow\\ u_{xx}\\ \\longrightarrow\\ r_\\theta",
+      "bullets": [
+        "一阶导数",
+        "二阶导数与残差"
+      ],
+      "bulletsEn": [
+        "First derivatives",
+        "Second derivative and residual"
+      ],
+      "beats": [
+        {
+          "id": "residual-code-b0",
+          "focus": 0,
+          "text": "区分坐标导数和参数梯度后，现在可以把热残差写成张量操作，避免把检查方程误当成学习更新。 输入张量按固定顺序包含 x、t 两列。一次求导同时返回 u_x 与 u_t，再对 u_x 求导并取 x 分量得到 u_xx，最后构造热残差。",
+          "textEn": "With the roles of coordinate and parameter derivatives separated, we can now translate the heat residual into tensor operations without confusing equation evaluation with learning. In our implementation the input tensor has two columns in the fixed order x then t. One gradient call returns both u x and u t, and a second call differentiates u x with respect to the coordinates and keeps its x component. Subtracting alpha times u x x from u t gives the same residual we derived on the previous chapter, now as executable tensor operations.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "u_t,\\ u_x\\ \\longrightarrow\\ u_{xx}\\ \\longrightarrow\\ r_\\theta",
+            "formulaEn": "u_t,\\ u_x\\ \\longrightarrow\\ u_{xx}\\ \\longrightarrow\\ r_\\theta",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "residual-code-b1",
+          "focus": 1,
+          "text": "对输出求和的便捷求导之所以能得到逐点导数，是因为本模型独立处理各输入行。若网络层耦合样本，就需要更谨慎地处理 Jacobian。源码显式开启坐标梯度，并保留计算图，可与屏幕上的简写逐项核查。",
+          "textEn": "The convenient gradient of summed outputs gives per-point coordinate derivatives only because our model processes input rows independently. Layers that couple samples require more careful Jacobian treatment. We explicitly enable gradients on input coordinates and use ones like u as the vector argument to autograd. The runnable source accompanies the lecture, so the shorthand on the board can be checked against actual code.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "torchdocs"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "一阶导数",
+            "labelEn": "First derivatives",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "二阶导数与残差",
+            "labelEn": "Second derivative and residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "derivative",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "保留计算图",
+            "labelEn": "retain the derivative graph"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-2-initial-loss",
+      "title": "初始数据如何进入损失？",
+      "titleEn": "Initial data selects the starting profile",
+      "eyebrow": "2.5 / 一个核心问题",
+      "eyebrowEn": "2.5 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_0=\\frac1{N_0}\\sum_i\\left[u_\\theta(x_i,0)-\\sin(\\pi x_i)\\right]^2",
+      "formulaEn": "\\mathcal L_0=\\frac1{N_0}\\sum_i\\left[u_\\theta(x_i,0)-\\sin(\\pi x_i)\\right]^2",
+      "bullets": [
+        "初始预测",
+        "已知初始值"
+      ],
+      "bulletsEn": [
+        "Initial predictions",
+        "Known initial values"
+      ],
+      "beats": [
+        {
+          "id": "initial-loss-b0",
+          "focus": 0,
+          "text": "我们已经能够计算微分残差，但零场反例仍能通过这项检查，因此下一步要惩罚预测与规定初始分布的差异。 L 下标零是初始条件损失，N_0 是初始样本数，i 是样本索引。在每个 x_i 的零时刻，把预测与规定正弦比较，平方后取平均。",
+          "textEn": "We can compute the differential residual, but the zero-field counterexample still passes that test, so we next penalise disagreement with the prescribed initial profile. L subscript zero is the initial-condition loss, N subscript zero is the number of initial samples, and i indexes those samples. At each sampled position x i and time zero we compare the prediction against the prescribed sine. The squared difference penalises both overprediction and underprediction, and averaging prevents the term from simply scaling with the sample count.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\mathcal L_0=\\frac1{N_0}\\sum_i\\left[u_\\theta(x_i,0)-\\sin(\\pi x_i)\\right]^2",
+            "formulaEn": "\\mathcal L_0=\\frac1{N_0}\\sum_i\\left[u_\\theta(x_i,0)-\\sin(\\pi x_i)\\right]^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "initial-loss-b1",
+          "focus": 1,
+          "text": "图中的两个量对应括号中的预测与目标。初始温度本来就是问题条件，所以可以用于训练，不属于泄露内部参考解。零场残差虽为零，初始损失却为正，这一项直接排除了第一章的反例。",
+          "textEn": "The schematic identifies the two quantities being compared inside the brackets. These temperatures are allowed training targets because they are part of the problem specification, not withheld interior answers. A zero field gives zero PDE residual but a positive initial loss. Thus this term directly rules out the counterexample from the first chapter. We next impose the endpoint requirements separately.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "初始预测",
+            "labelEn": "Initial predictions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "已知初始值",
+            "labelEn": "Known initial values",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "平方差平均",
+            "labelEn": "mean squared mismatch"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-2-boundary-loss",
+      "title": "边界条件约束哪些位置？",
+      "titleEn": "Boundary loss constrains the rod endpoints",
+      "eyebrow": "2.6 / 一个核心问题",
+      "eyebrowEn": "2.6 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_b=\\frac1{2N_b}\\sum_i\\left[u_\\theta(0,t_i)^2+u_\\theta(1,t_i)^2\\right]",
+      "formulaEn": "\\mathcal L_b=\\frac1{2N_b}\\sum_i\\left[u_\\theta(0,t_i)^2+u_\\theta(1,t_i)^2\\right]",
+      "bullets": [
+        "左端 $x=0$",
+        "右端 $x=1$"
+      ],
+      "bulletsEn": [
+        "Left end $x=0$",
+        "Right end $x=1$"
+      ],
+      "beats": [
+        {
+          "id": "boundary-loss-b0",
+          "focus": 0,
+          "text": "初始损失约束实验怎样开始，但杆的端点还必须在整个时间范围内满足要求，因此需要单独的边界损失。 L_b 是边界损失，N_b 是抽取的时间数。每个 t_i 同时检查两端与零目标的差，分母中的二对应每个时间的两个端点值。图中节点直接标出公式查询的位置。",
+          "textEn": "Initial loss constrains how the experiment starts, while the rod endpoints must also remain correct throughout time, which requires a separate boundary loss. L subscript b denotes boundary loss and N subscript b counts sampled times. At every selected time t i we penalise the prediction at both endpoints against their known target zero. The factor two in the denominator accounts for the two endpoint values per sampled time. The two nodes show exactly which locations the equation evaluates.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\mathcal L_b=\\frac1{2N_b}\\sum_i\\left[u_\\theta(0,t_i)^2+u_\\theta(1,t_i)^2\\right]",
+            "formulaEn": "\\mathcal L_b=\\frac1{2N_b}\\sum_i\\left[u_\\theta(0,t_i)^2+u_\\theta(1,t_i)^2\\right]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-loss-b1",
+          "focus": 1,
+          "text": "软惩罚鼓励边界误差小，却不保证所有时刻严格为零。增加样本改变覆盖，改变权重影响优化取舍。之后会比较按结构严格满足端点的方式，先把各损失组合起来。",
+          "textEn": "This soft penalty encourages small endpoint error but does not make the constraints exact at every time. Adding more boundary samples changes the empirical coverage, while changing its weight changes the optimisation trade-off. Later we will compare this with a hard boundary construction that makes endpoint values zero by design. First we combine the separate losses without losing track of their physical roles.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "左端 $x=0$",
+            "labelEn": "Left end $x=0$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "右端 $x=1$",
+            "labelEn": "Right end $x=1$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "共同保持为零",
+            "labelEn": "both remain zero"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-2-total-loss",
+      "title": "各项损失代表不同要求",
+      "titleEn": "Different loss terms encode different requirements",
+      "eyebrow": "2.7 / 一个核心问题",
+      "eyebrowEn": "2.7 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L=\\lambda_r\\mathcal L_r+\\lambda_0\\mathcal L_0+\\lambda_b\\mathcal L_b",
+      "formulaEn": "\\mathcal L=\\lambda_r\\mathcal L_r+\\lambda_0\\mathcal L_0+\\lambda_b\\mathcal L_b",
+      "bullets": [
+        "物理残差",
+        "初始与边界"
+      ],
+      "bulletsEn": [
+        "Equation residual",
+        "Initial and boundary data"
+      ],
+      "beats": [
+        {
+          "id": "total-loss-b0",
+          "focus": 0,
+          "text": "方程、初始状态和端点现在各有可计算的误差，因此把它们组合成训练目标，同时保留各自的物理作用。 L_r 是内部配点的平均残差平方，L_0 是初始损失，L_b 是边界损失。各 lambda 是非负损失权重，不是物理扩散系数 alpha。正问题实验分别用一、十、一。",
+          "textEn": "The equation, initial state and endpoints now each have a measurable error, so we combine them into one objective while keeping their distinct roles visible. L r is the average squared PDE residual at interior collocation points, L zero is initial loss and L b is boundary loss. Lambda r, lambda zero and lambda b are nonnegative weights, not the physical diffusivity alpha. In the forward lab we use weights one, ten and one respectively. The schematic groups equation consistency and condition matching while the formula keeps all three contributions explicit.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "\\mathcal L=\\lambda_r\\mathcal L_r+\\lambda_0\\mathcal L_0+\\lambda_b\\mathcal L_b",
+            "formulaEn": "\\mathcal L=\\lambda_r\\mathcal L_r+\\lambda_0\\mathcal L_0+\\lambda_b\\mathcal L_b",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "total-loss-b1",
+          "focus": 1,
+          "text": "总标量便于优化，却可能掩盖未满足的分量。要分别记录各项并检查实际物理误差。它们的单位和梯度幅度可能不同，所以相同权重不代表相同影响。训练前后都需要关注这种差异。",
+          "textEn": "A scalar total is convenient for optimisation, but it can hide an unsatisfied component. Always log the terms separately and inspect their physical errors as well as their numerical values. Their units and gradient magnitudes may differ, so equal weights need not mean equal influence. We will revisit scaling and gradient imbalance after a first working implementation.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "raissi2017"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 0,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理残差",
+            "labelEn": "Equation residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "初始与边界",
+            "labelEn": "Initial and boundary data",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "加权组合",
+            "labelEn": "weighted combination"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pinn-2-loss-exercise",
+      "title": "练习：补齐缺失的约束",
+      "titleEn": "Exercise: repair an incomplete objective",
+      "eyebrow": "2.8 / 一个核心问题",
+      "eyebrowEn": "2.8 / One central question",
+      "visual": "equation",
+      "formula": "\\mathcal L_{\\text{缺项}}=\\mathcal L_r+\\mathcal L_b",
+      "formulaEn": "\\mathcal L_{\\rm incomplete}=\\mathcal L_r+\\mathcal L_b",
+      "bullets": [
+        "不完整目标",
+        "缺失 $\\mathcal L_0$"
+      ],
+      "bulletsEn": [
+        "Incomplete objective",
+        "Missing $\\mathcal L_0$"
+      ],
+      "beats": [
+        {
+          "id": "loss-exercise-b0",
+          "focus": 0,
+          "text": "完整目标已经组合起来，接下来故意删除一项，检验我们是否理解每一项提供了什么信息。 这里故意省略初始损失。用三分钟给出一个让保留的两项都为零、却不是目标解的函数，再补齐目标，并判断只增加内部配点能否修复它。",
+          "textEn": "We have assembled the full objective, and deliberately removing one term will test whether we understand which information each contribution supplies. Here the label incomplete means we intentionally omitted initial loss. Work for three minutes: give a function that makes both retained terms zero but is not the required solution, then write the corrected objective. State whether increasing interior collocation points alone would remove your counterexample. Explain using the physics, not just the algebra of the loss.",
+          "pauseAfter": 180,
+          "scene": {
+            "formula": "\\mathcal L_{\\text{缺项}}=\\mathcal L_r+\\mathcal L_b",
+            "formulaEn": "\\mathcal L_{\\rm incomplete}=\\mathcal L_r+\\mathcal L_b",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "loss-exercise-b1",
+          "focus": 1,
+          "text": "零场仍是反例，增加内部点无用，因为它处处满足 PDE。补上初始要求改变了问题本身。进一步想一想，错误的初始振幅也能产生另一个热实验的解。下一章把完整目标变成可复现训练与验证流程。",
+          "textEn": "The zero field is again a counterexample, and more interior points do not help because it satisfies the PDE everywhere. Restoring the initial requirement changes the problem rather than merely improving sampling. For an additional check, describe how a wrong nonzero initial amplitude could also solve a different heat experiment. The next chapter turns this objective into a reproducible training and validation procedure.",
+          "pauseAfter": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "sourceIds": [
+        "course-demo"
+      ],
+      "integratedEquation": true,
+      "demo": null,
+      "activitySeconds": 180,
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "不完整目标",
+            "labelEn": "Incomplete objective",
+            "detail": "",
+            "detailEn": "",
+            "icon": "vector",
+            "revealAt": 0
+          },
+          {
+            "label": "缺失 $\\mathcal L_0$",
+            "labelEn": "Missing $\\mathcal L_0$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "check",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "找出反例",
+            "labelEn": "find a counterexample"
+          }
+        ]
+      }
+    }
+  ]
+}

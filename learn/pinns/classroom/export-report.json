@@ -1,0 +1,80 @@
+{
+  "course": "pinns",
+  "chapters": [
+    {
+      "chapter": 1,
+      "en": {
+        "total": 80,
+        "ready": 80
+      },
+      "zh": {
+        "total": 64,
+        "ready": 0
+      }
+    },
+    {
+      "chapter": 2,
+      "en": {
+        "total": 72,
+        "ready": 72
+      },
+      "zh": {
+        "total": 55,
+        "ready": 0
+      }
+    },
+    {
+      "chapter": 3,
+      "en": {
+        "total": 85,
+        "ready": 85
+      },
+      "zh": {
+        "total": 64,
+        "ready": 0
+      }
+    },
+    {
+      "chapter": 4,
+      "en": {
+        "total": 72,
+        "ready": 72
+      },
+      "zh": {
+        "total": 55,
+        "ready": 0
+      }
+    },
+    {
+      "chapter": 5,
+      "en": {
+        "total": 71,
+        "ready": 71
+      },
+      "zh": {
+        "total": 53,
+        "ready": 0
+      }
+    },
+    {
+      "chapter": 6,
+      "en": {
+        "total": 73,
+        "ready": 73
+      },
+      "zh": {
+        "total": 54,
+        "ready": 0
+      }
+    }
+  ],
+  "clips": 453,
+  "features": [
+    "progressive-reveal",
+    "physical-animation",
+    "3d-professor",
+    "laser-pointer",
+    "cached-narration"
+  ],
+  "liveGeneration": false
+}
