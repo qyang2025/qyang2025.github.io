@@ -1,0 +1,47 @@
+{
+  "id": "wu2023",
+  "paper": {
+    "number": 7,
+    "shortTitle": "Wu 2023 · Sampling",
+    "title": "Wu, Zhu, Tan, Kartha & Lu (2023), A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks",
+    "url": "https://arxiv.org/html/2207.10289v1",
+    "year": 2023,
+    "scope": "Independent stationary1-D advection-diffusion adaptation of sections2.2/2.3.2 RAD. Four fixed32-point policies and512 candidates; not the original six-PDE/ten-method benchmark or RAR-D implementation."
+  },
+  "title": "Paper 07: Residual-adaptive sampling and boundary layers",
+  "titleZh": "论文 07：残差自适应采样与边界层",
+  "totalMinutes": 45,
+  "download": "paper-07.zip",
+  "modules": [
+    {
+      "id": "139afec2-2023-4007-8007-000000000007",
+      "index": 0,
+      "title": "论文 07：残差自适应采样与边界层",
+      "titleEn": "Paper 07: Residual-adaptive sampling and boundary layers",
+      "file": "1.json",
+      "pages": 25,
+      "sentenceCount": 148,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "wu2023",
+      "name": "Wu, Zhu, Tan, Kartha & Lu (2023), A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks",
+      "url": "https://arxiv.org/html/2207.10289v1",
+      "text": "2022 preprint, CMAME2023. Sections2.2 and2.3.2, equation2 and Algorithm2 RAD. This stationary boundary-layer problem is an independent teaching adaptation, not one of the paper’s six benchmarks or its full ten-method comparison."
+    },
+    {
+      "id": "authors-sampling",
+      "name": "Authors’ PINN sampling implementation",
+      "url": "https://github.com/lu-group/pinn-sampling",
+      "text": "Original examples and implementation. Our finite512-point pool and four policies isolate the RAD replacement mechanism under a small CPU budget. RAR-G and RAR-D are not implemented."
+    },
+    {
+      "id": "sampling-local",
+      "name": "All twelve CPU sampling runs, candidate weights and selected points",
+      "url": "/courses/pinns-papers/07-wu-2023-sampling/trace.json",
+      "text": "Four policies, three paired seeds,32 active residual points,512 fixed candidates,4000 updates. All training fields, failures, selections and candidate-search overhead are retained."
+    }
+  ]
+}

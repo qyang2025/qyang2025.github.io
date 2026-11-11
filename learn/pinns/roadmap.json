@@ -73,6 +73,15 @@
       "status": "Implemented",
       "classroom": "classroom/?paper=yu2022&language=en",
       "scope": "Original 1-D Poisson equation and hard-endpoint ansatz, sections 2.2/3.2.1. Smaller network, 16/32 midpoint sets and 4000 updates; no inverse problem or RAR implementation."
+    },
+    {
+      "number": "07",
+      "paper": "Wu, Zhu, Tan, Kartha & Lu (2023), A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks",
+      "source": "https://arxiv.org/html/2207.10289v1",
+      "topic": "Residual-adaptive sampling and boundary layers",
+      "status": "Implemented",
+      "classroom": "classroom/?paper=wu2023&language=en",
+      "scope": "Independent stationary1-D advection-diffusion adaptation of sections2.2/2.3.2 RAD. Four fixed32-point policies and512 candidates; not the original six-PDE/ten-method benchmark or RAR-D implementation."
     }
   ]
 }

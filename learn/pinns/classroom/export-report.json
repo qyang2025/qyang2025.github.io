@@ -159,7 +159,7 @@
         },
         "zh": {
           "total": 141,
-          "ready": 0
+          "ready": 1
         }
       }
     ],
@@ -214,9 +214,22 @@
           "ready": 0
         }
       }
+    ],
+    "wu2023": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 148,
+          "ready": 148
+        },
+        "zh": {
+          "total": 144,
+          "ready": 0
+        }
+      }
     ]
   },
-  "clips": 1396,
+  "clips": 1545,
   "features": [
     "progressive-reveal",
     "physical-animation",

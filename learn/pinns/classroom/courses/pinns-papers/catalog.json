@@ -35,6 +35,12 @@
       "number": 6,
       "courseRoot": "courses/pinns-papers/06-yu-2022-gpinn",
       "published": true
+    },
+    {
+      "id": "wu2023",
+      "number": 7,
+      "courseRoot": "courses/pinns-papers/07-wu-2023-sampling",
+      "published": true
     }
   ]
 }

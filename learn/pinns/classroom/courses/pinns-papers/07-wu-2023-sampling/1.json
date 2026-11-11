@@ -1,0 +1,3533 @@
+{
+  "id": "139afec2-2023-4007-8007-000000000007",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-07",
+  "chapterIndex": 0,
+  "title": "论文 07：残差自适应采样与边界层",
+  "titleEn": "Paper 07: Residual-adaptive sampling and boundary layers",
+  "summary": "用固定32点、512候选点的稳态边界层改编，解释 RAD 概率与重采样，公开十二次 CPU 运行、搜索成本及失败。",
+  "summaryEn": "A fixed32-point,512-candidate boundary-layer adaptation: RAD probabilities, point replacement, twelve CPU runs, search cost and retained failures.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "wu2023",
+      "name": "Wu, Zhu, Tan, Kartha & Lu (2023), A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks",
+      "url": "https://arxiv.org/html/2207.10289v1",
+      "text": "2022 preprint, CMAME2023. Sections2.2 and2.3.2, equation2 and Algorithm2 RAD. This stationary boundary-layer problem is an independent teaching adaptation, not one of the paper’s six benchmarks or its full ten-method comparison."
+    },
+    {
+      "id": "authors-sampling",
+      "name": "Authors’ PINN sampling implementation",
+      "url": "https://github.com/lu-group/pinn-sampling",
+      "text": "Original examples and implementation. Our finite512-point pool and four policies isolate the RAD replacement mechanism under a small CPU budget. RAR-G and RAR-D are not implemented."
+    },
+    {
+      "id": "sampling-local",
+      "name": "All twelve CPU sampling runs, candidate weights and selected points",
+      "url": "/courses/pinns-papers/07-wu-2023-sampling/trace.json",
+      "text": "Four policies, three paired seeds,32 active residual points,512 fixed candidates,4000 updates. All training fields, failures, selections and candidate-search overhead are retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "薄层物理与问题",
+      "titleEn": "Boundary-layer physics"
+    },
+    {
+      "slide": 7,
+      "title": "采样与提议概率",
+      "titleEn": "Sampling proposals"
+    },
+    {
+      "slide": 16,
+      "title": "证据、成本与边界",
+      "titleEn": "Evidence and costs"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 07：残差自适应采样与边界层",
+      "titleEn": "Paper 07: Residual-adaptive sampling and boundary layers",
+      "eyebrow": "PINNs 论文 07 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 07 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用固定32点、512候选点的稳态边界层改编，解释 RAD 概率与重采样，公开十二次 CPU 运行、搜索成本及失败。"
+      ],
+      "bulletsEn": [
+        "A fixed32-point,512-candidate boundary-layer adaptation: RAD probabilities, point replacement, twelve CPU runs, search cost and retained failures."
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "薄层物理与问题",
+            "labelEn": "Boundary-layer physics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "采样与提议概率",
+            "labelEn": "Sampling proposals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "证据、成本与边界",
+            "labelEn": "Evidence and costs",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "gPINN 论文在每个位置增加信息，本篇追问有限位置应当放在哪里。先把稳态热边界层连接到固定、均匀替换与残差自适应点集。最后用十二次 CPU 运行展示点历史、候选搜索成本、独立误差，以及自适应不占优的情况。",
+          "textEn": "The gPINN paper added information at each location, so this presentation asks where a limited set of locations should be placed. We will connect a steady thermal boundary layer to fixed, uniformly replaced and residual-adaptive point sets. Finally, twelve CPU runs will expose point histories, candidate-search costs, independent errors and cases where adaptation loses.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "why-sampling",
+      "title": "从每点的信息量转向点的位置",
+      "titleEn": "From information at each point to the locations of points",
+      "eyebrow": "论文 07 / 2",
+      "eyebrowEn": "PAPER 07 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从每点的信息量转向点的位置"
+      ],
+      "bulletsEn": [
+        "From information at each point to the locations of points"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：增加残差导数信息",
+            "labelEn": "Previously: add residual-derivative information",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：选择约束位置",
+            "labelEn": "Now: choose enforcement locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "why-sampling-b0",
+          "text": "gPINN 一讲改变了每个位置约束什么信息，但位置本身保持固定。有限 CPU 预算也让我们必须追问这些位置应当放在哪里。这篇研究采样，而不是再加入导数惩罚。",
+          "textEn": "The gPINN presentation changed what is enforced at a location, but the locations themselves stayed fixed. A limited CPU budget also makes it important to ask where those locations should be. This paper studies sampling rather than adding another derivative penalty.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "why-sampling-b1",
+          "text": "保持活动训练点总数固定，比较几种位置策略。边界层问题让位置具有清楚的物理意义。也会保留基于残差的自适应比简单固定网格更差的情况。",
+          "textEn": "We will keep the active training-point count fixed while comparing several placement policies. A boundary-layer problem gives the locations a clear physical meaning. The experiment will also retain cases where residual-based adaptation performs worse than a simple fixed grid.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "sampling-physical",
+      "title": "先看热出口附近的薄层",
+      "titleEn": "First look at the thin layer near a hot outlet",
+      "eyebrow": "论文 07 / 3",
+      "eyebrowEn": "PAPER 07 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看热出口附近的薄层"
+      ],
+      "bulletsEn": [
+        "First look at the thin layer near a hot outlet"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-physical-b0",
+          "text": "想象冷流体沿通道向右流动，出口保持较高温度。对流沿流向携带热量，扩散则抹平尖锐温度变化。达到稳态平衡后，大部分温度变化可能集中在热端附近。",
+          "textEn": "Imagine a cold fluid moving to the right through a channel whose outlet is held warm. Advection carries heat along the flow, while diffusion spreads it against the sharp temperature variation. In steady balance, most of the temperature change can remain close to the hot end.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-physical-b1",
+          "text": "金线与颜色表示沿位置 x 的稳态温度 u。移动标记只示意流向，不是数值瞬态模拟。这个狭窄变化区域，让均匀与非均匀选点的比较有了意义。",
+          "textEn": "The gold curve and colour represent steady temperature u along position x. Moving markers only illustrate the flow direction; they are not a numerical transient simulation. The narrow changing region makes uniform and nonuniform point placement worth comparing.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sampling-physical",
+      "paperTrace": "paper07"
+    },
+    {
+      "id": "sampling-equation",
+      "title": "用稳态对流扩散描述这个图像",
+      "titleEn": "Describe the picture with steady advection-diffusion",
+      "eyebrow": "论文 07 / 4",
+      "eyebrowEn": "PAPER 07 / 4",
+      "visual": "steps",
+      "formula": "u_x-\\nu u_{xx}=0,\\qquad x\\in[0,1]",
+      "formulaEn": "u_x-\\nu u_{xx}=0,\\qquad x\\in[0,1]",
+      "bullets": [
+        "用稳态对流扩散描述这个图像"
+      ],
+      "bulletsEn": [
+        "Describe the picture with steady advection-diffusion"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "向右的对流输运",
+            "labelEn": "Advection to the right",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "抹平梯度的扩散",
+            "labelEn": "Diffusion smooths the gradient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-equation-b0",
+          "text": "把对流速度归一化为一后，稳态物理图像变成这个方程。u 是温度，x 是位置，nu 是已知正扩散系数。一阶导数描述对流，二阶导数描述扩散。",
+          "textEn": "The steady physical picture becomes an equation with advection speed normalised to one. U is temperature, x is position, and nu is a known positive diffusivity. The first derivative describes advection and the second derivative describes diffusion.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_x-\\nu u_{xx}=0,\\qquad x\\in[0,1]",
+            "formulaEn": "u_x-\\nu u_{xx}=0,\\qquad x\\in[0,1]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-equation-b1",
+          "text": "选择 nu 等于零点零五。扩散越小，热出口附近的过渡越薄。这个可解析的一维问题是教学改编，不是原论文六个基准问题的复现。",
+          "textEn": "We choose nu equal to zero point zero five. Smaller diffusivity creates a thinner transition near the warm outlet. This analytic one-dimensional problem is our teaching adaptation, not a reproduction of the original paper’s six benchmark problems.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-boundaries",
+      "title": "两端温度如何选出边界层？",
+      "titleEn": "How do endpoint temperatures select a boundary layer?",
+      "eyebrow": "论文 07 / 5",
+      "eyebrowEn": "PAPER 07 / 5",
+      "visual": "steps",
+      "formula": "u(0)=0,\\qquad u(1)=1",
+      "formulaEn": "u(0)=0,\\qquad u(1)=1",
+      "bullets": [
+        "两端温度如何选出边界层？"
+      ],
+      "bulletsEn": [
+        "How do endpoint temperatures select a boundary layer?"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "冷入口固定为零",
+            "labelEn": "Cold inlet fixed at zero",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "热出口固定为一",
+            "labelEn": "Hot outlet fixed at one",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-boundaries-b0",
+          "text": "微分方程需要边界值，才能确定温度曲线。左入口固定为零，右出口固定为一。在这个归一化问题中，两端给定差异产生稳态薄层。",
+          "textEn": "The differential equation alone needs boundary values to determine a temperature profile. We hold the left inlet at zero and the right outlet at one. Their imposed difference drives the steady layer in this normalised problem.",
+          "focus": 0,
+          "scene": {
+            "formula": "u(0)=0,\\qquad u(1)=1",
+            "formulaEn": "u(0)=0,\\qquad u(1)=1",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-boundaries-b1",
+          "text": "网络即使满足端点值，内部也仍可能预测错误。因此要评估整条曲线，不能只因边界一致就认为成功。每种采样策略都使用相同硬端点处理。",
+          "textEn": "A network can satisfy these endpoint values and still predict the interior badly. That is why we evaluate the entire profile rather than celebrating boundary agreement alone. The hard endpoint treatment is identical across every sampling policy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-reference",
+      "title": "解析指数曲线提供独立检验",
+      "titleEn": "Use an analytic exponential profile for validation",
+      "eyebrow": "论文 07 / 6",
+      "eyebrowEn": "PAPER 07 / 6",
+      "visual": "steps",
+      "formula": "u_*(x)=\\frac{e^{x/\\nu}-1}{e^{1/\\nu}-1}",
+      "formulaEn": "u_*(x)=\\frac{e^{x/\\nu}-1}{e^{1/\\nu}-1}",
+      "bullets": [
+        "解析指数曲线提供独立检验"
+      ],
+      "bulletsEn": [
+        "Use an analytic exponential profile for validation"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "薄层的解析形状",
+            "labelEn": "Analytic shape of the thin layer",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "训练之外的参考",
+            "labelEn": "Reference outside training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-reference-b0",
+          "text": "这个边值问题有精确指数解，因此不需要大型模拟器。u 星表示解析温度参考。右端附近的快速变化，解释了物理困难集中在哪里。",
+          "textEn": "This boundary-value problem has an exact exponential solution, so no large simulator is needed. U star denotes the analytic temperature reference. Its rapid variation near the right end explains where the physical difficulty is concentrated.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_*(x)=\\frac{e^{x/\\nu}-1}{e^{1/\\nu}-1}",
+            "formulaEn": "u_*(x)=\\frac{e^{x/\\nu}-1}{e^{1/\\nu}-1}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-reference-b1",
+          "text": "实现使用代数等价的负指数表达式提高数值稳定性。参考温度与斜率只用于独立验证，既不决定重采样概率，也不作为内部训练标签。",
+          "textEn": "The implementation evaluates an algebraically equivalent expression with negative exponentials for numerical stability. Reference temperatures and slopes are only used for independent validation. They never determine the resampling probabilities or become interior training labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-hard-ansatz",
+      "title": "让端点自动正确，再比较内部选点",
+      "titleEn": "Fix the endpoints by construction before comparing points",
+      "eyebrow": "论文 07 / 7",
+      "eyebrowEn": "PAPER 07 / 7",
+      "visual": "steps",
+      "formula": "u_\\theta=x+x(1-x)N_\\theta(x)",
+      "formulaEn": "u_\\theta=x+x(1-x)N_\\theta(x)",
+      "bullets": [
+        "让端点自动正确，再比较内部选点"
+      ],
+      "bulletsEn": [
+        "Fix the endpoints by construction before comparing points"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "共享的小型网络",
+            "labelEn": "One shared small-network design",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "端点处消失的修正项",
+            "labelEn": "A correction vanishing at the endpoints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-hard-ansatz-b0",
+          "text": "所有策略都把边界条件写入相同替代表达式。N theta 是可训练网络输出，theta 表示网络参数。修正项在零与一处消失。",
+          "textEn": "The boundary conditions are built into the same surrogate for every policy. N theta is the trainable network output and theta denotes its parameters. The correction term vanishes at zero and one.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta=x+x(1-x)N_\\theta(x)",
+            "formulaEn": "u_\\theta=x+x(1-x)N_\\theta(x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-hard-ansatz-b1",
+          "text": "这样不需要边界损失权重，也能精确满足端点。采样只改变哪些内部残差位置进入目标。这里使用普通 PINN 残差，不加入上一篇的 gPINN 导数惩罚。",
+          "textEn": "This makes endpoint agreement exact without using a boundary-loss weight. Sampling only changes which interior residual locations enter the objective. We use ordinary PINN residuals here, without the gPINN derivative penalty from the previous paper.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-fixed-controls",
+      "title": "固定网格与固定随机点有何区别？",
+      "titleEn": "How do fixed grids and fixed random points differ?",
+      "eyebrow": "论文 07 / 8",
+      "eyebrowEn": "PAPER 07 / 8",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "固定网格与固定随机点有何区别？"
+      ],
+      "bulletsEn": [
+        "How do fixed grids and fixed random points differ?"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "固定均匀的32个中点",
+            "labelEn": "32 fixed evenly spaced midpoints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "从候选池随机抽取32点",
+            "labelEn": "32 random points from the candidate pool",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-fixed-controls-b0",
+          "text": "先建立两个训练位置不移动的对照。网格使用三十二个等距中点。随机对照从五百一十二个固定候选位置中抽取三十二个不同位置。",
+          "textEn": "We begin with two controls that never move their training locations. The grid uses thirty-two equally spaced midpoint locations. The random control draws thirty-two distinct locations from a fixed pool of five hundred and twelve candidates.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-fixed-controls-b1",
+          "text": "因此，这里的随机对照是离散候选池采样，不是原论文的连续均匀采样。每个种子下，它与两种重采样策略共享初始点。网格则有意使用不同的确定位置，但共享网络初始化。",
+          "textEn": "Our random control is therefore discrete-pool sampling rather than continuous uniform sampling from the original paper. It shares its initial points with the two resampling policies for each seed. The grid deliberately uses a different, deterministic placement while sharing network initialisation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "sampling-uniform-replacement",
+      "title": "保持32点，但定期全部更换",
+      "titleEn": "Keep 32 points but replace them periodically",
+      "eyebrow": "论文 07 / 9",
+      "eyebrowEn": "PAPER 07 / 9",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "保持32点，但定期全部更换"
+      ],
+      "bulletsEn": [
+        "Keep 32 points but replace them periodically"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "每500步重新抽取位置",
+            "labelEn": "Draw new locations every 500 steps",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "活动点总数仍为32",
+            "labelEn": "Keep the active point count at 32",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-uniform-replacement-b0",
+          "text": "下一个对照检验，仅仅访问不同位置会带来什么变化。每完成五百次更新，均匀重采样重新抽取三十二个候选位置。它替换旧集合，而不是不断增加点数。",
+          "textEn": "The next control asks what changes simply by revisiting different locations. After each five hundred completed updates, uniform resampling draws a fresh set of thirty-two candidate positions. It replaces the previous set rather than growing it.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-uniform-replacement-b1",
+          "text": "点变化时保留网络参数与 Adam 动量。这不同于系数课程实验中明确进行的优化器重置。虽然活动批大小不变，训练过程中看到的不同位置会更多。",
+          "textEn": "Network parameters and Adam moments are retained when the points change. This differs from the explicit optimiser resets in the coefficient-curriculum experiment. Across training, the policy sees more distinct locations even though its active batch size remains unchanged.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "sampling-residual-indicator",
+      "title": "RAD 用什么信号决定候选点的重要性？",
+      "titleEn": "Which signal tells RAD a candidate is important?",
+      "eyebrow": "论文 07 / 10",
+      "eyebrowEn": "PAPER 07 / 10",
+      "visual": "steps",
+      "formula": "\\rho_j=|r_\\theta(x_j)|",
+      "formulaEn": "\\rho_j=|r_\\theta(x_j)|",
+      "bullets": [
+        "RAD 用什么信号决定候选点的重要性？"
+      ],
+      "bulletsEn": [
+        "Which signal tells RAD a candidate is important?"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "当前网络的物理失配",
+            "labelEn": "Current network physics mismatch",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不用真实温度误差",
+            "labelEn": "Do not use true temperature error",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-residual-indicator-b0",
+          "text": "均匀替换不检查当前物理失配，因此 RAD 加入这类信息。x 下标 j 是候选位置，rho j 是当前网络在该处的残差绝对值。残差是 u x 减 nu 乘 u x x。",
+          "textEn": "Uniform replacement does not inspect the current physics mismatch, so RAD adds that information. X subscript j is a candidate location, and rho j is the absolute residual produced by the current network there. The residual is u x minus nu times u x x.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\rho_j=|r_\\theta(x_j)|",
+            "formulaEn": "\\rho_j=|r_\\theta(x_j)|",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-residual-indicator-b1",
+          "text": "论文用 epsilon 表示这个幅值，这里改用 rho，避免与上一讲因果参数混淆。rho 是误差指标，不是真实温度误差。不准确的指标或不充分的候选池，仍可能使采样方向失准。",
+          "textEn": "The paper uses epsilon for this magnitude, but we use rho to avoid confusing it with the previous presentation’s causality parameter. Rho is an error indicator, not the unknown true temperature error. An inaccurate indicator or an incomplete candidate pool can still misdirect the sampling.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-score",
+      "title": "从残差幅值构造非负得分",
+      "titleEn": "Turn residual magnitudes into nonnegative scores",
+      "eyebrow": "论文 07 / 11",
+      "eyebrowEn": "PAPER 07 / 11",
+      "visual": "steps",
+      "formula": "a_j=\\frac{\\rho_j^k}{\\overline{\\rho^k}}+c",
+      "formulaEn": "a_j=\\frac{\\rho_j^k}{\\overline{\\rho^k}}+c",
+      "bullets": [
+        "从残差幅值构造非负得分"
+      ],
+      "bulletsEn": [
+        "Turn residual magnitudes into nonnegative scores"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "强调较大的残差",
+            "labelEn": "Emphasise larger residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "保留背景覆盖",
+            "labelEn": "Retain background coverage",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-score-b0",
+          "text": "抽点之前，先把指标转换成采样得分。指数 k 控制对大残差的强调程度。横线表示在候选池上对残差幂取平均。",
+          "textEn": "The indicator is converted into a sampling score before drawing points. The exponent k controls how strongly large residuals are emphasised. The bar means the average powered residual over the candidate pool.",
+          "focus": 0,
+          "scene": {
+            "formula": "a_j=\\frac{\\rho_j^k}{\\overline{\\rho^k}}+c",
+            "formulaEn": "a_j=\\frac{\\rho_j^k}{\\overline{\\rho^k}}+c",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-score-b1",
+          "text": "非负常数 c 为得分增加背景覆盖。采用论文建议的默认值，即 k 为一、c 为一。这是明确的超参数，不代表默认值在这个边界层改编中最优。",
+          "textEn": "The nonnegative constant c adds background coverage to that score. We use the paper’s suggested default k equal to one and c equal to one. Those are stated hyperparameters rather than an assertion that the default is optimal for our boundary-layer adaptation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-normalisation",
+      "title": "把得分归一化成抽样概率",
+      "titleEn": "Normalise scores into sampling probabilities",
+      "eyebrow": "论文 07 / 12",
+      "eyebrowEn": "PAPER 07 / 12",
+      "visual": "steps",
+      "formula": "p_j=\\frac{a_j}{\\sum_{m=1}^{M}a_m}",
+      "formulaEn": "p_j=\\frac{a_j}{\\sum_{m=1}^{M}a_m}",
+      "bullets": [
+        "把得分归一化成抽样概率"
+      ],
+      "bulletsEn": [
+        "Normalise scores into sampling probabilities"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "在512个候选点上归一化",
+            "labelEn": "Normalise over 512 candidates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "按权重抽取不同位置",
+            "labelEn": "Draw distinct weighted locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-normalisation-b0",
+          "text": "得分还不是概率，因此要除以全部候选得分之和。M 是候选点数，这里为五百一十二。因此在开始抽样前，概率之和为一。",
+          "textEn": "A score is not yet a probability, so we divide it by the sum of all candidate scores. M is the number of candidates, here five hundred and twelve. The probabilities therefore add to one before the drawing operation.",
+          "focus": 0,
+          "scene": {
+            "formula": "p_j=\\frac{a_j}{\\sum_{m=1}^{M}a_m}",
+            "formulaEn": "p_j=\\frac{a_j}{\\sum_{m=1}^{M}a_m}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "sampling-normalisation-b1",
+          "text": "采用不放回方式选择三十二个不同候选点。这些是提议权重，并不表示每点最终纳入概率恰好等于三十二乘 p j。有限池的抽样约定属于实现的一部分，会明确记录。",
+          "textEn": "We select thirty-two distinct candidates without replacement. These are proposal weights, not a claim that each point’s final inclusion chance is exactly thirty-two times p j. The finite-pool drawing convention is part of the implementation and is recorded explicitly.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-mixture",
+      "title": "默认得分如何兼顾关注与覆盖？",
+      "titleEn": "How does the default balance focus and coverage?",
+      "eyebrow": "论文 07 / 13",
+      "eyebrowEn": "PAPER 07 / 13",
+      "visual": "steps",
+      "formula": "p_j=\\frac1{2M}+\\frac{\\rho_j}{2\\sum_m\\rho_m}",
+      "formulaEn": "p_j=\\frac1{2M}+\\frac{\\rho_j}{2\\sum_m\\rho_m}",
+      "bullets": [
+        "默认得分如何兼顾关注与覆盖？"
+      ],
+      "bulletsEn": [
+        "How does the default balance focus and coverage?"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "一半来自均匀背景",
+            "labelEn": "Half from a uniform background",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "一半来自残差分布",
+            "labelEn": "Half from the residual distribution",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-mixture-b0",
+          "text": "当 k 与 c 都为一，且残差幅值总和为正时，归一化提议有直观解释。一半是候选点上的均匀背景，另一半与候选残差幅值成正比。",
+          "textEn": "For k and c both equal to one, the normalised proposal has a useful interpretation when total residual magnitude is positive. Half is a uniform background over candidates. The other half is proportional to the candidate residual magnitudes.",
+          "focus": 0,
+          "scene": {
+            "formula": "p_j=\\frac1{2M}+\\frac{\\rho_j}{2\\sum_m\\rho_m}",
+            "formulaEn": "p_j=\\frac1{2M}+\\frac{\\rho_j}{2\\sum_m\\rho_m}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-mixture-b1",
+          "text": "这让每个候选点都有正的提议权重，却不能保证一次小样本覆盖每个空间区域。如果全部残差为零，实现退回均匀权重。代码也明确记录数值分母下限。",
+          "textEn": "This gives every candidate a positive proposal weight without guaranteeing that every spatial region appears in one small sample. If all residuals are zero, the implementation falls back to uniform weights. The numerical denominator floor is also disclosed in the code.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-code",
+      "title": "代码只用当前残差选点",
+      "titleEn": "The code selects points using the current residual only",
+      "eyebrow": "论文 07 / 14",
+      "eyebrowEn": "PAPER 07 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "代码只用当前残差选点"
+      ],
+      "bulletsEn": [
+        "The code selects points using the current residual only"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-code-b0",
+          "text": "提议规则现在直接连接到选点代码。残差幅值先脱离训练计算图，再转换成得分与概率。选出的候选坐标成为下一组活动点。",
+          "textEn": "The proposal rule now connects directly to the selection code. Residual magnitudes are detached from the training graph before they are converted into scores and probabilities. The selected candidate coordinates become the next active point set.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-code-b1",
+          "text": "四行代码没有查询解析解。随后的优化更新在选中位置最小化普通残差均方。没有做逆概率校正，因此自适应采样也改变了空间上的经验加权。",
+          "textEn": "There is no lookup of the analytic solution in these four lines. The following optimiser updates minimise the ordinary mean squared residual at the selected points. We do not apply an inverse-probability correction, so adaptive sampling also changes the empirical weighting of space.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sampling-code",
+      "paperTrace": "paper07",
+      "demoCode": [
+        "score = abs(r)/mean(abs(r)).clamp_min(1e-14) + 1",
+        "prob = score / score.sum()",
+        "idx = multinomial(prob, 32, replacement=False)",
+        "points = candidates[idx]"
+      ]
+    },
+    {
+      "id": "sampling-points-replay",
+      "title": "回放真实训练点的移动",
+      "titleEn": "Replay where the actual training points move",
+      "eyebrow": "论文 07 / 15",
+      "eyebrowEn": "PAPER 07 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回放真实训练点的移动"
+      ],
+      "bulletsEn": [
+        "Replay where the actual training points move"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-points-replay-b0",
+          "text": "保存的点集让我们检查策略，而不是想象每次自适应选择都必然有益。蓝色表示种子十一的初始 RAD 位置，金色表示后续活动集合。横向位置是物理坐标，微小纵向错开仅用于分开重叠标记。",
+          "textEn": "The saved point sets let us inspect the policy instead of imagining that every adaptive choice must help. Cyan shows the initial RAD locations and gold shows a later active set for seed eleven. Horizontal position is the physical coordinate, while a tiny vertical jitter only separates overlapping marks.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-points-replay-b1",
+          "text": "阴影条带是 x 大于零点九的区域。图下计数报告所示检查点中有多少活动位置落在其中。这些标记是方程约束位置，不是观测温度标签。",
+          "textEn": "The shaded strip is the region beyond x equal to zero point nine. The count below the figure reports how many active locations fall there at the displayed checkpoint. These marks are equation-enforcement positions, not observed temperature labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sampling-points",
+      "paperTrace": "paper07"
+    },
+    {
+      "id": "sampling-probability-replay",
+      "title": "抽点概率和选中位置来自同一次记录",
+      "titleEn": "Probabilities and selected points come from one record",
+      "eyebrow": "论文 07 / 16",
+      "eyebrowEn": "PAPER 07 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "抽点概率和选中位置来自同一次记录"
+      ],
+      "bulletsEn": [
+        "Probabilities and selected points come from one record"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-probability-replay-b0",
+          "text": "查看产生点集的提议分布后，位置图更容易理解。这里回放每次 RAD 选点事件保存的候选概率。金色标记表示用同一组权重选中的位置。",
+          "textEn": "The point map becomes more informative when we inspect the proposal that produced it. This plot replays the saved candidate probabilities from each RAD selection event. The gold marks indicate the locations selected by those same weights.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-probability-replay-b1",
+          "text": "图下步数是使用新点之前已完成的更新数。因此概率快照属于该次选点事件，不一定属于最终训练场。保留独立时间标记，避免把不同模型状态假装成同时发生。",
+          "textEn": "The step below the figure is the completed-update count before the new points are used. A probability snapshot therefore belongs to that selection event, not necessarily to the final trained field. We retain those separate timestamps to avoid presenting different model states as if they were simultaneous.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sampling-probability",
+      "paperTrace": "paper07"
+    },
+    {
+      "id": "sampling-cpu-protocol",
+      "title": "保持活动点数相同，并公开搜索成本",
+      "titleEn": "Keep active point counts equal and disclose search cost",
+      "eyebrow": "论文 07 / 17",
+      "eyebrowEn": "PAPER 07 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "保持活动点数相同，并公开搜索成本"
+      ],
+      "bulletsEn": [
+        "Keep active point counts equal and disclose search cost"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "每次优化均使用32点",
+            "labelEn": "32 points at every optimiser update",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "RAD另评估512个候选",
+            "labelEn": "RAD also evaluates 512 candidates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-cpu-protocol-b0",
+          "text": "现在可以对采样策略做受控比较。每种情况使用相同的一千二百七十三参数网络、四千步 Adam，以及三十二个活动点。三个网络种子在网格、固定随机、均匀替换与 RAD 之间配对。",
+          "textEn": "The sampling policies now have a controlled comparison. Each case uses the same one-thousand-two-hundred-and-seventy-three-parameter network, four thousand Adam updates and thirty-two active points. Three network seeds are paired across grid, fixed random, uniform replacement and RAD.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-cpu-protocol-b1",
+          "text": "十二次运行都在四个 CPU 线程、九十秒上限内完成更新预算。RAD 做七次候选扫描，其他方法不使用残差扫描来选点。额外工作会被报告，不把所有选点机制当成免费。",
+          "textEn": "All twelve runs finish their update budget within the ninety-second cap on four CPU threads. RAD performs seven candidate scans, while the other methods do not use residual scans for point selection. We report that additional work rather than treating all point-selection mechanisms as free.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "sampling-field-replay",
+      "title": "回放预测，保留自适应不占优的情况",
+      "titleEn": "Replay predictions, including cases where adaptation loses",
+      "eyebrow": "论文 07 / 18",
+      "eyebrowEn": "PAPER 07 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回放预测，保留自适应不占优的情况"
+      ],
+      "bulletsEn": [
+        "Replay predictions, including cases where adaptation loses"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-field-replay-b0",
+          "text": "保存的曲线显示位置选择怎样影响种子十一的真实温度预测。蓝色是固定网格，粉色是均匀替换，金色是 RAD。虚线是独立解析参考。",
+          "textEn": "The recorded profiles show how the placement choices affect the actual temperature prediction for seed eleven. Cyan is the fixed grid, pink is uniform replacement and gold is RAD. The dashed curve is the independent analytic reference.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-field-replay-b1",
+          "text": "最终检查点中，RAD 在这个改编里没有胜过固定网格。因此，按当前残差自适应关注，不能被宣传成保证提高精度。实验问题要由实测场回答，而不是由方法名称回答。",
+          "textEn": "At the final checkpoint RAD does not beat the fixed-grid control in this adaptation. Adaptive attention to current residuals therefore cannot be advertised as a guaranteed accuracy improvement. The experiment’s question is answered by measured fields, not by the name of the method.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sampling-training",
+      "paperTrace": "paper07"
+    },
+    {
+      "id": "sampling-independent-residual",
+      "title": "训练残差与独立残差都要检查",
+      "titleEn": "Inspect both training and independent residuals",
+      "eyebrow": "论文 07 / 19",
+      "eyebrowEn": "PAPER 07 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "训练残差与独立残差都要检查"
+      ],
+      "bulletsEn": [
+        "Inspect both training and independent residuals"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-independent-residual-b0",
+          "text": "预测比较说明，独立物理检查不可缺少。这些残差曲线在选中训练集合之外的共同网格上评估，不是较早候选选点快照中的得分。",
+          "textEn": "The prediction comparison makes an independent physics check essential. These residual curves are evaluated away from the selected training sets on a common grid. They are not the scores from an earlier candidate-selection snapshot.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-independent-residual-b1",
+          "text": "选中位置的经验损失小，并不能证明整个空间残差都小。另用二百五十七个偏移验证位置。参考值与验证位置都不会反馈到选点决策中。",
+          "textEn": "A small empirical loss at selected locations does not establish a small residual throughout space. We additionally use two hundred and fifty-seven shifted validation locations. No reference values or validation locations are fed back into the point-selection decision.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sampling-residual",
+      "paperTrace": "paper07"
+    },
+    {
+      "id": "sampling-all-seeds",
+      "title": "把失败和所有种子一起公开",
+      "titleEn": "Publish failures together with every seed",
+      "eyebrow": "论文 07 / 20",
+      "eyebrowEn": "PAPER 07 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把失败和所有种子一起公开"
+      ],
+      "bulletsEn": [
+        "Publish failures together with every seed"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-all-seeds-b0",
+          "text": "完整比较包含三个种子与四种位置策略。每个点表示同一独立网格上的相对场误差。部分固定随机和 RAD 情况误差很大，因此使用对数轴。",
+          "textEn": "The complete comparison includes all three seeds and all four placement policies. Each dot is the relative field error on the same independent grid. The logarithmic axis is necessary because some fixed-random and RAD cases have very large errors.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-all-seeds-b1",
+          "text": "没有丢弃失败种子。这些运行中，更换随机位置可能有帮助，但残差自适应默认值不是最优策略。三个配对种子只是局部研究，不是论文数千次模拟的复现，也不是普适采样排名。",
+          "textEn": "No failed seed is discarded. In these runs, changing random locations can help, but the residual-adaptive default is not the best policy. Three paired seeds are a local study rather than a reproduction of the paper’s thousands of simulations or a universal sampling ranking.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sampling-error",
+      "paperTrace": "paper07"
+    },
+    {
+      "id": "sampling-cost",
+      "title": "32个训练点不等于只计算32个位置",
+      "titleEn": "32 training points do not mean only 32 evaluations",
+      "eyebrow": "论文 07 / 21",
+      "eyebrowEn": "PAPER 07 / 21",
+      "visual": "steps",
+      "formula": "N_{\\rm active}=32,\\qquad N_{\\rm candidate}=512",
+      "formulaEn": "N_{\\rm active}=32,\\qquad N_{\\rm candidate}=512",
+      "bullets": [
+        "32个训练点不等于只计算32个位置"
+      ],
+      "bulletsEn": [
+        "32 training points do not mean only 32 evaluations"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "用于优化的活动集合",
+            "labelEn": "Active set used for optimisation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "用于寻找位置的候选集合",
+            "labelEn": "Candidate set used to choose locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-cost-b0",
+          "text": "固定活动集合大小，容易掩盖计算差异。N active 是每次优化更新的三十二个位置。N candidate 是一次 RAD 搜索检查的五百一十二个位置。",
+          "textEn": "The fixed active-set size can otherwise hide a compute difference. N active is thirty-two locations in each optimiser update. N candidate is the five hundred and twelve locations inspected by one RAD search.",
+          "focus": 0,
+          "scene": {
+            "formula": "N_{\\rm active}=32,\\qquad N_{\\rm candidate}=512",
+            "formulaEn": "N_{\\rm active}=32,\\qquad N_{\\rm candidate}=512",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-cost-b1",
+          "text": "七次搜索增加三千五百八十四次候选残差评估。时间还包含共同回放记录诊断，以及本机并发 CPU 工作的影响。保存实际搜索秒数，因此不从这些时钟数字推断算法速度排名。",
+          "textEn": "Seven searches add three thousand five hundred and eighty-four candidate residual evaluations. Timings also include common replay-recording diagnostics and concurrent local CPU workload. Actual search seconds are saved, so we do not infer an algorithmic speed ranking from these wall-clock numbers.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-validation",
+      "title": "边界正确之外，再检验场、斜率与物理范围",
+      "titleEn": "Beyond correct boundaries, validate the field, slope and range",
+      "eyebrow": "论文 07 / 22",
+      "eyebrowEn": "PAPER 07 / 22",
+      "visual": "steps",
+      "formula": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+      "formulaEn": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+      "bullets": [
+        "边界正确之外，再检验场、斜率与物理范围"
+      ],
+      "bulletsEn": [
+        "Beyond correct boundaries, validate the field, slope and range"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "501点上的解析验证",
+            "labelEn": "501-point analytic validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "新位置上的物理检查",
+            "labelEn": "Physics checks at new locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-validation-b0",
+          "text": "E u 是五百零一个验证位置上，预测与解析温度场之间的相对欧几里得误差。还比较解析空间斜率，并保存最大绝对温度误差。即使在失败运行中，两个端点也保持精确。",
+          "textEn": "E u is the relative Euclidean error between the predicted and analytic temperature fields on five hundred and one validation locations. We also compare analytic spatial slopes and save the maximum absolute temperature error. Both endpoints remain exact even in the failed runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+            "formulaEn": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sampling-validation-b1",
+          "text": "真实解保持在给定冷端与热端值之间，为检查内部过冲提供另一条物理依据。独立残差误差单独报告。这些验证量都不用于选择训练检查点或候选概率。",
+          "textEn": "The true solution stays between the prescribed cold and hot values, which provides another physical sanity check on an interior overshoot. Held-out residual error is reported separately. None of these validation quantities chooses a training checkpoint or a candidate probability.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "sampling-limits",
+      "title": "为什么这个结果不能直接外推？",
+      "titleEn": "Why should this result not be extrapolated directly?",
+      "eyebrow": "论文 07 / 23",
+      "eyebrowEn": "PAPER 07 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么这个结果不能直接外推？"
+      ],
+      "bulletsEn": [
+        "Why should this result not be extrapolated directly?"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "具体的方程、池与预算",
+            "labelEn": "A particular equation, pool and budget",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "方法需要对照验证",
+            "labelEn": "Methods require controlled validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sampling-limits-b0",
+          "text": "原研究在多个正反问题上比较十种采样方法，本篇只在另一个稳态问题上分离比较四种策略。网络、有限候选池、重采样间隔和更新预算都明确缩小。本地失败不能否定论文原始基准结果。",
+          "textEn": "The original study compared ten sampling methods across multiple forward and inverse PDEs, while this episode isolates four policies on a different stationary problem. Our network, finite candidate pool, resampling interval and update budget are explicitly smaller choices. The local failures do not invalidate the paper’s original benchmark results.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-limits-b1",
+          "text": "但它们说明，残差幅值不是知道真实解误差的神谕。优化、有限候选覆盖和采样引入的空间加权都可能重要，不过这里没有单独识别各自的因果贡献。因此需要有针对性的后续实验，而不是编造成功故事。",
+          "textEn": "They do show why residual magnitude is not an oracle for true solution error. Optimisation, finite candidate coverage and sampling-induced spatial weighting can all matter, but we have not isolated their individual causal contributions here. That calls for targeted follow-up experiments rather than an invented success narrative.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "sampling-exercise",
+      "title": "把薄层再变窄，先预测选点需求",
+      "titleEn": "Narrow the layer and predict the sampling needs first",
+      "eyebrow": "论文 07 / 24",
+      "eyebrowEn": "PAPER 07 / 24",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把薄层再变窄，先预测选点需求"
+      ],
+      "bulletsEn": [
+        "Narrow the layer and predict the sampling needs first"
+      ],
+      "sourceIds": [
+        "wu2023",
+        "sampling-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "固定网络、种子与预算",
+            "labelEn": "Fix network, seeds and budget",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "只减小扩散系数",
+            "labelEn": "Reduce only diffusivity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sampling-exercise-b0",
+          "text": "边界层提供了同一个小程序内的聚焦练习。固定网络、种子、点数和更新上限，把 nu 从零点零五减到零点零三。先预测狭窄区域与候选覆盖将怎样变化。",
+          "textEn": "The boundary layer gives a focused exercise within the same small program. Keep the network, seeds, point counts and update ceiling fixed, then reduce nu from zero point zero five to zero point zero three. Predict how the narrow region and candidate coverage will change.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sampling-exercise-b1",
+          "text": "使用 nu 选项并指定新输出文件。比较所有种子、实际更新次数、点历史与独立误差，而不是只看训练损失。现在暂停，先作出预测，再运行修改情况。",
+          "textEn": "Use the nu option with a new output filename. Compare every seed, actual completed updates, point histories and independent errors rather than only the training loss. Pause now and state a prediction before running the modified case.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "next-conservative-interfaces",
+      "title": "下一步为何要把区域连接条件讲清楚？",
+      "titleEn": "Why study how neighbouring regions are connected next?",
+      "eyebrow": "论文 07 / 25",
+      "eyebrowEn": "PAPER 07 / 25",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一步为何要把区域连接条件讲清楚？"
+      ],
+      "bulletsEn": [
+        "Why study how neighbouring regions are connected next?"
+      ],
+      "sourceIds": [
+        "wu2023"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：选择有限的位置",
+            "labelEn": "This paper chooses limited locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一步：连接不同物理区域",
+            "labelEn": "Next connect distinct physical regions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "next-conservative-interfaces-b0",
+          "text": "采样改变检查一个模型的位置，但有些物理问题包含材料性质不同的区域。单纯增加点，并不能说明这些区域如何交换守恒量。因此还需要研究区域分解与接口条件。",
+          "textEn": "Sampling changes where one model is tested, but some physical problems contain regions with different material properties. Simply placing more points does not specify how those regions exchange conserved quantities. That introduces a separate reason to study domain decomposition and interface conditions.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "next-conservative-interfaces-b1",
+          "text": "后续讲解会用小型复合介质问题检查守恒区域分解思想。同时解释接口的状态衔接与通量平衡。这是在加入新的物理机制，而不是把自适应采样当成所有建模决策的替代品。",
+          "textEn": "A future presentation will examine a conservative domain-decomposition idea through a small composite-medium problem. It will explain both state agreement and flux balance at an interface. This adds a new physical mechanism rather than treating adaptive sampling as a replacement for every modelling decision.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

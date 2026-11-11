@@ -11,7 +11,16 @@ export function activeWord(words, time) {
 export class NeuralSpeech {
   constructor({ fetcher = globalThis.fetch.bind(globalThis), audioFactory = () => new Audio(), contextFactory = () => new (window.AudioContext || window.webkitAudioContext)(), playback = null } = {}) {
     Object.assign(this, { fetcher, audioFactory, contextFactory, playback });
-    this.sequence = 0; this.cache = new Map(); this.current = null; this.voices = [];
+    this.muted = false; this.sequence = 0; this.cache = new Map(); this.current = null; this.voices = [];
+  }
+  setMuted(value) {
+    this.muted = Boolean(value);
+    const current = this.current;
+    if (current?.gain) current.gain.gain.value = this.muted ? 0 : 1;
+    if (current?.audio) {
+      current.audio.muted = this.muted && !current.gain;
+      if (current.audio.dataset) current.audio.dataset.outputMuted = String(this.muted);
+    }
   }
   async configure() {
     const result = await this.fetcher('/api/speech/config');
@@ -47,7 +56,7 @@ export class NeuralSpeech {
     current.audio?.pause();
     if (current.audio) { current.audio.removeAttribute('src'); current.audio.load(); }
     current.audio?.remove?.();
-    current.source?.disconnect(); current.analyser?.disconnect();
+    current.source?.disconnect(); current.analyser?.disconnect(); current.gain?.disconnect();
   }
   speak(message) {
     this.cancel();
@@ -80,9 +89,12 @@ export class NeuralSpeech {
         current.source = this.audioContext.createMediaElementSource(audio);
         current.analyser = this.audioContext.createAnalyser();
         current.analyser.fftSize = 256;
-        current.source.connect(current.analyser); current.analyser.connect(this.audioContext.destination);
+        current.gain = this.audioContext.createGain();
+        current.gain.gain.value = this.muted ? 0 : 1;
+        current.source.connect(current.analyser); current.analyser.connect(current.gain); current.gain.connect(this.audioContext.destination);
         current.samples = new Uint8Array(current.analyser.fftSize);
       }
+      this.setMuted(this.muted);
       const meter = () => {
         if (!permitted()){this.playback?.stop('lost-permission');return;}
         if(audio.paused||audio.ended)return;

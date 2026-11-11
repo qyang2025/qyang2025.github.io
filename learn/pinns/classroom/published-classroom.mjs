@@ -1,18 +1,18 @@
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=night-06b';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=night-07c';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
 import {applyProgressiveReveal} from './progressive-reveal.mjs';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=night-06b';
-import {lessonSections,isOutline} from './course-outline.mjs?v=night-06b';
-import {TeachingPointer,attentionTarget} from './attention.mjs?v=night-06b';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=night-07c';
+import {lessonSections,isOutline} from './course-outline.mjs?v=night-07c';
+import {TeachingPointer,attentionTarget} from './attention.mjs?v=night-07c';
 import {schematicHtml} from './schematic.mjs';
 import {mathHtml,proseHtml} from './math.mjs';
 import {lectureChart} from './lecture-chart.mjs';
 import {LecturePlayer,sentences} from './player.mjs';
 import {currentScene,ProfessorStage} from './stage.mjs';
-import {NeuralSpeech} from './neural-speech.mjs';
+import {NeuralSpeech} from './neural-speech.mjs?v=night-07c';
 import {localizeLesson} from './languages.mjs';
 const $=id=>document.getElementById(id),escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedPaper=new URLSearchParams(location.search).get('paper')||'';let courseRoot='courses/pinns',courseKey='pinns',paperCatalog=[];
@@ -57,7 +57,7 @@ function render(){
  $('guide-link').href=courseRoot+'/guide.html';$('download-link').href=courseRoot+'/'+(manifest.download||'pinns-course.zip');
  $('course-title').textContent=lesson.title;$('course-summary').textContent=lesson.summary;$('language-select').value=language;
  $('chapter-select').innerHTML=manifest.modules.map((m,i)=>`<option value="${i}" ${chapter===i?'selected':''}>${i+1}. ${escape(en?m.titleEn:m.title)}</option>`).join('');
- $('outline').ariaLabel=t('Slides','幻灯片');$('outline').innerHTML=lesson.slides.map((s,i)=>`<button class="outline-item ${i===p.slide?'active':''}" data-index="${i}" ${i===p.slide?'aria-current="step"':''}><span class="outline-number">${String(i+1).padStart(2,'0')}</span><span>${escape(s.title)}</span></button>`).join('');
+ $('outline').ariaLabel=t('Slides','幻灯片');$('course-roadmap').ariaLabel=t('Course outline','课程提纲');$('outline').innerHTML=lesson.slides.map((s,i)=>`<button class="outline-item ${i===p.slide?'active':''}" data-index="${i}" ${i===p.slide?'aria-current="step"':''}><span class="outline-number">${String(i+1).padStart(2,'0')}</span><span>${escape(s.title)}</span></button>`).join('');
  $('outline').querySelectorAll('button').forEach(b=>b.onclick=()=>player.seek(Number(b.dataset.index)));
  const sections=lessonSections(lesson),section=sections.find(s=>s.ids.includes(slide.id));
  $('course-roadmap').innerHTML=`<button data-page="0" ${isOutline(slide)?'aria-current="step"':''}>${t('Outline','课程提纲')}</button>`+sections.map(s=>`<button data-page="${s.startIndex}" ${s===section?'aria-current="step"':''}>${s.index+1}. ${escape(en?s.titleEn:s.title)}</button>`).join('');
@@ -73,6 +73,7 @@ function render(){
  const counts=lesson.slides.map(s=>s.beats.length);$('timeline-fill').style.width=`${100*(counts.slice(0,p.slide).reduce((a,b)=>a+b,0)+p.beat+1)/counts.reduce((a,b)=>a+b,0)}%`;
  const coverage=(audioPack.courseCoverage?.[courseKey]||audioPack.coverage)[chapter][language],complete=coverage.ready===coverage.total;
  $('audio-status').textContent=complete?t('Recorded Kokoro narration · British English · ','Kokoro 已生成语音 · ')+`${coverage.ready}/${coverage.total}`:t('Chinese text is available. This chapter has incomplete recorded audio; use Next step to read it.','本章可阅读中文课件和讲稿；录音尚未完整发布，请点击下一步逐步学习。');
+ $('mute').textContent=speech.muted?t('Unmute','取消静音'):t('Mute','静音');$('mute').setAttribute('aria-pressed',String(speech.muted));$('mute').ariaLabel=speech.muted?t('Unmute narration','取消讲解静音'):t('Mute narration','讲解静音');
  $('play').disabled=loading||!complete;$('play').textContent=player.buffering?t('Preparing audio…','正在准备语音…'):player.playing?t('Ⅱ Pause','Ⅱ 暂停'):t('▶ Continue lesson','▶ 继续讲解');
  $('previous').disabled=loading||p.slide===0;$('previous').ariaLabel=t('Previous slide','上一页');$('next').disabled=loading||p.slide===lesson.slides.length-1;$('next').ariaLabel=t('Next slide','下一页');
  const paperIndex=paperCatalog.findIndex(p=>p.id===requestedPaper);$('chapter-prev').disabled=loading||(manifest.paper?paperIndex<=0:chapter===0);$('chapter-next').disabled=loading||(manifest.paper?paperIndex<0||paperIndex>=paperCatalog.length-1:chapter===manifest.modules.length-1);$('language-select').disabled=loading;$('chapter-select').disabled=loading;$('next-step').disabled=loading;$('rate').ariaLabel=t('Narration speed','讲解速度');
@@ -80,6 +81,7 @@ function render(){
  $('sources').innerHTML=lesson.sources.map(s=>`<li><a href="${escape(s.url.startsWith('/')?new URL('.'+s.url,import.meta.url).href:s.url)}" rel="noopener">${escape(s.name)}</a></li>`).join('');
 }
 async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`,{cache:'no-cache'});if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
+$('mute').onclick=()=>{speech.setMuted(!speech.muted);if(player.lesson)render();};
 $('play').onclick=()=>player.playing?player.pauseAtVisible():player.play();$('previous').onclick=()=>player.seek(player.displayPosition().slide-1);$('next').onclick=()=>player.seek(player.displayPosition().slide+1);
 $('next-step').onclick=()=>{const p=player.displayPosition();player.pauseAtVisible();const slide=player.lesson.slides[p.slide];let beat=p.beat,sentence=p.sentence+1;if(sentence>=sentences(slide.beats[beat].text,language).length){sentence=0;beat++;}if(beat>=slide.beats.length){if(p.slide+1<player.lesson.slides.length)player.seek(p.slide+1);return;}Object.assign(player,{beat,sentence,activityHold:null});player.syncPresentation();player.emit();const next=player.displayPosition(),current=player.lesson.slides[next.slide];syncPaperDemo({audioTime:0,duration:1},next,current,language);syncHeatRod({audioTime:0,duration:1},next,current,language);syncPinnDemo({audioTime:0,duration:1},next,current,language);};
 $('rate').onchange=()=>{player.rate=Number($('rate').value);if(player.playing)player.play();};
