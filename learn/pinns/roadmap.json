@@ -64,6 +64,15 @@
       "topic": "Respecting temporal causality",
       "scope": "Independent harmonic-oscillator ODE adaptation of section 3 residual weighting. Hard initial values, eight bins and a fixed training ceiling; not chaotic/turbulent benchmarks or full Algorithm 1 reproduction.",
       "classroom": "classroom/?paper=wang2022&language=en"
+    },
+    {
+      "number": "06",
+      "paper": "Yu, Lu, Meng & Karniadakis (2022), Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems",
+      "source": "https://arxiv.org/html/2111.02801v1",
+      "topic": "gPINN and spatial residual gradients",
+      "status": "Implemented",
+      "classroom": "classroom/?paper=yu2022&language=en",
+      "scope": "Original 1-D Poisson equation and hard-endpoint ansatz, sections 2.2/3.2.1. Smaller network, 16/32 midpoint sets and 4000 updates; no inverse problem or RAR implementation."
     }
   ]
 }

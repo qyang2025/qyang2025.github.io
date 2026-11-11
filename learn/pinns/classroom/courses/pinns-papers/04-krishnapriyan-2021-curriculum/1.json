@@ -1303,8 +1303,8 @@
       "eyebrow": "论文 04 / 10",
       "eyebrowEn": "PAPER 04 / 10",
       "visual": "steps",
-      "formula": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
-      "formulaEn": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
+      "formula": "u_{*,t}=-\\beta\\cos(x-\\beta t)",
+      "formulaEn": "u_{*,t}=-\\beta\\cos(x-\\beta t)",
       "bullets": [
         "速度增大，学习任务哪里变了？"
       ],
@@ -1344,12 +1344,12 @@
       "beats": [
         {
           "id": "transport-difficulty-b0",
-          "text": "参考解说明了为何增大 beta 即使不增加参数，也会改变任务。在同一时间区间，分布沿周期区域传播更远。因此固定位置观察到更快的时间变化。",
-          "textEn": "The reference solution shows why increasing beta can change the task without adding more parameters. During the same time interval, the pattern travels further around the periodic domain. A fixed location therefore sees more rapid temporal variation.",
+          "text": "参考解说明了为何增大 beta 即使不增加参数，也会改变任务。在同一时间区间，分布沿周期区域传播更远。因此固定位置观察到更快的时间变化，显示的时间导数振幅就是 beta。",
+          "textEn": "The reference solution shows why increasing beta can change the task without adding more parameters. During the same time interval, the pattern travels further around the periodic domain. A fixed location therefore sees faster temporal variation, as the derivative shown here has amplitude beta.",
           "focus": 0,
           "scene": {
-            "formula": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
-            "formulaEn": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
+            "formula": "u_{*,t}=-\\beta\\cos(x-\\beta t)",
+            "formulaEn": "u_{*,t}=-\\beta\\cos(x-\\beta t)",
             "caption": "",
             "captionEn": "",
             "gesture": "write",
@@ -1734,8 +1734,8 @@
       "eyebrow": "论文 04 / 13",
       "eyebrowEn": "PAPER 04 / 13",
       "visual": "steps",
-      "formula": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
-      "formulaEn": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
+      "formula": "4000=4\\times1000,\\qquad N_{\\rm target}\\in\\{1000,4000\\}",
+      "formulaEn": "4000=4\\times1000,\\qquad N_{\\rm target}\\in\\{1000,4000\\}",
       "bullets": [
         "相同总步数不等于相同目标训练"
       ],
@@ -1779,8 +1779,8 @@
           "textEn": "The control makes an important budget distinction visible. With four thousand total updates, the curriculum spends only its final thousand updates at beta ten. Direct training spends all four thousand updates on that final target.",
           "focus": 0,
           "scene": {
-            "formula": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
-            "formulaEn": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
+            "formula": "4000=4\\times1000,\\qquad N_{\\rm target}\\in\\{1000,4000\\}",
+            "formulaEn": "4000=4\\times1000,\\qquad N_{\\rm target}\\in\\{1000,4000\\}",
             "caption": "",
             "captionEn": "",
             "gesture": "write",

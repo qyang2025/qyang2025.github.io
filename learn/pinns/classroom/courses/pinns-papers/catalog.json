@@ -29,6 +29,12 @@
       "number": 5,
       "courseRoot": "courses/pinns-papers/05-wang-2022-causality",
       "published": true
+    },
+    {
+      "id": "yu2022",
+      "number": 6,
+      "courseRoot": "courses/pinns-papers/06-yu-2022-gpinn",
+      "published": true
     }
   ]
 }

@@ -146,7 +146,7 @@
         },
         "zh": {
           "total": 122,
-          "ready": 0
+          "ready": 122
         }
       }
     ],
@@ -201,9 +201,22 @@
           "ready": 0
         }
       }
+    ],
+    "yu2022": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 141,
+          "ready": 141
+        },
+        "zh": {
+          "total": 135,
+          "ready": 0
+        }
+      }
     ]
   },
-  "clips": 1133,
+  "clips": 1396,
   "features": [
     "progressive-reveal",
     "physical-animation",

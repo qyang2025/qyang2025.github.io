@@ -3350,8 +3350,8 @@
         },
         {
           "id": "series-connections-b1",
-          "text": "下一步应用应从清楚的物理问题、独立参考和本地计算预算开始。再判断主要困难是识别、竞争目标、问题延续，还是时间演化。这比不设对照地收集高级模型名称更有研究价值。",
-          "textEn": "A useful next application starts with a clearly posed physical question, an independent reference and a local compute budget. Then choose whether the main difficulty is identification, competing objectives, problem continuation or temporal evolution. That is a stronger research habit than collecting advanced model names without controls.",
+          "text": "第六篇继续讨论空间 Poisson 问题，而不是另一种时间加权。它在约束点加入残差导数，再与更稠密普通 PINN 对照检验场和斜率误差。打开下一篇，就能区分增加每点的信息与改变时间优先级。",
+          "textEn": "Paper Six continues with a spatial Poisson problem rather than another time-weighting scheme. It adds derivatives of the residual at enforcement points, then checks field and slope errors against a denser ordinary PINN. Open the next presentation to distinguish adding information at each point from changing temporal priorities.",
           "focus": 0,
           "scene": {
             "formula": "",

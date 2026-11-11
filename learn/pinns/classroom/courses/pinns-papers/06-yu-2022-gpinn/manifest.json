@@ -1,0 +1,47 @@
+{
+  "id": "yu2022",
+  "paper": {
+    "number": 6,
+    "shortTitle": "Yu 2022 · gPINN",
+    "title": "Yu, Lu, Meng & Karniadakis (2022), Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems",
+    "url": "https://arxiv.org/html/2111.02801v1",
+    "year": 2022,
+    "scope": "Original 1-D Poisson equation and hard-endpoint ansatz, sections 2.2/3.2.1. Smaller network, 16/32 midpoint sets and 4000 updates; no inverse problem or RAR implementation."
+  },
+  "title": "Paper 06: gPINN and spatial residual gradients",
+  "titleZh": "论文 06：gPINN 与空间残差梯度",
+  "totalMinutes": 40,
+  "download": "paper-06.zip",
+  "modules": [
+    {
+      "id": "139afec2-2022-4006-8006-000000000006",
+      "index": 0,
+      "title": "论文 06：gPINN 与空间残差梯度",
+      "titleEn": "Paper 06: gPINN and spatial residual gradients",
+      "file": "1.json",
+      "pages": 24,
+      "sentenceCount": 141,
+      "plannedMinutes": 40
+    }
+  ],
+  "sources": [
+    {
+      "id": "yu2022",
+      "name": "Yu, Lu, Meng & Karniadakis (2022), Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems",
+      "url": "https://arxiv.org/html/2111.02801v1",
+      "text": "2021 preprint, published in CMAME 2022. Sections 2.2 and 3.2.1: coordinate derivatives of the PDE residual and the one-dimensional Poisson example with hard endpoints. Original equation and ansatz retained; network, points and update budget differ."
+    },
+    {
+      "id": "authors-gpinn",
+      "name": "Authors’ gPINN code and examples",
+      "url": "https://github.com/lu-group/gpinn",
+      "text": "Original implementation reference. This episode does not implement the paper’s inverse examples or RAR combination."
+    },
+    {
+      "id": "gpinn-local",
+      "name": "All twelve CPU field, derivative and residual records",
+      "url": "/courses/pinns-papers/06-yu-2022-gpinn/trace.json",
+      "text": "Three paired seeds; PINN16, PINN32, gPINN16 weight0.01 and weight1. Network1273 parameters, 4000 Adam updates, four CPU threads. All fields, slopes and independent residual checks retained."
+    }
+  ]
+}
