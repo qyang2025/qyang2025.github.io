@@ -175,9 +175,35 @@
           "ready": 0
         }
       }
+    ],
+    "krishnapriyan2021": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 136,
+          "ready": 136
+        },
+        "zh": {
+          "total": 134,
+          "ready": 0
+        }
+      }
+    ],
+    "wang2022": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 142,
+          "ready": 142
+        },
+        "zh": {
+          "total": 140,
+          "ready": 0
+        }
+      }
     ]
   },
-  "clips": 855,
+  "clips": 1133,
   "features": [
     "progressive-reveal",
     "physical-animation",

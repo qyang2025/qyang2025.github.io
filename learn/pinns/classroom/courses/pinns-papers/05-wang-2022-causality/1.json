@@ -1,0 +1,3404 @@
+{
+  "id": "139afec2-2022-4005-8005-000000000005",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-05",
+  "chapterIndex": 0,
+  "title": "论文 05：时间因果加权与振子验证",
+  "titleEn": "Paper 05: Causal weighting and oscillator validation",
+  "summary": "用解析振子解释有序残差、指数门控和停止梯度，再用轨迹、相图及能量检验九次真实 CPU 运行。",
+  "summaryEn": "Explain ordered residuals, detached exponential gates and epsilon schedules; validate nine CPU runs with trajectories, phase portraits and energy.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "wang2022",
+      "name": "Wang, Sankaran & Perdikaris (2022), Respecting causality is all you need for training physics-informed neural networks",
+      "url": "https://arxiv.org/html/2203.07404v1",
+      "text": "Section 3, especially equations 3.1–3.3: ordered residual losses with detached exponential prefix weights. Our oscillator, hard initial condition and fixed training ceiling are independent teaching adaptations, not the paper’s chaotic or turbulent benchmarks."
+    },
+    {
+      "id": "authors-causal",
+      "name": "Authors’ CausalPINNs implementation",
+      "url": "https://github.com/PredictiveIntelligenceLab/CausalPINNs",
+      "text": "Original implementation and benchmark details. The paper also uses time windows and modified MLPs; those are not reproduced here."
+    },
+    {
+      "id": "causal-local",
+      "name": "All nine CPU oscillator runs and temporal gate histories",
+      "url": "/courses/pinns-papers/05-wang-2022-causality/trace.json",
+      "text": "Three seeds, uniform/fixed-epsilon/annealed-epsilon policies, 64 residual times in eight ordered bins, 1298 parameters, hard initial values, 90-second cap and 6000-update ceiling. Actual steps, epsilon events, energy and held-out residuals are disclosed."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "振动物理与状态",
+      "titleEn": "Oscillator physics"
+    },
+    {
+      "slide": 7,
+      "title": "时间权重与实现",
+      "titleEn": "Temporal weighting"
+    },
+    {
+      "slide": 15,
+      "title": "证据与物理检查",
+      "titleEn": "Evidence and checks"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 05：时间因果加权与振子验证",
+      "titleEn": "Paper 05: Causal weighting and oscillator validation",
+      "eyebrow": "PINNs 论文 05 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 05 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用解析振子解释有序残差、指数门控和停止梯度，再用轨迹、相图及能量检验九次真实 CPU 运行。"
+      ],
+      "bulletsEn": [
+        "Explain ordered residuals, detached exponential gates and epsilon schedules; validate nine CPU runs with trajectories, phase portraits and energy."
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "振动物理与状态",
+            "labelEn": "Oscillator physics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "时间权重与实现",
+            "labelEn": "Temporal weighting",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "证据与物理检查",
+            "labelEn": "Evidence and checks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "上一篇按输运系数组织训练，本篇追问物理时间内部的残差优先级。先把弹簧振子动画连接到有序残差格与脱离梯度的指数门控。最后对照解析轨迹、相图和守恒能量，检验九次 CPU 运行。",
+          "textEn": "The previous paper organised training across transport coefficients, so this one asks how residuals are prioritised within physical time. We will connect an animated spring oscillator to ordered residual bins and detached exponential gates. Finally, nine CPU runs will be checked against analytic trajectories, phase portraits and conserved energy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "why-temporal-order",
+      "title": "从系数课程转向时间顺序",
+      "titleEn": "From coefficient curricula to temporal order",
+      "eyebrow": "论文 05 / 2",
+      "eyebrowEn": "PAPER 05 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从系数课程转向时间顺序"
+      ],
+      "bulletsEn": [
+        "From coefficient curricula to temporal order"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上一讲：改变方程难度",
+            "labelEn": "Previously: change equation difficulty",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本讲：调整时间残差优先级",
+            "labelEn": "Now: prioritise temporal residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "why-temporal-order-b0",
+          "text": "上一讲在阶段之间改变输运系数，但每个阶段仍同时拟合整个时间区间。对于同一个固定物理问题，内部的学习顺序还值得追问。较早动力学尚未准确时，较晚残差是否应得到全部强调？",
+          "textEn": "The previous paper changed the transport coefficient between training stages, but each stage still fitted the whole time interval together. This leaves a different question about learning order within one fixed physical problem. Should later-time residuals receive full emphasis before earlier dynamics are accurate.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "why-temporal-order-b1",
+          "text": "第二个框引入时间残差加权。保持物理方程固定，调整有序时间区域受到的关注。这是训练优先级机制，不是统计因果推断，也不是另一种系数识别方法。",
+          "textEn": "The second box introduces temporal residual weighting. We keep the physical equation fixed and change the attention assigned to ordered time regions. This is a training-priority mechanism rather than statistical causal inference or another coefficient-identification method.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "oscillator-physical",
+      "title": "先观察一个无阻尼弹簧振子",
+      "titleEn": "Start by watching an undamped spring oscillator",
+      "eyebrow": "论文 05 / 3",
+      "eyebrowEn": "PAPER 05 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先观察一个无阻尼弹簧振子"
+      ],
+      "bulletsEn": [
+        "Start by watching an undamped spring oscillator"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "oscillator-physical-b0",
+          "text": "为了在无需大型模拟的条件下研究时间顺序，先看光滑轨道上标为 m 的弹簧质量块。它从偏离平衡的位置、以零速度开始运动。动画使用精确振动，不是数值时间推进。",
+          "textEn": "To examine temporal order without a large simulation, picture a mass, labelled m, attached to a spring on a frictionless track. It starts displaced from equilibrium with zero velocity. The animation uses the exact oscillatory motion rather than a numerical time-stepper.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "oscillator-physical-b1",
+          "text": "金色质量块往返移动，弹簧伸长与压缩。模型没有阻尼，因此振幅不应衰减。后面检查振幅以及相应能量，可以独立判断网络预测。",
+          "textEn": "The gold mass moves back and forth while the spring stretches and compresses. There is no damping, so the amplitude should not decay. Later, checking that amplitude and the associated energy gives an independent way to judge the neural prediction.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "causal-physical",
+      "paperTrace": "paper05"
+    },
+    {
+      "id": "oscillator-law",
+      "title": "回复力怎样变成运动方程？",
+      "titleEn": "How does the restoring force become an equation?",
+      "eyebrow": "论文 05 / 4",
+      "eyebrowEn": "PAPER 05 / 4",
+      "visual": "steps",
+      "formula": "m u_{tt}+k u=0",
+      "formulaEn": "m u_{tt}+k u=0",
+      "bullets": [
+        "回复力怎样变成运动方程？"
+      ],
+      "bulletsEn": [
+        "How does the restoring force become an equation?"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "弹簧回复力",
+            "labelEn": "Spring restoring force",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "质量块加速度",
+            "labelEn": "Mass acceleration",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "oscillator-law-b0",
+          "text": "运动质量块为每个符号提供物理含义。u 是相对平衡位置的位移，t 是时间，m 是质量，k 是弹簧刚度。下标 t t 表示时间二阶导数，也就是加速度。",
+          "textEn": "The moving mass gives each symbol a physical meaning. U is displacement from equilibrium, t is time, m is mass, and k is spring stiffness. The subscript t t means the second derivative in time, or acceleration.",
+          "focus": 0,
+          "scene": {
+            "formula": "m u_{tt}+k u=0",
+            "formulaEn": "m u_{tt}+k u=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "oscillator-law-b1",
+          "text": "回复力方向与位移相反，大小为 k 乘 u。因此牛顿定律把质量乘加速度与回复项相平衡。把刚度除以质量后开平方，就得到这里称为 omega 的无量纲频率。",
+          "textEn": "The restoring force points against displacement and has magnitude k times u. Newton’s law therefore balances mass times acceleration with that restoring term. A dimensionless frequency, called omega, is the square root of stiffness divided by mass.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "oscillator-state",
+      "title": "用两个一阶状态表示振动",
+      "titleEn": "Represent the motion with two first-order states",
+      "eyebrow": "论文 05 / 5",
+      "eyebrowEn": "PAPER 05 / 5",
+      "visual": "steps",
+      "formula": "u_t=\\omega v,\\qquad v_t=-\\omega u",
+      "formulaEn": "u_t=\\omega v,\\qquad v_t=-\\omega u",
+      "bullets": [
+        "用两个一阶状态表示振动"
+      ],
+      "bulletsEn": [
+        "Represent the motion with two first-order states"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "位移状态",
+            "labelEn": "Displacement state",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "按频率归一化的速度",
+            "labelEn": "Frequency-normalised velocity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "oscillator-state-b0",
+          "text": "二阶规律可以改写成两个状态，方便小网络同时输出。把 v 定义为速度除以 omega。因此位移导数就是 omega 乘 v。",
+          "textEn": "The second-order law can be rewritten using two states that are easy for a small network to output. We define v as velocity divided by omega. The displacement derivative is then omega times v.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_t=\\omega v,\\qquad v_t=-\\omega u",
+            "formulaEn": "u_t=\\omega v,\\qquad v_t=-\\omega u",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "oscillator-state-b1",
+          "text": "对 v 求导得到负 omega 乘 u，这就是第二个方程。时间区间为零到一，omega 取六。初始状态是位移一、归一化速度零。",
+          "textEn": "Differentiating v gives minus omega times u, which is the second equation. We use omega equal to six over the time interval from zero to one. The initial state is displacement one and normalised velocity zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "hard-initial-state",
+      "title": "把初始值直接写进网络表达式",
+      "titleEn": "Build the initial values into the network expression",
+      "eyebrow": "论文 05 / 6",
+      "eyebrowEn": "PAPER 05 / 6",
+      "visual": "steps",
+      "formula": "u_\\theta=1+tN_1(t),\\qquad v_\\theta=tN_2(t)",
+      "formulaEn": "u_\\theta=1+tN_1(t),\\qquad v_\\theta=tN_2(t)",
+      "bullets": [
+        "把初始值直接写进网络表达式"
+      ],
+      "bulletsEn": [
+        "Build the initial values into the network expression"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "两个自由网络输出",
+            "labelEn": "Two free network outputs",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "初始值精确满足",
+            "labelEn": "Initial values satisfied exactly",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hard-initial-state-b0",
+          "text": "振子从已知状态出发，因此在所有比较方法中都用构造方式满足初始值。N 一与 N 二是同一个参数为 theta 的网络的两个自由输出。乘以时间，使它们在零时刻的贡献消失。",
+          "textEn": "The oscillator begins from a known state, so we enforce that state by construction in every compared method. N one and N two are the two unconstrained outputs of the same network with parameters theta. Multiplication by time makes their contribution vanish at time zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta=1+tN_1(t),\\qquad v_\\theta=tN_2(t)",
+            "formulaEn": "u_\\theta=1+tN_1(t),\\qquad v_\\theta=tN_2(t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hard-initial-state-b1",
+          "text": "因此，无论网络参数是什么，第一个状态都从一开始，第二个都从零开始。这个硬初值表达式是相对论文软初值损失的明确改动。它提供初始状态，但不会泄露后续参考轨迹。",
+          "textEn": "The first state therefore starts at one and the second at zero for any network parameters. This hard-initial-value ansatz is an explicit adaptation from the paper’s soft initial-loss treatment. It supplies the initial state but does not reveal the reference trajectory at later times.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "oscillator-reference",
+      "title": "解析解同时检查轨迹与相位",
+      "titleEn": "Use the analytic solution to check trajectory and phase",
+      "eyebrow": "论文 05 / 7",
+      "eyebrowEn": "PAPER 05 / 7",
+      "visual": "steps",
+      "formula": "u_*(t)=\\cos(\\omega t),\\qquad v_*(t)=-\\sin(\\omega t)",
+      "formulaEn": "u_*(t)=\\cos(\\omega t),\\qquad v_*(t)=-\\sin(\\omega t)",
+      "bullets": [
+        "解析解同时检查轨迹与相位"
+      ],
+      "bulletsEn": [
+        "Use the analytic solution to check trajectory and phase"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "解析位移",
+            "labelEn": "Analytic displacement",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "解析归一化速度",
+            "labelEn": "Analytic scaled velocity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "oscillator-reference-b0",
+          "text": "精确参考使它成为小型可复现实验，而不是大型模拟项目。u 星是 omega 乘时间的余弦，v 星是相应正弦的负值。它们满足两个一阶方程和给定初始状态。",
+          "textEn": "An exact reference makes this a small reproducible experiment rather than a simulation project. U star is cosine of omega time, and v star is negative sine of omega time. They satisfy the two first-order equations and the prescribed initial state.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_*(t)=\\cos(\\omega t),\\qquad v_*(t)=-\\sin(\\omega t)",
+            "formulaEn": "u_*(t)=\\cos(\\omega t),\\qquad v_*(t)=-\\sin(\\omega t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "oscillator-reference-b1",
+          "text": "只在二百零一个时刻用参考值进行独立检查。它们不作为内部标签进入优化目标。位移图像看起来合理，还必须具有正确相位与速度，才符合这个双状态参考。",
+          "textEn": "We use these reference values only for independent checks on two hundred and one times. They do not appear as interior labels in the optimiser objective. A visually plausible displacement must also have the correct phase and velocity to match this two-state reference.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "ordered-time-bins",
+      "title": "先把时间残差放进有序的小格",
+      "titleEn": "First place residuals into ordered temporal bins",
+      "eyebrow": "论文 05 / 8",
+      "eyebrowEn": "PAPER 05 / 8",
+      "visual": "steps",
+      "formula": "\\ell_i=\\frac12\\operatorname{mean}_{t\\in I_i}\\|r_\\theta(t)\\|_2^2",
+      "formulaEn": "\\ell_i=\\frac12\\operatorname{mean}_{t\\in I_i}\\|r_\\theta(t)\\|_2^2",
+      "bullets": [
+        "先把时间残差放进有序的小格"
+      ],
+      "bulletsEn": [
+        "First place residuals into ordered temporal bins"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "较早的时间格",
+            "labelEn": "Earlier temporal bins",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "较晚的时间格",
+            "labelEn": "Later temporal bins",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ordered-time-bins-b0",
+          "text": "要安排时间优先级，残差测量必须先有明确顺序。I 下标 i 表示第 i 个时间格，ell i 是其中的平均方程失配平方。r theta 含两个振子残差分量。",
+          "textEn": "To prioritise time, the residual measurements must first have an explicit order. I subscript i denotes the i th temporal bin, and ell i is its average squared equation mismatch. R theta contains the two oscillator residual components.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\ell_i=\\frac12\\operatorname{mean}_{t\\in I_i}\\|r_\\theta(t)\\|_2^2",
+            "formulaEn": "\\ell_i=\\frac12\\operatorname{mean}_{t\\in I_i}\\|r_\\theta(t)\\|_2^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ordered-time-bins-b1",
+          "text": "把六十四个中点时刻分成八个有序格，每格八点。实现还在两个状态分量上取平均。这些格用于组织训练目标，不是物理时间积分步，也不是各自独立的网络。",
+          "textEn": "Our sixty-four midpoint times are grouped into eight ordered bins with eight points each. The implementation also averages over the two state components. These bins organise the training objective; they are not physical time-integration steps or separate neural networks.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "uniform-time-loss",
+      "title": "均匀目标如何对待不同时间格？",
+      "titleEn": "How does a uniform objective treat different times?",
+      "eyebrow": "论文 05 / 9",
+      "eyebrowEn": "PAPER 05 / 9",
+      "visual": "steps",
+      "formula": "\\mathcal L_{\\rm uniform}=\\frac18\\sum_{i=1}^{8}\\ell_i",
+      "formulaEn": "\\mathcal L_{\\rm uniform}=\\frac18\\sum_{i=1}^{8}\\ell_i",
+      "bullets": [
+        "均匀目标如何对待不同时间格？"
+      ],
+      "bulletsEn": [
+        "How does a uniform objective treat different times?"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "每个时间格同等权重",
+            "labelEn": "Every temporal bin has equal weight",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "同时优化整个区间",
+            "labelEn": "Optimise the whole interval together",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "uniform-time-loss-b0",
+          "text": "基线给每个时间格相同权重。每次优化更新都平均八个时间格的损失。这个清楚的对照用于判断加入时间优先级究竟改变了什么。",
+          "textEn": "The baseline gives every temporal bin the same weight. It averages all eight bin losses at every optimiser update. This is a clear control for asking what changes when temporal priority is added.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_{\\rm uniform}=\\frac18\\sum_{i=1}^{8}\\ell_i",
+            "formulaEn": "\\mathcal L_{\\rm uniform}=\\frac18\\sum_{i=1}^{8}\\ell_i",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "uniform-time-loss-b1",
+          "text": "均匀加权并不阻止优化器学出正确轨迹。事实上，本地实测基线在这个简单振子上已经准确。不能把论文的动机变成所有均匀训练都会失败的主张。",
+          "textEn": "Uniform weighting does not prevent the optimiser from learning the correct trajectory. In fact the measured baseline is already accurate on this simple oscillator. We will avoid turning the paper’s motivation into a claim that all uniform training must fail.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "causal-prefix",
+      "title": "较晚时间格如何看见此前的失配？",
+      "titleEn": "How does a later bin see earlier mismatch?",
+      "eyebrow": "论文 05 / 10",
+      "eyebrowEn": "PAPER 05 / 10",
+      "visual": "steps",
+      "formula": "S_i=\\sum_{j<i}\\ell_j",
+      "formulaEn": "S_i=\\sum_{j<i}\\ell_j",
+      "bullets": [
+        "较晚时间格如何看见此前的失配？"
+      ],
+      "bulletsEn": [
+        "How does a later bin see earlier mismatch?"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "累积更早的失配",
+            "labelEn": "Accumulate earlier mismatch",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不包含当前与未来格",
+            "labelEn": "Exclude current and future bins",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "causal-prefix-b0",
+          "text": "时间优先级需要概括较早时刻还有多少失配。S i 是索引小于 i 的时间格损失之和。当前格以及所有未来格都不进入这个前缀和。",
+          "textEn": "Temporal priority needs a summary of what remains unresolved earlier in time. S i is the sum of bin losses with indices smaller than i. The current bin and every future bin are excluded from this prefix sum.",
+          "focus": 0,
+          "scene": {
+            "formula": "S_i=\\sum_{j<i}\\ell_j",
+            "formulaEn": "S_i=\\sum_{j<i}\\ell_j",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "causal-prefix-b1",
+          "text": "第一个格的求和为空，因此是零。这个顺序必须遵循物理时间，而不能使用任意打乱的列表。否则，相同公式安排的只是随机序列，而不是较早动力学。",
+          "textEn": "For the first bin the sum is empty and therefore zero. This ordering must follow physical time rather than an arbitrary shuffled list. Otherwise the same formula would prioritise a random sequence instead of earlier dynamics.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "causal-weight-formula",
+      "title": "把此前失配转换成软门控",
+      "titleEn": "Turn preceding mismatch into a soft gate",
+      "eyebrow": "论文 05 / 11",
+      "eyebrowEn": "PAPER 05 / 11",
+      "visual": "steps",
+      "formula": "w_i=\\exp(-\\epsilon S_i)",
+      "formulaEn": "w_i=\\exp(-\\epsilon S_i)",
+      "bullets": [
+        "把此前失配转换成软门控"
+      ],
+      "bulletsEn": [
+        "Turn preceding mismatch into a soft gate"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "此前损失大",
+            "labelEn": "Large preceding loss",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "降低较晚格的权重",
+            "labelEn": "Reduce the later-bin weight",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "causal-weight-formula-b0",
+          "text": "通过指数函数，把前缀和转换成时间权重。epsilon 是正的因果参数，控制门控关闭得多快。较早失配很大时，较晚时间格的权重就降低。",
+          "textEn": "The prefix sum becomes a temporal weight through an exponential. Epsilon is a positive causality parameter controlling how steeply the gate closes. When earlier mismatch is large, a later bin receives less weight.",
+          "focus": 0,
+          "scene": {
+            "formula": "w_i=\\exp(-\\epsilon S_i)",
+            "formulaEn": "w_i=\\exp(-\\epsilon S_i)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "causal-weight-formula-b1",
+          "text": "第一个权重恰好为一，因为它的前缀为零。这是软优先级，不代表所有较晚残差都会完全关闭。训练中权重也不必单调增大，因为网络变化时较早损失可能反而上升。",
+          "textEn": "The first weight is exactly one because its prefix is zero. These are soft priorities, not a proof that every later residual is completely disabled. The weights also need not increase monotonically during training, because earlier losses can rise as the network changes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "causal-weighted-loss",
+      "title": "加权目标仍然在所有时间格取平均",
+      "titleEn": "The weighted objective still averages over all bins",
+      "eyebrow": "论文 05 / 12",
+      "eyebrowEn": "PAPER 05 / 12",
+      "visual": "steps",
+      "formula": "\\mathcal L_{\\rm causal}=\\frac18\\sum_{i=1}^{8}w_i\\ell_i",
+      "formulaEn": "\\mathcal L_{\\rm causal}=\\frac18\\sum_{i=1}^{8}w_i\\ell_i",
+      "bullets": [
+        "加权目标仍然在所有时间格取平均"
+      ],
+      "bulletsEn": [
+        "The weighted objective still averages over all bins"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "用门控缩放各格贡献",
+            "labelEn": "Scale each contribution with its gate",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "保留固定的平均分母",
+            "labelEn": "Keep the averaging denominator fixed",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "causal-weighted-loss-b0",
+          "text": "门控现在改变进入优化器的残差贡献。每个格损失乘以自己的时间权重，再对八个格取平均。分母仍是八，不是权重之和。",
+          "textEn": "The gates now change the residual contributions entering the optimiser. Each bin loss is multiplied by its temporal weight, and the result is averaged over the eight bins. The denominator remains eight, not the sum of the weights.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_{\\rm causal}=\\frac18\\sum_{i=1}^{8}w_i\\ell_i",
+            "formulaEn": "\\mathcal L_{\\rm causal}=\\frac18\\sum_{i=1}^{8}w_i\\ell_i",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "causal-weighted-loss-b1",
+          "text": "这一区别很重要，因为除以权重总和会定义另一个目标。初始值已由构造精确满足，因此所有策略都没有单独初值惩罚。比较是在这个明确改动下，单独检验时间残差加权。",
+          "textEn": "This distinction matters because renormalising by the weight sum defines a different objective. Our initial values are already exact by construction, so there is no separate initial penalty in any policy. The comparison isolates temporal residual weighting under that stated adaptation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "causal-detach-code",
+      "title": "为什么计算权重后要停止梯度？",
+      "titleEn": "Why stop gradients through the gate calculation?",
+      "eyebrow": "论文 05 / 13",
+      "eyebrowEn": "PAPER 05 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么计算权重后要停止梯度？"
+      ],
+      "bulletsEn": [
+        "Why stop gradients through the gate calculation?"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-detach-code-b0",
+          "text": "加权目标还有一个关键实现细节。控制器计算前缀与权重时，使用已脱离计算图的格损失。梯度仍会通过被固定权重相乘的当前残差损失传播。",
+          "textEn": "The weighted objective requires one important implementation detail. The controller uses detached bin losses when computing the prefix and weights. Gradients still flow through the current residual losses multiplied by those fixed weights.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-detach-code-b1",
+          "text": "论文也会停止通过门控计算的梯度。若对指数本身继续求导，就会引入额外项，得到不同更新规则。完整脚本明确保留第一个格为零的前缀。",
+          "textEn": "The paper also stops gradients through the gate calculation. Differentiating through the exponential instead would introduce extra terms, defining a different update rule. The full script explicitly preserves the zero prefix of the first bin.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "causal-code",
+      "paperTrace": "paper05",
+      "demoCode": [
+        "prefix = cumsum(losses.detach())",
+        "previous = cat([zero, prefix[:-1]])",
+        "weights = exp(-epsilon*previous)",
+        "loss = mean(weights*losses)"
+      ]
+    },
+    {
+      "id": "causal-epsilon",
+      "title": "固定参数与退火参数有什么区别？",
+      "titleEn": "How do fixed and annealed epsilon differ?",
+      "eyebrow": "论文 05 / 14",
+      "eyebrowEn": "PAPER 05 / 14",
+      "visual": "steps",
+      "formula": "\\epsilon:0.01\\to0.1\\to1\\to10\\to100",
+      "formulaEn": "\\epsilon:0.01\\to0.1\\to1\\to10\\to100",
+      "bullets": [
+        "固定参数与退火参数有什么区别？"
+      ],
+      "bulletsEn": [
+        "How do fixed and annealed epsilon differ?"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "固定门控强度",
+            "labelEn": "Fixed gating strength",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "逐步提高门控强度",
+            "labelEn": "Gradually increase gating strength",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "causal-epsilon-b0",
+          "text": "门控定义带来了陡峭程度的选择。比较均匀权重、epsilon 固定为一，以及 epsilon 退火序列。退火从较温和的门控开始，再允许提高对先前失配的敏感度。",
+          "textEn": "The gate definition raises a choice about its steepness. We compare uniform weights, fixed epsilon equal to one, and an annealed sequence of epsilon values. Annealing starts gently and permits later increases in sensitivity to preceding mismatch.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\epsilon:0.01\\to0.1\\to1\\to10\\to100",
+            "formulaEn": "\\epsilon:0.01\\to0.1\\to1\\to10\\to100",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "causal-epsilon-b1",
+          "text": "这里显示参数序列，但转移由测得权重触发，而不是等长训练阶段。这与上一篇系数课程不同。整个过程中振子方程与频率都保持不变。",
+          "textEn": "The sequence is shown here, but the transitions are triggered by measured weights rather than evenly spaced training stages. This differs from the coefficient curriculum in the previous paper. The oscillator equation and its frequency remain unchanged throughout this process.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "causal-criterion",
+      "title": "权重接近一说明了什么？",
+      "titleEn": "What does a weight close to one tell us?",
+      "eyebrow": "论文 05 / 15",
+      "eyebrowEn": "PAPER 05 / 15",
+      "visual": "steps",
+      "formula": "\\min_i w_i>0.99",
+      "formulaEn": "\\min_i w_i>0.99",
+      "bullets": [
+        "权重接近一说明了什么？"
+      ],
+      "bulletsEn": [
+        "What does a weight close to one tell us?"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "此前训练残差已较小",
+            "labelEn": "Earlier training residuals are small",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "仍需独立轨迹检验",
+            "labelEn": "Still validate the trajectory independently",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "causal-criterion-b0",
+          "text": "退火控制器需要明确的转移标准。当最小时间权重大于零点九九时，相对于当前 epsilon，所有先前累积训练损失都较小。每个 epsilon 至少更新两百次，再每百步检查一次。",
+          "textEn": "The annealed controller needs an explicit transition criterion. When the minimum temporal weight exceeds zero point nine nine, every preceding cumulative training loss is small relative to the current epsilon. We check this every hundred updates after at least two hundred updates at that epsilon.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\min_i w_i>0.99",
+            "formulaEn": "\\min_i w_i>0.99",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "causal-criterion-b1",
+          "text": "在本改编中，这个标准用于推进 epsilon，而不是结束整个实验。到最后一个 epsilon 时记录满足时刻，但仍保留共同训练上限。它是训练诊断，不是对未见时刻轨迹误差的严格界。",
+          "textEn": "The criterion advances epsilon in this adaptation rather than ending the whole experiment. At the last epsilon we record when it is met but retain the common training ceiling. It is a training diagnostic, not a rigorous bound on trajectory error at unseen times.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "causal-cpu-protocol",
+      "title": "九次运行怎样保持规模与透明度？",
+      "titleEn": "How do nine runs stay small and transparent?",
+      "eyebrow": "论文 05 / 16",
+      "eyebrowEn": "PAPER 05 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "九次运行怎样保持规模与透明度？"
+      ],
+      "bulletsEn": [
+        "How do nine runs stay small and transparent?"
+      ],
+      "sourceIds": [
+        "wang2022",
+        "causal-local"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "相同网络与时间点",
+            "labelEn": "Same network and temporal points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "披露实际步数与上限",
+            "labelEn": "Disclose actual updates and caps",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-cpu-protocol-b0",
+          "text": "三种权重策略已完整定义，现在分别用三个配对种子检验。网络有一千二百九十八个参数，以及六十四个残差时刻。每种情形都使用双精度与四个 CPU 线程。",
+          "textEn": "The three weight policies are now fully defined, so we test each with three paired seeds. The network has one thousand two hundred and ninety-eight parameters and sixty-four residual times. Every case uses double precision and four CPU threads.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-cpu-protocol-b1",
+          "text": "所有情形都设六千步 Adam 上限与九十秒训练上限。触发上限的运行可能完成不同更新次数，尤其在本机并发工作时。公开实际步数与门控转移，因此这些时间不能用于受控速度排名。",
+          "textEn": "All cases have a ceiling of six thousand Adam updates and a ninety-second training cap. Capped runs can finish different numbers of updates, especially under concurrent local workload. We publish actual steps and gate transitions, so these timings are not a controlled speed ranking.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "causal-training-replay",
+      "title": "回放位移，也检查完整状态误差",
+      "titleEn": "Replay displacement and check the full-state error",
+      "eyebrow": "论文 05 / 17",
+      "eyebrowEn": "PAPER 05 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回放位移，也检查完整状态误差"
+      ],
+      "bulletsEn": [
+        "Replay displacement and check the full-state error"
+      ],
+      "sourceIds": [
+        "wang2022",
+        "causal-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-training-replay-b0",
+          "text": "保存的训练曲线把目标连接到真实预测。蓝色是均匀加权，金色是固定 epsilon，粉色是种子十一的退火 epsilon。虚线是沿物理时间变化的解析位移。",
+          "textEn": "The saved training curves connect the objective to actual predictions. Cyan shows uniform weighting, gold shows fixed epsilon, and pink shows annealed epsilon for seed eleven. The dashed curve is the analytic displacement over physical time.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-training-replay-b1",
+          "text": "最终检查点的显示误差同时使用位移与归一化速度，而不只是可见位移线。这些简单运行之间的小差别，不应被宣传成因果训练的普适优势。对照与全部种子始终属于证据的一部分。",
+          "textEn": "At the final checkpoint the displayed errors use both displacement and scaled velocity, not just the visible displacement line. Small differences between these simple runs should not be advertised as a universal causal-training advantage. The controls and all seeds remain part of the evidence.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "causal-training",
+      "paperTrace": "paper05"
+    },
+    {
+      "id": "causal-weight-replay",
+      "title": "观看时间门控如何变化",
+      "titleEn": "Watch how the temporal gates change",
+      "eyebrow": "论文 05 / 18",
+      "eyebrowEn": "PAPER 05 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "观看时间门控如何变化"
+      ],
+      "bulletsEn": [
+        "Watch how the temporal gates change"
+      ],
+      "sourceIds": [
+        "wang2022",
+        "causal-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-weight-replay-b0",
+          "text": "仅看轨迹图，还不能知道加权机制是否按预期工作。八根柱按时间顺序回放退火控制器保存的权重。柱高从零到一，第一个始终为一。",
+          "textEn": "The trajectory plot alone does not show whether the weighting mechanism behaved as intended. These eight bars replay the annealed controller’s saved weights in temporal order. Their heights range from zero to one, and the first bar remains one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-weight-replay-b1",
+          "text": "图下 epsilon 和最小权重来自同一个记录检查点。因此可以区分已打开的晚时间门控，和仍压低较晚格的控制器。时间或步数预算结束时，最终最小权重可能仍低于转移阈值。",
+          "textEn": "The epsilon value and minimum weight below the plot come from the same recorded checkpoint. We can therefore distinguish an open late-time gate from a controller that still suppresses later bins. The final minimum weight may remain below the transition threshold when the time or step budget ends.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "causal-weights",
+      "paperTrace": "paper05"
+    },
+    {
+      "id": "causal-phase",
+      "title": "用相图同时查看位移与速度",
+      "titleEn": "Use a phase portrait to inspect both states",
+      "eyebrow": "论文 05 / 19",
+      "eyebrowEn": "PAPER 05 / 19",
+      "visual": "steps",
+      "formula": "u^2+v^2=1",
+      "formulaEn": "u^2+v^2=1",
+      "bullets": [
+        "用相图同时查看位移与速度"
+      ],
+      "bulletsEn": [
+        "Use a phase portrait to inspect both states"
+      ],
+      "sourceIds": [
+        "wang2022",
+        "causal-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-phase-b0",
+          "text": "位移曲线可能掩盖速度或相位误差，因此把两个状态放在一起观察。横轴是位移 u，纵轴是归一化速度 v。精确振子画出圆，因为两个状态的平方和为一。",
+          "textEn": "A displacement curve can hide a velocity or phase error, so we view both states together. The horizontal axis is displacement u and the vertical axis is scaled velocity v. The exact oscillator traces a circle because the squared states add to one.",
+          "focus": 0,
+          "scene": {
+            "formula": "u^2+v^2=1",
+            "formulaEn": "u^2+v^2=1",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "causal-phase-b1",
+          "text": "用相同种子与全部验证时刻，把学习轨迹与参考比较。收缩螺旋意味着人工阻尼，轨道变形则揭示其他状态误差。这个相图用于验证，不是额外训练目标。",
+          "textEn": "The learned trajectories are plotted against that reference using the same seed and full validation times. A shrinking spiral would signal artificial damping, while a distorted orbit reveals another state error. This phase portrait is validation, not an extra training target.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "causal-phase",
+      "paperTrace": "paper05"
+    },
+    {
+      "id": "causal-energy",
+      "title": "能量提供另一个独立物理检查",
+      "titleEn": "Energy supplies another independent physical check",
+      "eyebrow": "论文 05 / 20",
+      "eyebrowEn": "PAPER 05 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "能量提供另一个独立物理检查"
+      ],
+      "bulletsEn": [
+        "Energy supplies another independent physical check"
+      ],
+      "sourceIds": [
+        "wang2022",
+        "causal-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-energy-b0",
+          "text": "相图提示了一个容易物理解读的标量检查。归一化能量是位移与归一化速度的平方和。在无阻尼模型中，参考值在每个时刻都保持一。",
+          "textEn": "The phase portrait suggests a scalar check that is easy to interpret physically. The normalised energy is the sum of squared displacement and scaled velocity. In this undamped model its reference value remains one at every time.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-energy-b1",
+          "text": "曲线显示最终学习状态的能量，而不是解析动画的能量。比较中从未把能量加入训练惩罚。因此，低加权残差必须结合轨迹误差和能量漂移一起判断。",
+          "textEn": "These curves show energy from the final learned states, not from the analytic animation. Energy is never added as a training penalty in these comparisons. A low weighted residual should therefore be judged together with trajectory error and energy drift.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "causal-energy",
+      "paperTrace": "paper05"
+    },
+    {
+      "id": "causal-seeds",
+      "title": "显示所有种子，不只选最好的一次",
+      "titleEn": "Show every seed, not just the best run",
+      "eyebrow": "论文 05 / 21",
+      "eyebrowEn": "PAPER 05 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "显示所有种子，不只选最好的一次"
+      ],
+      "bulletsEn": [
+        "Show every seed, not just the best run"
+      ],
+      "sourceIds": [
+        "wang2022",
+        "causal-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-seeds-b0",
+          "text": "机制与物理检查都已说明，现在比较每个配对种子的完整状态误差。每个点代表相同振子上的一次完整运行。触发上限的情形保留在图中，不会悄悄排除。",
+          "textEn": "The mechanism and physical checks have been explained, so now we compare the full-state errors for every paired seed. Each dot represents one complete run on the same oscillator. Capped cases remain in the plot rather than being silently excluded.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-seeds-b1",
+          "text": "均匀基线已经准确，这些局部差别不能建立普适排名。方法共享更新和时间上限，但实际完成步数可能不同。把误差差距只归因于权重策略前，先查看下载表格。",
+          "textEn": "The uniform baseline is already accurate, and these local differences do not establish a general ranking. The methods share update and time ceilings, but actual completed steps can differ. Read the downloadable table before attributing an error gap only to the weight policy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "causal-error",
+      "paperTrace": "paper05"
+    },
+    {
+      "id": "causal-limits",
+      "title": "从小振子能够推出多大范围的结论？",
+      "titleEn": "How far can a small oscillator result take us?",
+      "eyebrow": "论文 05 / 22",
+      "eyebrowEn": "PAPER 05 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从小振子能够推出多大范围的结论？"
+      ],
+      "bulletsEn": [
+        "How far can a small oscillator result take us?"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "理解时间加权机制",
+            "labelEn": "Understand temporal weighting",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不外推到混沌大算例",
+            "labelEn": "Do not extrapolate to chaotic benchmarks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "causal-limits-b0",
+          "text": "这个实验把脱离梯度的时间加权、前缀顺序和 epsilon 转移变得具体。它没有复现论文中的混沌 Lorenz、Kuramoto-Sivashinsky 或湍流算例，也未复现改进 MLP 与逐时间窗实现。",
+          "textEn": "This experiment makes detached temporal weighting, prefix ordering and epsilon transitions concrete. It does not reproduce the paper’s chaotic Lorenz, Kuramoto-Sivashinsky or turbulent-flow benchmarks. We also do not reproduce its modified MLP or time-window marching implementation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-limits-b1",
+          "text": "硬初始状态与固定训练上限是有意改动，所有触发上限的情况都会披露。最小权重接近一不是精度证书，小振子误差也不能预测长期混沌表现。明确这些边界，才能让 CPU 演示既有用又诚实。",
+          "textEn": "Our hard initial state and fixed training ceiling are deliberate departures, with every cap disclosed. A minimum weight close to one is not an accuracy certificate, and a small oscillator error does not predict long-time chaotic performance. These limits keep the CPU demonstration useful and honest.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "causal-exercise",
+      "title": "增加频率之前，先预测门控与误差",
+      "titleEn": "Predict gates and errors before increasing frequency",
+      "eyebrow": "论文 05 / 23",
+      "eyebrowEn": "PAPER 05 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "增加频率之前，先预测门控与误差"
+      ],
+      "bulletsEn": [
+        "Predict gates and errors before increasing frequency"
+      ],
+      "sourceIds": [
+        "wang2022",
+        "causal-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保持种子和预算不变",
+            "labelEn": "Keep seeds and budgets fixed",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "只改变振动频率",
+            "labelEn": "Change only the frequency",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "causal-exercise-b0",
+          "text": "振子带来一个不需要新模拟器的聚焦练习。固定种子、网络、残差点和预算上限，把 omega 从六增加到八。先预测振动次数与残差梯度尺度会怎样变化。",
+          "textEn": "The oscillator gives a focused exercise that does not require a new simulator. Keep seeds, network, residual points and budget ceilings fixed, then increase omega from six to eight. Predict what happens to the number of oscillations and to the residual-gradient scale.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "causal-exercise-b1",
+          "text": "在下载脚本中使用 omega 选项，并指定新输出文件。比较所有策略的实际更新次数、时间门控、完整状态误差与能量漂移。现在暂停，先预测，再测量变化。",
+          "textEn": "Use the omega option and a new output filename in the downloadable script. Compare actual updates, temporal gates, full-state error and energy drift for all policies. Pause now and make a prediction before measuring the change.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "series-connections",
+      "title": "把五篇论文连成一条研究路线",
+      "titleEn": "Connect the five papers into one research route",
+      "eyebrow": "论文 05 / 24",
+      "eyebrowEn": "PAPER 05 / 24",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把五篇论文连成一条研究路线"
+      ],
+      "bulletsEn": [
+        "Connect the five papers into one research route"
+      ],
+      "sourceIds": [
+        "wang2022"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "从正问题走到训练机制",
+            "labelEn": "From forward problems to training mechanisms",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一步按物理问题选方法",
+            "labelEn": "Next choose methods for a physical problem",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "series-connections-b0",
+          "text": "这个系列现在连接了 Burgers 正问题、反问题系数识别、梯度统计、系数课程与时间残差加权。每个机制改变学习问题的不同部分。不能把它们当成可以互换、且总能提高精度的开关。",
+          "textEn": "The series now connects a forward Burgers PINN, inverse coefficient identification, gradient statistics, coefficient curricula and temporal residual weighting. Each mechanism changes a different part of the learning problem. They should not be treated as interchangeable switches that always improve accuracy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "series-connections-b1",
+          "text": "下一步应用应从清楚的物理问题、独立参考和本地计算预算开始。再判断主要困难是识别、竞争目标、问题延续，还是时间演化。这比不设对照地收集高级模型名称更有研究价值。",
+          "textEn": "A useful next application starts with a clearly posed physical question, an independent reference and a local compute budget. Then choose whether the main difficulty is identification, competing objectives, problem continuation or temporal evolution. That is a stronger research habit than collecting advanced model names without controls.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

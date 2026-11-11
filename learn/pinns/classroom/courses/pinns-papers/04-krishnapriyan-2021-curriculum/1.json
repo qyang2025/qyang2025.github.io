@@ -1,0 +1,3272 @@
+{
+  "id": "139afec2-2021-4004-8004-000000000004",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-04",
+  "chapterIndex": 0,
+  "title": "论文 04：输运失效模式与课程式训练",
+  "titleEn": "Paper 04: Transport and curriculum training",
+  "summary": "从周期输运动画到系数延续，比较相同总预算和额外预训练预算，公开全部配对运行。",
+  "summaryEn": "From periodic transport to coefficient continuation: compare equal-total-step and extra-budget policies with paired CPU runs.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "krishnapriyan2021",
+      "name": "Krishnapriyan et al. (NeurIPS 2021), Characterizing possible failure modes in physics-informed neural networks",
+      "url": "https://arxiv.org/html/2109.01050v2",
+      "text": "Sections 3.1 and 5.1: periodic convection and coefficient-curriculum regularisation. This independent small experiment uses Adam and does not reproduce the paper’s larger benchmark or sequence-to-sequence method."
+    },
+    {
+      "id": "authors-convection",
+      "name": "Authors’ failure-modes implementation",
+      "url": "https://github.com/a1k12/characterizing-pinns-failure-modes",
+      "text": "Original code and benchmark settings. Our network, point count, optimiser and schedule are deliberately smaller and independently stated."
+    },
+    {
+      "id": "transport-local",
+      "name": "Actual paired CPU transport experiments",
+      "url": "/courses/pinns-papers/04-krishnapriyan-2021-curriculum/trace.json",
+      "text": "Three seeds, easy and direct controls, equal-total-step continuation and a separately labelled extra-budget continuation. Analytic reference, full fields, stage boundaries and all results are retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "输运物理与约束",
+      "titleEn": "Transport physics"
+    },
+    {
+      "slide": 9,
+      "title": "课程机制与预算",
+      "titleEn": "Curriculum and budgets"
+    },
+    {
+      "slide": 16,
+      "title": "结果与适用边界",
+      "titleEn": "Evidence and limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 04：输运失效模式与课程式训练",
+      "titleEn": "Paper 04: Transport and curriculum training",
+      "eyebrow": "PINNs 论文 04 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 04 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从周期输运动画到系数延续，比较相同总预算和额外预训练预算，公开全部配对运行。"
+      ],
+      "bulletsEn": [
+        "From periodic transport to coefficient continuation: compare equal-total-step and extra-budget policies with paired CPU runs."
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "输运物理与约束",
+            "labelEn": "Transport physics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "课程机制与预算",
+            "labelEn": "Curriculum and budgets",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "结果与适用边界",
+            "labelEn": "Evidence and limits",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "梯度论文检查了相互竞争的更新信号，现在追问方程难度怎样影响训练路径。先连接周期输运、解析解和系数课程。最后用配对 CPU 运行比较直接训练、相同总步数延续，以及明确增加预算的诊断。",
+          "textEn": "The gradient paper examined competing update signals, so we now ask how the difficulty of the equation affects the training path. First we will connect periodic transport, its analytic solution and a coefficient curriculum. Finally, paired CPU runs will compare direct training, equal-total-step continuation and an explicitly larger-budget diagnostic.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "why-curriculum",
+      "title": "从更新信号转向问题难度",
+      "titleEn": "From update signals to problem difficulty",
+      "eyebrow": "论文 04 / 2",
+      "eyebrowEn": "PAPER 04 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从更新信号转向问题难度"
+      ],
+      "bulletsEn": [
+        "From update signals to problem difficulty"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上一讲：检查梯度",
+            "labelEn": "Previously: inspect gradients",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本讲：组织训练任务",
+            "labelEn": "Now: organise the training task",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "why-curriculum-b0",
+          "text": "上一讲测量了相互竞争的梯度，并说明平衡规则需要检验，不能自动信任。还剩另一个问题：困难物理问题应当直接学习，还是先经过较容易的问题？这篇论文讨论训练任务的组织方式。",
+          "textEn": "The previous presentation measured competing gradients and showed why a balancing rule must be checked rather than trusted automatically. A different question remains: should a difficult physical problem be learned immediately, or approached through easier ones. This paper studies that organisation of training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "why-curriculum-b1",
+          "text": "第二个框引入系数延续，也叫课程式正则化。先求解较慢的输运问题，再把已学习网络带入较快问题。同时仔细计算训练步数，因为容易阶段的预热也消耗预算。",
+          "textEn": "The second box introduces coefficient continuation, sometimes called curriculum regularisation. We first solve a slower transport problem and carry the learned network into faster transport problems. We will also count the training steps carefully, because easier warm-up stages consume part of the budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "transport-physical",
+      "title": "先看周期区域中的平移",
+      "titleEn": "First watch translation on a periodic domain",
+      "eyebrow": "论文 04 / 3",
+      "eyebrowEn": "PAPER 04 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看周期区域中的平移"
+      ],
+      "bulletsEn": [
+        "First watch translation on a periodic domain"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-physical-b0",
+          "text": "在写输运方程前，想象一个浓度分布沿环形传送带运动。整个图形平移时，高度和形状都不改变。动画展示随时间 t 增加的精确平移，包括区间两端的周期回绕。",
+          "textEn": "Before writing the transport equation, imagine a concentration pattern moving around a circular conveyor. Its height and shape remain unchanged as the whole pattern translates. The animation shows exact translation as time t increases, including wrap-around at the interval ends.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-physical-b1",
+          "text": "金线表示当前浓度 u，虚线表示初始分布。粉色标记跟随一个波峰，而不是固定在某处。后面将用这个移动标记解释，为什么时间导数与空间导数的某个组合等于零。",
+          "textEn": "Gold is the current concentration u, and the dashed curve is its initial profile. The pink marker follows a crest rather than a fixed location. Later we will use that moving marker to explain why a particular combination of time and space derivatives vanishes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "transport-physical",
+      "paperTrace": "paper04"
+    },
+    {
+      "id": "transport-law",
+      "title": "把移动图像写成输运方程",
+      "titleEn": "Turn the moving picture into a transport equation",
+      "eyebrow": "论文 04 / 4",
+      "eyebrowEn": "PAPER 04 / 4",
+      "visual": "steps",
+      "formula": "u_t+\\beta u_x=0",
+      "formulaEn": "u_t+\\beta u_x=0",
+      "bullets": [
+        "把移动图像写成输运方程"
+      ],
+      "bulletsEn": [
+        "Turn the moving picture into a transport equation"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "固定位置观察变化",
+            "labelEn": "Observe change at a fixed point",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "运动带来空间变化",
+            "labelEn": "Motion carries spatial variation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-law-b0",
+          "text": "移动图像赋予方程具体含义。u 是被输运浓度，x 是位置，t 是时间，beta 是已知正输运速度。u t 描述固定位置的变化，u x 描述空间斜率。",
+          "textEn": "The moving pattern gives meaning to the equation. U is the transported concentration, x is position, t is time, and beta is a known positive transport speed. U t measures change at a fixed position, while u x measures spatial slope.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_t+\\beta u_x=0",
+            "formulaEn": "u_t+\\beta u_x=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-law-b1",
+          "text": "以 beta 速度纯平移时，两种效应相互抵消。这个模型没有扩散项，因此分布不会变平。我们改变已知速度以调整学习任务，而不是像第二篇那样从观测中识别速度。",
+          "textEn": "The two effects cancel for pure translation at speed beta. There is no diffusion term in this model, so the pattern does not flatten. We vary the known speed to change the learning task, rather than trying to identify it from observations as in Part II.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-characteristic",
+      "title": "跟随波峰，连接图像与导数",
+      "titleEn": "Follow a crest to connect the picture and derivatives",
+      "eyebrow": "论文 04 / 5",
+      "eyebrowEn": "PAPER 04 / 5",
+      "visual": "steps",
+      "formula": "\\frac{d}{dt}u(x_0+\\beta t,t)=u_t+\\beta u_x=0",
+      "formulaEn": "\\frac{d}{dt}u(x_0+\\beta t,t)=u_t+\\beta u_x=0",
+      "bullets": [
+        "跟随波峰，连接图像与导数"
+      ],
+      "bulletsEn": [
+        "Follow a crest to connect the picture and derivatives"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-characteristic-b0",
+          "text": "跟随移动点时，输运规律尤其直观。x 零表示初始位置，路径为 x 零加 beta 乘时间。这里纵轴是物理时间，横轴是周期位置。",
+          "textEn": "The transport law becomes especially clear when we follow a moving point. X zero is its initial position, and its path is x zero plus beta times time. The vertical axis here is physical time and the horizontal axis is periodic position.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\frac{d}{dt}u(x_0+\\beta t,t)=u_t+\\beta u_x=0",
+            "formulaEn": "\\frac{d}{dt}u(x_0+\\beta t,t)=u_t+\\beta u_x=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-characteristic-b1",
+          "text": "链式法则说明沿路径测得的变化等于 u t 加 beta 倍 u x。波峰沿路径保持同一浓度，所以这个组合为零。路径从左边重新出现表示周期回绕，不是在内部跳跃。",
+          "textEn": "The chain rule says that the change measured along this path is u t plus beta times u x. A crest keeps the same concentration along that path, so the combination is zero. A path reappearing at the left edge is periodic wrap-around, not a jump across the interior.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "transport-characteristic",
+      "paperTrace": "paper04"
+    },
+    {
+      "id": "transport-initial",
+      "title": "初始图像提供哪部分信息？",
+      "titleEn": "What information does the initial pattern supply?",
+      "eyebrow": "论文 04 / 6",
+      "eyebrowEn": "PAPER 04 / 6",
+      "visual": "steps",
+      "formula": "u(x,0)=\\sin x",
+      "formulaEn": "u(x,0)=\\sin x",
+      "bullets": [
+        "初始图像提供哪部分信息？"
+      ],
+      "bulletsEn": [
+        "What information does the initial pattern supply?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "初始时刻的标签",
+            "labelEn": "Labels at the initial time",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "后续时刻由方程约束",
+            "labelEn": "Later times constrained by the law",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-initial-b0",
+          "text": "方程会输运一个分布，但还需要指定是什么分布。零时刻给定浓度为 x 的正弦。向网络提供这条初始曲线上的四十八个样本。",
+          "textEn": "The equation transports a pattern, but we still need to specify which pattern. At time zero, the prescribed concentration is sine of x. We provide forty-eight samples of that initial profile to the network.",
+          "focus": 0,
+          "scene": {
+            "formula": "u(x,0)=\\sin x",
+            "formulaEn": "u(x,0)=\\sin x",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-initial-b1",
+          "text": "不会提供后续内部时刻的解值标签。残差负责约束初始信息怎样移动。这一区别在检验远离有标签初始线的预测时很重要。",
+          "textEn": "We do not supply interior solution labels at later times. Instead, the residual constrains how the initial information moves. This distinction matters when we later evaluate a prediction far from the labelled initial line.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-periodic",
+      "title": "区间两端为什么必须接起来？",
+      "titleEn": "Why must the two interval ends connect?",
+      "eyebrow": "论文 04 / 7",
+      "eyebrowEn": "PAPER 04 / 7",
+      "visual": "steps",
+      "formula": "u(0,t)=u(2\\pi,t)",
+      "formulaEn": "u(0,t)=u(2\\pi,t)",
+      "bullets": [
+        "区间两端为什么必须接起来？"
+      ],
+      "bulletsEn": [
+        "Why must the two interval ends connect?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "从右端离开的分布",
+            "labelEn": "Pattern leaving the right end",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "从左端重新进入",
+            "labelEn": "Re-enters at the left end",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-periodic-b0",
+          "text": "传送带图像要求周期边界，而不是两个独立端点值。显示的是零到二 pi 的一个周期。同一时刻两端浓度必须相等。",
+          "textEn": "The conveyor picture requires a periodic boundary rather than two independent endpoint values. We display one period from zero to two pi. At a given time the concentrations at those endpoints must agree.",
+          "focus": 0,
+          "scene": {
+            "formula": "u(0,t)=u(2\\pi,t)",
+            "formulaEn": "u(0,t)=u(2\\pi,t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-periodic-b1",
+          "text": "训练目标比较三十二对相同边界时刻。这里的一阶输运模型使用数值周期性，不另加导数周期性惩罚。这些都是软约束，因此仍需测量最终失配。",
+          "textEn": "The training objective compares thirty-two matched pairs of boundary times. The chosen first-order transport model uses value periodicity; we do not add a separate derivative-periodicity penalty. These are soft constraints, so their final mismatch must still be measured.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-reference",
+      "title": "解析平移怎样成为独立检验？",
+      "titleEn": "How does analytic translation provide validation?",
+      "eyebrow": "论文 04 / 8",
+      "eyebrowEn": "PAPER 04 / 8",
+      "visual": "steps",
+      "formula": "u_*(x,t)=\\sin(x-\\beta t)",
+      "formulaEn": "u_*(x,t)=\\sin(x-\\beta t)",
+      "bullets": [
+        "解析平移怎样成为独立检验？"
+      ],
+      "bulletsEn": [
+        "How does analytic translation provide validation?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "平移初始分布",
+            "labelEn": "Translate the initial profile",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "在独立网格比较",
+            "labelEn": "Compare on a separate grid",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-reference-b0",
+          "text": "周期问题有简单解析解，因此无需大规模模拟。u 星表示参考解。相位是位置减速度乘时间，表达的正是动画中的平移。",
+          "textEn": "The periodic problem has a simple analytic solution, so no large simulation is necessary. U star denotes this reference solution. Its phase is position minus speed times time, expressing the same translation we watched in the animation.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_*(x,t)=\\sin(x-\\beta t)",
+            "formulaEn": "u_*(x,t)=\\sin(x-\\beta t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-reference-b1",
+          "text": "独立对这个公式求导以检查残差符号，并在单独的时空网格上使用它。内部参考解值从不作为训练标签。它们用于揭示预测误差，而不是让优化器显得成功。",
+          "textEn": "We differentiate this formula independently to check the residual sign and use it on a separate space-time grid. Reference values inside the domain are never supplied as training labels. Their role is to reveal prediction error rather than make the optimiser look successful.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-loss",
+      "title": "三个要求构成什么训练目标？",
+      "titleEn": "Which three requirements form the objective?",
+      "eyebrow": "论文 04 / 9",
+      "eyebrowEn": "PAPER 04 / 9",
+      "visual": "steps",
+      "formula": "\\mathcal L=\\mathcal L_0+\\mathcal L_b+\\mathcal L_r",
+      "formulaEn": "\\mathcal L=\\mathcal L_0+\\mathcal L_b+\\mathcal L_r",
+      "bullets": [
+        "三个要求构成什么训练目标？"
+      ],
+      "bulletsEn": [
+        "Which three requirements form the objective?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "拟合初始与周期约束",
+            "labelEn": "Fit initial and periodic constraints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "约束输运残差",
+            "labelEn": "Constrain the transport residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-loss-b0",
+          "text": "现在把物理与数据要求写成同一网络目标。L 零是初始曲线失配，L b 是配对周期边界失配，L r 是输运残差的平方。每项都在自己的点集上取平均。",
+          "textEn": "The physical and data requirements now become one network objective. L zero is initial-profile mismatch, L b is paired periodic-boundary mismatch, and L r is the squared transport residual. Each term is an average over its own point set.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L=\\mathcal L_0+\\mathcal L_b+\\mathcal L_r",
+            "formulaEn": "\\mathcal L=\\mathcal L_0+\\mathcal L_b+\\mathcal L_r",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-loss-b1",
+          "text": "本实验三项权重均为一。各方法保持这个选择不变，以单独检查训练日程。这不表示单位权重对所有输运速度或方程都是最优选择。",
+          "textEn": "All three terms have unit weight in this experiment. We keep that choice fixed across methods to isolate the training schedule. This does not claim that unit weighting is the best choice for every transport speed or equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-difficulty",
+      "title": "速度增大，学习任务哪里变了？",
+      "titleEn": "What changes when transport becomes faster?",
+      "eyebrow": "论文 04 / 10",
+      "eyebrowEn": "PAPER 04 / 10",
+      "visual": "steps",
+      "formula": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
+      "formulaEn": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
+      "bullets": [
+        "速度增大，学习任务哪里变了？"
+      ],
+      "bulletsEn": [
+        "What changes when transport becomes faster?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "相同时间里传播更远",
+            "labelEn": "Further travel in the same time",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "时间方向变化更快",
+            "labelEn": "Faster temporal variation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-difficulty-b0",
+          "text": "参考解说明了为何增大 beta 即使不增加参数，也会改变任务。在同一时间区间，分布沿周期区域传播更远。因此固定位置观察到更快的时间变化。",
+          "textEn": "The reference solution shows why increasing beta can change the task without adding more parameters. During the same time interval, the pattern travels further around the periodic domain. A fixed location therefore sees more rapid temporal variation.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
+            "formulaEn": "\\beta\\uparrow\\quad\\Longrightarrow\\quad x-\\beta t\\text{ varies faster in }t",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "transport-difficulty-b1",
+          "text": "这是研究优化困难的理由，不是证明某个速度一定能让所有网络失败。本实验目标为 beta 十，小于论文某些主要失效案例。结论要由实际误差决定，不能照搬论文报告的误差。",
+          "textEn": "This is a reason to investigate optimisation difficulty, not a proof that a particular speed must defeat every network. Our target is beta ten, which is smaller than some headline failure examples in the paper. The actual errors, rather than the paper’s reported errors, determine what we can conclude.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-continuation",
+      "title": "先学慢输运，再迁移到快输运",
+      "titleEn": "Learn slower transport before faster transport",
+      "eyebrow": "论文 04 / 11",
+      "eyebrowEn": "PAPER 04 / 11",
+      "visual": "steps",
+      "formula": "\\beta:1\\longrightarrow3\\longrightarrow6\\longrightarrow10",
+      "formulaEn": "\\beta:1\\longrightarrow3\\longrightarrow6\\longrightarrow10",
+      "bullets": [
+        "先学慢输运，再迁移到快输运"
+      ],
+      "bulletsEn": [
+        "Learn slower transport before faster transport"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "较易任务学到的权重",
+            "labelEn": "Weights learned on an easier task",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "初始化下一阶段",
+            "labelEn": "Initialise the next stage",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-continuation-b0",
+          "text": "变化的难度引出系数课程。按一、三、六、十的顺序训练速度。前一阶段末尾的网络权重初始化下一阶段，因此迁移了学习结果，而不是重新随机开始。",
+          "textEn": "The varying difficulty motivates a coefficient curriculum. We train at speeds one, three, six and ten in that order. The network weights at the end of one stage initialise the next stage, so learning is transferred rather than restarted randomly.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\beta:1\\longrightarrow3\\longrightarrow6\\longrightarrow10",
+            "formulaEn": "\\beta:1\\longrightarrow3\\longrightarrow6\\longrightarrow10",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-continuation-b1",
+          "text": "每个阶段的物理时间区间始终是零到一。这是在不同已知系数的方程之间做延续，不是逐时间段推进，也不是下一篇中的时间残差加权。",
+          "textEn": "The physical time interval stays from zero to one throughout every stage. This is continuation across equations with different known coefficients. It is not sequence-to-sequence time marching, and it is not the temporal residual weighting introduced in the next paper.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-direct-control",
+      "title": "直接训练的对照如何设置？",
+      "titleEn": "How is the direct-training control defined?",
+      "eyebrow": "论文 04 / 12",
+      "eyebrowEn": "PAPER 04 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "直接训练的对照如何设置？"
+      ],
+      "bulletsEn": [
+        "How is the direct-training control defined?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "四个阶段都用目标速度",
+            "labelEn": "Use the target speed in every stage",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "相同优化器重置规则",
+            "labelEn": "Use the same optimiser resets",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-direct-control-b0",
+          "text": "课程式方法需要一个差别清楚的对照。直接训练四个阶段都使用 beta 十。对于每个种子，它与课程式方法使用相同初始网络、残差点、初始标签和周期配对。",
+          "textEn": "A curriculum needs a control that makes its differences explicit. Direct training uses beta ten in all four stages. It receives the same initial network, residual points, initial labels and periodic pairs as the curriculum for each seed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-direct-control-b1",
+          "text": "两种策略都在阶段边界重置 Adam，同时保留网络权重。相同重置日程去掉了一个本可避免的优化器状态差异。剩下的有意差别，是前三阶段训练哪个方程。",
+          "textEn": "We reset Adam at each stage boundary in both policies while preserving network weights. That matching reset schedule removes one avoidable difference in optimiser state handling. The remaining deliberate difference is which equation is trained during the first three stages.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "transport-budget",
+      "title": "相同总步数不等于相同目标训练",
+      "titleEn": "Equal total steps do not mean equal target training",
+      "eyebrow": "论文 04 / 13",
+      "eyebrowEn": "PAPER 04 / 13",
+      "visual": "steps",
+      "formula": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
+      "formulaEn": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
+      "bullets": [
+        "相同总步数不等于相同目标训练"
+      ],
+      "bulletsEn": [
+        "Equal total steps do not mean equal target training"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "课程先消耗预热步数",
+            "labelEn": "Curriculum spends steps on warm-up",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "直接方法一直训练目标",
+            "labelEn": "Direct training always uses the target",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-budget-b0",
+          "text": "对照显示了一个重要预算区别。总计四千次更新时，课程式方法只有最后一千步训练 beta 十。直接训练的四千步都用于最终目标。",
+          "textEn": "The control makes an important budget distinction visible. With four thousand total updates, the curriculum spends only its final thousand updates at beta ten. Direct training spends all four thousand updates on that final target.",
+          "focus": 0,
+          "scene": {
+            "formula": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
+            "formulaEn": "4000=4\\times1000,\\qquad N_{\\rm target}=1000\\text{ or }4000",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-budget-b1",
+          "text": "相同总步数是有用的计算分配比较，但不代表目标方程训练量相同。如果课程式表现较差，不能立即推断迁移学习本身无用。可以用单独的额外预算诊断检查分配问题。",
+          "textEn": "Equal total steps is a useful compute-allocation comparison, but it is not equal target-equation training. If the curriculum performs worse, we must not immediately conclude that transfer learning itself is useless. A separate extra-budget diagnostic can examine the allocation issue.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-extra-budget",
+      "title": "额外预算对照回答另一个问题",
+      "titleEn": "The extra-budget control answers a different question",
+      "eyebrow": "论文 04 / 14",
+      "eyebrowEn": "PAPER 04 / 14",
+      "visual": "steps",
+      "formula": "N_{\\rm total}=3000+4000=7000",
+      "formulaEn": "N_{\\rm total}=3000+4000=7000",
+      "bullets": [
+        "额外预算对照回答另一个问题"
+      ],
+      "bulletsEn": [
+        "The extra-budget control answers a different question"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021",
+        "transport-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留三千步预热",
+            "labelEn": "Retain three thousand warm-up steps",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "再给四千步目标训练",
+            "labelEn": "Then give four thousand target steps",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-extra-budget-b0",
+          "text": "为检查预算分配，额外预算课程保留相同的前三个预热阶段。随后给目标速度四千步，而不是一千步。总计七千次更新。",
+          "textEn": "To inspect the budget allocation, the extra-budget curriculum keeps the same three warm-up stages. It then receives four thousand target-speed updates instead of one thousand. This gives seven thousand total updates.",
+          "focus": 0,
+          "scene": {
+            "formula": "N_{\\rm total}=3000+4000=7000",
+            "formulaEn": "N_{\\rm total}=3000+4000=7000",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-extra-budget-b1",
+          "text": "现在目标阶段步数与直接方法相同，但总计算量更多。任何改进都必须连同额外成本一起报告，并且每次运行仍受九十秒训练上限约束。这是预热与时间分配的诊断，不是等成本优胜主张。",
+          "textEn": "The comparison now matches the direct method’s target-stage steps but uses more total computation. Any improvement must be reported with that extra cost, and each run still has the ninety-second training cap. It is a diagnostic about warm starts and time allocation, not an equal-cost winner claim.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-code",
+      "title": "代码只继承网络，不继承旧问题",
+      "titleEn": "The code transfers weights, not the previous equation",
+      "eyebrow": "论文 04 / 15",
+      "eyebrowEn": "PAPER 04 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "代码只继承网络，不继承旧问题"
+      ],
+      "bulletsEn": [
+        "The code transfers weights, not the previous equation"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-code-b0",
+          "text": "现在把延续机制连接到代码。同一个模型对象在阶段之间保留，优化器按声明的重置策略重新建立。残差使用当前阶段的已知速度。",
+          "textEn": "The continuation mechanism can now be connected to code. The same model object survives between stages, while the optimiser is recreated according to the declared reset policy. The residual uses the current stage’s known speed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-code-b1",
+          "text": "初始标签和周期约束保持不变，因为每阶段都从同一周期区域的正弦曲线出发。不会把旧方程保存的残差混入新目标。完整可运行脚本记录每个阶段边界及参数校验值。",
+          "textEn": "Initial labels and periodic constraints are unchanged because every stage starts from the same sine profile on the same periodic domain. We never mix a saved residual from the previous equation into the new objective. The full runnable script records each stage boundary and parameter checksum.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "transport-code",
+      "paperTrace": "paper04",
+      "demoCode": [
+        "for beta in schedule:",
+        "    opt = Adam(model.parameters())",
+        "    residual = ut + beta*ux",
+        "    train_stage(model, opt, residual)"
+      ]
+    },
+    {
+      "id": "transport-cpu-protocol",
+      "title": "把计算预算和种子公开",
+      "titleEn": "Make the compute budget and seeds explicit",
+      "eyebrow": "论文 04 / 16",
+      "eyebrowEn": "PAPER 04 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把计算预算和种子公开"
+      ],
+      "bulletsEn": [
+        "Make the compute budget and seeds explicit"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021",
+        "transport-local"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "小网络与固定点集",
+            "labelEn": "Small network and fixed points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "配对种子与独立参考",
+            "labelEn": "Paired seeds and independent reference",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-cpu-protocol-b0",
+          "text": "实现刻意保持在本机 CPU 可运行的规模。它含一千二百九十七个参数、二百五十六个残差点、四十八个初始样本，以及三十二对周期点。每次运行使用四个 CPU 线程与双精度。",
+          "textEn": "The implementation is deliberately small enough for a local CPU. It has one thousand two hundred and ninety-seven parameters, two hundred and fifty-six residual points, forty-eight initial samples and thirty-two periodic pairs. Every run uses four CPU threads and double precision.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-cpu-protocol-b1",
+          "text": "十一、二十二、三十三三个种子在四种策略之间配对，包括速度一的容易对照。保存完整场和终止时刻曲线，而不只是一个损失标量。在独立的八十一乘二十一网格上评估解析参考，并用五百一十二个新点检验残差。",
+          "textEn": "Seeds eleven, twenty-two and thirty-three are paired across four policies, including an easy speed-one control. We save full fields and final-time curves rather than only a scalar loss. The analytic reference is evaluated on a separate eighty-one by twenty-one grid, and residual validation uses five hundred and twelve new points.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "transport-training-replay",
+      "title": "回放真实训练，区分阶段与最终目标",
+      "titleEn": "Replay training while distinguishing stage and target",
+      "eyebrow": "论文 04 / 17",
+      "eyebrowEn": "PAPER 04 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回放真实训练，区分阶段与最终目标"
+      ],
+      "bulletsEn": [
+        "Replay training while distinguishing stage and target"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021",
+        "transport-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-training-replay-b0",
+          "text": "保存的曲线让我们观察各日程实际学到了什么。蓝色是直接训练，粉色是相同总步数课程，金色是种子十一的额外预算课程。虚线始终是最终目标速度参考，即使课程仍在较慢的预热阶段。",
+          "textEn": "The recorded curves let us watch what each schedule actually learned. Cyan is direct training, pink is equal-total-step curriculum, and gold is extra-budget curriculum for seed eleven. The dashed curve is the final target-speed reference, even while a curriculum is still in a slower warm-up stage.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-training-replay-b1",
+          "text": "最终检查点中，三种方法都已到达同一个目标方程。不同误差必须结合目标速度更新步数的不同分配来解释。额外预算方法明确标注，不会伪装成等成本比较。",
+          "textEn": "At the final checkpoint all three methods have reached the same target equation. Their different errors must be interpreted together with their different allocations of target-speed updates. The extra-budget method is clearly labelled rather than being presented as an equal-cost comparison.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "transport-training",
+      "paperTrace": "paper04"
+    },
+    {
+      "id": "transport-time-errors",
+      "title": "误差随物理时间怎样变化？",
+      "titleEn": "How does error vary over physical time?",
+      "eyebrow": "论文 04 / 18",
+      "eyebrowEn": "PAPER 04 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "误差随物理时间怎样变化？"
+      ],
+      "bulletsEn": [
+        "How does error vary over physical time?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021",
+        "transport-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-time-errors-b0",
+          "text": "终止时刻切片可能掩盖早期轨迹中的错误，因此继续检查整个时间区间。图中展示最终网络在各物理时刻的相对空间场误差。横轴是物理时间，不是优化器训练步数。",
+          "textEn": "A final-time slice can hide mistakes earlier in the trajectory, so we inspect the entire time interval. This plot shows relative spatial field error at each physical time for the final trained networks. The horizontal axis is physical time, not the optimiser’s training step.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-time-errors-b1",
+          "text": "每条曲线都与种子十一的相同速度十参考比较。离开有标签初始线后误差怎样增长，是检查演化的有用诊断。但它本身不能证明误差由某种特定机制，例如损失地形条件数引起。",
+          "textEn": "Every curve is evaluated against the same speed-ten reference for seed eleven. Error growth away from the labelled initial line is a useful diagnostic of learned evolution. It does not by itself prove that a particular mechanism, such as loss-landscape conditioning, caused the error.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "transport-time-error",
+      "paperTrace": "paper04"
+    },
+    {
+      "id": "transport-seeds",
+      "title": "把所有种子与不同预算放在一起",
+      "titleEn": "Show every seed and distinguish the budgets",
+      "eyebrow": "论文 04 / 19",
+      "eyebrowEn": "PAPER 04 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把所有种子与不同预算放在一起"
+      ],
+      "bulletsEn": [
+        "Show every seed and distinguish the budgets"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021",
+        "transport-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-seeds-b0",
+          "text": "时间曲线只描述一个种子，现在显示全部三个配对初始化。每个点表示相同目标速度下的完整时空相对误差。容易的速度一对照不放进这个排名，因为它求解的是不同方程。",
+          "textEn": "The time profiles describe one seed, so we now show all three paired initialisations. Each point is the full space-time relative error for the same target speed. The easy speed-one control is excluded from this ranking because it solves a different equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-seeds-b1",
+          "text": "前两组总计四千步，额外预算组最多七千步。即使课程式输给直接训练，也报告全部结果。不会用论文大算例中的改进幅度替代这些本地实测结果。",
+          "textEn": "The first two groups use four thousand total steps, while the extra-budget group has up to seven thousand. We report every result even when the curriculum loses to direct training. The paper’s larger benchmark improvements are not substituted for these measured local outcomes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "transport-error",
+      "paperTrace": "paper04"
+    },
+    {
+      "id": "transport-validation",
+      "title": "低残差还需要哪些验证？",
+      "titleEn": "What must accompany a low residual?",
+      "eyebrow": "论文 04 / 20",
+      "eyebrowEn": "PAPER 04 / 20",
+      "visual": "steps",
+      "formula": "E=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+      "formulaEn": "E=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+      "bullets": [
+        "低残差还需要哪些验证？"
+      ],
+      "bulletsEn": [
+        "What must accompany a low residual?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021",
+        "transport-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "空间与时间共同检验",
+            "labelEn": "Validate across space and time",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "检查初始和周期约束",
+            "labelEn": "Check initial and periodic constraints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-validation-b0",
+          "text": "种子图使用 E，即预测场与解析参考在整个验证网格上的相对欧几里得误差。u theta 表示网络输出，u 星表示解析目标。同时还保存最大绝对误差。",
+          "textEn": "The seed plot uses E, the relative Euclidean error between the predicted field and analytic reference on the entire validation grid. U theta denotes the network output and u star denotes the analytic target. A separate maximum absolute error is also saved.",
+          "focus": 0,
+          "scene": {
+            "formula": "E=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+            "formulaEn": "E=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "transport-validation-b1",
+          "text": "还在新位置测量残差，并保留初始与周期失配。近似常数的错误场也可能有很小的输运残差，因此单独看它不够。训练检查点不由内部参考标签或验证误差选择。",
+          "textEn": "We additionally measure residuals at new locations and retain initial and periodic mismatch. A nearly constant wrong field can have a small transport residual, so that number alone is insufficient. No interior reference labels or validation errors choose the training checkpoints.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "transport-limits",
+      "title": "这个小实验没有复现什么？",
+      "titleEn": "What does this small experiment not reproduce?",
+      "eyebrow": "论文 04 / 21",
+      "eyebrowEn": "PAPER 04 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这个小实验没有复现什么？"
+      ],
+      "bulletsEn": [
+        "What does this small experiment not reproduce?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "只检验系数课程机制",
+            "labelEn": "Test coefficient continuation only",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "保留算例与优化器差异",
+            "labelEn": "Disclose problem and optimiser differences",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "transport-limits-b0",
+          "text": "受控比较用于解释机制与预算取舍。它没有复现论文的所有失效模式、更高速度的主要案例，或原始优化设置。本地实测中，直接基线可以处理目标速度十。",
+          "textEn": "The controlled comparison teaches a mechanism and a budget trade-off. It does not reproduce every failure mode in the paper, its higher-speed headline cases, or its original optimisation settings. Our target speed ten is tractable for the direct baseline in the measured runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-limits-b1",
+          "text": "也没有实现反应扩散、逐时间窗的序列学习，或 Hessian 地形研究。因此，声称延续总能提升精度会超出证据。更有用的结论是同时检验迁移路径及其消耗的计算量。",
+          "textEn": "We also did not implement reaction-diffusion, time-window sequence-to-sequence learning, or a Hessian landscape study. A claim that continuation always improves accuracy would therefore go beyond the evidence. The useful conclusion is to validate both the transfer path and the computation it consumes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "transport-exercise",
+      "title": "先预测，再改变目标速度",
+      "titleEn": "Predict before changing the target speed",
+      "eyebrow": "论文 04 / 22",
+      "eyebrowEn": "PAPER 04 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先预测，再改变目标速度"
+      ],
+      "bulletsEn": [
+        "Predict before changing the target speed"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021",
+        "transport-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保持预算与种子不变",
+            "labelEn": "Keep budgets and seeds fixed",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "检查全部场与误差",
+            "labelEn": "Inspect all fields and errors",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "transport-exercise-b0",
+          "text": "明确预算比较后，可以做一个小型后续练习。把目标速度从十增至十二，保持点数与阶段步数不变。先预测解析图像以及课程最后一次跳变会有什么变化。",
+          "textEn": "The explicit budget comparison gives a small follow-up exercise. Increase the target speed from ten to twelve while keeping point counts and stage-step settings fixed. Predict what changes in the analytic pattern and in the final curriculum jump.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "transport-exercise-b1",
+          "text": "使用下载脚本的 target-beta 选项，指定新输出文件。保持日程可见，包括某个阶段是否变成更大的系数跳跃。现在暂停，先作出预测，再比较直接与课程式误差。",
+          "textEn": "Run the downloadable script with a new output file and the target-beta option. Keep the declared schedule visible, including any stage that becomes a larger coefficient jump. Pause now and state a prediction before comparing direct and curriculum errors.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "next-time-causality",
+      "title": "为什么下一篇要关注时间顺序？",
+      "titleEn": "Why focus on temporal order next?",
+      "eyebrow": "论文 04 / 23",
+      "eyebrowEn": "PAPER 04 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么下一篇要关注时间顺序？"
+      ],
+      "bulletsEn": [
+        "Why focus on temporal order next?"
+      ],
+      "sourceIds": [
+        "krishnapriyan2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇改变方程难度",
+            "labelEn": "This paper changes equation difficulty",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一篇组织时间残差",
+            "labelEn": "Next organise temporal residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "next-time-causality-b0",
+          "text": "系数延续改变训练哪个物理方程，但每阶段仍同时优化整个时间区间的残差。于是出现另一个问题：较早动力学还未学好时，较晚残差是否应该得到全部关注？这引出因果训练。",
+          "textEn": "Coefficient continuation changes which physical equation is trained, but each stage still optimises residuals over the entire time interval together. That leaves a separate question: should later-time residuals receive full attention before earlier dynamics are learned. This motivates causal training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "next-time-causality-b1",
+          "text": "第五篇使用可解析检验的弹簧振子继续检查时间残差权重。区分物理时间、优化器更新和系数阶段，不把它们当成同一轴。打开下一篇，就能检查真实门控、状态轨迹与能量。",
+          "textEn": "Paper Five continues with temporal residual weights on an analytically checkable spring oscillator. It distinguishes physical time, optimiser updates and coefficient stages rather than treating them as the same axis. Open the next presentation to inspect actual gates, state trajectories and energy checks.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

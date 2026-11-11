@@ -17,6 +17,18 @@
       "number": 3,
       "courseRoot": "courses/pinns-papers/03-wang-2020-gradients",
       "published": true
+    },
+    {
+      "id": "krishnapriyan2021",
+      "number": 4,
+      "courseRoot": "courses/pinns-papers/04-krishnapriyan-2021-curriculum",
+      "published": true
+    },
+    {
+      "id": "wang2022",
+      "number": 5,
+      "courseRoot": "courses/pinns-papers/05-wang-2022-causality",
+      "published": true
     }
   ]
 }

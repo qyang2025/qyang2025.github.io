@@ -1,0 +1,47 @@
+{
+  "id": "krishnapriyan2021",
+  "paper": {
+    "number": 4,
+    "shortTitle": "Krishnapriyan 2021 · Curriculum",
+    "title": "Krishnapriyan et al. (NeurIPS 2021), Characterizing possible failure modes in physics-informed neural networks",
+    "url": "https://arxiv.org/html/2109.01050v2",
+    "year": 2021,
+    "scope": "Independent periodic convection adaptation of sections 3.1 and 5.1. Adam, target beta 10; not the original benchmark or time-window sequence-to-sequence implementation."
+  },
+  "title": "Paper 04: Transport and curriculum training",
+  "titleZh": "论文 04：输运失效模式与课程式训练",
+  "totalMinutes": 40,
+  "download": "paper-04.zip",
+  "modules": [
+    {
+      "id": "139afec2-2021-4004-8004-000000000004",
+      "index": 0,
+      "title": "论文 04：输运失效模式与课程式训练",
+      "titleEn": "Paper 04: Transport and curriculum training",
+      "file": "1.json",
+      "pages": 23,
+      "sentenceCount": 136,
+      "plannedMinutes": 40
+    }
+  ],
+  "sources": [
+    {
+      "id": "krishnapriyan2021",
+      "name": "Krishnapriyan et al. (NeurIPS 2021), Characterizing possible failure modes in physics-informed neural networks",
+      "url": "https://arxiv.org/html/2109.01050v2",
+      "text": "Sections 3.1 and 5.1: periodic convection and coefficient-curriculum regularisation. This independent small experiment uses Adam and does not reproduce the paper’s larger benchmark or sequence-to-sequence method."
+    },
+    {
+      "id": "authors-convection",
+      "name": "Authors’ failure-modes implementation",
+      "url": "https://github.com/a1k12/characterizing-pinns-failure-modes",
+      "text": "Original code and benchmark settings. Our network, point count, optimiser and schedule are deliberately smaller and independently stated."
+    },
+    {
+      "id": "transport-local",
+      "name": "Actual paired CPU transport experiments",
+      "url": "/courses/pinns-papers/04-krishnapriyan-2021-curriculum/trace.json",
+      "text": "Three seeds, easy and direct controls, equal-total-step continuation and a separately labelled extra-budget continuation. Analytic reference, full fields, stage boundaries and all results are retained."
+    }
+  ]
+}

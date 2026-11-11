@@ -383,8 +383,8 @@
         },
         {
           "id": "poisson-physical-b1",
-          "text": "金线表示位移，蓝色标记表示外加载荷。张力归一化为常数后，载荷与负曲率成正比。这个物理图像引出一维 Poisson 方程，也解释了端点约束的意义。",
-          "textEn": "The gold curve is the displacement, and the blue marks represent the applied load. With a normalised constant tension, load is proportional to negative curvature. This physical picture leads to a one-dimensional Poisson equation and makes the endpoint constraints meaningful.",
+          "text": "金线表示沿位置 x 的位移 u，蓝色标记表示外加载荷。张力归一化为常数后，载荷与负曲率成正比。这个物理图像引出一维 Poisson 方程，也解释了端点约束的意义。",
+          "textEn": "The gold curve is displacement u along position x, and the blue marks represent the applied load. With a normalised constant tension, load is proportional to negative curvature. This physical picture leads to a one-dimensional Poisson equation and makes the endpoint constraints meaningful.",
           "focus": 0,
           "scene": {
             "formula": "",

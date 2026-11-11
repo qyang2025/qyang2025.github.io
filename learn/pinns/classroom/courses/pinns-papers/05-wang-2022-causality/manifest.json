@@ -1,0 +1,47 @@
+{
+  "id": "wang2022",
+  "paper": {
+    "number": 5,
+    "shortTitle": "Wang 2022 · Causality",
+    "title": "Wang, Sankaran & Perdikaris (2022), Respecting causality is all you need for training physics-informed neural networks",
+    "url": "https://arxiv.org/html/2203.07404v1",
+    "year": 2022,
+    "scope": "Independent harmonic-oscillator ODE adaptation of section 3 residual weighting. Hard initial values, eight bins and a fixed training ceiling; not chaotic/turbulent benchmarks or full Algorithm 1 reproduction."
+  },
+  "title": "Paper 05: Causal weighting and oscillator validation",
+  "titleZh": "论文 05：时间因果加权与振子验证",
+  "totalMinutes": 40,
+  "download": "paper-05.zip",
+  "modules": [
+    {
+      "id": "139afec2-2022-4005-8005-000000000005",
+      "index": 0,
+      "title": "论文 05：时间因果加权与振子验证",
+      "titleEn": "Paper 05: Causal weighting and oscillator validation",
+      "file": "1.json",
+      "pages": 24,
+      "sentenceCount": 142,
+      "plannedMinutes": 40
+    }
+  ],
+  "sources": [
+    {
+      "id": "wang2022",
+      "name": "Wang, Sankaran & Perdikaris (2022), Respecting causality is all you need for training physics-informed neural networks",
+      "url": "https://arxiv.org/html/2203.07404v1",
+      "text": "Section 3, especially equations 3.1–3.3: ordered residual losses with detached exponential prefix weights. Our oscillator, hard initial condition and fixed training ceiling are independent teaching adaptations, not the paper’s chaotic or turbulent benchmarks."
+    },
+    {
+      "id": "authors-causal",
+      "name": "Authors’ CausalPINNs implementation",
+      "url": "https://github.com/PredictiveIntelligenceLab/CausalPINNs",
+      "text": "Original implementation and benchmark details. The paper also uses time windows and modified MLPs; those are not reproduced here."
+    },
+    {
+      "id": "causal-local",
+      "name": "All nine CPU oscillator runs and temporal gate histories",
+      "url": "/courses/pinns-papers/05-wang-2022-causality/trace.json",
+      "text": "Three seeds, uniform/fixed-epsilon/annealed-epsilon policies, 64 residual times in eight ordered bins, 1298 parameters, hard initial values, 90-second cap and 6000-update ceiling. Actual steps, epsilon events, energy and held-out residuals are disclosed."
+    }
+  ]
+}

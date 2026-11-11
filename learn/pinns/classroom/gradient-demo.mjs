@@ -13,7 +13,7 @@ export function drawGradient(host,trace,progress,en){
  if(kind==='gradient-physical'){
   const a=Math.min(1,progress*3),right=trace.reference.boundary[1],values=trace.x.map((x,i)=>right*x+a*(trace.truth[i]-right*x));
   const points=values.map((u,i)=>`${60+480*trace.x[i]},${115-u*50}`).join(' ');
-  const loads=[...Array(9)].map((_,i)=>{const x=(i+1)/10,dy=Math.sin(trace.config.frequency*x)*a*33;return `<path d="M${60+480*x} ${36-dy}v${dy}" stroke="#79d4ef" stroke-width="2.5"/><circle cx="${60+480*x}" cy="36" r="3" fill="#79d4ef"/>`;}).join('');
+  const loads=[...Array(9)].map((_,i)=>{const x=(i+1)/10,dy=Math.sin(trace.config.frequency*x)*a*33;return `<path d="M${60+480*x} ${68}v${-dy}" stroke="#79d4ef" stroke-width="2.5"/><circle cx="${60+480*x}" cy="${68-dy}" r="3" fill="#79d4ef"/>`;}).join('');
   svg.innerHTML=`<path d="M60 112v22M540 ${112-right*50}v22M60 115H540" stroke="#8b9ca3" stroke-width="2"/>${loads}<polyline points="${points}" fill="none" stroke="#ffe071" stroke-width="4"/>`+axis('u',20,78)+axis('x',558,147)+text(60,196,'0')+text(540,196,'1')+text(300,222,en?'Load ramp: equilibria, not time integration':'逐步加载：平衡形状，不是时间积分')+text(300,251,en?'Fixed end positions':'端点位置固定');host.dataset.loadFraction=String(a);return;
  }
  if(kind==='gradient-training'){

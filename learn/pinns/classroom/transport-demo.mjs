@@ -22,7 +22,7 @@ export function drawTransport(host,trace,progress,en){
  if(kind==='transport-training'){
   const frame=m=>transportFrame(trace,m,progress);
   svg.innerHTML=`<path d="M60 25V185H555" fill="none" stroke="#ced8df" stroke-width="2.8"/>`+line(trace.truth.at(-1),'#d5dce0',true)+modes.map(m=>line(frame(m).curve,colours[m])).join('')+axis('u',15,5)+axis('x',560,170)+text(60,211,'0')+axis(String.raw`2\pi`,520,190)+text(300,22,en?'Final-time field · target reference':'终止时刻场 · 目标参考')+legend();
-  const f=frame('curriculum');output.textContent=en?`Stage β=${f.beta} · final-target error ${(100*f.targetRelativeL2).toFixed(1)}%`:`阶段 β=${f.beta} · 最终目标误差 ${(100*f.targetRelativeL2).toFixed(1)}%`;host.dataset.curriculumBeta=String(f.beta);host.dataset.curriculumError=String(f.targetRelativeL2);host.dataset.step=String(f.step);return;
+  const f=frame('curriculum');output.textContent=en?`Curriculum β=${f.beta} · target error ${(100*f.targetRelativeL2).toFixed(1)}%`:`课程式 β=${f.beta} · 目标误差 ${(100*f.targetRelativeL2).toFixed(1)}%`;host.dataset.curriculumBeta=String(f.beta);host.dataset.curriculumError=String(f.targetRelativeL2);host.dataset.step=String(f.step);return;
  }
  if(kind==='transport-time-error'){
   const values=modes.map(m=>fieldErrorsByTime(trace,m)),upper=Math.max(...values.flat())*1.12,points=row=>row.map((u,i)=>`${60+480*trace.times[i]},${185-150*u/upper}`).join(' ');

@@ -49,19 +49,21 @@
     },
     {
       "number": "04",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Krishnapriyan et al. (NeurIPS 2021)",
       "source": "https://arxiv.org/abs/2109.01050",
       "topic": "Failure modes and curriculum training",
-      "scope": "A one-dimensional convection example with an analytic solution; change one difficulty parameter at a time."
+      "scope": "Independent periodic convection adaptation of sections 3.1 and 5.1. Adam, target beta 10; not the original benchmark or time-window sequence-to-sequence implementation.",
+      "classroom": "classroom/?paper=krishnapriyan2021&language=en"
     },
     {
       "number": "05",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Wang, Sankaran & Perdikaris (2022 preprint)",
       "source": "https://arxiv.org/abs/2203.07404",
       "topic": "Respecting temporal causality",
-      "scope": "Demonstrate causal weighting on a small time-dependent problem, not a turbulent-flow reproduction."
+      "scope": "Independent harmonic-oscillator ODE adaptation of section 3 residual weighting. Hard initial values, eight bins and a fixed training ceiling; not chaotic/turbulent benchmarks or full Algorithm 1 reproduction.",
+      "classroom": "classroom/?paper=wang2022&language=en"
     }
   ]
 }
