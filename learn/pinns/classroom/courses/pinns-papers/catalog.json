@@ -11,6 +11,12 @@
       "number": 2,
       "courseRoot": "courses/pinns-papers/02-raissi-2017-part-ii",
       "published": true
+    },
+    {
+      "id": "wang2020",
+      "number": 3,
+      "courseRoot": "courses/pinns-papers/03-wang-2020-gradients",
+      "published": true
     }
   ]
 }

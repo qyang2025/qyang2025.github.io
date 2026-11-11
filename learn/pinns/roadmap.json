@@ -26,7 +26,8 @@
       "paper": "Raissi, Perdikaris & Karniadakis (2017), Part I",
       "source": "https://arxiv.org/abs/1711.10561",
       "topic": "Continuous-time Burgers PINN",
-      "scope": "Short-window forward solve; residual construction; automatic differentiation; a data-only control."
+      "scope": "Short-window forward solve; residual construction; automatic differentiation; a data-only control.",
+      "classroom": "classroom/?paper=raissi2017&language=en"
     },
     {
       "number": "02",
@@ -39,11 +40,12 @@
     },
     {
       "number": "03",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Wang, Teng & Perdikaris (2020 preprint)",
       "source": "https://arxiv.org/abs/2001.04536",
       "topic": "Unbalanced gradients and loss terms",
-      "scope": "A small one-dimensional Poisson adaptation with an analytic reference; inspect gradient scales before testing balancing."
+      "scope": "Independent 1-D Poisson adaptation of sections 2.3 and 2.5; no reproduction of the 2-D benchmarks or gated architecture.",
+      "classroom": "classroom/?paper=wang2020&language=en"
     },
     {
       "number": "04",

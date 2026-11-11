@@ -1,0 +1,3412 @@
+{
+  "id": "139afec2-2020-4003-8003-000000000003",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-03",
+  "chapterIndex": 0,
+  "title": "论文 03：梯度病态与损失平衡",
+  "titleEn": "Paper 03: Gradient pathologies and loss balancing",
+  "summary": "从一维 Poisson 物理图像到梯度统计，比较十二次真实 CPU 实验，保留失效与限幅结果。",
+  "summaryEn": "From a Poisson physical picture to gradient statistics: twelve CPU runs, including failures and saturated safeguards.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "wang2020",
+      "name": "Wang, Teng & Perdikaris (2020), Understanding and mitigating gradient pathologies in physics-informed neural networks",
+      "url": "https://arxiv.org/html/2001.04536v1",
+      "text": "Sections 2.3 and 2.5: the one-dimensional Poisson diagnostic and Algorithm 1. The gated architecture and larger two-dimensional benchmarks are outside this teaching implementation."
+    },
+    {
+      "id": "authors-code",
+      "name": "Authors’ GradientPathologiesPINNs repository",
+      "url": "https://github.com/PredictiveIntelligenceLab/GradientPathologiesPINNs",
+      "text": "Original implementation reference. Our compact PyTorch experiment follows the displayed ratio rule, with explicitly stated numerical guards, rather than claiming original benchmark reproduction."
+    },
+    {
+      "id": "torch-autograd",
+      "name": "PyTorch automatic differentiation",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad.html",
+      "text": "Official autograd.grad documentation. Per-objective gradients are measured before adding weighted objectives."
+    },
+    {
+      "id": "poisson-local",
+      "name": "All twelve executed CPU runs and gradient statistics",
+      "url": "/courses/pinns-papers/03-wang-2020-gradients/trace.json",
+      "text": "Three paired seeds, four loss-weight policies, 64 residual points, two boundary values, 1273 parameters, four CPU threads. All failures and all guarded weight saturations are retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理问题与约束",
+      "titleEn": "Physical constraints"
+    },
+    {
+      "slide": 7,
+      "title": "梯度与控制器",
+      "titleEn": "Gradients and controllers"
+    },
+    {
+      "slide": 15,
+      "title": "实验与适用边界",
+      "titleEn": "Evidence and limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 03：梯度病态与损失平衡",
+      "titleEn": "Paper 03: Gradient pathologies and loss balancing",
+      "eyebrow": "PINNs 论文 03 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 03 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从一维 Poisson 物理图像到梯度统计，比较十二次真实 CPU 实验，保留失效与限幅结果。"
+      ],
+      "bulletsEn": [
+        "From a Poisson physical picture to gradient statistics: twelve CPU runs, including failures and saturated safeguards."
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理问题与约束",
+            "labelEn": "Physical constraints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "梯度与控制器",
+            "labelEn": "Gradients and controllers",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "实验与适用边界",
+            "labelEn": "Evidence and limits",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "第二篇识别了物理系数，本篇追问多个损失怎样影响共享网络的更新。先从受载细弦图像连接到 Poisson 约束，再解释梯度统计与权重控制器。最后用十二次真实 CPU 运行检验控制器，并展示它们的适用边界。",
+          "textEn": "Part II identified physical coefficients, so this presentation asks how competing losses influence shared network updates. We will connect a loaded-string picture to Poisson constraints, then explain gradient statistics and weight controllers. Finally, twelve actual CPU runs will test the controllers and expose their limitations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "why-gradients",
+      "title": "物理写对以后，为什么还要研究训练？",
+      "titleEn": "Why study training after writing the physics?",
+      "eyebrow": "论文 03 / 2",
+      "eyebrowEn": "PAPER 03 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "物理写对以后，为什么还要研究训练？"
+      ],
+      "bulletsEn": [
+        "Why study training after writing the physics?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "同一个网络",
+            "labelEn": "One shared network",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不同更新信号",
+            "labelEn": "Different update signals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "why-gradients-b0",
+          "text": "第二篇用共同目标连接了观测和未知系数，但没有保证各个目标都能适当地影响训练。同一个网络必须同时响应数据和基于导数的物理约束。今天先检查更新信号，而不是认为把损失相加就足够。",
+          "textEn": "Part II connected observations and unknown coefficients through a common objective, but it did not guarantee that each objective would influence training appropriately. The same network must respond to data and derivative-based physics. Today we inspect the update signals rather than assuming that adding the losses is enough.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "why-gradients-b1",
+          "text": "第二个框讨论的是优化，不是另一个未知材料系数。边界失配与物理失配可能以不同尺度拉动共享参数。本课会测量梯度、检验论文的平衡规则，并保留它表现不好的案例。",
+          "textEn": "The next box is about optimisation, not another unknown material coefficient. A boundary mismatch and a physics mismatch can pull shared parameters at different scales. We will measure those gradients, test a published balancing rule, and retain a case where that rule performs poorly.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "poisson-physical",
+      "title": "先看一根受载细弦的平衡形状",
+      "titleEn": "Start with the equilibrium of a loaded string",
+      "eyebrow": "论文 03 / 3",
+      "eyebrowEn": "PAPER 03 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看一根受载细弦的平衡形状"
+      ],
+      "bulletsEn": [
+        "Start with the equilibrium of a loaded string"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "poisson-physical-b0",
+          "text": "在对网络求导前，先想象一根端点位置已给定的张紧细弦。分布横向载荷使它偏离两端之间的直线。动画逐步增大载荷，展示一组静态平衡形状，不是瞬态模拟。",
+          "textEn": "Before differentiating a network, picture a taut string with prescribed end positions. A distributed transverse load bends it away from the straight line between its ends. The animation increases the load through a family of static equilibria, so it is not a transient simulation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "poisson-physical-b1",
+          "text": "金线表示位移，蓝色标记表示外加载荷。张力归一化为常数后，载荷与负曲率成正比。这个物理图像引出一维 Poisson 方程，也解释了端点约束的意义。",
+          "textEn": "The gold curve is the displacement, and the blue marks represent the applied load. With a normalised constant tension, load is proportional to negative curvature. This physical picture leads to a one-dimensional Poisson equation and makes the endpoint constraints meaningful.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "gradient-physical",
+      "paperTrace": "paper03"
+    },
+    {
+      "id": "poisson-equation",
+      "title": "用曲率描述物理约束",
+      "titleEn": "Describe the physics through curvature",
+      "eyebrow": "论文 03 / 4",
+      "eyebrowEn": "PAPER 03 / 4",
+      "visual": "steps",
+      "formula": "u_{xx}(x)=g(x),\\qquad x\\in[0,1]",
+      "formulaEn": "u_{xx}(x)=g(x),\\qquad x\\in[0,1]",
+      "bullets": [
+        "用曲率描述物理约束"
+      ],
+      "bulletsEn": [
+        "Describe the physics through curvature"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "位移的曲率",
+            "labelEn": "Curvature of displacement",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "给定的源项",
+            "labelEn": "Prescribed source",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "poisson-equation-b0",
+          "text": "受载细弦给出了方程的背景，现在先说明变量。x 是无量纲位置，u 是横向位移，g 是给定的曲率源项。下标 x x 表示对位置求二阶导数。",
+          "textEn": "The loaded string motivates the equation, so let us name its variables before using them. Here x is the dimensionless position, u is transverse displacement, and g is the prescribed curvature source. The subscript x x means the second derivative with respect to position.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_{xx}(x)=g(x),\\qquad x\\in[0,1]",
+            "formulaEn": "u_{xx}(x)=g(x),\\qquad x\\in[0,1]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "poisson-equation-b1",
+          "text": "第二个框是已知输入，而不是网络预测。本实验给定 g 等于负十六乘以四 x 的正弦。网络必须再现相应曲率，但不会获得内部解值标签。",
+          "textEn": "The second box is known input rather than a neural prediction. For this experiment we prescribe g of x as minus sixteen times sine of four x. The neural network must reproduce the corresponding curvature without being given interior solution labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "poisson-boundaries",
+      "title": "端点约束选出哪一个解？",
+      "titleEn": "Which solution do the endpoints select?",
+      "eyebrow": "论文 03 / 5",
+      "eyebrowEn": "PAPER 03 / 5",
+      "visual": "steps",
+      "formula": "u(0)=0,\\qquad u(1)=\\sin 4",
+      "formulaEn": "u(0)=0,\\qquad u(1)=\\sin 4",
+      "bullets": [
+        "端点约束选出哪一个解？"
+      ],
+      "bulletsEn": [
+        "Which solution do the endpoints select?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "左端位移为零",
+            "labelEn": "Left displacement: zero",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "右端位移已知",
+            "labelEn": "Right displacement: known",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "poisson-boundaries-b0",
+          "text": "方程规定了曲率，但一条形状还需要端点位置。左端位移为零。右端指定为四的正弦，它是负数，特意不是另一个零边界。",
+          "textEn": "The equation specifies curvature, but a shape also needs its end positions. The left endpoint has zero displacement. The right endpoint is prescribed as sine of four, which is negative and is deliberately not another zero boundary.",
+          "focus": 0,
+          "scene": {
+            "formula": "u(0)=0,\\qquad u(1)=\\sin 4",
+            "formulaEn": "u(0)=0,\\qquad u(1)=\\sin 4",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "poisson-boundaries-b1",
+          "text": "这些条件共同选出解析解，即四 x 的正弦。我们用解析式在独立网格上检验预测。训练只获得两个端点值和给定源项。",
+          "textEn": "Together these conditions select the analytic solution sine of four x. We use that formula to verify predictions on a separate grid. During training, only its two endpoint values and the prescribed source are supplied.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "poisson-nullspace",
+      "title": "曲率正确，形状仍可能错误",
+      "titleEn": "Correct curvature can still give the wrong shape",
+      "eyebrow": "论文 03 / 6",
+      "eyebrowEn": "PAPER 03 / 6",
+      "visual": "steps",
+      "formula": "\\widetilde u=u+a x+b\\quad\\Longrightarrow\\quad\\widetilde u_{xx}=u_{xx}",
+      "formulaEn": "\\widetilde u=u+a x+b\\quad\\Longrightarrow\\quad\\widetilde u_{xx}=u_{xx}",
+      "bullets": [
+        "曲率正确，形状仍可能错误"
+      ],
+      "bulletsEn": [
+        "Correct curvature can still give the wrong shape"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "加上一条直线",
+            "labelEn": "Add a straight line",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "二阶导数不变",
+            "labelEn": "Curvature is unchanged",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "poisson-nullspace-b0",
+          "text": "端点很重要，因为仅靠方程无法区分所有形状。这里 a 和 b 是任意常数，用来描述一条附加直线。直线的二阶导数为零。",
+          "textEn": "The endpoints matter because the equation alone does not distinguish every possible shape. In this expression, a and b are arbitrary constants describing a straight-line offset. Its second derivative is zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\widetilde u=u+a x+b\\quad\\Longrightarrow\\quad\\widetilde u_{xx}=u_{xx}",
+            "formulaEn": "\\widetilde u=u+a x+b\\quad\\Longrightarrow\\quad\\widetilde u_{xx}=u_{xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "poisson-nullspace-b1",
+          "text": "因此，修改后的场满足完全相同的源项方程，却通常不满足端点。这个示意图具体说明了为何必须同时检查残差和边界误差。物理残差小，不能单独证明边值问题已解对。",
+          "textEn": "The modified field therefore satisfies exactly the same source equation while generally missing the endpoints. This schematic is a concrete reason to inspect both the residual and the boundary error. A small physics residual alone cannot certify the boundary-value solution.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "poisson-loss",
+      "title": "把两个要求连到同一个目标",
+      "titleEn": "Connect both requirements to one objective",
+      "eyebrow": "论文 03 / 7",
+      "eyebrowEn": "PAPER 03 / 7",
+      "visual": "steps",
+      "formula": "\\mathcal L=\\mathcal L_r+w\\mathcal L_b",
+      "formulaEn": "\\mathcal L=\\mathcal L_r+w\\mathcal L_b",
+      "bullets": [
+        "把两个要求连到同一个目标"
+      ],
+      "bulletsEn": [
+        "Connect both requirements to one objective"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "\\(\\mathcal L_r\\): 曲率失配",
+            "labelEn": "\\(\\mathcal L_r\\): curvature mismatch",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "\\(\\mathcal L_b\\): 端点失配",
+            "labelEn": "\\(\\mathcal L_b\\): endpoint mismatch",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "poisson-loss-b0",
+          "text": "现在把两个约束写成同一个参数为 theta 的网络的损失。L r 是内部测试点上的曲率残差均方。L b 是两个端点的位移失配均方。",
+          "textEn": "The two constraints now become losses for one network with parameters theta. L r is the mean squared curvature residual at interior test points. L b is the mean squared displacement mismatch at the two endpoints.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L=\\mathcal L_r+w\\mathcal L_b",
+            "formulaEn": "\\mathcal L=\\mathcal L_r+w\\mathcal L_b",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "poisson-loss-b1",
+          "text": "标量 w 控制边界拟合的贡献。它是损失权重，不是第二篇 Burgers 方程的物理系数 lambda。论文用 lambda 表示损失权重，这里改用 w，以免混淆优化设置和物理属性。",
+          "textEn": "The scalar w controls the contribution of boundary fitting. It is a loss weight, not the Burgers coefficient lambda from Part II. The authors use lambda for loss weights, but we rename it w to avoid mixing an optimisation setting with a physical property.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-definition",
+      "title": "训练响应梯度，而不只是损失数值",
+      "titleEn": "Training responds to gradients, not just loss values",
+      "eyebrow": "论文 03 / 8",
+      "eyebrowEn": "PAPER 03 / 8",
+      "visual": "steps",
+      "formula": "g_r=\\nabla_\\theta\\mathcal L_r,\\qquad g_b=\\nabla_\\theta\\mathcal L_b",
+      "formulaEn": "g_r=\\nabla_\\theta\\mathcal L_r,\\qquad g_b=\\nabla_\\theta\\mathcal L_b",
+      "bullets": [
+        "训练响应梯度，而不只是损失数值"
+      ],
+      "bulletsEn": [
+        "Training responds to gradients, not just loss values"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理项的更新信号",
+            "labelEn": "Physics update signal",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "边界项的更新信号",
+            "labelEn": "Boundary update signal",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-definition-b0",
+          "text": "共同目标引出一个问题：每项要求怎样改变参数？nabla theta 表示对网络参数求导。把残差梯度记为 g r，把边界梯度记为 g b。",
+          "textEn": "The shared objective raises the question of how each requirement changes the parameters. The symbol nabla theta means differentiation with respect to the network parameters. We call the residual gradient g r and the boundary gradient g b.",
+          "focus": 0,
+          "scene": {
+            "formula": "g_r=\\nabla_\\theta\\mathcal L_r,\\qquad g_b=\\nabla_\\theta\\mathcal L_b",
+            "formulaEn": "g_r=\\nabla_\\theta\\mathcal L_r,\\qquad g_b=\\nabla_\\theta\\mathcal L_b",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "gradient-definition-b1",
+          "text": "两者都是向量，每个可训练标量对应一个坐标。损失值相等，并不意味着梯度大小相等。诊断失衡时，要先分别测量两个梯度，再把它们组合。",
+          "textEn": "Both are vectors with one coordinate for each trainable scalar. Equal loss values need not produce equally sized gradients. To diagnose an imbalance, we measure the two gradient vectors separately before combining them.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-update",
+      "title": "两个信号怎样共同拉动网络？",
+      "titleEn": "How do the two signals move the network?",
+      "eyebrow": "论文 03 / 9",
+      "eyebrowEn": "PAPER 03 / 9",
+      "visual": "steps",
+      "formula": "\\theta_{n+1}=\\theta_n-\\eta\\bigl(g_r+w g_b\\bigr)",
+      "formulaEn": "\\theta_{n+1}=\\theta_n-\\eta\\bigl(g_r+w g_b\\bigr)",
+      "bullets": [
+        "两个信号怎样共同拉动网络？"
+      ],
+      "bulletsEn": [
+        "How do the two signals move the network?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "先缩放边界信号",
+            "labelEn": "Scale the boundary signal",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "再形成共同更新",
+            "labelEn": "Form the shared update",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-update-b0",
+          "text": "梯度向量让损失权重的作用变得明确。n 表示训练更新次数，eta 是学习率。普通梯度下降把 g r 与 w 倍的 g b 组合起来，形成参数变化。",
+          "textEn": "The gradient vectors make the role of the loss weight explicit. Here n counts training updates, and eta is the learning rate. For simple gradient descent, the proposed parameter movement combines g r with w times g b.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\theta_{n+1}=\\theta_n-\\eta\\bigl(g_r+w g_b\\bigr)",
+            "formulaEn": "\\theta_{n+1}=\\theta_n-\\eta\\bigl(g_r+w g_b\\bigr)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "gradient-update-b1",
+          "text": "本实验使用 Adam，它还会用动量估计进一步变换合成梯度。显示的方程用于解释权重如何改变进入优化器的信号，不表示每一步 Adam 都严格遵循这个直向量公式。",
+          "textEn": "Our experiment uses Adam, which further transforms the combined gradient with its moment estimates. The displayed equation explains why weighting changes the signal entering the optimiser. It is not a claim that every Adam step follows this exact straight-vector formula.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-scales",
+      "title": "怎样把大量梯度坐标压缩成统计量？",
+      "titleEn": "How do we summarise many gradient coordinates?",
+      "eyebrow": "论文 03 / 10",
+      "eyebrowEn": "PAPER 03 / 10",
+      "visual": "steps",
+      "formula": "G_r=\\max_j |(g_r)_j|,\\qquad G_b=\\frac1P\\sum_{j=1}^{P}|(g_b)_j|",
+      "formulaEn": "G_r=\\max_j |(g_r)_j|,\\qquad G_b=\\frac1P\\sum_{j=1}^{P}|(g_b)_j|",
+      "bullets": [
+        "怎样把大量梯度坐标压缩成统计量？"
+      ],
+      "bulletsEn": [
+        "How do we summarise many gradient coordinates?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理梯度的最大绝对值",
+            "labelEn": "Largest residual coordinate",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "边界梯度的平均绝对值",
+            "labelEn": "Mean boundary magnitude",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-scales-b0",
+          "text": "一个网络有许多梯度坐标，因此需要明确统计量，不能凭损失曲线的外观判断。j 标记一个可训练标量，P 是这些标量的总数。G r 是残差梯度坐标的最大绝对值。",
+          "textEn": "A single network has many gradient coordinates, so we need explicit statistics rather than an impression from a loss curve. The index j labels a trainable scalar, and P is the total number of such scalars. G r is the largest absolute residual-gradient coordinate.",
+          "focus": 0,
+          "scene": {
+            "formula": "G_r=\\max_j |(g_r)_j|,\\qquad G_b=\\frac1P\\sum_{j=1}^{P}|(g_b)_j|",
+            "formulaEn": "G_r=\\max_j |(g_r)_j|,\\qquad G_b=\\frac1P\\sum_{j=1}^{P}|(g_b)_j|",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "gradient-scales-b1",
+          "text": "G b 是边界梯度坐标绝对值的平均数。实现中包含全部可训练标量，若残差与某参数无关，相应坐标记零。这些最大值和平均值，与后面诊断图里的欧几里得范数不同。",
+          "textEn": "G b is the mean absolute boundary-gradient coordinate. Our implementation includes all trainable scalars, placing zero in a coordinate when the residual does not depend on that parameter. These maximum and mean statistics differ from the Euclidean norms shown in later diagnostic plots.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-ratio",
+      "title": "论文用什么比值调整边界权重？",
+      "titleEn": "Which ratio sets the proposed boundary weight?",
+      "eyebrow": "论文 03 / 11",
+      "eyebrowEn": "PAPER 03 / 11",
+      "visual": "steps",
+      "formula": "\\widehat w=\\frac{G_r}{G_b}",
+      "formulaEn": "\\widehat w=\\frac{G_r}{G_b}",
+      "bullets": [
+        "论文用什么比值调整边界权重？"
+      ],
+      "bulletsEn": [
+        "Which ratio sets the proposed boundary weight?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "比较两种梯度统计",
+            "labelEn": "Compare gradient statistics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "建议新的边界权重",
+            "labelEn": "Propose a boundary weight",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-ratio-b0",
+          "text": "测得的统计量直接引出论文的比值规则。w 帽表示建议的新权重，而不是已经使用的权重。当 G b 相对 G r 很小时，这个规则建议增大边界贡献。",
+          "textEn": "The measured statistics lead directly to the paper’s ratio rule. W hat means a proposed new weight rather than the weight already applied. A small G b relative to G r suggests increasing the boundary contribution.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\widehat w=\\frac{G_r}{G_b}",
+            "formulaEn": "\\widehat w=\\frac{G_r}{G_b}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "gradient-ratio-b1",
+          "text": "显示规则的分母是未加权边界梯度的统计量。它既不强制两个向量范数相等，也不能解决梯度方向相反的问题。如果 G b 极小，建议权重也可能变得极大。",
+          "textEn": "The denominator is the unweighted boundary-gradient statistic in the displayed rule. This does not force the two vector norms to be equal, and it does not fix opposing gradient directions. If G b becomes extremely small, the proposed weight can also become extremely large.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-smoothing",
+      "title": "为何不让权重瞬间跳到建议值？",
+      "titleEn": "Why smooth the proposed weight?",
+      "eyebrow": "论文 03 / 12",
+      "eyebrowEn": "PAPER 03 / 12",
+      "visual": "steps",
+      "formula": "w\\leftarrow(1-\\alpha)w+\\alpha\\widehat w",
+      "formulaEn": "w\\leftarrow(1-\\alpha)w+\\alpha\\widehat w",
+      "bullets": [
+        "为何不让权重瞬间跳到建议值？"
+      ],
+      "bulletsEn": [
+        "Why smooth the proposed weight?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留一部分旧值",
+            "labelEn": "Retain part of the old value",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "逐步吸收新的建议",
+            "labelEn": "Incorporate the proposal",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-smoothing-b0",
+          "text": "建议值可能很大或有波动，因此在下次优化更新前先做平滑。alpha 是零到一之间的混合比例。alpha 越大，新建议的影响越大，所以论文的零点九属于较快更新。",
+          "textEn": "A large or noisy proposal motivates smoothing before the next optimiser update. Alpha is a mixing fraction between zero and one. A larger alpha gives more influence to the new proposal, so the paper’s alpha of zero point nine is a fast update.",
+          "focus": 0,
+          "scene": {
+            "formula": "w\\leftarrow(1-\\alpha)w+\\alpha\\widehat w",
+            "formulaEn": "w\\leftarrow(1-\\alpha)w+\\alpha\\widehat w",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "gradient-smoothing-b1",
+          "text": "本实验每十步 Adam 重新计算建议值，这也是论文讨论过的更新频率。两次检查之间保持权重不变。权重作为已脱离计算图的控制器数值，不对控制器本身反向传播。",
+          "textEn": "We recompute the proposal every ten Adam steps, a frequency discussed in the paper. Between those checks the weight is held fixed. The weight is a detached controller value, so back-propagation does not differentiate through the controller itself.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-code-stats",
+      "title": "代码先分别求两个目标的梯度",
+      "titleEn": "First differentiate each objective separately",
+      "eyebrow": "论文 03 / 13",
+      "eyebrowEn": "PAPER 03 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "代码先分别求两个目标的梯度"
+      ],
+      "bulletsEn": [
+        "First differentiate each objective separately"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-code-stats-b0",
+          "text": "比值的组成已经明确，现在把它连接到实际代码。分别通过 autograd 调用获得残差和边界梯度。保留计算图，允许之后再对合成目标求导。",
+          "textEn": "The ratio has precise ingredients, so let us connect it to the executed code. We obtain the residual gradient and the boundary gradient from separate autograd calls. Retaining the graph allows the final combined objective to be differentiated afterwards.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-code-stats-b1",
+          "text": "辅助函数先把未使用参数的梯度替换为同形零张量，再展平向量。随后把诊断向量脱离计算图。这样两个统计量采用同一套参数坐标，而不是把不存在的导数当成缺失数据。",
+          "textEn": "The helper replaces an unused parameter gradient with a matching zero tensor before flattening. It then detaches the diagnostic vectors. This preserves the same parameter-coordinate convention in both statistics without treating an absent derivative as missing data.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "gradient-code",
+      "paperTrace": "paper03",
+      "demoCode": [
+        "gr = gradients(Lr, params)",
+        "gb = gradients(Lb, params)",
+        "Gr = gr.abs().max()",
+        "Gb = gb.abs().mean()"
+      ]
+    },
+    {
+      "id": "gradient-code-update",
+      "title": "控制器与网络更新是两个步骤",
+      "titleEn": "Controller and network updates are separate steps",
+      "eyebrow": "论文 03 / 14",
+      "eyebrowEn": "PAPER 03 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "控制器与网络更新是两个步骤"
+      ],
+      "bulletsEn": [
+        "Controller and network updates are separate steps"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-code-update-b0",
+          "text": "测量梯度以后，控制器建议并平滑一个新权重。分母的小下限只是数值保护，不能替代轨迹检查。这里的紧凑代码省略了完整脚本中明确记录的额外限幅。",
+          "textEn": "After measuring the gradients, the controller proposes and smooths a new weight. The tiny denominator floor is a numerical safeguard, not a replacement for checking the trajectory. The displayed compact code omits the additional bounds that the full script records explicitly.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-code-update-b1",
+          "text": "之后才形成合成目标并更新网络。解释保存的梯度统计时，这个顺序很重要。图中的权重必须来自实际产生该预测的同一更新策略。",
+          "textEn": "Only then do we form the combined objective and update the network. This order matters when interpreting the saved gradient statistics. A plotted weight must refer to the same update policy that produced the recorded prediction.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "gradient-code",
+      "paperTrace": "paper03",
+      "demoCode": [
+        "proposal = Gr / max(Gb, 1e-12)",
+        "w = (1-alpha)*w + alpha*proposal",
+        "loss = Lr + w*Lb",
+        "loss.backward(); optimizer.step()"
+      ]
+    },
+    {
+      "id": "gradient-guard",
+      "title": "限幅版本改变了什么？",
+      "titleEn": "What does the guarded variant change?",
+      "eyebrow": "论文 03 / 15",
+      "eyebrowEn": "PAPER 03 / 15",
+      "visual": "steps",
+      "formula": "1\\leq\\widehat w_{\\rm clip}\\leq100,\\qquad\\alpha=0.1",
+      "formulaEn": "1\\leq\\widehat w_{\\rm clip}\\leq100,\\qquad\\alpha=0.1",
+      "bullets": [
+        "限幅版本改变了什么？"
+      ],
+      "bulletsEn": [
+        "What does the guarded variant change?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "限制建议权重",
+            "labelEn": "Bound the proposed weight",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "放慢控制器响应",
+            "labelEn": "Slow the controller response",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-guard-b0",
+          "text": "直接比值可能剧烈增大，因此还检验一个明确修改过的控制器。限幅版本把建议值截在一到一百之间。它用零点一的 alpha 混入新建议。",
+          "textEn": "The direct ratio can grow dramatically, so we also test an explicitly modified controller. This guarded version clips the proposal between one and one hundred. It mixes the proposal with alpha equal to zero point one.",
+          "focus": 0,
+          "scene": {
+            "formula": "1\\leq\\widehat w_{\\rm clip}\\leq100,\\qquad\\alpha=0.1",
+            "formulaEn": "1\\leq\\widehat w_{\\rm clip}\\leq100,\\qquad\\alpha=0.1",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "gradient-guard-b1",
+          "text": "这些是本实验的工程选择，不是论文未修改的算法一。比值版本也有宽得多的数值范围，即百万分之一到一百万。我们公开每次限幅，因为频繁触发意味着边界实质上定义了方法。",
+          "textEn": "Those are engineering choices for this experiment, not the paper’s unchanged Algorithm One. The ratio case also has a much wider numerical bound, from one millionth to one million. We publish every bound activation, because frequent clipping means the bounds materially define the method.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-cpu-protocol",
+      "title": "如何做一个公平而小型的比较？",
+      "titleEn": "How do we keep the comparison small and controlled?",
+      "eyebrow": "论文 03 / 16",
+      "eyebrowEn": "PAPER 03 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "如何做一个公平而小型的比较？"
+      ],
+      "bulletsEn": [
+        "How do we keep the comparison small and controlled?"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "相同初始化和测试点",
+            "labelEn": "Same initialisation and points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "只改变权重策略",
+            "labelEn": "Change the weight policy",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-cpu-protocol-b0",
+          "text": "控制器已定义，现在在相同小问题上比较它们。对于每个种子，四种策略使用相同初始网络。使用六十四个固定内部点、两个端点标签，以及四千步 Adam。",
+          "textEn": "The controllers are defined, so now we compare them on identical small problems. Each seed creates the same initial network for all four policies. We use sixty-four fixed interior points, two endpoint labels, and four thousand Adam steps.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-cpu-protocol-b1",
+          "text": "四种策略分别为单位权重、固定一百、带宽范围保护的比值规则和限幅版本。三个种子产生十二次运行，每次在四个 CPU 线程上限制九十秒训练。小网络含一千二百七十三个参数，不使用内部解值标签。",
+          "textEn": "The four policies are unit weight, fixed weight one hundred, the ratio rule with wide safeguards, and the guarded variant. Three seeds give twelve runs, each below ninety training seconds on four CPU threads. The small network has one thousand two hundred and seventy-three parameters, and no interior solution labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "gradient-field-replay",
+      "title": "先看完整场，而不是只看总损失",
+      "titleEn": "Inspect the field before trusting the total loss",
+      "eyebrow": "论文 03 / 17",
+      "eyebrowEn": "PAPER 03 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看完整场，而不是只看总损失"
+      ],
+      "bulletsEn": [
+        "Inspect the field before trusting the total loss"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-field-replay-b0",
+          "text": "保存的训练记录让我们比较真实预测，而不是编造理想成功故事。蓝色表示单位权重，粉色表示比值规则，金色表示种子十一的限幅版本。虚线参考是独立解析解。",
+          "textEn": "The saved training records let us compare predictions rather than invent an idealised success story. Cyan shows unit weighting, pink shows the ratio rule, and gold shows the guarded variant for seed eleven. The dashed reference is the independent analytic solution.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-field-replay-b1",
+          "text": "在最终检查点，单位权重与限幅版本接近参考，比值法仍明显偏离。它的最终场误差约为百分之八十五。因此，这个小实验没有再现所谓平衡规则的普适改进。",
+          "textEn": "At the final checkpoint, unit weighting and the guarded method lie close to the reference, while the ratio run remains far away. Its final field error is about eighty-five percent. This small experiment therefore does not reproduce a universal improvement from the proposed balancing rule.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "gradient-training",
+      "paperTrace": "paper03"
+    },
+    {
+      "id": "gradient-norm-replay",
+      "title": "边界梯度变小以后，发生了什么？",
+      "titleEn": "What happens as the boundary gradient shrinks?",
+      "eyebrow": "论文 03 / 18",
+      "eyebrowEn": "PAPER 03 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "边界梯度变小以后，发生了什么？"
+      ],
+      "bulletsEn": [
+        "What happens as the boundary gradient shrinks?"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-norm-replay-b0",
+          "text": "场预测不好，需要进一步检查控制器输入。柱图显示比值法中残差梯度、原始边界梯度和加权边界梯度的欧几里得范数。柱高采用对数尺度，每个数量级占用相同距离。",
+          "textEn": "The poor field prediction makes it necessary to inspect the controller inputs. These bars show the Euclidean norms of the residual gradient, raw boundary gradient and weighted boundary gradient in the ratio run. Bar heights use a logarithmic scale, so each order of magnitude receives equal space.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-norm-replay-b1",
+          "text": "这些是诊断量，不是计算比值时使用的最大值和平均值。加权边界信号可能远大于原始信号，但场仍不准确。因此，匹配某个统计量不等于同时满足两项物理要求。",
+          "textEn": "They are diagnostics, not the maximum and mean used to compute the ratio. The weighted boundary signal can greatly exceed the raw one while the field remains inaccurate. Matching one statistic is therefore not equivalent to satisfying both physical requirements.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "gradient-norms",
+      "paperTrace": "paper03"
+    },
+    {
+      "id": "gradient-weight-replay",
+      "title": "权重轨迹揭示控制器的实际行为",
+      "titleEn": "The weight trajectory reveals the controller behaviour",
+      "eyebrow": "论文 03 / 19",
+      "eyebrowEn": "PAPER 03 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "权重轨迹揭示控制器的实际行为"
+      ],
+      "bulletsEn": [
+        "The weight trajectory reveals the controller behaviour"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-weight-replay-b0",
+          "text": "梯度比较提示我们直接查看权重历史。图中按 Adam 步数回放保存的权重，纵轴采用对数尺度。比值控制器出现很大跳动，单位权重则一直保持一。",
+          "textEn": "The gradient comparison suggests looking directly at the weight history. This plot replays saved weights against Adam steps on a logarithmic vertical scale. The ratio controller makes very large excursions, while unit weight stays at one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-weight-replay-b1",
+          "text": "限幅控制器达到接近一百的上界。实际上，三个种子中每次控制器更新都触发了建议值限幅。它的良好场拟合支持的是本问题中的有界策略，而不是无约束自适应规则发现了更优权重。",
+          "textEn": "The guarded controller reaches its upper bound near one hundred. In fact its proposal is clipped at every recorded controller update in all three seeds. Its good field fit is evidence for this bounded policy on this task, not evidence that an unconstrained adaptive rule discovered a superior weight.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "gradient-weight",
+      "paperTrace": "paper03"
+    },
+    {
+      "id": "gradient-seeds",
+      "title": "三个种子是否支持同样的观察？",
+      "titleEn": "Do three seeds support the same observation?",
+      "eyebrow": "论文 03 / 20",
+      "eyebrowEn": "PAPER 03 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "三个种子是否支持同样的观察？"
+      ],
+      "bulletsEn": [
+        "Do three seeds support the same observation?"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-seeds-b0",
+          "text": "一个种子可能误导判断，因此现在每个点表示一种保存的初始化。纵轴是百分数形式的场相对误差，采用对数尺度。四种权重策略全部显示，包括固定一百。",
+          "textEn": "A single seed could mislead us, so each dot now represents one of the three saved initialisations. The vertical axis is field relative error in percent on a logarithmic scale. All four weight policies are included, including fixed weight one hundred.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-seeds-b1",
+          "text": "比值法误差约在百分之七十五到八十五之间，所有单位权重和限幅运行都小得多。固定权重也随种子变化。三个种子支持这个局部观察，但不能建立跨方程或网络结构的普适排名。",
+          "textEn": "The ratio runs have errors from roughly seventy-five to eighty-five percent, while all unit-weight and guarded runs remain much smaller. Fixed weighting also varies across seeds. Three seeds support this local observation but do not establish a general ranking across PDEs or architectures.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "gradient-error",
+      "paperTrace": "paper03"
+    },
+    {
+      "id": "gradient-validation",
+      "title": "把场、边界和独立残差一起检验",
+      "titleEn": "Validate the field, endpoints and held-out residual",
+      "eyebrow": "论文 03 / 21",
+      "eyebrowEn": "PAPER 03 / 21",
+      "visual": "steps",
+      "formula": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+      "formulaEn": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+      "bullets": [
+        "把场、边界和独立残差一起检验"
+      ],
+      "bulletsEn": [
+        "Validate the field, endpoints and held-out residual"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "独立解析解网格",
+            "labelEn": "Independent reference grid",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "训练点之外的残差",
+            "labelEn": "Residuals away from training points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-validation-b0",
+          "text": "种子比较使用的验证量也需要先定义。u 星是解析参考，u theta 是网络预测。E u 是二百零一个网格点上的相对欧几里得误差。",
+          "textEn": "The seed comparison uses a validation quantity that must also be defined. U star denotes the analytic reference, while u theta is the network prediction. E u is their relative Euclidean error on two hundred and one grid points.",
+          "focus": 0,
+          "scene": {
+            "formula": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+            "formulaEn": "E_u=\\frac{\\|u_\\theta-u_*\\|_2}{\\|u_*\\|_2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "gradient-validation-b1",
+          "text": "还报告端点失配，以及一百二十八个偏移内部点上的残差。内部参考解值不进入训练目标。验证结果在训练后报告，不用于选择检查点或控制器权重。",
+          "textEn": "We additionally report endpoint mismatch and the residual at one hundred and twenty-eight shifted interior points. None of the interior reference values enter the training objective. Validation values are reported after training and never select a checkpoint or controller weight.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "gradient-interpretation",
+      "title": "这个反例支持什么结论？",
+      "titleEn": "What does this counterexample actually support?",
+      "eyebrow": "论文 03 / 22",
+      "eyebrowEn": "PAPER 03 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这个反例支持什么结论？"
+      ],
+      "bulletsEn": [
+        "What does this counterexample actually support?"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "检查真实更新信号",
+            "labelEn": "Inspect real update signals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "检验改进的适用范围",
+            "labelEn": "Test the scope of a remedy",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "gradient-interpretation-b0",
+          "text": "测量支持的是谨慎结论，而不是口号。梯度统计是有用诊断，但当分母很小时，相应控制器可能脆弱。改进措施必须与简单基线和独立物理误差比较。",
+          "textEn": "The measurements support a careful conclusion rather than a slogan. Gradient statistics are useful diagnostics, but their controller can be fragile when a denominator becomes tiny. A remedy must be checked against a simple baseline and independent physical errors.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-interpretation-b1",
+          "text": "这不是对论文二维结果的否定，因为方程、网络、数据和数值精度都不同。我们也未实现论文的改进门控结构，或计算 Hessian 谱。因此不能从这些运行推断那些不同主张。",
+          "textEn": "This is not a refutation of the paper’s two-dimensional results, because our equation, network, data and arithmetic differ. We also did not implement its improved gated architecture or compute a Hessian spectrum. Those separate claims should not be inferred from these runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "gradient-exercise",
+      "title": "只改变一个因素，再解释轨迹",
+      "titleEn": "Change one factor and explain the trajectory",
+      "eyebrow": "论文 03 / 23",
+      "eyebrowEn": "PAPER 03 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "只改变一个因素，再解释轨迹"
+      ],
+      "bulletsEn": [
+        "Change one factor and explain the trajectory"
+      ],
+      "sourceIds": [
+        "wang2020",
+        "poisson-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "先预测可能变化",
+            "labelEn": "Predict a change first",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "再比较全部记录",
+            "labelEn": "Then compare all records",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "gradient-exercise-b0",
+          "text": "这个反例带来一个聚焦练习，不需要大规模训练。固定种子、网络和点数，把源项频率从四改为六。运行前先预测二阶导数怎样改变源项尺度。",
+          "textEn": "The counterexample now gives us a focused exercise rather than a large training assignment. Keep the seeds, network and point count fixed, and change the source frequency from four to six. Before running, predict how a second derivative changes the source scale.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "gradient-exercise-b1",
+          "text": "使用下载脚本的 frequency 选项，并指定新输出文件名。比较场误差、边界误差、残差误差，以及控制器限幅次数。请先暂停作出预测，再查看新结果。",
+          "textEn": "Use the downloadable script with the frequency option and a new output filename. Compare field error, boundary error, residual error, and the number of clipped controller updates. Pause here to make a prediction before looking at a new result.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "next-curriculum",
+      "title": "为什么下一篇要讨论逐步增加难度？",
+      "titleEn": "Why study gradually increasing difficulty next?",
+      "eyebrow": "论文 03 / 24",
+      "eyebrowEn": "PAPER 03 / 24",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么下一篇要讨论逐步增加难度？"
+      ],
+      "bulletsEn": [
+        "Why study gradually increasing difficulty next?"
+      ],
+      "sourceIds": [
+        "wang2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇检查优化信号",
+            "labelEn": "This paper inspects update signals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一篇检查问题难度",
+            "labelEn": "Next inspect problem difficulty",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "next-curriculum-b0",
+          "text": "现在已经学会检查优化信号，而不假定某个控制器必然获胜。还存在另一类困难：物理问题本身变难时，即使目标看起来合理，网络仍可能失败。因此需要单独研究失效模式和课程式训练。",
+          "textEn": "We have now learned to inspect optimisation signals without assuming a particular controller must win. Another difficulty remains: a network may fail when the physical problem itself becomes harder, even if the objective looks reasonable. That motivates a separate look at failure modes and curriculum training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "next-curriculum-b1",
+          "text": "第四篇继续讨论具有解析参考的一维输运问题。在相同总步数与明确增加预算的条件下检验系数延续。打开下一篇，就能从平衡目标自然过渡到如何组织学习问题。",
+          "textEn": "Paper Four continues with a one-dimensional transport problem and an analytic reference. It tests coefficient continuation under both equal-step and explicitly larger budgets. Open the next presentation to connect balancing objectives with organising the learning problem.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

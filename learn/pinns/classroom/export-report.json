@@ -162,9 +162,22 @@
           "ready": 0
         }
       }
+    ],
+    "wang2020": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 141,
+          "ready": 141
+        },
+        "zh": {
+          "total": 140,
+          "ready": 0
+        }
+      }
     ]
   },
-  "clips": 714,
+  "clips": 855,
   "features": [
     "progressive-reveal",
     "physical-animation",

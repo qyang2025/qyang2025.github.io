@@ -6,13 +6,13 @@
       "title": "Physics-informed neural networks",
       "presenter": "Professor Vee",
       "audience": "postgraduate",
-      "slides": 45,
-      "plannedMinutes": 75,
+      "slides": 69,
+      "plannedMinutes": 115,
       "url": "pinns/",
       "classroom": "pinns/classroom/?paper=raissi2017",
-      "description": "Two papers, two CPU implementations: first solve the Burgers field, then identify unknown coefficients from observations. Progress towards advanced PINNs through small controlled experiments.",
+      "description": "3 papers with small CPU implementations: forward solutions, inverse identification, optimisation and progressively advanced PINNs.",
       "cover": "pinns/cover.svg",
-      "paperCount": 2,
+      "paperCount": 3,
       "primer": {
         "chapters": 6,
         "url": "pinns/classroom/?chapter=1"

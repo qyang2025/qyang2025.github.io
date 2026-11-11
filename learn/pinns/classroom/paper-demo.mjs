@@ -1,32 +1,37 @@
+import {drawTransport,transportKinds} from './transport-demo.mjs?v=night-04a';
+import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=night-03a';
 import {mathHtml} from './math.mjs';
 import {sentences} from './player.mjs';
 const traces=new Map(),traceLoads=new Map();
-const traceFiles={paper01:'./courses/pinns-papers/01-raissi-2017/trace.json',paper02:'./courses/pinns-papers/02-raissi-2017-part-ii/trace.json'};
+const traceFiles={paper04:'./courses/pinns-papers/04-krishnapriyan-2021-curriculum/trace.json',paper03:'./courses/pinns-papers/03-wang-2020-gradients/trace.json',paper01:'./courses/pinns-papers/01-raissi-2017/trace.json',paper02:'./courses/pinns-papers/02-raissi-2017-part-ii/trace.json'};
 function loadTrace(key){
  if(traceLoads.has(key)||typeof window==='undefined')return;
  traceLoads.set(key,fetch(new URL(traceFiles[key],import.meta.url),{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(value=>{if(!value)return;traces.set(key,value);for(const host of document.querySelectorAll(`[data-paper-trace="${key}"]`))draw(host,Number(host.dataset.progress||0));}).catch(()=>{}));
 }
 export function paperProgress(slide,position,activity={},language='en'){
  const counts=slide.beats.map(b=>sentences(language==='en'?b.textEn:b.text,language).length);
- if(['training','comparison','inverse-a','inverse-b'].includes(slide.paperDemo)){const fraction=activity.reason==='ended'?1:activity.duration>0?Math.min(1,activity.audioTime/activity.duration):0;return position.beat>0?1:Math.max(0,Math.min(1,(position.sentence-1+fraction)/Math.max(1,counts[0]-1)));}
+ if(['training','comparison','inverse-a','inverse-b','gradient-training','gradient-norms','gradient-weight','gradient-error','transport-training','transport-error','transport-time-error'].includes(slide.paperDemo)){const fraction=activity.reason==='ended'?1:activity.duration>0?Math.min(1,activity.audioTime/activity.duration):0;return position.beat>0?1:Math.max(0,Math.min(1,(position.sentence-1+fraction)/Math.max(1,counts[0]-1)));}
  const prior=counts.slice(0,position.beat).reduce((a,b)=>a+b,0),fraction=activity.reason==='ended'?1:activity.duration>0?Math.min(1,activity.audioTime/activity.duration):0;
  return Math.max(0,Math.min(1,(prior+position.sentence+fraction)/counts.reduce((a,b)=>a+b,0)));
 }
 export function paperDemoHtml(slide,en){
- const kind=slide.paperDemo,key=slide.paperTrace==='paper02'?'paper02':'paper01';loadTrace(key);
- const isCode=['code','inverse-code','inverse-loss-code'].includes(kind),hasMetrics=['training','comparison','inverse-a','inverse-b'].includes(kind);
+ const kind=slide.paperDemo,key=Object.hasOwn(traceFiles,slide.paperTrace)?slide.paperTrace:'paper01';loadTrace(key);
+ const isCode=['code','inverse-code','inverse-loss-code','gradient-code','transport-code'].includes(kind),hasMetrics=['training','comparison','inverse-a','inverse-b','gradient-training','gradient-norms','gradient-weight','gradient-error','transport-training','transport-error','transport-time-error'].includes(kind);
  let code=['q.requires_grad_(True)','u = net(q)','du = grad(u, q, create_graph=True)','uxx = grad(du[:, 0], q,','           create_graph=True)[:, 0]'];
  if(kind==='inverse-code')code=['model.lambda1 = nn.Parameter(tensor(0.5))','model.beta = nn.Parameter(tensor(beta0))','lambda2 = softplus(model.beta)','opt = Adam(model.parameters())'];
  if(kind==='inverse-loss-code')code=['pred, ut, ux, uxx = derivatives(model, q)','f = ut + model.lambda1*pred*ux','f = f - model.lambda2*uxx','loss = mse(pred, y) + mean(f*f)'];
- return `<div class="scene-content paper-scene" data-paper-demo="${kind}" data-paper-trace="${key}" data-progress="0"><div class="${isCode?'paper-code':'paper-plot'} reveal-pending" data-diagram-node="0">${isCode?`<pre><code>${code.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></pre>`:`<svg viewBox="0 0 640 260" role="img" aria-label="${en?'Burgers field or training points':'Burgers 场或训练点'}"></svg>`}</div>${hasMetrics?'<output class="paper-metrics reveal-pending" data-diagram-node="1"></output>':''}${slide.formula?`<div class="formula-box equation-step reveal-pending" data-formula-step="0">${mathHtml(slide.formula)}</div>`:''}</div>`;
+ if(['gradient-code','transport-code'].includes(kind))code=slide.demoCode;
+ return `<div class="scene-content paper-scene" data-paper-demo="${kind}" data-paper-trace="${key}" data-progress="0"><div class="${isCode?'paper-code':'paper-plot'} reveal-pending" data-diagram-node="0">${isCode?`<pre><code>${code.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></pre>`:`<svg viewBox="0 0 640 260" role="img" aria-label="${en?'Physical field or recorded experiment':'物理场或已记录实验'}"></svg>`}</div>${hasMetrics?'<output class="paper-metrics reveal-pending" data-diagram-node="1"></output>':''}${slide.formula?`<div class="formula-box equation-step reveal-pending" data-formula-step="0">${mathHtml(slide.formula)}</div>`:''}</div>`;
 }
 export function syncPaperDemo(activity,position,slide,language){
  const host=document.querySelector('[data-paper-demo]');if(!host||activity.audioTime===undefined)return;
  const p=slide.id==='conditions'&&position.beat===0?0:paperProgress(slide,position,activity,language);host.dataset.progress=String(p);draw(host,p);
 }
 function draw(host,progress){
- const trace=traces.get(host.dataset.paperTrace||'paper01');if(!trace||['code','inverse-code','inverse-loss-code'].includes(host.dataset.paperDemo))return;
+ const trace=traces.get(host.dataset.paperTrace||'paper01');if(!trace||['code','inverse-code','inverse-loss-code','gradient-code','transport-code'].includes(host.dataset.paperDemo))return;
  const kind=host.dataset.paperDemo,en=document.querySelector('#slide')?.lang==='en',svg=host.querySelector('svg');
+ if(transportKinds.includes(kind)){drawTransport(host,trace,progress,en);return;}
+ if(gradientKinds.includes(kind)){drawGradient(host,trace,progress,en);return;}
  if(kind.startsWith('inverse-')){drawInverse(host,trace,progress,en);return;}
  const axis=(symbol,x,y)=>`<foreignObject x="${x}" y="${y}" width="36" height="35"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(symbol,false)}</div></foreignObject>`;
  if(kind==='samples'){

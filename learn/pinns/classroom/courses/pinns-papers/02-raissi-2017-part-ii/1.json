@@ -3293,8 +3293,8 @@
         },
         {
           "id": "next-gradient-paper-b1",
-          "text": "下一篇计划用另一个小型 CPU 算例研究梯度病态与平衡方法。会先观察相互竞争的梯度，再检验改进措施。下一篇仍是计划，而本篇已经实现并独立检验了系数识别算例。",
-          "textEn": "The next planned paper studies gradient pathologies and balancing strategies using another small CPU example. We will inspect the competing gradients before testing a remedy. That next presentation is planned, while this one has implemented and independently checked the coefficient-identification example.",
+          "text": "第三篇用小型 Poisson 实验继续研究梯度病态与平衡策略。先测量相互竞争的梯度，再检验比值控制器与明确的数值保护。打开下一篇，可以看到十二次真实运行，包括平衡规则失效的案例。",
+          "textEn": "Paper Three continues with gradient pathologies and balancing strategies using a small Poisson experiment. It measures the competing gradients before testing a ratio controller and explicit safeguards. Open the next presentation to see twelve actual runs, including a case where the balancing rule fails.",
           "focus": 0,
           "scene": {
             "formula": "",

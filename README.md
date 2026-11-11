@@ -90,3 +90,5 @@ alignment, language switching with paper selection preserved, and the old primer
 link. This new-paper check remained silent and paused.
 
 Paper 02: Raissi 2017 Part II, 24 slides and 141 English clips. CPU coefficient identification uses 256 observations, viscosity 0.05 and time end 0.5; these deliberately differ from the original benchmark. Code and actual traces are downloadable.
+
+Paper 03 adds 24 slides and 141 English clips on Wang et al. (2020) gradient pathologies: twelve actual Poisson CPU runs, paired seeds, explicit numerical guards and retained controller failures. Guarded proposals saturate every update; no universal improvement is claimed.

@@ -21,7 +21,7 @@ export function attentionTarget(slide, beatIndex, sentenceIndex, language = 'zh'
   return node>=0?{kind:'node',index:node}:cue;
 }
 export function validateTargets(slide) {
-  const customNodes=({physical:1,samples:1,code:1,training:2,comparison:2,'inverse-observations':1,'inverse-identifiability':1,'inverse-a':2,'inverse-b':2,'inverse-code':1,'inverse-loss-code':1})[slide.paperDemo]||0;
+  const customNodes=({'transport-physical':1,'transport-characteristic':1,'transport-training':2,'transport-error':2,'transport-time-error':2,'transport-code':1,'gradient-physical':1,'gradient-training':2,'gradient-norms':2,'gradient-weight':2,'gradient-error':2,'gradient-code':1,physical:1,samples:1,code:1,training:2,comparison:2,'inverse-observations':1,'inverse-identifiability':1,'inverse-a':2,'inverse-b':2,'inverse-code':1,'inverse-loss-code':1})[slide.paperDemo]||0;
   for (const [i,beat] of slide.beats.entries()) for (const [field,text,language] of [['targets',beat.text,'zh'],['targetsEn',beat.textEn,'en']]) {
     const cues=beat.scene?.[field]; if (cues === undefined) continue; // Saved legacy courses.
     const count=sentences(text || beat.text,language).length;

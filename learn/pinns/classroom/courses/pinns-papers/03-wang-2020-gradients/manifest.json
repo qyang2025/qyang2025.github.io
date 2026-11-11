@@ -1,0 +1,53 @@
+{
+  "id": "wang2020",
+  "paper": {
+    "number": 3,
+    "shortTitle": "Wang 2020 · Gradients",
+    "title": "Wang, Teng & Perdikaris (2020), Understanding and mitigating gradient pathologies in physics-informed neural networks",
+    "url": "https://arxiv.org/html/2001.04536v1",
+    "year": 2020,
+    "scope": "Independent 1-D Poisson adaptation of sections 2.3 and 2.5; no reproduction of the 2-D benchmarks or gated architecture."
+  },
+  "title": "Paper 03: Gradient pathologies and loss balancing",
+  "titleZh": "论文 03：梯度病态与损失平衡",
+  "totalMinutes": 40,
+  "download": "paper-03.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4003-8003-000000000003",
+      "index": 0,
+      "title": "论文 03：梯度病态与损失平衡",
+      "titleEn": "Paper 03: Gradient pathologies and loss balancing",
+      "file": "1.json",
+      "pages": 24,
+      "sentenceCount": 141,
+      "plannedMinutes": 40
+    }
+  ],
+  "sources": [
+    {
+      "id": "wang2020",
+      "name": "Wang, Teng & Perdikaris (2020), Understanding and mitigating gradient pathologies in physics-informed neural networks",
+      "url": "https://arxiv.org/html/2001.04536v1",
+      "text": "Sections 2.3 and 2.5: the one-dimensional Poisson diagnostic and Algorithm 1. The gated architecture and larger two-dimensional benchmarks are outside this teaching implementation."
+    },
+    {
+      "id": "authors-code",
+      "name": "Authors’ GradientPathologiesPINNs repository",
+      "url": "https://github.com/PredictiveIntelligenceLab/GradientPathologiesPINNs",
+      "text": "Original implementation reference. Our compact PyTorch experiment follows the displayed ratio rule, with explicitly stated numerical guards, rather than claiming original benchmark reproduction."
+    },
+    {
+      "id": "torch-autograd",
+      "name": "PyTorch automatic differentiation",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad.html",
+      "text": "Official autograd.grad documentation. Per-objective gradients are measured before adding weighted objectives."
+    },
+    {
+      "id": "poisson-local",
+      "name": "All twelve executed CPU runs and gradient statistics",
+      "url": "/courses/pinns-papers/03-wang-2020-gradients/trace.json",
+      "text": "Three paired seeds, four loss-weight policies, 64 residual points, two boundary values, 1273 parameters, four CPU threads. All failures and all guarded weight saturations are retained."
+    }
+  ]
+}
