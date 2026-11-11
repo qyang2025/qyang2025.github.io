@@ -1,3 +1,4 @@
+import {drawCpinn} from './cpinn-demo.mjs?v=night-08a';
 import {drawSampling} from './sampling-demo.mjs?v=night-07a';
 import {drawGPinn} from './gpinn-demo.mjs?v=night-06a';
 import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs';
@@ -33,6 +34,7 @@ export function syncPaperDemo(activity,position,slide,language){
 function draw(host,progress){
  const trace=traces.get(host.dataset.paperTrace||'paper01');if(!trace||paperDemoMeta[host.dataset.paperDemo]?.code)return;
  const kind=host.dataset.paperDemo,en=document.querySelector('#slide')?.lang==='en',svg=host.querySelector('svg');
+ if(paperDemoMeta[kind]?.renderer==='cpinn'){drawCpinn(host,trace,progress,en);return;}
  if(paperDemoMeta[kind]?.renderer==='sampling'){drawSampling(host,trace,progress,en);return;}
  if(paperDemoMeta[kind]?.renderer==='gpinn'){drawGPinn(host,trace,progress,en);return;}
  if(causalKinds.includes(kind)){drawCausal(host,trace,progress,en);return;}

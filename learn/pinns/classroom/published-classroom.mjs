@@ -1,18 +1,18 @@
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=night-07c';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=night-08a';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
 import {applyProgressiveReveal} from './progressive-reveal.mjs';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=night-07c';
-import {lessonSections,isOutline} from './course-outline.mjs?v=night-07c';
-import {TeachingPointer,attentionTarget} from './attention.mjs?v=night-07c';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=night-08a';
+import {lessonSections,isOutline} from './course-outline.mjs?v=night-08a';
+import {TeachingPointer,attentionTarget} from './attention.mjs?v=night-08a';
 import {schematicHtml} from './schematic.mjs';
 import {mathHtml,proseHtml} from './math.mjs';
 import {lectureChart} from './lecture-chart.mjs';
-import {LecturePlayer,sentences} from './player.mjs';
+import {LecturePlayer,sentences} from './player.mjs?v=night-08a';
 import {currentScene,ProfessorStage} from './stage.mjs';
-import {NeuralSpeech} from './neural-speech.mjs?v=night-07c';
+import {NeuralSpeech} from './neural-speech.mjs?v=night-08a';
 import {localizeLesson} from './languages.mjs';
 const $=id=>document.getElementById(id),escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedPaper=new URLSearchParams(location.search).get('paper')||'';let courseRoot='courses/pinns',courseKey='pinns',paperCatalog=[];
@@ -83,7 +83,7 @@ function render(){
 async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`,{cache:'no-cache'});if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
 $('mute').onclick=()=>{speech.setMuted(!speech.muted);if(player.lesson)render();};
 $('play').onclick=()=>player.playing?player.pauseAtVisible():player.play();$('previous').onclick=()=>player.seek(player.displayPosition().slide-1);$('next').onclick=()=>player.seek(player.displayPosition().slide+1);
-$('next-step').onclick=()=>{const p=player.displayPosition();player.pauseAtVisible();const slide=player.lesson.slides[p.slide];let beat=p.beat,sentence=p.sentence+1;if(sentence>=sentences(slide.beats[beat].text,language).length){sentence=0;beat++;}if(beat>=slide.beats.length){if(p.slide+1<player.lesson.slides.length)player.seek(p.slide+1);return;}Object.assign(player,{beat,sentence,activityHold:null});player.syncPresentation();player.emit();const next=player.displayPosition(),current=player.lesson.slides[next.slide];syncPaperDemo({audioTime:0,duration:1},next,current,language);syncHeatRod({audioTime:0,duration:1},next,current,language);syncPinnDemo({audioTime:0,duration:1},next,current,language);};
+$('next-step').onclick=()=>player.stepForward();
 $('rate').onchange=()=>{player.rate=Number($('rate').value);if(player.playing)player.play();};
 function navigatePaper(direction){const index=paperCatalog.findIndex(p=>p.id===requestedPaper),next=paperCatalog[index+direction];if(!next)return;player.pauseAtVisible();location.search=new URLSearchParams({paper:next.id,chapter:'1',language}).toString();}
 $('chapter-select').onchange=()=>loadChapter(Number($('chapter-select').value));$('chapter-prev').onclick=()=>manifest.paper?navigatePaper(-1):loadChapter(chapter-1);$('chapter-next').onclick=()=>manifest.paper?navigatePaper(1):loadChapter(chapter+1);

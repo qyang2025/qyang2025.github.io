@@ -6,7 +6,8 @@ export const paperTraceFiles=Object.freeze({
  paper04:'./courses/pinns-papers/04-krishnapriyan-2021-curriculum/trace.json',
  paper05:'./courses/pinns-papers/05-wang-2022-causality/trace.json',
  paper06:'./courses/pinns-papers/06-yu-2022-gpinn/trace.json',
- paper07:'./courses/pinns-papers/07-wu-2023-sampling/trace.json'
+ paper07:'./courses/pinns-papers/07-wu-2023-sampling/trace.json',
+ paper08:'./courses/pinns-papers/08-jagtap-2020-cpinn/trace.json'
 });
 const entries={};
 function register(names,options={}){for(const name of names)entries[name]=Object.freeze({nodes:1,code:false,replay:false,renderer:'legacy',...options});}
@@ -17,4 +18,5 @@ register(['transport-physical','transport-characteristic'],{renderer:'transport'
 register(['causal-physical'],{renderer:'causal'});register(['causal-code'],{code:true,customCode:true});register(['causal-training','causal-weights','causal-energy','causal-phase','causal-error'],{nodes:2,replay:true,renderer:'causal'});
 register(['gpinn-physical','gpinn-tangent'],{renderer:'gpinn'});register(['gpinn-code'],{code:true,customCode:true});register(['gpinn-training','gpinn-slope','gpinn-residual','gpinn-error'],{nodes:2,replay:true,renderer:'gpinn'});
 register(['sampling-physical'],{renderer:'sampling'});register(['sampling-code'],{code:true,customCode:true});register(['sampling-points','sampling-probability','sampling-training','sampling-residual','sampling-error'],{nodes:2,replay:true,renderer:'sampling'});
+register(['cpinn-physical'],{renderer:'cpinn'});register(['cpinn-code'],{code:true,customCode:true});register(['cpinn-training','cpinn-flux','cpinn-jumps','cpinn-error'],{nodes:2,replay:true,renderer:'cpinn'});
 export const paperDemoMeta=Object.freeze(entries);

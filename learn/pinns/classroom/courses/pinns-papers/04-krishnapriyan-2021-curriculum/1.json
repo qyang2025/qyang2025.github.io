@@ -341,7 +341,7 @@
             "targets": [
               {
                 "sentence": 0,
-                "kind": "none",
+                "kind": "node",
                 "index": 0
               },
               {
@@ -358,7 +358,7 @@
             "targetsEn": [
               {
                 "sentence": 0,
-                "kind": "none",
+                "kind": "node",
                 "index": 0
               },
               {

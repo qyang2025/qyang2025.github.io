@@ -34,6 +34,18 @@ export class LecturePlayer {
     this.pause(); Object.assign(this, position); this.emit();
     return this.lesson ? this.checkpoint() : null;
   }
+  stepForward() {
+    if (!this.lesson) return null;
+    const p = this.displayPosition(); this.pauseAtVisible(); this.activityHold = null;
+    const slide = this.lesson.slides[p.slide];
+    let beat = p.beat, sentence = p.sentence + 1;
+    if (sentence >= sentences(slide.beats[beat].text, this.lesson.language).length) { sentence = 0; beat++; }
+    if (beat >= slide.beats.length) {
+      if (p.slide + 1 < this.lesson.slides.length) this.seek(p.slide + 1); else this.emit();
+    } else { Object.assign(this, { beat, sentence }); this.syncPresentation(); this.emit(); }
+    this.onActivity({ speaking: false, reason: 'stepped', audioTime: 0, duration: 1 });
+    return this.displayPosition();
+  }
   play() {
     if (!this.speech) { this.onError('此浏览器不支持语音合成；仍可逐页阅读讲稿。'); return; }
     this.activityHold=null;this.pause(); this.speech.unlock?.(); this.playing = true; this.emit(); this.speak();
