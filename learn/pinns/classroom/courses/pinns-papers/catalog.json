@@ -1,0 +1,10 @@
+{
+  "papers": [
+    {
+      "id": "raissi2017",
+      "number": 1,
+      "courseRoot": "courses/pinns-papers/01-raissi-2017",
+      "published": true
+    }
+  ]
+}

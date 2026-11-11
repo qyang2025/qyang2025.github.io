@@ -29,7 +29,7 @@ export class ClassroomViewport {
   if(visual&&scene){const free=Math.max(0,visual.clientHeight-scene.offsetHeight);visual.style.paddingTop=`${Math.min(free/2,Math.max(32,Math.min(64,free*.32)))}px`;}
   if(scene){
    const avatar=document.getElementById('avatar-stage'),slide=document.getElementById('slide'),p=avatar?.getBoundingClientRect(),s=slide.getBoundingClientRect();
-   const rects=[...scene.querySelectorAll('.schematic-node:not([hidden]),.plot-frame,.formula-box,.board-equation,.inline-demo-columns')].filter(e=>getComputedStyle(e).visibility!=='hidden'||e.classList.contains('reveal-pending')).map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+   const rects=[...scene.querySelectorAll('.schematic-node:not([hidden]),.plot-frame,.formula-box,.board-equation,.inline-demo-columns,.paper-plot,.paper-code')].filter(e=>getComputedStyle(e).visibility!=='hidden'||e.classList.contains('reveal-pending')).map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
    if(p?.width&&rects.length){const content={left:Math.min(...rects.map(r=>r.left)),right:Math.max(...rects.map(r=>r.right)),top:Math.min(...rects.map(r=>r.top)),bottom:Math.max(...rects.map(r=>r.bottom))};const scale=s.width/SLIDE_WIDTH;const shift=professorAvoidance(content,{left:p.left+p.width*.24,right:p.right,top:p.top+12*scale,bottom:p.bottom},{left:s.left+24*scale,bottom:slide.querySelector('footer').getBoundingClientRect().top-16*scale},16*scale);scene.style.translate=`${shift.x/scale}px ${shift.y/scale}px`;scene.dataset.placementReview=String(!!shift.needsReflow);}
   }
 

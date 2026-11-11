@@ -21,13 +21,14 @@ export function attentionTarget(slide, beatIndex, sentenceIndex, language = 'zh'
   return node>=0?{kind:'node',index:node}:cue;
 }
 export function validateTargets(slide) {
+  const customNodes=({physical:1,samples:1,code:1,training:2,comparison:2})[slide.paperDemo]||0;
   for (const [i,beat] of slide.beats.entries()) for (const [field,text,language] of [['targets',beat.text,'zh'],['targetsEn',beat.textEn,'en']]) {
     const cues=beat.scene?.[field]; if (cues === undefined) continue; // Saved legacy courses.
     const count=sentences(text || beat.text,language).length;
     if (!Array.isArray(cues) || !cues.length || cues[0].sentence !== 0) throw new Error('指向序列必须从首句开始');
     for (const [j,cue] of cues.entries()) {
       if (!Number.isInteger(cue.sentence) || cue.sentence < 0 || cue.sentence >= count || (j && cue.sentence <= cues[j-1].sentence) || !Number.isInteger(cue.index) || cue.index < 0) throw new Error('指向句子或目标索引无效');
-      const valid = cue.kind === 'none' ? cue.index === 0 : cue.kind === 'node' ? slide.schematic?.nodes?.[cue.index]?.revealAt <= i :
+      const valid = cue.kind === 'none' ? cue.index === 0 : cue.kind === 'node' ? (slide.schematic?.nodes?.[cue.index]?.revealAt <= i || cue.index<customNodes&&(cue.index===0||i>=1)) :
         cue.kind === 'formula' ? cue.index <= i && !!slide.beats[cue.index]?.scene?.formula && (!['scatter','projection'].includes(slide.visual) || cue.index === i) :
         cue.kind === 'chart' ? cue.index === 0 && ['scatter','projection'].includes(slide.visual) :
         cue.kind === 'bullet' ? cue.index <= beat.focus && cue.index < slide.bullets.length : false;

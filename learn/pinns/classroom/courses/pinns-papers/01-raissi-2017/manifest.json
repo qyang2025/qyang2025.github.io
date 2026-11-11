@@ -1,0 +1,51 @@
+{
+  "id": "raissi2017",
+  "paper": {
+    "title": "Raissi, Perdikaris & Karniadakis (2017), Physics Informed Deep Learning, Part I",
+    "url": "https://arxiv.org/html/1711.10561v1",
+    "year": 2017,
+    "scope": "Continuous-time Burgers, section 2.1"
+  },
+  "title": "Paper 01: Raissi 2017 · Implement a Burgers PINN",
+  "titleZh": "论文 01：Raissi 2017 · Burgers PINN 实现",
+  "totalMinutes": 35,
+  "download": "paper-01.zip",
+  "modules": [
+    {
+      "id": "139afec1-2017-4001-8001-000000000001",
+      "index": 0,
+      "title": "论文 01：Raissi 2017 · Burgers PINN 实现",
+      "titleEn": "Paper 01: Raissi 2017 · Implement a Burgers PINN",
+      "file": "1.json",
+      "pages": 21,
+      "sentenceCount": 122,
+      "plannedMinutes": 35
+    }
+  ],
+  "sources": [
+    {
+      "id": "raissi2017-i",
+      "name": "Raissi, Perdikaris & Karniadakis (2017), Physics Informed Deep Learning, Part I",
+      "url": "https://arxiv.org/html/1711.10561v1",
+      "text": "Primary paper. Continuous-time Burgers implementation: section 2.1, equations 3–4. The paper also studies other PDEs and discrete-time models; those are not implemented in this lesson."
+    },
+    {
+      "id": "author-code",
+      "name": "Authors’ explanation and original code",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Original equations, boundary/initial data and TensorFlow formulation. This lesson independently reimplements a small CPU version in PyTorch."
+    },
+    {
+      "id": "torch-grad",
+      "name": "PyTorch: torch.autograd.grad",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad.html",
+      "text": "Official differentiation API. create_graph preserves the coordinate derivatives needed by the residual and training gradients."
+    },
+    {
+      "id": "local-run",
+      "name": "Executed CPU experiment and reference checks",
+      "url": "/courses/pinns-papers/01-raissi-2017/trace.json",
+      "text": "Seed 11, float64, four CPU threads, 1297 parameters, 384 collocation points, t in [0,0.2]. Independent Cole-Hopf quadrature and separate validation points. Not an original-paper accuracy reproduction."
+    }
+  ]
+}

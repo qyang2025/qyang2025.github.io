@@ -6,13 +6,17 @@
       "title": "Physics-informed neural networks",
       "presenter": "Professor Vee",
       "audience": "postgraduate",
-      "chapters": 6,
-      "slides": 55,
-      "plannedMinutes": 120,
+      "slides": 21,
+      "plannedMinutes": 35,
       "url": "pinns/",
-      "classroom": "pinns/classroom/",
-      "description": "Build a PINN from the heat equation, then learn to train, validate, diagnose and extend it. Follow Professor Vee through six linked postgraduate chapters.",
-      "cover": "pinns/cover.svg"
+      "classroom": "pinns/classroom/?paper=raissi2017",
+      "description": "One paper, one implementation. Start with the foundational Burgers PINN, then progress to inverse problems, training failures and more advanced methods through small CPU experiments.",
+      "cover": "pinns/cover.svg",
+      "paperCount": 1,
+      "primer": {
+        "chapters": 6,
+        "url": "pinns/classroom/?chapter=1"
+      }
     }
   ]
 }

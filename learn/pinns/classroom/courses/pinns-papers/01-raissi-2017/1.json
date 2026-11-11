@@ -1,0 +1,2924 @@
+{
+  "id": "139afec1-2017-4001-8001-000000000001",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-01",
+  "chapterIndex": 0,
+  "title": "论文 01：Raissi 2017 · Burgers PINN 实现",
+  "titleEn": "Paper 01: Raissi 2017 · Implement a Burgers PINN",
+  "summary": "一篇论文，一套循序渐进的课件。短时间 Burgers 算例、真实 CPU 训练与独立验证。",
+  "summaryEn": "One paper, one progressive presentation. A short-window Burgers experiment, actual CPU training and independent validation.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "raissi2017-i",
+      "name": "Raissi, Perdikaris & Karniadakis (2017), Physics Informed Deep Learning, Part I",
+      "url": "https://arxiv.org/html/1711.10561v1",
+      "text": "Primary paper. Continuous-time Burgers implementation: section 2.1, equations 3–4. The paper also studies other PDEs and discrete-time models; those are not implemented in this lesson."
+    },
+    {
+      "id": "author-code",
+      "name": "Authors’ explanation and original code",
+      "url": "https://maziarraissi.github.io/PINNs/",
+      "text": "Original equations, boundary/initial data and TensorFlow formulation. This lesson independently reimplements a small CPU version in PyTorch."
+    },
+    {
+      "id": "torch-grad",
+      "name": "PyTorch: torch.autograd.grad",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.autograd.grad.html",
+      "text": "Official differentiation API. create_graph preserves the coordinate derivatives needed by the residual and training gradients."
+    },
+    {
+      "id": "local-run",
+      "name": "Executed CPU experiment and reference checks",
+      "url": "/courses/pinns-papers/01-raissi-2017/trace.json",
+      "text": "Seed 11, float64, four CPU threads, 1297 parameters, 384 collocation points, t in [0,0.2]. Independent Cole-Hopf quadrature and separate validation points. Not an original-paper accuracy reproduction."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与问题",
+      "titleEn": "Physics and question"
+    },
+    {
+      "slide": 6,
+      "title": "残差与代码",
+      "titleEn": "Residual and code"
+    },
+    {
+      "slide": 14,
+      "title": "实验与边界",
+      "titleEn": "Evidence and limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "从一篇论文到可检验的实现",
+      "titleEn": "From one paper to a testable implementation",
+      "eyebrow": "PINNs 论文 01 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 01 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "论文、实现与证据逐步连接"
+      ],
+      "bulletsEn": [
+        "Connect paper, implementation and evidence"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理问题",
+            "labelEn": "Physical problem",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "残差与代码",
+            "labelEn": "Residual and code",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "实验与证据",
+            "labelEn": "Experiment and evidence",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "建立方法",
+            "labelEn": "Build the method"
+          },
+          {
+            "label": "独立检验",
+            "labelEn": "Test independently"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "今天通过 Raissi 等人的第一部分奠基论文，实现一个小型 Burgers PINN。先观察物理问题，再把残差写成可运行代码。最后检查真实实验和独立证据，区分方法复现与完整基准复现。",
+          "textEn": "Today we will implement a small Burgers PINN through the foundational Part I paper by Raissi and colleagues. We will start from the physical problem, then connect the residual to executable code. Finally, we will inspect actual experiments and independent evidence, separating a method implementation from full benchmark reproduction.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "paper-question",
+      "title": "这篇论文改变了什么？",
+      "titleEn": "What does this paper change?",
+      "eyebrow": "论文 01 / 1",
+      "eyebrowEn": "PAPER 01 / 1",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这篇论文改变了什么？"
+      ],
+      "bulletsEn": [
+        "What does this paper change?"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "有限标签",
+            "labelEn": "Sparse labels",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "物理检验",
+            "labelEn": "Physics tests",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "paper-question-b0",
+          "text": "先修课解释了什么是 PINN，现在我们要问奠基论文具体实现了什么。少量标签只告诉网络一些位置的数值。物理检验还约束这些位置之间的变化方式。",
+          "textEn": "Our primer explained what a PINN is, so we can now ask what the foundational paper actually implements. Sparse labels tell a network only a few values. A physics test adds information about how predictions must change between those values.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "paper-question-b1",
+          "text": "右侧的物理检验来自同一个网络的导数，不是另一个独立训练的物理模型。本课实现第一部分的连续时间 Burgers 算例，再用独立参考解检验预测。",
+          "textEn": "The second box is that physics test, built by differentiating the same network rather than training a separate physical model. We will implement the continuous-time Burgers example from Part I, then test its predictions against an independent reference.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "physical-picture",
+      "title": "先观察一个会变陡的速度场",
+      "titleEn": "Start with a field that steepens",
+      "eyebrow": "论文 01 / 2",
+      "eyebrowEn": "PAPER 01 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先观察一个会变陡的速度场"
+      ],
+      "bulletsEn": [
+        "Start with a field that steepens"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "physical-picture-b0",
+          "text": "要理解额外的物理信息，先观察物理图像而不是直接读方程。横轴 x 是负一到一的位置，纵轴 u 是无量纲的类速度标量。蓝色虚线是初始轮廓，金色实线表示时刻 t 的场。",
+          "textEn": "To understand that extra information, we need a concrete physical picture before the algebra. The horizontal axis x is position from minus one to one, and the vertical axis u is a dimensionless velocity-like scalar. The cyan dashed curve is its initial profile, while the gold curve shows the same field at time t.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "physical-picture-b1",
+          "text": "正负值对应不同的传播方向，因此中间的轮廓逐渐变陡。本教学实验的时间 t 只到零点二，黏性会平滑不断形成的梯度。这是标量 Burgers 模型，不是三维流体的直接数值模拟。",
+          "textEn": "Positive and negative values move the profile in different directions, so its middle becomes steeper. Time t runs only to zero point two in this teaching experiment, and viscosity smooths the developing gradient. This is a scalar Burgers model, not a direct simulation of a three-dimensional fluid.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "physical"
+    },
+    {
+      "id": "burgers-law",
+      "title": "用物理图像读方程",
+      "titleEn": "Read the equation through the moving profile",
+      "eyebrow": "论文 01 / 3",
+      "eyebrowEn": "PAPER 01 / 3",
+      "visual": "steps",
+      "formula": "u_t+u\\,u_x=\\nu u_{xx},\\quad\\nu=\\frac{0.01}{\\pi}",
+      "formulaEn": "u_t+u\\,u_x=\\nu u_{xx},\\quad\\nu=\\frac{0.01}{\\pi}",
+      "bullets": [
+        "用物理图像读方程"
+      ],
+      "bulletsEn": [
+        "Read the equation through the moving profile"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "burgers-law-b0",
+          "text": "变化的曲线带来一个问题：哪些变化符合物理规律？下标 t 表示一阶时间导数，下标 x 表示一阶空间导数，两个 x 表示二阶空间导数。u 乘 u 的空间导数表示非线性输运，局部场值会影响轮廓的传播。",
+          "textEn": "The evolving curve gives us a question: which changes are physically allowed? A subscript t means the first time derivative, a subscript x means the first spatial derivative, and double x means the second spatial derivative. The product u times u x is nonlinear transport, so local field values affect how the profile moves.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_t+u\\,u_x=\\nu u_{xx},\\quad\\nu=\\frac{0.01}{\\pi}",
+            "formulaEn": "u_t+u\\,u_x=\\nu u_{xx},\\quad\\nu=\\frac{0.01}{\\pi}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "burgers-law-b1",
+          "text": "右侧描述同一轮廓的扩散，nu 是正的黏性系数。它取零点零一除以圆周率，与论文一致。高亮的曲线和公式表达的是时间变化、输运与平滑之间的同一个平衡。",
+          "textEn": "The right side describes diffusion of the same profile, and nu is the positive viscosity coefficient. Its value is zero point zero one divided by pi, matching the paper. The highlighted curve and equation express one balance between time change, transport and smoothing.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "physical"
+    },
+    {
+      "id": "conditions",
+      "title": "哪一个解属于这个实验？",
+      "titleEn": "Which solution belongs to this experiment?",
+      "eyebrow": "论文 01 / 4",
+      "eyebrowEn": "PAPER 01 / 4",
+      "visual": "steps",
+      "formula": "u(x,0)=-\\sin(\\pi x),\\quad u(-1,t)=u(1,t)=0",
+      "formulaEn": "u(x,0)=-\\sin(\\pi x),\\quad u(-1,t)=u(1,t)=0",
+      "bullets": [
+        "哪一个解属于这个实验？"
+      ],
+      "bulletsEn": [
+        "Which solution belongs to this experiment?"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "conditions-b0",
+          "text": "仅有平衡方程还允许许多解，因此还要指定具体实验。在零时刻，场值是负的正弦函数，图中的虚线给出了这个起始轮廓。两个端点在整个实验中始终取零。",
+          "textEn": "The balance law alone allows many solutions, so we must specify the experiment. At time zero, the field is the negative sine of pi times x, shown by the dashed curve. The two endpoints remain at zero throughout the experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "u(x,0)=-\\sin(\\pi x),\\quad u(-1,t)=u(1,t)=0",
+            "formulaEn": "u(x,0)=-\\sin(\\pi x),\\quad u(-1,t)=u(1,t)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "conditions-b1",
+          "text": "第一个条件选择起始轮廓，端点条件规定边界行为。这些条件提供带标签的场值，而内部的方程检验点不提供场值标签。区分这两类信息，后面的训练损失就容易理解。",
+          "textEn": "The first condition selects the starting profile and the endpoint conditions select its boundary behaviour. All three conditions supply labelled field values, whereas interior equation tests do not supply field labels. Keeping that distinction clear will make the training loss easier to understand.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "physical"
+    },
+    {
+      "id": "field-network",
+      "title": "网络表示一个函数，而不是一张网格",
+      "titleEn": "The network represents a function",
+      "eyebrow": "论文 01 / 5",
+      "eyebrowEn": "PAPER 01 / 5",
+      "visual": "steps",
+      "formula": "(x,t)\\longmapsto u_\\theta(x,t)",
+      "formulaEn": "(x,t)\\longmapsto u_\\theta(x,t)",
+      "bullets": [
+        "网络表示一个函数，而不是一张网格"
+      ],
+      "bulletsEn": [
+        "The network represents a function"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "坐标 $(x,t)$",
+            "labelEn": "Coordinates $(x,t)$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "预测 $u_\theta$",
+            "labelEn": "Prediction $u_\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "field-network-b0",
+          "text": "我们已知道要寻找怎样的场，现在还需要一个可训练的表示。输入是一对坐标，包含位置 x 和时间 t。theta 表示网络的全部权重和偏置，u theta 是网络给出的标量场预测。",
+          "textEn": "We now know the field we want, but we still need a trainable representation. The input pair contains the position x and time t. The symbol theta denotes all network weights and biases, and u theta is its scalar field prediction.",
+          "focus": 0,
+          "scene": {
+            "formula": "(x,t)\\longmapsto u_\\theta(x,t)",
+            "formulaEn": "(x,t)\\longmapsto u_\\theta(x,t)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "field-network-b1",
+          "text": "箭头表示在任意查询坐标上计算同一个函数。本机实现使用三个隐藏层，每层二十四个双曲正切单元。双曲正切是光滑函数，这一点很重要，因为物理检验需要二阶空间导数。",
+          "textEn": "The arrow means evaluating that one function at any requested coordinate. Our small implementation uses three hidden layers with twenty-four tanh units each. Tanh is smooth, which matters because the physical test needs a second spatial derivative.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "coordinate-derivatives",
+      "title": "先求坐标导数，再更新网络参数",
+      "titleEn": "Differentiate coordinates before updating parameters",
+      "eyebrow": "论文 01 / 6",
+      "eyebrowEn": "PAPER 01 / 6",
+      "visual": "steps",
+      "formula": "u_\\theta\\ \\xrightarrow{\\ \\mathrm{autodiff}\\ }\\ (u_{\\theta,t},u_{\\theta,x},u_{\\theta,xx})",
+      "formulaEn": "u_\\theta\\ \\xrightarrow{\\ \\mathrm{autodiff}\\ }\\ (u_{\\theta,t},u_{\\theta,x},u_{\\theta,xx})",
+      "bullets": [
+        "先求坐标导数，再更新网络参数"
+      ],
+      "bulletsEn": [
+        "Differentiate coordinates before updating parameters"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "光滑网络",
+            "labelEn": "Smooth network",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "坐标导数",
+            "labelEn": "Coordinate derivatives",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "求导",
+            "labelEn": "Differentiate"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "coordinate-derivatives-b0",
+          "text": "可训练函数还不是物理检验，因此现在要对它求导。自动微分沿着网络应用链式法则，得到关于 x 和 t 的导数。这些是坐标导数，不是更新 theta 时使用的参数梯度。",
+          "textEn": "A trainable function is not yet a physical test, so we now differentiate it. Automatic differentiation follows the chain rule through the network to obtain derivatives with respect to x and t. These are coordinate derivatives, not the parameter gradients used to update theta.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta\\ \\xrightarrow{\\ \\mathrm{autodiff}\\ }\\ (u_{\\theta,t},u_{\\theta,x},u_{\\theta,xx})",
+            "formulaEn": "u_\\theta\\ \\xrightarrow{\\ \\mathrm{autodiff}\\ }\\ (u_{\\theta,t},u_{\\theta,x},u_{\\theta,xx})",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "coordinate-derivatives-b1",
+          "text": "第二个框收集时间导数、空间斜率与空间曲率。优化时，参数梯度还必须穿过这些求导计算。因此代码需要保留计算图，也就是设置 create graph。",
+          "textEn": "The second box collects the time derivative, spatial slope and spatial curvature. During optimisation, parameter gradients must pass through these derivative calculations as well. Preserving that computation graph is why the code requests create graph.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "residual",
+      "title": "残差到底在检验什么？",
+      "titleEn": "What does the residual test?",
+      "eyebrow": "论文 01 / 7",
+      "eyebrowEn": "PAPER 01 / 7",
+      "visual": "steps",
+      "formula": "f_\\theta=u_{\\theta,t}+u_\\theta u_{\\theta,x}-\\nu u_{\\theta,xx}",
+      "formulaEn": "f_\\theta=u_{\\theta,t}+u_\\theta u_{\\theta,x}-\\nu u_{\\theta,xx}",
+      "bullets": [
+        "残差到底在检验什么？"
+      ],
+      "bulletsEn": [
+        "What does the residual test?"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "预测和导数",
+            "labelEn": "Prediction and derivatives",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "局部失配 $f_\theta$",
+            "labelEn": "Local mismatch $f_\theta$",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "得到",
+            "labelEn": "Gives"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "residual-b0",
+          "text": "这些导数让我们能够把平衡方程变成数值检验。论文把得到的残差称为 f，这里 f theta 表示预测场的残差。把扩散项移到左侧后，符合物理的预测应当让这个表达式接近零。",
+          "textEn": "The derivatives let us turn the balance law into a numerical test. The paper calls the resulting residual f, and here f theta means the residual of our predicted field. We move diffusion to the left, so a physically consistent prediction should make this expression close to zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "f_\\theta=u_{\\theta,t}+u_\\theta u_{\\theta,x}-\\nu u_{\\theta,xx}",
+            "formulaEn": "f_\\theta=u_{\\theta,t}+u_\\theta u_{\\theta,x}-\\nu u_{\\theta,xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "residual-b1",
+          "text": "第二个框表示某个查询坐标上的局部失配。残差为零只检验该点是否符合方程，不代表初始轮廓正确，也不代表其他位置都正确。因此仍然需要条件标签和独立检验。",
+          "textEn": "The second box is the local mismatch at one chosen coordinate. Residual zero checks agreement with the equation at that point, not agreement with the initial profile or with every other point. That is why we still need both labelled conditions and many independent tests.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "two-point-sets",
+      "title": "标签点和方程点不是同一件事",
+      "titleEn": "Labels and equation tests are different",
+      "eyebrow": "论文 01 / 8",
+      "eyebrowEn": "PAPER 01 / 8",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "标签点和方程点不是同一件事"
+      ],
+      "bulletsEn": [
+        "Labels and equation tests are different"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "two-point-sets-b0",
+          "text": "局部检验留下一个实际问题：应该在哪里检验？在这幅时空图里，x 是横轴，t 是纵轴。初始边和边界上的金色点有已知场值，内部蓝色点则用于检验方程。",
+          "textEn": "A local test leaves a practical question: where should we evaluate it? In this space-time diagram, x is horizontal and t is vertical. Gold points on the initial and boundary edges have known field values, while cyan interior points are coordinates where we test the equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "two-point-sets-b1",
+          "text": "这些蓝色点称为配点，不会拿参考解作为训练标签。本实现用固定随机种子生成这些点。之后在不同坐标上验证，才有机会发现训练点掩盖的问题。",
+          "textEn": "The cyan points are called collocation points, and no reference solution is used as their training label. Our implementation fixes these points using one random seed. Validation later uses different coordinates, so it can detect mistakes hidden by the training set.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "samples"
+    },
+    {
+      "id": "data-loss",
+      "title": "先约束已知的场值",
+      "titleEn": "First constrain the known field values",
+      "eyebrow": "论文 01 / 9",
+      "eyebrowEn": "PAPER 01 / 9",
+      "visual": "steps",
+      "formula": "\\mathcal L_u=\\frac{1}{N_u}\\sum_{i=1}^{N_u}\\left|u_\\theta(x_u^i,t_u^i)-y_i\\right|^2",
+      "formulaEn": "\\mathcal L_u=\\frac{1}{N_u}\\sum_{i=1}^{N_u}\\left|u_\\theta(x_u^i,t_u^i)-y_i\\right|^2",
+      "bullets": [
+        "先约束已知的场值"
+      ],
+      "bulletsEn": [
+        "First constrain the known field values"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "预测减标签",
+            "labelEn": "Prediction minus label",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "平均平方",
+            "labelEn": "Mean square",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "平方并平均",
+            "labelEn": "Square and average"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "data-loss-b0",
+          "text": "现在把金色标签点变成可计算的拟合目标。N u 是标签点的总数，i 表示其中一个点，y i 是该点的已知场值。带下标 u 的坐标对表示这个标签所在的位置。",
+          "textEn": "The gold points now become a measurable fitting objective. N u is the number of labelled points, i indexes one such point, and y i is its known field value. The coordinate pair with subscript u identifies that labelled location.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_u=\\frac{1}{N_u}\\sum_{i=1}^{N_u}\\left|u_\\theta(x_u^i,t_u^i)-y_i\\right|^2",
+            "formulaEn": "\\mathcal L_u=\\frac{1}{N_u}\\sum_{i=1}^{N_u}\\left|u_\\theta(x_u^i,t_u^i)-y_i\\right|^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "data-loss-b1",
+          "text": "用预测值减去标签，将差平方，再对所有标签点取平均。这个均方误差称为 L u。标签只来自初始条件和边界条件，因此数据损失小，并不能证明内部演化正确。",
+          "textEn": "Subtract the label from the prediction, square the difference, then average over all labelled points. This mean squared error is called L u. Our labels come only from the initial and boundary conditions, so a small data loss alone cannot establish correct interior evolution.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "physics-loss",
+      "title": "再检验内部的物理平衡",
+      "titleEn": "Then test the interior physical balance",
+      "eyebrow": "论文 01 / 10",
+      "eyebrowEn": "PAPER 01 / 10",
+      "visual": "steps",
+      "formula": "\\mathcal L_f=\\frac{1}{N_f}\\sum_{j=1}^{N_f}\\left|f_\\theta(x_f^j,t_f^j)\\right|^2",
+      "formulaEn": "\\mathcal L_f=\\frac{1}{N_f}\\sum_{j=1}^{N_f}\\left|f_\\theta(x_f^j,t_f^j)\\right|^2",
+      "bullets": [
+        "再检验内部的物理平衡"
+      ],
+      "bulletsEn": [
+        "Then test the interior physical balance"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "配点残差",
+            "labelEn": "Collocation residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "平均平方",
+            "labelEn": "Mean square",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "平方并平均",
+            "labelEn": "Square and average"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "physics-loss-b0",
+          "text": "数据损失没有确定内部演化，所以再加入方程损失。N f 是配点总数，j 表示带下标 f 的一对配点坐标。我们在每个配点计算残差，不使用场值标签。",
+          "textEn": "The data loss does not determine interior evolution, so we add an equation loss. N f is the number of collocation points, and j indexes one coordinate pair with subscript f. At each of these points we evaluate the residual, without using a field-value label.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_f=\\frac{1}{N_f}\\sum_{j=1}^{N_f}\\left|f_\\theta(x_f^j,t_f^j)\\right|^2",
+            "formulaEn": "\\mathcal L_f=\\frac{1}{N_f}\\sum_{j=1}^{N_f}\\left|f_\\theta(x_f^j,t_f^j)\\right|^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "physics-loss-b1",
+          "text": "将这些残差平方后取平均，就得到 L f。这是有限个物理检验，不是方程在所有位置成立的证明。特别是，改变检验点的分布，可能改变模型遗漏的问题。",
+          "textEn": "Square those residuals and average them to obtain L f. This is a finite collection of physics tests, not a proof that the differential equation holds everywhere. In particular, changing which points are tested can change what the trained model misses.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "joint-objective",
+      "title": "两个损失更新同一组参数",
+      "titleEn": "Both losses update the same parameters",
+      "eyebrow": "论文 01 / 11",
+      "eyebrowEn": "PAPER 01 / 11",
+      "visual": "steps",
+      "formula": "\\mathcal L(\\theta)=\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta)",
+      "formulaEn": "\\mathcal L(\\theta)=\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta)",
+      "bullets": [
+        "两个损失更新同一组参数"
+      ],
+      "bulletsEn": [
+        "Both losses update the same parameters"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "满足条件",
+            "labelEn": "Fit the conditions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "满足方程",
+            "labelEn": "Fit the equation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "joint-objective-b0",
+          "text": "现在已有两个互补的检验，基础论文方法把两个均方损失相加。两项损失都依赖同一组 theta。只降低其中一项，仍可能无法满足另一项，即使总损失曲线看起来很好。",
+          "textEn": "We now have two complementary tests, so the basic paper formulation adds their mean squared losses. Both terms depend on the same theta. Lowering only one term can leave the other requirement unsatisfied, even when the total curve looks reassuring.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L(\\theta)=\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta)",
+            "formulaEn": "\\mathcal L(\\theta)=\\mathcal L_u(\\theta)+\\mathcal L_f(\\theta)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "joint-objective-b1",
+          "text": "本实现先用 Adam 更新，再进行少量全批次 L-BFGS 精修。L-BFGS 是一种拟牛顿优化方法，先用 Adam 预热是教学实现的选择，并非原论文基准流程。两种优化器都不提供全局收敛保证。",
+          "textEn": "Our implementation first uses Adam updates and then a small full-batch L-BFGS refinement. L-BFGS is a quasi-Newton optimisation method, and the Adam warm-up is a teaching implementation choice rather than the paper benchmark protocol. Neither optimiser gives us a global-convergence guarantee.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "autograd-code",
+      "title": "将导数图写成代码",
+      "titleEn": "Turn the derivative graph into code",
+      "eyebrow": "论文 01 / 12",
+      "eyebrowEn": "PAPER 01 / 12",
+      "visual": "steps",
+      "formula": "f_\\theta=u_t+u\\,u_x-\\nu u_{xx}",
+      "formulaEn": "f_\\theta=u_t+u\\,u_x-\\nu u_{xx}",
+      "bullets": [
+        "将导数图写成代码"
+      ],
+      "bulletsEn": [
+        "Turn the derivative graph into code"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "autograd-code-b0",
+          "text": "损失已定义好，现在把残差与实际代码对应起来。q 是一批按 x、t 排列的坐标，requires grad 用来开启坐标求导。网络输出 u，一阶梯度的第零列是空间斜率，第一列是时间导数。",
+          "textEn": "The loss is specified, so we can connect its residual to actual code. Here q is a batch of coordinate pairs ordered as x then t, and requires grad enables coordinate differentiation. The network returns u, and the first gradient contains the spatial slope in column zero and the time derivative in column one.",
+          "focus": 0,
+          "scene": {
+            "formula": "f_\\theta=u_t+u\\,u_x-\\nu u_{xx}",
+            "formulaEn": "f_\\theta=u_t+u\\,u_x-\\nu u_{xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "autograd-code-b1",
+          "text": "再对空间斜率求一次梯度，从第零列得到二阶空间导数。屏幕上的 grad 行是简写，完整可执行调用还指定梯度输出。下载代码包含这些完整调用，以及解析函数的导数顺序检验。",
+          "textEn": "A second gradient of the spatial slope supplies u x x from column zero. The displayed grad lines abbreviate torch autograd calls, whose full executable forms also specify the gradient outputs. The downloadable implementation contains those complete calls and an analytic derivative-order check.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "code"
+    },
+    {
+      "id": "cpu-budget",
+      "title": "哪些设置为了本机而改变？",
+      "titleEn": "What changes to fit a local CPU?",
+      "eyebrow": "论文 01 / 13",
+      "eyebrowEn": "PAPER 01 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "哪些设置为了本机而改变？"
+      ],
+      "bulletsEn": [
+        "What changes to fit a local CPU?"
+      ],
+      "sourceIds": [
+        "raissi2017-i",
+        "local-run"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "原论文算例",
+            "labelEn": "Original benchmark",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本机教学版",
+            "labelEn": "CPU teaching version",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpu-budget-b0",
+          "text": "读实验结果之前，要先区分论文方法和本机资源选择。原文 Burgers 算例覆盖零到一的时间区间，并使用一万个配点。原文报告的精度不是本小实验的目标。",
+          "textEn": "Before reading a result, we must separate the paper method from our resource choices. The original Burgers example spans time zero to one and uses ten thousand collocation points. Its reported accuracy is not the target of this small lesson.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpu-budget-b1",
+          "text": "本版本只算到零点二，使用三百八十四个配点和 1297 个可训练参数。程序使用四个 CPU 线程，单次运行有时间上限，不需要显卡。缩短时间区间避开了原文后期的尖锐内层难题，因此比较时必须说明这一简化。",
+          "textEn": "Our version stops at time zero point two, uses three hundred eighty-four collocation points and 1297 trainable parameters. It runs on four CPU threads with a per-run time cap and needs no GPU. Shortening the time window avoids the paper's later sharp-layer challenge, so comparisons must state that simplification.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "training-trace",
+      "title": "训练确实改变了预测场吗？",
+      "titleEn": "Does training improve the predicted field?",
+      "eyebrow": "论文 01 / 14",
+      "eyebrowEn": "PAPER 01 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "训练确实改变了预测场吗？"
+      ],
+      "bulletsEn": [
+        "Does training improve the predicted field?"
+      ],
+      "sourceIds": [
+        "raissi2017-i",
+        "local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "training-trace-b0",
+          "text": "资源设置已明确，现在可以检查真实保存的训练结果。横轴是位置 x，纵轴是终止时刻的 u。蓝色曲线是独立参考解，金色曲线随实际训练检查点推进。",
+          "textEn": "With those resource choices explicit, we can inspect the actual saved training run. The horizontal axis is x and the vertical axis is u at the final time. Cyan is the independent reference and gold is the network prediction as recorded training checkpoints advance.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "training-trace-b1",
+          "text": "图下的数字是在独立时空网格上计算的相对误差，不只是图中终止时刻切片的误差。本次固定种子的 PINN 用时 14.3 秒，相对误差为百分之 2.07。这些是本机实测的教学结果，不是从论文抄来的数值。",
+          "textEn": "The number below the plot reports relative error over a separate space-time grid, not just the plotted final-time slice. This single seeded PINN run finished in 14.3 seconds and reached 2.07 percent relative error. These are measured teaching results from this computer, not values copied from the paper.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "training"
+    },
+    {
+      "id": "data-only-control",
+      "title": "去掉物理项后会怎样？",
+      "titleEn": "What happens without the physics term?",
+      "eyebrow": "论文 01 / 15",
+      "eyebrowEn": "PAPER 01 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "去掉物理项后会怎样？"
+      ],
+      "bulletsEn": [
+        "What happens without the physics term?"
+      ],
+      "sourceIds": [
+        "raissi2017-i",
+        "local-run"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "data-only-control-b0",
+          "text": "曲线变好还不能说明是哪一部分方法起了作用，所以需要对照。本回放保留相同的网络、标签、初始化和优化日程，只移除物理损失。粉色是纯数据模型的最终预测，蓝色是参考解，金色是 PINN 检查点。",
+          "textEn": "A better-looking curve alone does not tell us which part of the method helped, so we need a control. This replay keeps the same architecture, labelled data, initialisation and optimiser schedule while removing the physics loss. Pink shows its final data-only prediction, alongside the cyan reference and gold PINN checkpoints.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "data-only-control-b1",
+          "text": "纯数据模型的相对误差为百分之 31.15，本次 PINN 则为百分之 2.07。由于求导需要额外工作，两组实验的计算代价并不相同。一个种子可以展示这里物理约束的作用，但不能证明普遍的速度或精度排名。",
+          "textEn": "The data-only run reaches 31.15 percent relative error, compared with 2.07 percent for this PINN. The two runs do not have identical computational cost because derivative evaluation adds work. One seed demonstrates the role of the constraint here, but does not establish a universal speed or accuracy ranking.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "comparison"
+    },
+    {
+      "id": "independent-validation",
+      "title": "验证不能重复训练时的检验",
+      "titleEn": "Validation must ask a different question",
+      "eyebrow": "论文 01 / 16",
+      "eyebrowEn": "PAPER 01 / 16",
+      "visual": "steps",
+      "formula": "\\varepsilon=\\frac{\\|u_\\theta-u_{\\rm ref}\\|_2}{\\|u_{\\rm ref}\\|_2}",
+      "formulaEn": "\\varepsilon=\\frac{\\|u_\\theta-u_{\\rm ref}\\|_2}{\\|u_{\\rm ref}\\|_2}",
+      "bullets": [
+        "验证不能重复训练时的检验"
+      ],
+      "bulletsEn": [
+        "Validation must ask a different question"
+      ],
+      "sourceIds": [
+        "raissi2017-i",
+        "local-run"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "独立参考和网格",
+            "labelEn": "Independent reference",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "误差和新配点",
+            "labelEn": "Error and new points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "独立检验",
+            "labelEn": "Check independently"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "independent-validation-b0",
+          "text": "只有参考解可信，对照实验才有意义，因此现在检查验证方法。epsilon 表示相对解误差，范数衡量独立的八十一乘十七网格上场值向量的欧氏长度。下标 ref 表示通过数值求积计算的独立 Cole-Hopf 参考解。",
+          "textEn": "The control is informative only if our reference is trustworthy, so now we examine the checks. The symbol epsilon is relative solution error, and the norm measures the Euclidean length of field values on a separate eighty-one by seventeen grid. The subscript ref means an independent Cole-Hopf reference evaluated by numerical quadrature.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\varepsilon=\\frac{\\|u_\\theta-u_{\\rm ref}\\|_2}{\\|u_{\\rm ref}\\|_2}",
+            "formulaEn": "\\varepsilon=\\frac{\\|u_\\theta-u_{\\rm ref}\\|_2}{\\|u_{\\rm ref}\\|_2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "independent-validation-b1",
+          "text": "训练前先把求积节点从九十六增加到一百六十，并检验初值与端点值。训练后还在五百一十二个新的随机坐标上检验微分残差。解误差和残差误差回答不同问题，不能用一个数字代替另一个。",
+          "textEn": "We refine quadrature from ninety-six to one hundred sixty nodes and check initial and endpoint values before training. We also test the trained differential residual on five hundred twelve new random coordinates. Solution error and residual error answer different questions, so neither number should replace the other.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "limits",
+      "title": "这个结果还不能证明什么？",
+      "titleEn": "What does this result not establish?",
+      "eyebrow": "论文 01 / 17",
+      "eyebrowEn": "PAPER 01 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这个结果还不能证明什么？"
+      ],
+      "bulletsEn": [
+        "What does this result not establish?"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "小损失",
+            "labelEn": "Small loss",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "可信结论",
+            "labelEn": "Justified conclusion",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "limits-b0",
+          "text": "独立检验增强了结果的可信度，但没有消除所有局限。训练损失小，并不保证方程在整个区域上成立。短时间区间的成功，也不能说明后期尖锐内层能够被正确解析。",
+          "textEn": "Those independent checks strengthen the result, but they do not remove every limitation. A small training loss is not a global PDE guarantee. Our short-window success also says little about resolving the sharp internal layer at later times.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        },
+        {
+          "id": "limits-b1",
+          "text": "第二个框需要更多证据，例如重复随机种子并检查配点敏感性。这里不声称 PINN 比常规数值求解器更快。本课建立的是可理解的实现和一个本机诊断案例。",
+          "textEn": "The second box requires evidence beyond one convenient experiment, including repeated seeds and sensitivity to collocation points. We deliberately avoid claiming that this PINN is faster than a conventional solver. The lesson establishes an understandable implementation and a local diagnostic example.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "paper-map",
+      "title": "本课覆盖论文的哪一部分？",
+      "titleEn": "Which part of the paper did we implement?",
+      "eyebrow": "论文 01 / 18",
+      "eyebrowEn": "PAPER 01 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "本课覆盖论文的哪一部分？"
+      ],
+      "bulletsEn": [
+        "Which part of the paper did we implement?"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "连续时间",
+            "labelEn": "Continuous time",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "离散时间",
+            "labelEn": "Discrete time",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "paper-map-b0",
+          "text": "我们实现了论文中的一条路线，现在要把它放回完整论文的位置。连续时间模型同时输入空间与时间，并检验微分残差。这就是本课一直使用的左侧方法。",
+          "textEn": "We have implemented one path through the paper, so we should locate it within the full contribution. Continuous-time models input space and time together and test differential residuals. That is the left-hand formulation used throughout this lesson.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "paper-map-b1",
+          "text": "右侧方法使用结构化时间推进关系，以及输出中间阶段的多输出网络。论文还研究其他方程，但本课没有复现那些实验。待残差和验证思路掌握后，后续可以再实现这种形式。",
+          "textEn": "The right-hand formulation uses structured time-stepping relations and multi-output networks for intermediate stages. The paper also studies other equations, but we have not reproduced those experiments here. A later implementation can add that formulation after the basic residual and validation ideas are secure.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "one-change-exercise",
+      "title": "只改变一个设置，先预测结果",
+      "titleEn": "Change one setting and predict the outcome",
+      "eyebrow": "论文 01 / 19",
+      "eyebrowEn": "PAPER 01 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "只改变一个设置，先预测结果"
+      ],
+      "bulletsEn": [
+        "Change one setting and predict the outcome"
+      ],
+      "sourceIds": [
+        "raissi2017-i",
+        "local-run"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "先作预测",
+            "labelEn": "Make a prediction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "运行并解释",
+            "labelEn": "Run and explain",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "one-change-exercise-b0",
+          "text": "区分方法与实验之后，可以做一个很有价值的练习。固定网络和配点数量，只扩大时间区间，先预测结果。写下你预计解误差、残差误差或两者会怎样变化。",
+          "textEn": "The distinction between a method and an experiment suggests a useful exercise. Predict what happens if the time window grows while the network and sample count remain fixed. Write down whether you expect solution error, residual error or both to change.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "one-change-exercise-b1",
+          "text": "然后只修改下载脚本中的时间上限常量，并保留 CPU 时间预算。将新指标与已保存实验比较，同时检查优化器是否触及预算。要解释结果，而不是为了让结果好看而同时增加所有资源。",
+          "textEn": "Then edit only the time-window constant in the downloadable script and keep the CPU time cap. Compare the new metrics with the saved run, including whether the optimiser reached the budget. Explain the outcome instead of hiding an unfavourable result by increasing every resource at once.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "next-paper",
+      "title": "为什么下一篇转向参数识别？",
+      "titleEn": "Why should the next paper infer parameters?",
+      "eyebrow": "论文 01 / 20",
+      "eyebrowEn": "PAPER 01 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么下一篇转向参数识别？"
+      ],
+      "bulletsEn": [
+        "Why should the next paper infer parameters?"
+      ],
+      "sourceIds": [
+        "raissi2017-i"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "已知黏性求场",
+            "labelEn": "Known viscosity → field",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "观测场求黏性",
+            "labelEn": "Observed field → viscosity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "next-paper-b0",
+          "text": "本次实现假定黏性已知，因此还有一个重要科学问题没有回答。只给演化场的观测，能不能识别方程系数？这改变的是哪些量需要训练，而不只是把网络做大。",
+          "textEn": "This implementation assumed that viscosity was known, so one important scientific question remains unanswered. Given only observations of the evolving field, could the method identify the governing coefficient? That changes which quantities are trainable, rather than merely making the network larger.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "next-paper-b1",
+          "text": "下一篇计划讲述关于微分方程数据驱动发现的第二部分。将复用小型 Burgers 问题，加入未知系数，再研究什么观测能让它们可识别。这是后续计划，不是已经完成的反演实验。",
+          "textEn": "The next planned paper is Part II on data-driven discovery of differential equations. We will reuse a small Burgers problem and add unknown coefficients, then study what observations make them identifiable. It is a planned next lesson, not an already completed inverse experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

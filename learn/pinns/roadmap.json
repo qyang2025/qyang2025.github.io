@@ -1,0 +1,64 @@
+{
+  "format": "one-paper-one-presentation",
+  "statusLabels": {
+    "Implemented": "Built, executed and checked",
+    "Planned": "Reading route only; implementation not yet completed"
+  },
+  "resourcePolicy": {
+    "device": "CPU",
+    "threads": 4,
+    "defaultPerRunTrainingCapSeconds": 90,
+    "defaultMaxParameters": 5000,
+    "defaultMaxCollocationPoints": 1024,
+    "referencePreference": [
+      "analytic",
+      "quadrature",
+      "small independently checked numerical reference"
+    ],
+    "noBrowserTraining": true,
+    "fullBenchmarkReproductionRequired": false,
+    "disclosure": "Every implementation must state differences from the original paper and report measured local results, including failures."
+  },
+  "papers": [
+    {
+      "number": "01",
+      "status": "Implemented",
+      "paper": "Raissi, Perdikaris & Karniadakis (2017), Part I",
+      "source": "https://arxiv.org/abs/1711.10561",
+      "topic": "Continuous-time Burgers PINN",
+      "scope": "Short-window forward solve; residual construction; automatic differentiation; a data-only control."
+    },
+    {
+      "number": "02",
+      "status": "Planned",
+      "paper": "Raissi, Perdikaris & Karniadakis (2017), Part II",
+      "source": "https://arxiv.org/abs/1711.10566",
+      "topic": "From a known equation to unknown coefficients",
+      "scope": "Reuse a small Burgers problem, then examine coefficient recovery, observation placement and identifiability."
+    },
+    {
+      "number": "03",
+      "status": "Planned",
+      "paper": "Wang, Teng & Perdikaris (2020 preprint)",
+      "source": "https://arxiv.org/abs/2001.04536",
+      "topic": "Unbalanced gradients and loss terms",
+      "scope": "A small one-dimensional Poisson adaptation with an analytic reference; inspect gradient scales before testing balancing."
+    },
+    {
+      "number": "04",
+      "status": "Planned",
+      "paper": "Krishnapriyan et al. (NeurIPS 2021)",
+      "source": "https://arxiv.org/abs/2109.01050",
+      "topic": "Failure modes and curriculum training",
+      "scope": "A one-dimensional convection example with an analytic solution; change one difficulty parameter at a time."
+    },
+    {
+      "number": "05",
+      "status": "Planned",
+      "paper": "Wang, Sankaran & Perdikaris (2022 preprint)",
+      "source": "https://arxiv.org/abs/2203.07404",
+      "topic": "Respecting temporal causality",
+      "scope": "Demonstrate causal weighting on a small time-dependent problem, not a turbulent-flow reproduction."
+    }
+  ]
+}

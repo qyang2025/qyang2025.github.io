@@ -1,5 +1,6 @@
 export function isOutline(slide){return /^(course-outline|supplement-outline|outline|agenda)$/i.test(slide?.id||'');}
 export function lessonSections(lesson){
+ if(Array.isArray(lesson.sectionStarts)&&lesson.sectionStarts.length){return lesson.sectionStarts.map((part,i)=>({index:i,title:part.title,titleEn:part.titleEn,startIndex:part.slide,ids:lesson.slides.slice(part.slide,lesson.sectionStarts[i+1]?.slide).map(s=>s.id)}));}
  const content=lesson.slides.filter(s=>!isOutline(s)),n=content.length;
  const physicalChapter=lesson.courseId==='pinns'&&content.some(s=>s.id==='pinn-1-network')&&content.some(s=>s.id==='pinn-1-residual');
  const cuts=physicalChapter?[content.findIndex(s=>s.id==='pinn-1-network'),content.findIndex(s=>s.id==='pinn-1-residual'),n]:n>=8?[Math.ceil(n/4),Math.ceil(n*3/4),n]:n>=3?[Math.ceil(n/3),Math.ceil(n*2/3),n]:n===2?[1,2]:[n];
