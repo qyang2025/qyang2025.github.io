@@ -706,8 +706,8 @@
             "revealAt": 0
           },
           {
-            "label": "预测 $u_\theta$",
-            "labelEn": "Prediction $u_\theta$",
+            "label": "预测 $u_\\theta$",
+            "labelEn": "Prediction $u_\\theta$",
             "detail": "",
             "detailEn": "",
             "icon": "target",
@@ -1000,8 +1000,8 @@
             "revealAt": 0
           },
           {
-            "label": "局部失配 $f_\theta$",
-            "labelEn": "Local mismatch $f_\theta$",
+            "label": "局部失配 $f_\\theta$",
+            "labelEn": "Local mismatch $f_\\theta$",
             "detail": "",
             "detailEn": "",
             "icon": "target",

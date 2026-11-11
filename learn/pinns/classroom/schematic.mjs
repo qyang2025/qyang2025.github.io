@@ -26,6 +26,7 @@ export function validateSchematic(diagram, beats) {
   const expected = diagram.kind === 'compare' ? 0 : diagram.nodes.length - (diagram.kind === 'cycle' ? 0 : 1);
   if (diagram.links.length !== expected) fail();
   for (const n of diagram.nodes) {
+    if ([n.label,n.labelEn,n.detail,n.detailEn].some(value=>typeof value==='string'&&/[\u0000-\u001f\u007f]/.test(value))) fail();
     if (!schematicIcons.includes(n.icon) || !Number.isInteger(n.revealAt) || n.revealAt < 0 || n.revealAt >= beats ||
       typeof n.label !== 'string' || !n.label.trim() || n.label.length > 60 || typeof n.labelEn !== 'string' || !n.labelEn.trim() || n.labelEn.length > 90 ||
       typeof n.detail !== 'string' || n.detail.length > 90 || typeof n.detailEn !== 'string' || n.detailEn.length > 130) fail();
