@@ -120,3 +120,43 @@
 .reveal-enter{animation:board-reveal .35s ease-out both}
 @keyframes board-reveal{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.reveal-enter{animation:none}}
+
+/* Keep the same logical board and professor clearance in a docked or mobile view. */
+.classroom-panel-buttons{display:none}
+.classroom-fitted .workspace{height:calc(100dvh - var(--classroom-header-height,60px))}
+.classroom-compact .topbar{height:auto;min-height:56px;padding:8px 12px;gap:8px;flex-wrap:wrap}
+.classroom-compact .brand{gap:8px;font-size:20px}
+.classroom-compact .brand-icon{width:36px;height:36px;font-size:28px}
+.classroom-compact .brand small{display:none}
+.classroom-compact .top-actions{margin-left:auto;gap:10px;flex-wrap:wrap}
+.classroom-compact .top-actions a{font-size:12px}
+.classroom-compact .top-actions label{font-size:12px}
+.classroom-compact .classroom-panel-buttons{display:flex;gap:6px;margin-left:auto}
+.classroom-compact .classroom-panel-buttons button{padding:5px 10px;font-size:13px;line-height:1.25}
+.classroom-compact .workspace{grid-template-columns:minmax(0,1fr);padding:8px 12px;gap:0}
+.classroom-compact .lecture-column{grid-column:1;grid-row:1;gap:6px}
+.classroom-compact .outline-panel,.classroom-compact .professor-panel{display:none;position:fixed;z-index:30;top:calc(var(--classroom-header-height,60px) + 4px);bottom:8px;left:12px;right:12px;width:auto;height:auto;max-height:none;padding:16px;background:var(--paper,#f6f5ee);border:1px solid var(--line,#d8ded2);border-radius:10px;box-shadow:0 8px 30px #0003}
+.classroom-compact[data-classroom-panel="slides"] .outline-panel,.classroom-compact[data-classroom-panel="resources"] .professor-panel{display:block}
+.classroom-compact .outline-panel #outline{display:block;overflow-x:hidden}
+.classroom-compact .outline-panel .outline-item{min-width:0}
+.classroom-compact .caption{height:clamp(100px,18dvh,144px);padding:8px 12px;gap:4px}
+.classroom-compact .caption p{font-size:20px;line-height:1.35}
+.classroom-compact .playback-row{flex-wrap:wrap;gap:6px;min-height:36px;justify-content:center}
+.classroom-compact .play-buttons{gap:5px;flex-wrap:wrap;justify-content:center}
+.classroom-compact .playback-row button,.classroom-compact .playback-row select{padding:6px 9px;font-size:12px;min-height:32px}
+.classroom-compact #beat-label{font-size:11px}
+.classroom-compact .course-roadmap{overflow-x:auto;flex-wrap:nowrap;max-width:100%;scrollbar-width:thin}
+.classroom-compact .course-roadmap button{flex-shrink:0;white-space:nowrap;font-size:11px;padding:5px 7px}
+@media(max-width:480px){.classroom-compact .caption{height:clamp(144px,24dvh,200px)}}
+
+/* Media queries describe the window, not the 960px board inside it. */
+.classroom-fitted .schematic-flow .schematic-body,.classroom-fitted .schematic-cycle .schematic-body{flex-direction:row}
+.classroom-fitted .schematic-flow .schematic-node,.classroom-fitted .schematic-cycle .schematic-node{width:auto}
+.classroom-fitted .schematic-flow .schematic-link,.classroom-fitted .schematic-cycle .schematic-link{flex-grow:0;flex-shrink:0}
+.classroom-fitted .schematic-flow .schematic-link b,.classroom-fitted .schematic-cycle .schematic-link b{transform:none}
+.classroom-fitted .schematic-branches{flex-direction:row}
+.classroom-fitted .heat-lesson{--rod-panel-width:620px}
+.classroom-fitted .heat-lesson .heat-scene{grid-template-columns:minmax(0,620px) 200px;width:844px}
+.classroom-fitted .heat-lesson .rod-coefficient{width:200px;flex-direction:column;flex-wrap:nowrap;padding:14px 8px}
+.classroom-fitted .heat-lesson .rod-coefficient span{font-size:24px}
+.classroom-fitted .heat-lesson .rod-visual svg{height:180px}

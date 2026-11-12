@@ -5,6 +5,17 @@ export class ClassroomViewport {
  constructor(){
   this.stage=document.getElementById('lecture-stage');this.canvas=document.getElementById('lecture-canvas');this.column=document.querySelector('.lecture-column');this.question=document.querySelector('.question-area');this.settings=document.querySelector('.professor-panel');
   this.placeholder=document.createComment('question panel on narrow screens');this.question.before(this.placeholder);
+  this.panelButtons=document.createElement('div');this.panelButtons.className='classroom-panel-buttons';
+  for(const [key,panel] of [['slides',document.querySelector('.outline-panel')],['resources',this.settings]]){
+   panel.id ||= `classroom-${key}`;
+   const button=document.createElement('button');button.type='button';button.dataset.panel=key;button.setAttribute('aria-controls',panel.id);button.setAttribute('aria-expanded','false');
+   button.addEventListener('click',()=>this.openPanel(document.documentElement.dataset.classroomPanel===key?'':key));this.panelButtons.append(button);
+  }
+  document.querySelector('.topbar').append(this.panelButtons);
+  this.escape=event=>{if(event.key==='Escape'&&document.documentElement.dataset.classroomPanel){const key=document.documentElement.dataset.classroomPanel;this.openPanel('');this.panelButtons.querySelector(`[data-panel="${key}"]`).focus();}};
+  document.addEventListener('keydown',this.escape);
+  this.selectPanelItem=event=>{if(event.target.closest('#outline button')||event.type==='change')this.openPanel('');};
+  document.getElementById('outline').addEventListener('click',this.selectPanelItem,true);document.getElementById('chapter-select')?.addEventListener('change',this.selectPanelItem);
   this.schedule=this.schedule.bind(this);this.fit=this.fit.bind(this);window.addEventListener('resize',this.schedule);
   this.resize=new ResizeObserver(this.schedule);for(const el of [this.column,document.getElementById('course-roadmap'),document.querySelector('.lecture-meta'),document.querySelector('.playback'),document.querySelector('.caption')])this.resize.observe(el);
   this.mutations=new MutationObserver(this.schedule);this.mutations.observe(document.getElementById('slide'),{childList:true,subtree:true});
@@ -12,7 +23,11 @@ export class ClassroomViewport {
  }
  schedule(){if(this.closed||this.frame)return;this.frame=requestAnimationFrame(()=>{this.frame=null;this.fit();});}
  fit(){
-  const fixed=innerWidth>=900&&innerHeight>=600;document.documentElement.classList.toggle('classroom-fitted',fixed);
+  const fixed=innerWidth>=280&&innerHeight>=360,compact=fixed&&(innerWidth<900||innerHeight<600);
+  document.documentElement.classList.toggle('classroom-fitted',fixed);document.documentElement.classList.toggle('classroom-compact',compact);
+  if(!compact)this.openPanel('');
+  const zh=document.documentElement.lang.startsWith('zh');for(const button of this.panelButtons.children)button.textContent=button.dataset.panel==='slides'?(zh?'课程目录':'Slides'):(zh?'资料与设置':'Resources');
+  document.documentElement.style.setProperty('--classroom-header-height',`${document.querySelector('.topbar').getBoundingClientRect().height}px`);
   const controls=[document.getElementById('course-roadmap'),document.querySelector('.lecture-meta'),document.querySelector('.playback'),document.querySelector('.caption')];
   if(!fixed){if(this.question.parentNode!==this.column)this.placeholder.after(this.question);delete this.stage.dataset.fixedSlide;for(const el of [this.stage,...controls]){el.style.width='';el.style.height='';}this.canvas.style.transform='';return;}
   if(this.question.parentNode!==this.settings)this.settings.querySelector('.professor-description').after(this.question);
@@ -34,7 +49,8 @@ export class ClassroomViewport {
   }
 
  }
- close(){this.closed=true;cancelAnimationFrame(this.frame);this.resize.disconnect();this.mutations.disconnect();window.removeEventListener('resize',this.schedule);}
+ openPanel(key){document.documentElement.dataset.classroomPanel=key;for(const button of this.panelButtons.children)button.setAttribute('aria-expanded',String(button.dataset.panel===key));}
+ close(){this.closed=true;cancelAnimationFrame(this.frame);this.resize.disconnect();this.mutations.disconnect();window.removeEventListener('resize',this.schedule);document.removeEventListener('keydown',this.escape);document.getElementById('outline').removeEventListener('click',this.selectPanelItem,true);document.getElementById('chapter-select')?.removeEventListener('change',this.selectPanelItem);this.panelButtons.remove();}
 }
 
 function layoutDiagram(scene){
