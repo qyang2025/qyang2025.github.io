@@ -3479,8 +3479,8 @@
         },
         {
           "id": "next-conservative-interfaces-b1",
-          "text": "后续讲解会用小型复合介质问题检查守恒区域分解思想。同时解释接口的状态衔接与通量平衡。这是在加入新的物理机制，而不是把自适应采样当成所有建模决策的替代品。",
-          "textEn": "A future presentation will examine a conservative domain-decomposition idea through a small composite-medium problem. It will explain both state agreement and flux balance at an interface. This adds a new physical mechanism rather than treating adaptive sampling as a replacement for every modelling decision.",
+          "text": "下一篇用小型复合介质问题检查守恒区域分解思想。同时解释接口的状态衔接与通量平衡。这是在加入新的物理机制，而不是把自适应采样当成所有建模决策的替代品。",
+          "textEn": "The next presentation examines a conservative domain-decomposition idea through a small composite-medium problem. It explains both state agreement and flux balance at an interface. This adds a new physical mechanism rather than treating adaptive sampling as a replacement for every modelling decision.",
           "focus": 0,
           "scene": {
             "formula": "",

@@ -9,7 +9,7 @@
       },
       "zh": {
         "total": 64,
-        "ready": 0
+        "ready": 64
       }
     },
     {
@@ -20,7 +20,7 @@
       },
       "zh": {
         "total": 55,
-        "ready": 0
+        "ready": 23
       }
     },
     {
@@ -78,7 +78,7 @@
         },
         "zh": {
           "total": 64,
-          "ready": 0
+          "ready": 64
         }
       },
       {
@@ -89,7 +89,7 @@
         },
         "zh": {
           "total": 55,
-          "ready": 0
+          "ready": 23
         }
       },
       {
@@ -224,12 +224,25 @@
         },
         "zh": {
           "total": 144,
-          "ready": 32
+          "ready": 144
+        }
+      }
+    ],
+    "jagtap2020": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 156,
+          "ready": 156
+        },
+        "zh": {
+          "total": 151,
+          "ready": 151
         }
       }
     ]
   },
-  "clips": 2266,
+  "clips": 2772,
   "features": [
     "progressive-reveal",
     "physical-animation",

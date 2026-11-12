@@ -20,7 +20,7 @@ To add a news item or paper, edit the `#news` / `#publications` sections in `ind
 ## Professor Vee learning series
 
 The homepage Teaching section and sidebar link to [Learning series](learn/). The
-[PINNs series](learn/pinns/) contains 7 paper presentations and 165 slides,
+[PINNs series](learn/pinns/) contains 8 paper presentations and 191 slides,
 plus a separate six-chapter foundation course. Everything published here is
 static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 
@@ -32,9 +32,10 @@ static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 | 04 | Krishnapriyan 2021 · Curriculum | 23 | 136/136 | 134/134 | [Open](learn/pinns/classroom/?paper=krishnapriyan2021&language=en) |
 | 05 | Wang 2022 · Causality | 24 | 142/142 | 140/140 | [Open](learn/pinns/classroom/?paper=wang2022&language=en) |
 | 06 | Yu 2022 · gPINN | 24 | 141/141 | 135/135 | [Open](learn/pinns/classroom/?paper=yu2022&language=en) |
-| 07 | Wu 2023 · Sampling | 25 | 148/148 | 32/144 | [Open](learn/pinns/classroom/?paper=wu2023&language=en) |
+| 07 | Wu 2023 · Sampling | 25 | 148/148 | 144/144 | [Open](learn/pinns/classroom/?paper=wu2023&language=en) |
+| 08 | Jagtap 2020 · cPINN | 26 | 156/156 | 151/151 | [Open](learn/pinns/classroom/?paper=jagtap2020&language=en) |
 
-Foundation course recordings: English 453/453; Chinese 0/345.
+Foundation course recordings: English 453/453; Chinese 87/345.
 Incomplete recording sets stay in reading mode. A classroom language becomes
 playable only when all of that presentation's clips are available.
 

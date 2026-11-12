@@ -1,0 +1,14 @@
+{
+  "paper": "08",
+  "note": "Teacher reference answers for the narrated exercise; analytic expectations are distinguished from measured training outcomes.",
+  "checks": [
+    {
+      "slideId": "cpinn-exercise",
+      "questionEn": "Before changing the material ratio, predict what stays continuous",
+      "questionZh": "改变材料比之前，先预测哪个量连续",
+      "answerEn": "At right conductivity two, integrating q_x=1 and applying both exterior temperatures gives q=x+11/12. The joint temperature is5/12 and common flux17/12. Left and right slopes are minus17/12 and minus17/24: temperature and flux remain continuous, but slopes differ by the conductivity ratio. These are analytic predictions; the finite-penalty neural runs must still report their actual deviations.",
+      "answerZh": "右导热系数为二时，对 q x 等于一积分，并应用两端温度，可得 q 等于 x 加十二分之十一。接口温度为十二分之五，共同通量为十二分之十七。左右斜率分别为负十二分之十七与负二十四分之十七：温度与通量连续，但斜率按导热系数比不同。这些是解析预测；有限惩罚网络运行仍须报告实际偏差。",
+      "equation": "u_I=\\frac5{12},\\quad q_I=\\frac{17}{12},\\quad u_{L,x}=-\\frac{17}{12},\\quad u_{R,x}=-\\frac{17}{24}"
+    }
+  ]
+}

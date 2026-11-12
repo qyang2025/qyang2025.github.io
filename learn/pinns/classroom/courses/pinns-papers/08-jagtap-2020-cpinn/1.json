@@ -1,0 +1,3663 @@
+{
+  "id": "139afec2-2020-4008-8008-000000000008",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-08",
+  "chapterIndex": 0,
+  "title": "论文 08：cPINN 与双材料守恒接口",
+  "titleEn": "Paper 08: cPINN and conservative material interfaces",
+  "summary": "用双材料稳态导热和十二次小型 CPU 消融，连接温度、斜率、热流、接口惩罚与整体平衡。",
+  "summaryEn": "Two-material steady conduction and twelve CPU ablations: connect temperature, slopes, heat flux, interface penalties and global energy balance.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "jagtap2020",
+      "name": "Jagtap, Kharazmi & Karniadakis (2020), Conservative physics-informed neural networks on discrete domains for conservation laws: Applications to forward and inverse problems",
+      "url": "https://doi.org/10.1016/j.cma.2020.113028",
+      "text": "cPINN domain decomposition with flux and average-state interface coupling. The two-material, steady heat-conduction problem is an independently derived teaching adaptation, not an original Burgers, KdV, Navier–Stokes or Euler benchmark."
+    },
+    {
+      "id": "authors-cpinn",
+      "name": "Authors’ Conservative_PINNs implementation",
+      "url": "https://github.com/AmeyaJagtap/Conservative_PINNs",
+      "text": "Original four-domain TensorFlow Burgers example. The teaching program instead uses two small PyTorch networks, hard exterior temperatures, fixed tanh and one joint Adam optimiser. Jump penalties have explicitly stated weights; they are not the original per-domain loss normalisations."
+    },
+    {
+      "id": "cpinn-local",
+      "name": "All twelve two-material CPU runs and interface records",
+      "url": "/courses/pinns-papers/08-jagtap-2020-cpinn/trace.json",
+      "text": "Four interface ablations, three paired seeds, temperature and flux fields, both interface traces, global balance defects and independent residual checks."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "材料与守恒物理",
+      "titleEn": "Materials and conservation"
+    },
+    {
+      "slide": 8,
+      "title": "接口与联合目标",
+      "titleEn": "Interfaces and joint losses"
+    },
+    {
+      "slide": 18,
+      "title": "实验、验证与边界",
+      "titleEn": "Experiments and limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 08：cPINN 与双材料守恒接口",
+      "titleEn": "Paper 08: cPINN and conservative material interfaces",
+      "eyebrow": "PINNs 论文 08 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 08 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用双材料稳态导热和十二次小型 CPU 消融，连接温度、斜率、热流、接口惩罚与整体平衡。"
+      ],
+      "bulletsEn": [
+        "Two-material steady conduction and twelve CPU ablations: connect temperature, slopes, heat flux, interface penalties and global energy balance."
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "材料与守恒物理",
+            "labelEn": "Materials and conservation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "接口与联合目标",
+            "labelEn": "Interfaces and joint losses",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "实验、验证与边界",
+            "labelEn": "Experiments and limits",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "采样论文选择检查一个模型的位置，本篇研究相邻材料模型应当怎样连接。先用复合产热杆推导状态与通量接口条件。再比较十二次小型 CPU 运行，检查温度、热流、接口差与整体能量平衡。",
+          "textEn": "The sampling paper chose where to enforce one model, so we now examine how neighbouring material models should be connected. First use a composite heated rod to derive state and flux interface conditions. Then compare twelve small CPU runs, inspecting temperature, heat flow, interface jumps and global energy balance.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "why-conservative-interfaces",
+      "title": "选点之后，还要说明区域怎样连接",
+      "titleEn": "After choosing points, explain how regions connect",
+      "eyebrow": "论文 08 / 2",
+      "eyebrowEn": "PAPER 08 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "选点之后，还要说明区域怎样连接"
+      ],
+      "bulletsEn": [
+        "After choosing points, explain how regions connect"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：约束位置的选择",
+            "labelEn": "Previously: choose enforcement locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：物理接口的连接",
+            "labelEn": "Now: connect physical interfaces",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "why-conservative-interfaces-b0",
+          "text": "基于残差的采样改变了检查模型的位置，但有些问题的接头两侧是不同材料。仅增加约束点，不能定义它们如何交换热量。因此，本篇引入守恒接口耦合。",
+          "textEn": "Residual-based sampling changed where a model was tested, but some problems contain different materials on the two sides of a joint. More enforcement points alone do not define how those materials exchange heat. This episode therefore introduces conservative interface coupling.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "why-conservative-interfaces-b1",
+          "text": "在一根复合杆上使用两个很小的网络，再逐个移除接口条件。目标是理解缺少的物理，而不是声称大规模加速。这是 cPINN 思想的小型教学改编。",
+          "textEn": "We will use two tiny networks on one composite rod, then remove interface conditions one at a time. The purpose is to understand the missing physics rather than claim a large-scale speedup. The experiment is a small teaching adaptation of the cPINN idea.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "cpinn-physical",
+      "title": "两种材料，温度连续但斜率不同",
+      "titleEn": "Two materials: continuous temperature, different slopes",
+      "eyebrow": "论文 08 / 3",
+      "eyebrowEn": "PAPER 08 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "两种材料，温度连续但斜率不同"
+      ],
+      "bulletsEn": [
+        "Two materials: continuous temperature, different slopes"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-physical-b0",
+          "text": "想象两种材料完美粘接成杆，左端保持高温，右端保持低温。杆内还均匀产生热量。温度曲线在接头处连续，但两种材料内的弯曲不同。",
+          "textEn": "Imagine a rod made from two perfectly bonded materials, with its left end held hot and its right end cold. Heat is also generated uniformly inside the rod. The temperature profile is continuous at the joint but bends differently in the two materials.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-physical-b1",
+          "text": "u 表示归一化稳态温度，x 是沿杆位置。移动标记表示热量向右流动，不是数值瞬态模拟。先观察材料接头处斜率的改变，再用数学表达。",
+          "textEn": "U denotes the normalised steady temperature and x is position along the rod. The moving markers indicate heat flow to the right, not a numerical transient simulation. Watch the change of slope at the material joint before we express it mathematically.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "cpinn-physical",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-materials",
+      "title": "把材料分区和接口位置定义清楚",
+      "titleEn": "Define the material regions and interface location",
+      "eyebrow": "论文 08 / 4",
+      "eyebrowEn": "PAPER 08 / 4",
+      "visual": "steps",
+      "formula": "a=\\tfrac12,\\qquad k_L=1,\\quad k_R=4",
+      "formulaEn": "a=\\tfrac12,\\qquad k_L=1,\\quad k_R=4",
+      "bullets": [
+        "把材料分区和接口位置定义清楚"
+      ],
+      "bulletsEn": [
+        "Define the material regions and interface location"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "左半段的导热系数为一",
+            "labelEn": "Left conductivity is one",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "右半段的导热系数为四",
+            "labelEn": "Right conductivity is four",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-materials-b0",
+          "text": "接口位于单位区间的一半，记作 a。k L 与 k R 是左右材料已知的正导热系数。分别取一和四。",
+          "textEn": "The joint is at position a equal to one half of the unit interval. K L and k R are the known positive conductivities in the left and right materials. We set them to one and four.",
+          "focus": 0,
+          "scene": {
+            "formula": "a=\\tfrac12,\\qquad k_L=1,\\quad k_R=4",
+            "formulaEn": "a=\\tfrac12,\\qquad k_L=1,\\quad k_R=4",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-materials-b1",
+          "text": "更高的导热系数可以用更小的温度斜率传递同一热通量。因此，温度连续不等于空间导数连续。要约束物理通量，而不是盲目匹配导数。",
+          "textEn": "A higher conductivity can carry the same heat flux with a smaller temperature slope. This explains why continuity of temperature should not be confused with continuity of its spatial derivative. We will enforce the physical flux rather than blindly matching derivatives.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-conservation",
+      "title": "先从一小段杆的能量平衡出发",
+      "titleEn": "Start from energy balance on a short rod segment",
+      "eyebrow": "论文 08 / 5",
+      "eyebrowEn": "PAPER 08 / 5",
+      "visual": "steps",
+      "formula": "q_x=s,\\qquad s=1",
+      "formulaEn": "q_x=s,\\qquad s=1",
+      "bullets": [
+        "先从一小段杆的能量平衡出发"
+      ],
+      "bulletsEn": [
+        "Start from energy balance on a short rod segment"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "进入与离开的热流",
+            "labelEn": "Incoming and outgoing heat flow",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "内部均匀产生热量",
+            "labelEn": "Uniform internal heat generation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-conservation-b0",
+          "text": "令 q 为热通量，以向右为正。稳态时，一小段杆的热通量增量平衡内部产热。s 是给定的单位长度热源，在归一化单位中取一。",
+          "textEn": "Let q be heat flux, defined as positive toward the right. In steady state, the increase of flux along a short segment balances its internal heat generation. S is that prescribed source per unit length, chosen as one in normalised units.",
+          "focus": 0,
+          "scene": {
+            "formula": "q_x=s,\\qquad s=1",
+            "formulaEn": "q_x=s,\\qquad s=1",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-conservation-b1",
+          "text": "方程说明 q x 等于 s，因此整杆两端的流出与流入通量之差为一。有内部产热时，稳态并不表示通量处处恒定。后面会把整体平衡作为单独验证。",
+          "textEn": "The equation says q x equals s, so the total outward flux difference across the rod is one. Steady state does not mean that flux is constant when heat is generated internally. We will use this global balance as a separate validation check.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-fourier",
+      "title": "用热流图像理解负号与材料系数",
+      "titleEn": "Use heat flow to explain the sign and conductivity",
+      "eyebrow": "论文 08 / 6",
+      "eyebrowEn": "PAPER 08 / 6",
+      "visual": "steps",
+      "formula": "q_m=-k_m u_{m,x},\\qquad m\\in\\{L,R\\}",
+      "formulaEn": "q_m=-k_m u_{m,x},\\qquad m\\in\\{L,R\\}",
+      "bullets": [
+        "用热流图像理解负号与材料系数"
+      ],
+      "bulletsEn": [
+        "Use heat flow to explain the sign and conductivity"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-fourier-b0",
+          "text": "傅里叶定律把温度图像与守恒量连接起来。下标 m 表示左或右材料。热通量等于负的导热系数乘局部温度斜率。",
+          "textEn": "Fourier’s law connects the temperature drawing with the conserved quantity. The subscript m identifies the left or right material. Heat flux is negative conductivity times the local temperature slope.",
+          "focus": 0,
+          "scene": {
+            "formula": "q_m=-k_m u_{m,x},\\qquad m\\in\\{L,R\\}",
+            "formulaEn": "q_m=-k_m u_{m,x},\\qquad m\\in\\{L,R\\}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-fourier-b1",
+          "text": "在左热右冷的曲线中，温度斜率为负，而向右热通量为正。接口两侧导热系数不同，因此相同通量通常需要不同斜率。这就是使用材料相关接口条件的物理原因。",
+          "textEn": "For our hot-left, cold-right profile, the temperature slope is negative while the rightward heat flux is positive. At the joint, the conductivities differ, so equal flux generally requires different slopes. This is the physical reason for using a material-aware interface condition.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "cpinn-physical",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-local-equation",
+      "title": "在每种材料内部约束各自的方程",
+      "titleEn": "Enforce the local equation within each material",
+      "eyebrow": "论文 08 / 7",
+      "eyebrowEn": "PAPER 08 / 7",
+      "visual": "steps",
+      "formula": "-k_m u_{m,xx}=s",
+      "formulaEn": "-k_m u_{m,xx}=s",
+      "bullets": [
+        "在每种材料内部约束各自的方程"
+      ],
+      "bulletsEn": [
+        "Enforce the local equation within each material"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-local-equation-b0",
+          "text": "结合能量平衡与傅里叶定律，可得到各材料内部的二阶方程。每个开放子区域内导热系数为常数。因此对局部温度求两次导数，再乘各自的导热系数。",
+          "textEn": "Combining energy balance with Fourier’s law gives this second-order equation within each material. Conductivity is constant inside each open subdomain. We therefore differentiate the local temperature twice and multiply by its own conductivity.",
+          "focus": 0,
+          "scene": {
+            "formula": "-k_m u_{m,xx}=s",
+            "formulaEn": "-k_m u_{m,xx}=s",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "cpinn-local-equation-b1",
+          "text": "不能把不连续导热系数假装成全局光滑系数。体内方程用于接头以外的位置，另用接口条件连接两侧迹值。这是区域分解形式的关键区别。",
+          "textEn": "We do not pretend that the discontinuous conductivity is a globally smooth coefficient. The bulk equations apply away from the joint, while separate conditions connect the two traces there. This distinction is central to the domain-decomposition formulation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "cpinn-physical",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-exterior",
+      "title": "先规定真正的外部边界",
+      "titleEn": "First prescribe the actual exterior boundaries",
+      "eyebrow": "论文 08 / 8",
+      "eyebrowEn": "PAPER 08 / 8",
+      "visual": "steps",
+      "formula": "u_L(0)=1,\\qquad u_R(1)=0",
+      "formulaEn": "u_L(0)=1,\\qquad u_R(1)=0",
+      "bullets": [
+        "先规定真正的外部边界"
+      ],
+      "bulletsEn": [
+        "First prescribe the actual exterior boundaries"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-exterior-b0",
+          "text": "外部温度取左端一、右端零。这是整杆的物理边界条件，不是在规定内部接头的未知温度。",
+          "textEn": "The exterior temperatures are one at the left and zero at the right. These are physical boundary conditions for the full rod. They do not prescribe the unknown temperature at the internal joint.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_L(0)=1,\\qquad u_R(1)=0",
+            "formulaEn": "u_L(0)=1,\\qquad u_R(1)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-exterior-b1",
+          "text": "每个局部二阶方程仍需要邻近材料的信息。仅固定外部值，会让两个局部问题彼此断开。下面两个条件提供缺少的物理连接。",
+          "textEn": "Each local second-order equation still needs information from the neighbouring material. Fixing the exterior values alone leaves the two local problems disconnected. The next two conditions provide the missing physical connection.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "cpinn-physical",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-state-interface",
+      "title": "完美接触时，同一接头不能有两个温度",
+      "titleEn": "Perfect contact gives one temperature at the joint",
+      "eyebrow": "论文 08 / 9",
+      "eyebrowEn": "PAPER 08 / 9",
+      "visual": "steps",
+      "formula": "u_L(a)=u_R(a)",
+      "formulaEn": "u_L(a)=u_R(a)",
+      "bullets": [
+        "完美接触时，同一接头不能有两个温度"
+      ],
+      "bulletsEn": [
+        "Perfect contact gives one temperature at the joint"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "从左侧接近接口",
+            "labelEn": "Approach the interface from the left",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "从右侧接近接口",
+            "labelEn": "Approach the interface from the right",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-state-interface-b0",
+          "text": "在完美接触假设下，接近同一接头的两侧温度必须一致。u L 在 a 处是左侧迹值，u R 在 a 处是右侧迹值。两者都不是已知训练标签。",
+          "textEn": "Under our perfect-contact assumption, the two temperatures approaching the same joint must agree. U L at a is the left trace, and u R at a is the right trace. Neither is a known training label.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_L(a)=u_R(a)",
+            "formulaEn": "u_L(a)=u_R(a)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-state-interface-b1",
+          "text": "如果接口存在热接触热阻，这个条件会改变。这里明确不模拟那种情况。仅有温度一致，也不能保证两个模型传递的热量相符。",
+          "textEn": "This condition would change if the interface had thermal contact resistance. We are explicitly not modelling that situation here. Temperature agreement also says nothing by itself about whether the two models carry a consistent amount of heat.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-flux-interface",
+      "title": "没有接口储热，就不能凭空丢失热量",
+      "titleEn": "Without interface storage, heat cannot disappear at the joint",
+      "eyebrow": "论文 08 / 10",
+      "eyebrowEn": "PAPER 08 / 10",
+      "visual": "steps",
+      "formula": "q_L(a)=q_R(a)",
+      "formulaEn": "q_L(a)=q_R(a)",
+      "bullets": [
+        "没有接口储热，就不能凭空丢失热量"
+      ],
+      "bulletsEn": [
+        "Without interface storage, heat cannot disappear at the joint"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "左侧送来的热流",
+            "labelEn": "Heat arriving from the left",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "右侧带走的热流",
+            "labelEn": "Heat leaving to the right",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-flux-interface-b0",
+          "text": "在接头周围越来越薄的区域上积分能量平衡。如果没有集中接口热源或储热，进入与离开的热通量必须一致。这就是守恒连接。",
+          "textEn": "Integrate energy balance across an increasingly thin region around the joint. With no concentrated interface source or storage, the incoming and outgoing heat fluxes must agree. This is the conservative connection.",
+          "focus": 0,
+          "scene": {
+            "formula": "q_L(a)=q_R(a)",
+            "formulaEn": "q_L(a)=q_R(a)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-flux-interface-b1",
+          "text": "两个 q 都采用向右为正的同一方向。如果改用两子区域各自外法向，等价条件就是外向通量之和为零。导热系数不同时，直接匹配温度斜率反而是错误的。",
+          "textEn": "Both q values use the same positive-right orientation. If we used outward normals for the two subdomains, the equivalent condition would be a zero sum of outward fluxes. Matching bare temperature slopes instead would be wrong when the conductivities differ.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-free-constants",
+      "title": "少一个接口条件，就多一个未确定的自由度",
+      "titleEn": "One missing interface law leaves an undetermined degree of freedom",
+      "eyebrow": "论文 08 / 11",
+      "eyebrowEn": "PAPER 08 / 11",
+      "visual": "steps",
+      "formula": "q_m(x)=x+C_m",
+      "formulaEn": "q_m(x)=x+C_m",
+      "bullets": [
+        "少一个接口条件，就多一个未确定的自由度"
+      ],
+      "bulletsEn": [
+        "One missing interface law leaves an undetermined degree of freedom"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "左侧尚未确定的通量常数",
+            "labelEn": "An undetermined left flux constant",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "右侧尚未确定的通量常数",
+            "labelEn": "An undetermined right flux constant",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-free-constants-b0",
+          "text": "对于精确局部方程，两个接口定律解释了不完整耦合为何仍然欠定。在左侧对 q x 等于一积分，会留下未知常数 C L。它改变左侧热通量的偏移，却仍保留局部守恒方程。",
+          "textEn": "For the exact local equations, the two interface laws explain why incomplete couplings remain underdetermined. Integrating q x equal to one on the left leaves an unknown constant C L. This shifts the left heat flux while preserving its local conservation equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "q_m(x)=x+C_m",
+            "formulaEn": "q_m(x)=x+C_m",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-free-constants-b1",
+          "text": "右半段也留下自己的通量常数 C R，外部温度则提供另一条积分条件。一个接口条件只关联两通量常数，仍留下一个自由度。对于这根粘接杆，同时使用状态和通量条件才能确定它们的共同值。",
+          "textEn": "The right half has its own constant C R, with its exterior temperature supplying the other integration condition. A single interface condition relates the two flux constants but leaves one degree of freedom. Using both state and flux conditions fixes their common value in this bonded-rod problem.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-two-networks",
+      "title": "两个小网络各管一段，但不能各自为政",
+      "titleEn": "Two small networks, one connected physical problem",
+      "eyebrow": "论文 08 / 12",
+      "eyebrowEn": "PAPER 08 / 12",
+      "visual": "steps",
+      "formula": "u_L=1+xN_L(x),\\qquad u_R=(1-x)N_R(x)",
+      "formulaEn": "u_L=1+xN_L(x),\\qquad u_R=(1-x)N_R(x)",
+      "bullets": [
+        "两个小网络各管一段，但不能各自为政"
+      ],
+      "bulletsEn": [
+        "Two small networks, one connected physical problem"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "左网络自动满足左端",
+            "labelEn": "Left network satisfies the left endpoint",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "右网络自动满足右端",
+            "labelEn": "Right network satisfies the right endpoint",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-two-networks-b0",
+          "text": "N L 与 N R 是两个独立可训练网络输出，各有两个宽度十六的隐层。图中因子精确施加外部边界值。实现中每个网络接收各自局部归一化坐标。",
+          "textEn": "N L and N R are two independent trainable network outputs, each with two hidden layers of width sixteen. The displayed factors impose the exterior values exactly. Each network receives its own locally normalised coordinate in the implementation.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_L=1+xN_L(x),\\qquad u_R=(1-x)N_R(x)",
+            "formulaEn": "u_L=1+xN_L(x),\\qquad u_R=(1-x)N_R(x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-two-networks-b1",
+          "text": "两个网络合计六百四十二个可训练参数。网络通过耦合学习接口值，通量偏移隐含于场中，没有另外加入 C 参数。这里在一个 CPU 上联合训练，不是在演示并行加速。",
+          "textEn": "The two networks contain six hundred and forty-two trainable parameters in total. The networks learn their interface values through coupling, with flux offsets implicit in the fields rather than added as C parameters. We train them together on one CPU; this is not a demonstration of parallel acceleration.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-average-state",
+      "title": "平均状态惩罚为何也能表达温度衔接？",
+      "titleEn": "How does average-state coupling express temperature agreement?",
+      "eyebrow": "论文 08 / 13",
+      "eyebrowEn": "PAPER 08 / 13",
+      "visual": "steps",
+      "formula": "\\bar u=\\tfrac12\\bigl(u_L(a)+u_R(a)\\bigr)",
+      "formulaEn": "\\bar u=\\tfrac12\\bigl(u_L(a)+u_R(a)\\bigr)",
+      "bullets": [
+        "平均状态惩罚为何也能表达温度衔接？"
+      ],
+      "bulletsEn": [
+        "How does average-state coupling express temperature agreement?"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "论文使用两侧平均状态",
+            "labelEn": "The paper uses an average state",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本例使用显式温度差",
+            "labelEn": "This example uses an explicit state jump",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-average-state-b0",
+          "text": "原始 cPINN 形式包含与平均接口状态一致的约束。u 横线表示接头两侧预测的平均值。如果两个预测都等于这个平均值，它们也彼此相等。",
+          "textEn": "The original cPINN formulation includes agreement with an average interface state. U bar denotes the average of the two predictions at the joint. If both predictions equal this average, they equal each other.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\bar u=\\tfrac12\\bigl(u_L(a)+u_R(a)\\bigr)",
+            "formulaEn": "\\bar u=\\tfrac12\\bigl(u_L(a)+u_R(a)\\bigr)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-average-state-b1",
+          "text": "两侧到可微平均值的平方距离之和，等于温度差平方的一半。联合目标改用明确权重的直接温度差。因此状态衔接思想在缩放意义上等价，但没有声称复现原始损失归一化。",
+          "textEn": "Summing the two squared distances to the differentiable average gives one half of the squared temperature jump. Our joint objective uses the direct jump with an explicitly chosen weight instead. This is an equivalent state-agreement idea up to scaling, not a claim to reproduce the original loss normalisation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-bulk-loss",
+      "title": "先检查各自材料内部的物理残差",
+      "titleEn": "First check the physics residual inside each material",
+      "eyebrow": "论文 08 / 14",
+      "eyebrowEn": "PAPER 08 / 14",
+      "visual": "steps",
+      "formula": "\\mathcal L_r=\\tfrac12\\bigl(\\langle r_L^2\\rangle+\\langle r_R^2\\rangle\\bigr)",
+      "formulaEn": "\\mathcal L_r=\\tfrac12\\bigl(\\langle r_L^2\\rangle+\\langle r_R^2\\rangle\\bigr)",
+      "bullets": [
+        "先检查各自材料内部的物理残差"
+      ],
+      "bulletsEn": [
+        "First check the physics residual inside each material"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "左半段32个中点",
+            "labelEn": "32 midpoint locations on the left",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "右半段32个中点",
+            "labelEn": "32 midpoint locations on the right",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-bulk-loss-b0",
+          "text": "r m 是局部残差，即负导热系数乘温度曲率再减给定热源。尖括号表示该材料内三十二个中点的平均。L r 再平均两侧的残差均方。",
+          "textEn": "R m is the local residual, negative conductivity times temperature curvature minus the prescribed source. Angle brackets mean the average over the thirty-two midpoint locations in that material. L r averages the two local mean squared residuals.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_r=\\tfrac12\\bigl(\\langle r_L^2\\rangle+\\langle r_R^2\\rangle\\bigr)",
+            "formulaEn": "\\mathcal L_r=\\tfrac12\\bigl(\\langle r_L^2\\rangle+\\langle r_R^2\\rangle\\bigr)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-bulk-loss-b1",
+          "text": "没有残差位置落在材料接口上。更重要的是，较小体内损失本身无法检测缺少的接口条件。各子区域可能满足自身方程，而拼接整杆仍然不符合物理。",
+          "textEn": "No residual location lies on the material interface. More importantly, a small bulk loss cannot detect a missing interface condition by itself. Each subdomain can satisfy its own equation while the assembled rod remains physically inconsistent.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-coupled-loss",
+      "title": "用两种接口差补上缺少的信息",
+      "titleEn": "Add the two interface jumps to supply missing information",
+      "eyebrow": "论文 08 / 15",
+      "eyebrowEn": "PAPER 08 / 15",
+      "visual": "steps",
+      "formula": "\\mathcal L=\\mathcal L_r+\\gamma_u(\\Delta u)^2+\\gamma_q(\\Delta q)^2",
+      "formulaEn": "\\mathcal L=\\mathcal L_r+\\gamma_u(\\Delta u)^2+\\gamma_q(\\Delta q)^2",
+      "bullets": [
+        "用两种接口差补上缺少的信息"
+      ],
+      "bulletsEn": [
+        "Add the two interface jumps to supply missing information"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "温度差约束状态衔接",
+            "labelEn": "State jump enforces temperature agreement",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "通量差约束守恒连接",
+            "labelEn": "Flux jump enforces conservation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-coupled-loss-b0",
+          "text": "delta u 是左温度迹值减右迹值，delta q 是相应热通量差。gamma u 与 gamma q 是非负惩罚权重。完整耦合在这些无量纲变量中把两权重都设为十。",
+          "textEn": "Delta u is the left temperature trace minus the right trace, and delta q is the corresponding heat-flux difference. Gamma u and gamma q are nonnegative penalty weights. The fully coupled run sets both weights to ten in these dimensionless variables.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L=\\mathcal L_r+\\gamma_u(\\Delta u)^2+\\gamma_q(\\Delta q)^2",
+            "formulaEn": "\\mathcal L=\\mathcal L_r+\\gamma_u(\\Delta u)^2+\\gamma_q(\\Delta q)^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-coupled-loss-b1",
+          "text": "有限惩罚促使接口差变小，不是从结构上精确强制相等。要报告两种剩余接口差，而不能因方法名称就宣称精确守恒。每种消融都保持相同网络、点和外部处理。",
+          "textEn": "A finite penalty encourages small jumps; it does not impose exact equality by construction. We will report both remaining jumps rather than declaring exact conservation from the method’s name. The network architecture, points and exterior treatment stay the same in every ablation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-ablation-design",
+      "title": "逐个移除条件，看看缺少什么",
+      "titleEn": "Remove conditions one at a time to expose missing physics",
+      "eyebrow": "论文 08 / 16",
+      "eyebrowEn": "PAPER 08 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "逐个移除条件，看看缺少什么"
+      ],
+      "bulletsEn": [
+        "Remove conditions one at a time to expose missing physics"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "无耦合、仅温度、仅通量",
+            "labelEn": "Uncoupled, state-only, flux-only",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "两种条件都加入",
+            "labelEn": "Both interface conditions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-ablation-design-b0",
+          "text": "四种运行分别是无耦合、仅温度一致、仅通量一致，以及两条件同时加入。每个种子的四种运行从相同两个网络开始。只改变两个接口惩罚权重。",
+          "textEn": "The four runs are uncoupled, temperature agreement only, flux agreement only, and both conditions. Each seed starts all four from the same pair of networks. Only the two interface penalty weights change.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-ablation-design-b1",
+          "text": "不完整形式是诊断消融，不是粘接杆的四种同样有效物理模型。它们揭示局部残差小为何仍不充分。为了分离这个问题，不需要比较不同网络大小或不同采样策略。",
+          "textEn": "The incomplete variants are diagnostic ablations, not four equally valid physical models of the bonded rod. They reveal why small local residuals are insufficient. We do not need to compare different network sizes or different sampling policies to isolate this question.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "cpinn-code",
+      "title": "把同一物理接口写进计算图",
+      "titleEn": "Put the same physical interface into the computation graph",
+      "eyebrow": "论文 08 / 17",
+      "eyebrowEn": "PAPER 08 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把同一物理接口写进计算图"
+      ],
+      "bulletsEn": [
+        "Put the same physical interface into the computation graph"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-code-b0",
+          "text": "代码在相同接口坐标上求两个网络。每个 q 都来自各自导热系数和自动温度导数。两种接口差随后通过一个联合目标，连接原本分离的参数集合。",
+          "textEn": "The code evaluates both networks at the same interface coordinate. Each q is computed from its own conductivity and automatic temperature derivative. The two jumps then connect the otherwise separate parameter sets through one joint objective.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-code-b1",
+          "text": "接口温度和通量都没有作为参考标签给出。自动微分把耦合传到两个网络中。图中代码是简短教学摘要，下载包包含完整求导和训练实现。",
+          "textEn": "Neither interface temperature nor interface flux is supplied as a reference label. Automatic differentiation propagates the coupling through both networks. The displayed code is a short teaching summary; the download contains the complete derivative and training implementation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "cpinn-code",
+      "paperTrace": "paper08",
+      "demoCode": [
+        "uL, qL = left_trace(a)",
+        "uR, qR = right_trace(a)",
+        "jump_u = uL - uR",
+        "jump_q = qL - qR",
+        "loss = bulk + wu*jump_u**2 + wq*jump_q**2",
+        "loss.backward(); optimizer.step()"
+      ]
+    },
+    {
+      "id": "cpinn-budget",
+      "title": "把消融实验限制在本机可复现的规模",
+      "titleEn": "Keep the ablation reproducible on a local CPU",
+      "eyebrow": "论文 08 / 18",
+      "eyebrowEn": "PAPER 08 / 18",
+      "visual": "steps",
+      "formula": "N_{\\rm total}=64,\\qquad n_{\\rm update}=1500",
+      "formulaEn": "N_{\\rm total}=64,\\qquad n_{\\rm update}=1500",
+      "bullets": [
+        "把消融实验限制在本机可复现的规模"
+      ],
+      "bulletsEn": [
+        "Keep the ablation reproducible on a local CPU"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "相同初始化、点与更新数",
+            "labelEn": "Same initialisation, points and updates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "三个种子与90秒上限",
+            "labelEn": "Three seeds and a 90-second cap",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-budget-b0",
+          "text": "N total 是两材料合计六十四个固定残差位置。每种运行目标是一千五百次 Adam 更新，学习率零点零零一。使用双精度与四个 CPU 线程。",
+          "textEn": "N total is the sixty-four fixed residual locations across the two materials. Every run targets fifteen hundred Adam updates at learning rate zero point zero zero one. We use double precision and four CPU threads.",
+          "focus": 0,
+          "scene": {
+            "formula": "N_{\\rm total}=64,\\qquad n_{\\rm update}=1500",
+            "formulaEn": "N_{\\rm total}=64,\\qquad n_{\\rm update}=1500",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-budget-b1",
+          "text": "采用三个种子，每种运行训练上限九十秒。保存记录报告实际完成更新数及是否触及上限。本地时间包含共同记录开销和并发语音工作，因此不是并行加速证据。",
+          "textEn": "There are three seeds and a ninety-second training cap per case. The saved record reports actual completed updates and whether that cap was reached. Local wall times include shared recording overhead and concurrent narration work, so they are not parallel-speedup evidence.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-temperature-replay",
+      "title": "先回放拼接出来的温度场",
+      "titleEn": "First replay the assembled temperature fields",
+      "eyebrow": "论文 08 / 19",
+      "eyebrowEn": "PAPER 08 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先回放拼接出来的温度场"
+      ],
+      "bulletsEn": [
+        "First replay the assembled temperature fields"
+      ],
+      "sourceIds": [
+        "jagtap2020",
+        "cpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-temperature-replay-b0",
+          "text": "保存的场展示四种接口选择如何拼接种子十一的温度预测。虚线是独立推导的分段解析参考。两侧曲线分开绘制，避免把接口跳变伪装成平滑过渡。",
+          "textEn": "The saved fields show how the four interface choices assemble the temperature prediction for seed eleven. The dashed curve is the independently derived piecewise analytic reference. Curves are drawn separately on the two sides so a jump is not disguised as a smooth transition.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-temperature-replay-b1",
+          "text": "最终检查点中，同时加入两条件的温度场，比任一缺条件对照都准确得多。但在这个例子里，仅温度曲线可能看起来还合理，却携带错误热流。因此要先检查通量，再判断物理是否成功。",
+          "textEn": "At the final checkpoint, both conditions produce a much more accurate temperature field than either missing-condition control in this example. The state-only curve can look fairly reasonable while still carrying the wrong heat flow. We therefore inspect flux before judging physical success.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "cpinn-training",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-flux-replay",
+      "title": "温度看着合理，热量真的接上了吗？",
+      "titleEn": "A plausible temperature curve may still carry the wrong heat flow",
+      "eyebrow": "论文 08 / 20",
+      "eyebrowEn": "PAPER 08 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "温度看着合理，热量真的接上了吗？"
+      ],
+      "bulletsEn": [
+        "A plausible temperature curve may still carry the wrong heat flow"
+      ],
+      "sourceIds": [
+        "jagtap2020",
+        "cpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-flux-replay-b0",
+          "text": "同一组保存检查点现在显示 q，而不是温度。由于杆内部产热，解析参考线性增加。尽管温度斜率在接口改变，通量仍在那里连续。",
+          "textEn": "The same saved checkpoints now show q rather than temperature. The analytic reference increases linearly because the rod generates heat internally. It remains continuous across the joint even though the temperature slope changes there.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-flux-replay-b1",
+          "text": "仅温度惩罚无法消除通量不匹配。仅通量惩罚可以减小它，却仍留下不可接受的温度不连续。完整耦合必须同时检查两要求和独立参考。",
+          "textEn": "A state-only penalty does not remove the flux mismatch. A flux-only penalty can reduce that mismatch while leaving an unacceptable temperature discontinuity. The fully coupled run must be checked against both requirements and the independent reference.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "cpinn-flux",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-jump-replay",
+      "title": "同时量出两种接口误差",
+      "titleEn": "Measure both interface errors together",
+      "eyebrow": "论文 08 / 21",
+      "eyebrowEn": "PAPER 08 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "同时量出两种接口误差"
+      ],
+      "bulletsEn": [
+        "Measure both interface errors together"
+      ],
+      "sourceIds": [
+        "jagtap2020",
+        "cpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-jump-replay-b0",
+          "text": "接口图用绝对值对数轴分开显示两种诊断。圆表示温度差，方表示四策略的热通量差。绘图下限为百万分之一，并明确标注。",
+          "textEn": "The jump plot separates the two interface diagnostics on an absolute logarithmic scale. Circles show temperature jumps and squares show heat-flux jumps for the four policies. The plotting floor is one millionth and is explicitly labelled.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-jump-replay-b1",
+          "text": "仅一个符号数值小，不能证明粘接杆模型正确。即使完整耦合，也有有限剩余接口差。测量值让惩罚式逐点耦合与精确约束的区别可见。",
+          "textEn": "A small value for only one symbol does not certify the bonded-rod model. Even the fully coupled run has finite remaining jumps. These measured values make the difference between penalised pointwise coupling and exact constraints visible.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "cpinn-jumps",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-seeds",
+      "title": "保留每个种子的消融结果",
+      "titleEn": "Keep the ablation results for every seed",
+      "eyebrow": "论文 08 / 22",
+      "eyebrowEn": "PAPER 08 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "保留每个种子的消融结果"
+      ],
+      "bulletsEn": [
+        "Keep the ablation results for every seed"
+      ],
+      "sourceIds": [
+        "jagtap2020",
+        "cpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-seeds-b0",
+          "text": "场误差比较包含每种接口选择的全部三个种子。每个点是一对独立训练的网络。这样可以检查解释是否只依赖展示的种子十一回放。",
+          "textEn": "The field-error comparison includes all three seeds for every interface choice. Each dot is a separate trained pair of networks. This checks whether our interpretation depends only on the displayed seed eleven replay.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-seeds-b1",
+          "text": "比较针对的是这根粘接杆缺少接口条件的问题，不是所有区域分解算法的普遍排名。全部保存场、接口差和实际更新次数都保留在下载包。",
+          "textEn": "The comparison is about the missing interface conditions for this particular bonded-rod problem. It is not a universal ranking of every domain-decomposition algorithm. All recorded fields, jump values and actual update counts remain in the download.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "cpinn-error",
+      "paperTrace": "paper08"
+    },
+    {
+      "id": "cpinn-validation",
+      "title": "局部、接口与整体三个层次都要验证",
+      "titleEn": "Validate the bulk, the interface and the whole rod",
+      "eyebrow": "论文 08 / 23",
+      "eyebrowEn": "PAPER 08 / 23",
+      "visual": "steps",
+      "formula": "q_R(1)-q_L(0)=\\int_0^1 s\\,dx=1",
+      "formulaEn": "q_R(1)-q_L(0)=\\int_0^1 s\\,dx=1",
+      "bullets": [
+        "局部、接口与整体三个层次都要验证"
+      ],
+      "bulletsEn": [
+        "Validate the bulk, the interface and the whole rod"
+      ],
+      "sourceIds": [
+        "jagtap2020",
+        "cpinn-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "独立场、通量与残差",
+            "labelEn": "Independent fields, fluxes and residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "整体能量平衡",
+            "labelEn": "Global energy balance",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-validation-b0",
+          "text": "解析分段温度与通量在三百零一个位置提供独立参考。还在二百五十七个偏移坐标上检查残差。两种接口差另外报告。",
+          "textEn": "The analytic piecewise temperature and flux provide independent reference values on three hundred and one locations. We also test residuals at two hundred and fifty-seven shifted coordinates. Both interface jumps are reported separately.",
+          "focus": 0,
+          "scene": {
+            "formula": "q_R(1)-q_L(0)=\\int_0^1 s\\,dx=1",
+            "formulaEn": "q_R(1)-q_L(0)=\\int_0^1 s\\,dx=1",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "cpinn-validation-b1",
+          "text": "最后在整杆积分热源，把外部通量之差与一比较。较小体内残差加上缺失接口通量条件，仍可能破坏整体平衡。这些验证值都不用于选择训练检查点。",
+          "textEn": "Finally, integrate the source across the full rod and compare the exterior flux difference with one. A small bulk residual plus a missing interface flux condition can still spoil this global balance. None of these validation values selects a training checkpoint.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true
+    },
+    {
+      "id": "cpinn-scope",
+      "title": "本篇实现的思想与明确没有复现的部分",
+      "titleEn": "Separate the implemented idea from the unreproduced benchmarks",
+      "eyebrow": "论文 08 / 24",
+      "eyebrowEn": "PAPER 08 / 24",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "本篇实现的思想与明确没有复现的部分"
+      ],
+      "bulletsEn": [
+        "Separate the implemented idea from the unreproduced benchmarks"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "通量与状态的物理耦合",
+            "labelEn": "Physical coupling of flux and state",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "小型稳态导热改编",
+            "labelEn": "Small steady-conduction adaptation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "cpinn-scope-b0",
+          "text": "原始 cPINN 论文用守恒通量和平均接口状态连接网络，研究非线性守恒律例子。这里在独立推导的双材料稳态热问题中保留这个耦合思想。外部硬约束、固定双曲正切、联合优化器和惩罚缩放都是明确改变。",
+          "textEn": "The original cPINN paper connects networks through conservative fluxes and average interface states for nonlinear conservation-law examples. We retain that coupling idea in an independently derived two-material steady heat problem. Our exterior hard constraints, fixed tanh, joint optimiser and penalty scaling are explicit changes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-scope-b1",
+          "text": "没有复现论文的 Burgers、KdV、Navier–Stokes 或 Euler 基准、自适应激活和分布式执行。也没有实现另一种扩展 XPINNs。本篇用解析解和小型 CPU 预算分离一个接口机制。",
+          "textEn": "We do not reproduce the paper’s Burgers, Korteweg–de Vries, Navier–Stokes or Euler benchmarks, adaptive activations or distributed execution. We also do not implement XPINNs, which is a distinct extension. This episode isolates one interface mechanism with an analytic solution and a small CPU budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "cpinn-exercise",
+      "title": "改变材料比之前，先预测哪个量连续",
+      "titleEn": "Before changing the material ratio, predict what stays continuous",
+      "eyebrow": "论文 08 / 25",
+      "eyebrowEn": "PAPER 08 / 25",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "改变材料比之前，先预测哪个量连续"
+      ],
+      "bulletsEn": [
+        "Before changing the material ratio, predict what stays continuous"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "只把右侧导热系数改为二",
+            "labelEn": "Change only right conductivity to two",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "预测温度斜率与通量",
+            "labelEn": "Predict temperature slopes and flux",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-exercise-b0",
+          "text": "做一个聚焦练习：保持种子、点与更新次数不变，把右导热系数改为二。预测接口温度与两侧斜率将怎样变化。说明共同通量为何不表示斜率相同。",
+          "textEn": "For a focused exercise, keep the seeds, points and update count unchanged and set the right conductivity to two. Predict how the interface temperature and the two slopes will change. Explain why common flux does not mean equal slopes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-exercise-b1",
+          "text": "用 k-right 选项和新输出文件运行，不要覆盖已发布轨迹。比较四种消融和全部种子。先暂停作出物理预测，再查看数值结果。",
+          "textEn": "Run the k-right option with a new output file rather than overwriting the published trace. Compare all four ablations and every seed. Pause first and make a physical prediction before reading the numerical results.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "cpinn-next-weak-form",
+      "title": "接口之后，为什么还要考虑弱形式？",
+      "titleEn": "After interfaces, why consider a weak formulation?",
+      "eyebrow": "论文 08 / 26",
+      "eyebrowEn": "PAPER 08 / 26",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "接口之后，为什么还要考虑弱形式？"
+      ],
+      "bulletsEn": [
+        "After interfaces, why consider a weak formulation?"
+      ],
+      "sourceIds": [
+        "jagtap2020"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：分区后逐点求导",
+            "labelEn": "Here: pointwise derivatives inside regions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一问题：积分形式的物理约束",
+            "labelEn": "Next question: integral physics constraints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "cpinn-next-weak-form-b0",
+          "text": "区域分解避免了把材料跳变当作光滑量求导，但每个局部模型仍使用逐点二阶导数。更粗糙的场和守恒问题，可能需要另一种方程表达方式。因此自然引出弱形式或变分形式。",
+          "textEn": "Domain decomposition lets us avoid differentiating a material jump as if it were smooth, but each local model still uses pointwise second derivatives. Rougher fields and conservation questions can motivate an alternative way of expressing the equation. That opens a natural discussion of weak or variational formulations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "cpinn-next-weak-form-b1",
+          "text": "后续论文讲解可以比较积分约束与本系列一直使用的强残差。它需要自己的测试函数、积分精度对照和独立验证。这些选择值得单独实验，不能悄悄混入当前 cPINN 实现。",
+          "textEn": "A future paper presentation can compare integral constraints with the strong residuals used throughout this series. It will need its own test functions, quadrature controls and independent validation. Those choices deserve a separate experiment rather than being silently folded into this cPINN implementation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

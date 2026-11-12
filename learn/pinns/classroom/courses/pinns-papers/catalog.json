@@ -41,6 +41,12 @@
       "number": 7,
       "courseRoot": "courses/pinns-papers/07-wu-2023-sampling",
       "published": true
+    },
+    {
+      "id": "jagtap2020",
+      "number": 8,
+      "courseRoot": "courses/pinns-papers/08-jagtap-2020-cpinn",
+      "published": true
     }
   ]
 }

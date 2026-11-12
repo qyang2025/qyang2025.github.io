@@ -1,0 +1,48 @@
+{
+  "id": "jagtap2020",
+  "paper": {
+    "number": 8,
+    "shortTitle": "Jagtap 2020 · cPINN",
+    "title": "Jagtap, Kharazmi & Karniadakis (2020), Conservative physics-informed neural networks on discrete domains for conservation laws: Applications to forward and inverse problems",
+    "url": "https://doi.org/10.1016/j.cma.2020.113028",
+    "year": 2020,
+    "scope": "Independent two-material steady-conduction adaptation of cPINN state/flux coupling; four interface ablations, not original nonlinear benchmarks, XPINNs or parallel speedup."
+  },
+  "title": "Paper 08: cPINN and conservative material interfaces",
+  "titleZh": "论文 08：cPINN 与双材料守恒接口",
+  "totalMinutes": 45,
+  "download": "paper-08.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4008-8008-000000000008",
+      "index": 0,
+      "title": "论文 08：cPINN 与双材料守恒接口",
+      "titleEn": "Paper 08: cPINN and conservative material interfaces",
+      "file": "1.json",
+      "pages": 26,
+      "sentenceCount": 156,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "jagtap2020",
+      "name": "Jagtap, Kharazmi & Karniadakis (2020), Conservative physics-informed neural networks on discrete domains for conservation laws: Applications to forward and inverse problems",
+      "url": "https://doi.org/10.1016/j.cma.2020.113028",
+      "text": "cPINN domain decomposition with flux and average-state interface coupling. The two-material, steady heat-conduction problem is an independently derived teaching adaptation, not an original Burgers, KdV, Navier–Stokes or Euler benchmark."
+    },
+    {
+      "id": "authors-cpinn",
+      "name": "Authors’ Conservative_PINNs implementation",
+      "url": "https://github.com/AmeyaJagtap/Conservative_PINNs",
+      "text": "Original four-domain TensorFlow Burgers example. The teaching program instead uses two small PyTorch networks, hard exterior temperatures, fixed tanh and one joint Adam optimiser. Jump penalties have explicitly stated weights; they are not the original per-domain loss normalisations."
+    },
+    {
+      "id": "cpinn-local",
+      "name": "All twelve two-material CPU runs and interface records",
+      "url": "/courses/pinns-papers/08-jagtap-2020-cpinn/trace.json",
+      "text": "Four interface ablations, three paired seeds, temperature and flux fields, both interface traces, global balance defects and independent residual checks."
+    }
+  ],
+  "downloadSha256": "39a0db113629dea01452deab77dc5656b0f29297ea5084ffdcfc8c2987a2d109"
+}

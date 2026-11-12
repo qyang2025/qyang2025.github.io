@@ -82,6 +82,15 @@
       "status": "Implemented",
       "classroom": "classroom/?paper=wu2023&language=en",
       "scope": "Independent stationary1-D advection-diffusion adaptation of sections2.2/2.3.2 RAD. Four fixed32-point policies and512 candidates; not the original six-PDE/ten-method benchmark or RAR-D implementation."
+    },
+    {
+      "number": "08",
+      "paper": "Jagtap, Kharazmi & Karniadakis (2020), Conservative physics-informed neural networks on discrete domains for conservation laws: Applications to forward and inverse problems",
+      "source": "https://doi.org/10.1016/j.cma.2020.113028",
+      "topic": "cPINN and conservative material interfaces",
+      "status": "Implemented",
+      "classroom": "classroom/?paper=jagtap2020&language=en",
+      "scope": "Independent two-material steady-conduction adaptation of cPINN state/flux coupling; four interface ablations, not original nonlinear benchmarks, XPINNs or parallel speedup."
     }
   ]
 }
