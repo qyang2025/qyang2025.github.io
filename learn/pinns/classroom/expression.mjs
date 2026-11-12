@@ -1,6 +1,6 @@
 export const poses={smile:[-3,3,0,.95,157,0],curious:[-12,5,-3,1.12,151,-3],focused:[7,-7,1,.88,150,1],encouraging:[-5,5,-1,.8,160,0],thinking:[-13,7,-2,.86,148,-3],listening:[-5,5,-2,1.08,153,3],concerned:[10,-10,1,.94,148,-1]};
 export function chooseExpression(scene={},context={}) {
- if(context.thinking||context.buffering)return 'thinking';
+ if(context.thinking||(context.buffering&&(context.bufferDuration??Infinity)>1200))return 'thinking';
  if(context.listening)return 'listening';
  const text=context.text||scene.caption||'';
  if(scene.conversational&&context.playing){if(/[?？]/.test(text))return 'curious';if(/careful|mistake|not guarantee|注意|错误|不保证/i.test(text))return 'concerned';if(/therefore|so |that is why|因此|所以/i.test(text))return 'encouraging';return scene.gesture==='write'?'focused':'smile';}

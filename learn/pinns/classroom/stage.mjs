@@ -1,5 +1,5 @@
-import {phrasePresence} from './teaching-presence.mjs?v=paper13d';
-import {ProfessorRig} from './professor-3d.mjs?v=paper13d';
+import {phrasePresence,nextTurnState} from './teaching-presence.mjs?v=presence2';
+import {ProfessorRig} from './professor-3d.mjs?v=presence2';
 import {poses,chooseExpression,easeToward} from './expression.mjs';
 export function currentScene(slide,beat){return beat.scene||{formula:slide.formula,caption:slide.bullets[beat.focus],gesture:slide.visual==='equation'?'write':'point',stage:beat.focus};}
 export class ProfessorStage {
@@ -11,7 +11,7 @@ export class ProfessorStage {
   try{this.rig=new ProfessorRig(element);}catch(error){element.dataset.renderer='svg-fallback';console.warn('3D unavailable; SVG professor retained',error);}
   this.setScene({});this.frame=requestAnimationFrame(this.tick);
  }
- setScene(scene,context={}){if(context.text!==this.context?.text){this.audioTime=0;this.audioDuration=0;}if(context.thinking||context.listening){this.preview=null;clearInterval(this.demoTimer);}this.scene=scene;this.context=context;this.element.dataset.gesture=scene.gesture||'point';this.setExpression(this.preview||chooseExpression(scene,context));}
+ setScene(scene,context={}){if(context.text!==this.context?.text){this.audioTime=0;this.audioDuration=0;}if(context.thinking||context.listening){this.preview=null;clearInterval(this.demoTimer);}this.scene=scene;this.context=context;this.element.dataset.gesture=scene.gesture||'point';this.setExpression(this.preview||chooseExpression(scene,{...context,bufferDuration:context.buffering?Math.max(0,performance.now()-(this.bufferingAt||performance.now())):0}));}
  setExpressionPreview(name){if(name==='auto'){clearInterval(this.demoTimer);this.demoTimer=null;}this.preview=poses[name]?name:null;this.setExpression(this.preview||chooseExpression(this.scene,this.context));}
  setExpression(name){this.expression=name;this.element.dataset.expression=name;const mark=this.nodes['expression-mark'];if(mark)mark.textContent=({curious:'?',thinking:'…',encouraging:'✓'})[name]||'';}
  setIntensity(value){if(this.rig)this.rig.intensity=Math.max(.7,Math.min(2,Number(value)||1.8));}
@@ -21,13 +21,13 @@ export class ProfessorStage {
  getLaserPoses(point,landings){return this.rig?.laserPoseCandidates(point,landings);}
  isLaserAligned(){return this.rig?.isLaserAligned()??true;}
  getScreenAnchors(){return this.rig?.screenAnchors();}
- activity({speaking,amplitude,audioTime,duration}){if(Number.isFinite(audioTime))this.audioTime=audioTime;if(Number.isFinite(duration))this.audioDuration=duration;this.speaking=!!speaking;this.element.dataset.speaking=String(this.speaking);this.level=speaking&&Number.isFinite(amplitude)?Math.min(1,amplitude*4.5):0;}
+ activity({speaking,amplitude,audioTime,duration,reason}){this.turn=nextTurnState(this.turn,{reason,speaking},this.context.text);if(reason==='ended')this.waitStarted=performance.now();if(reason==='buffering'&&!this.bufferingAt)this.bufferingAt=performance.now();if(reason==='playing'||reason==='paused')this.bufferingAt=null;if(Number.isFinite(audioTime))this.audioTime=audioTime;if(Number.isFinite(duration))this.audioDuration=duration;this.speaking=!!speaking;this.element.dataset.speaking=String(this.speaking);this.level=speaking&&Number.isFinite(amplitude)?Math.min(1,amplitude*4.5):0;}
  tick(time){
   if(this.closed)return;
-  const dt=this.last?time-this.last:16;this.last=time;
+  const dt=this.last?time-this.last:16;this.last=time;const face=this.preview||chooseExpression(this.scene,{...this.context,buffering:this.context.buffering&&!this.turn?.awaiting,bufferDuration:this.bufferingAt?performance.now()-this.bufferingAt:0});if(face!==this.expression)this.setExpression(face);
   this.pose=this.pose.map((v,i)=>easeToward(v,poses[this.expression][i],dt,220));
   this.energy=easeToward(this.energy,this.level||0,dt,this.level>this.energy?45:105);
-  const n=this.nodes,p=this.pose,reduced=this.motion.matches,e=this.energy;const presence=phrasePresence({text:this.context.text,audioTime:this.audioTime,duration:this.audioDuration,speaking:this.speaking,reduced});
+  const n=this.nodes,p=this.pose,reduced=this.motion.matches,e=this.energy;const presence=phrasePresence({text:this.context.text,audioTime:this.audioTime,duration:this.audioDuration,speaking:this.speaking,reduced,waitingForAnswer:!!this.turn?.awaiting&&!!this.context.playing,waitingAge:performance.now()-(this.waitStarted||performance.now())});this.audience=easeToward(this.audience||0,presence.audience,dt,presence.audience>(this.audience||0)?240:750);presence.audience=this.audience;this.element.dataset.turnState=presence.role;this.element.dataset.audienceGaze=this.audience.toFixed(3);
   n['mouth-open'].style.opacity=Math.min(1,e*12);n['mouth-open'].style.transform=`scale(${.82+e*.25},${.06+e*1.4})`;
   n['mouth-closed'].style.opacity=1-Math.min(1,e*12);n['mouth-closed'].setAttribute('d',`M137 144 Q151 ${p[4]} 165 143`);
   if(time>=this.nextBlink){this.blinkAt=time;this.nextBlink=time+3200+Math.random()*2400;}

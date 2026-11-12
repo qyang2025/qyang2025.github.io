@@ -103,11 +103,11 @@ export class ProfessorRig {
  update({expression,energy,speaking,time,dt,reduced,blink,presence={gesture:0,nod:0,gaze:0},engaged=speaking}){
   const target=facePoses[expression]||facePoses.smile;
   for(const k of Object.keys(target))this.pose[k]=easeToward(this.pose[k],target[k],dt,180);
-  const p=this.pose,g=this.intensity,e=energy;
-  this.head.rotation.set(p.pitch*1.1+presence.nod*.055,p.yaw*1.1-(this.laserActive?presence.gaze*.045:0),p.tilt*1.1);
+  const p=this.pose,g=this.intensity,e=energy,audience=presence.audience||0;
+  this.head.rotation.set(p.pitch*1.1+presence.nod*.055,p.yaw*.7*(1-audience)-(this.laserActive?(1-audience)*(.10+presence.gaze*.035):0),p.tilt*(1.1-.4*audience));
   this.root.position.y=(reduced||this.laserActive)?0:Math.sin(time/2100)*.008+presence.gesture*.006;
   this.root.rotation.z=(reduced||this.laserActive)?0:presence.gesture*.008;
-  this.eyes.forEach((eye,i)=>{const s=Math.max(.06,(1+(p.eyes-1)*g)*blink);eye.scale.y=.18*s;this.pupils[i].scale.y=.105*s;this.pupils[i].position.y=.02+(expression==='thinking'?.05:0);});
+  this.eyes.forEach((eye,i)=>{const s=Math.max(.06,(1+(p.eyes-1)*g)*blink);eye.scale.y=.18*s;this.pupils[i].scale.y=.105*s;this.pupils[i].position.y=.02+(expression==='thinking'?.05:0);this.pupils[i].position.x=eye.position.x-(this.laserActive?.016*(1-audience):0);});
   this.brows.forEach((b,i)=>{b.position.y=.3+p.brow*g;b.rotation.z=p.asym*g*(i===0?1:-1);});
   const open=speaking?Math.min(.2,e*.22):0;this.openMouth.scale.y=Math.max(.005,open);this.openMouth.scale.x=expression==='curious'?.1:.18;this.openMouth.visible=open>.018;this.tongue.visible=open>.08;this.tongue.position.y=-.32-open*.65;
   const coords=this.lipGeometry.attributes.position;for(let i=0;i<25;i++){const x=(i/24-.5)*.4;coords.setXYZ(i,x,-.31-p.smile*g*(1-(x/.2)**2),.572);}coords.needsUpdate=true;this.lips.visible=!this.openMouth.visible;

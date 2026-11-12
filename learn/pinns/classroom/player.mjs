@@ -1,4 +1,4 @@
-import {conversationalPause} from './teaching-presence.mjs?v=paper13d';
+import {conversationalPause,conversationalRate} from './teaching-presence.mjs?v=presence2';
 export function sentences(text, language = 'zh') {
   const segmented = [...new Intl.Segmenter(language === 'en' ? 'en' : 'zh', { granularity: 'sentence' }).segment(text)].map(x => x.segment);
   return segmented.flatMap(x => x.match(/[^；;]+[；;]?/gu) || []).map(x => x.trim()).filter(Boolean);
@@ -60,7 +60,7 @@ export class LecturePlayer {
     if (this.sentence + 1 < sentences(this.currentBeat().text, this.lesson.language).length) message.nextContext = { ...message.context, sentenceIndex: this.sentence + 1 };
     else if (this.beat + 1 < this.currentSlide().beats.length) message.nextContext = { ...message.context, beatId: this.currentSlide().beats[this.beat + 1].id, sentenceIndex: 0 };
     else if (this.slide + 1 < this.lesson.slides.length) message.nextContext = { ...message.context, slideId: this.lesson.slides[this.slide + 1].id, beatId: this.lesson.slides[this.slide + 1].beats[0].id, sentenceIndex: 0 };
-    message.lang = this.lesson.language === 'en' ? 'en-US' : 'zh-CN'; message.rate = this.rate; message.pitch = 1.03;
+    message.lang = this.lesson.language === 'en' ? 'en-US' : 'zh-CN'; message.rate = this.rate*(conversational?conversationalRate(message.text):1); message.pitch = 1.03;
     const voices = this.speech.getVoices?.() || [];
     const ranked = voices.filter(v => v.lang.startsWith(this.lesson.language === 'en' ? 'en' : 'zh'));
     const voice = voices.find(v => v.voiceURI === this.voiceURI) || ranked[0];
