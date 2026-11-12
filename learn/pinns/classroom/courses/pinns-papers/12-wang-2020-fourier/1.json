@@ -1279,8 +1279,8 @@
       "beats": [
         {
           "id": "fourier-kernel-b0",
-          "text": "这三条曲线是种子十一多尺度网络初始输出核的主要特征向量。它们来自四十一个网格点上的参数导数，只为显示而重新缩放。",
-          "textEn": "These three curves are leading eigenvectors of the multiscale network’s initial output kernel for seed eleven. They come from parameter derivatives at forty-one grid points and are rescaled only for display.",
+          "text": "随机种子是可重复随机起点的编号，这里十一只是它的标识。这三条曲线是这个起点下，多尺度网络初始输出核的主要特征向量。它们来自四十一个网格点上的参数导数，只为显示而重新缩放。",
+          "textEn": "A seed identifies reproducible random starting draws, and eleven is simply its identifier. These three curves are leading eigenvectors of the multiscale network’s initial output kernel. They come from parameter derivatives at forty-one grid points and are rescaled only for display.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -1299,6 +1299,11 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
               }
             ],
             "targetsEn": [
@@ -1309,6 +1314,11 @@
               },
               {
                 "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
                 "kind": "node",
                 "index": 0
               }

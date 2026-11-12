@@ -37,7 +37,7 @@ static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 | 09 | Kharazmi 2019 · VPINNs | 25 | 103/103 | 102/102 | [Open](learn/pinns/classroom/?paper=kharazmi2019&language=en) |
 | 10 | Sukumar 2021 · exact boundaries | 25 | 102/102 | 102/102 | [Open](learn/pinns/classroom/?paper=sukumar2021&language=en) |
 | 11 | Wang 2020 · NTK | 25 | 100/100 | 102/102 | [Open](learn/pinns/classroom/?paper=wang2020ntk&language=en) |
-| 12 | Wang2020 · Fourier features | 23 | 94/94 | 94/94 | [Open](learn/pinns/classroom/?paper=wang2020fourier&language=en) |
+| 12 | Wang2020 · Fourier features | 23 | 95/95 | 95/95 | [Open](learn/pinns/classroom/?paper=wang2020fourier&language=en) |
 
 Foundation course recordings: English 453/453; Chinese 345/345.
 Incomplete recording sets stay in reading mode. A classroom language becomes
