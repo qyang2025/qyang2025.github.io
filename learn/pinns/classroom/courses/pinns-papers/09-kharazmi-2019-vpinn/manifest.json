@@ -1,0 +1,48 @@
+{
+  "id": "kharazmi2019",
+  "paper": {
+    "number": 9,
+    "shortTitle": "Kharazmi 2019 · VPINNs",
+    "title": "Kharazmi, Zhang & Karniadakis (2019), VPINNs: Variational Physics-Informed Neural Networks For Solving Partial Differential Equations",
+    "url": "https://arxiv.org/abs/1912.00873",
+    "year": 2019,
+    "scope": "Independent smooth1D heated-rod adaptation of VPINN equations4.7,4.20 and4.25; hard endpoints,Gauss-Legendre quadrature and321-parameter tanh;not original steep-layer/2D benchmarks or hp-VPINNs."
+  },
+  "title": "Paper 09: VPINNs and weak-form residuals",
+  "titleZh": "论文 09：VPINN 与弱形式残差",
+  "totalMinutes": 45,
+  "download": "paper-09.zip",
+  "modules": [
+    {
+      "id": "139afec2-2019-4009-8009-000000000009",
+      "index": 0,
+      "title": "论文 09：VPINN 与弱形式残差",
+      "titleEn": "Paper 09: VPINNs and weak-form residuals",
+      "file": "1.json",
+      "pages": 25,
+      "sentenceCount": 103,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "kharazmi2019",
+      "name": "Kharazmi, Zhang & Karniadakis (2019), VPINNs: Variational Physics-Informed Neural Networks For Solving Partial Differential Equations",
+      "url": "https://arxiv.org/abs/1912.00873",
+      "text": "Petrov–Galerkin neural trial functions, Legendre test functions, integrated residuals and integration by parts; sections3,4.2 and5. Our smooth heated rod, hard boundary ansatz, small tanh network and Gauss-Legendre budget are explicit teaching changes, not a reproduction of the original benchmarks."
+    },
+    {
+      "id": "vpinn-primary-equations",
+      "name": "Primary paper HTML: equations4.7,4.20 and4.25",
+      "url": "https://arxiv.org/html/1912.00873v1",
+      "text": "The selected test family is P_(k+1)-P_(k-1), vanishing at both endpoints. We implement the once-integrated form. We do not implement shallow sine-network closed forms, hp-refinement, original steep layers or2D comparisons."
+    },
+    {
+      "id": "vpinn-local",
+      "name": "Twelve executed CPU runs, quadrature audits and analytic blind-mode checks",
+      "url": "/courses/pinns-papers/09-kharazmi-2019-vpinn/trace.json",
+      "text": "Three paired seeds; strong32,weakK1Q32,weakK8Q32 andweakK8Q4; independent field,flux,strong-residual and16-moment audits. The underintegrated loss floor is independently computed by a rank-four least-squares problem."
+    }
+  ],
+  "downloadSha256": "e589075629258a2138d104f3459c16eb8a05afcd90ea5e7b8b6a70f0b09a629f"
+}

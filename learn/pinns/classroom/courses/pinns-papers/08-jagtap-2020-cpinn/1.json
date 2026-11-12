@@ -3609,8 +3609,8 @@
         },
         {
           "id": "cpinn-next-weak-form-b1",
-          "text": "后续论文讲解可以比较积分约束与本系列一直使用的强残差。它需要自己的测试函数、积分精度对照和独立验证。这些选择值得单独实验，不能悄悄混入当前 cPINN 实现。",
-          "textEn": "A future paper presentation can compare integral constraints with the strong residuals used throughout this series. It will need its own test functions, quadrature controls and independent validation. Those choices deserve a separate experiment rather than being silently folded into this cPINN implementation.",
+          "text": "下一篇讲解比较积分约束与本系列一直使用的强残差。它引入自己的测试函数、积分精度对照和独立验证。我们将在单材料受热杆的单独实验中比较这些选择。",
+          "textEn": "The next presentation compares integral constraints with the strong residuals used throughout this series. It introduces its own test functions, quadrature controls and independent validation. We will compare these choices in a separate experiment on a single-material heated rod.",
           "focus": 0,
           "scene": {
             "formula": "",

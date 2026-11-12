@@ -1,0 +1,12 @@
+{
+  "paper":"09",
+  "note":"Analytic predictions are distinguished from optimiser outcomes. Extra tests can detect an existing blind mode without eliminating all untested modes.",
+  "checks":[{
+    "slideId":"vpinn-exercise",
+    "questionEn":"What can more quadrature nodes repair, and what can an additional test detect?",
+    "questionZh":"更多积分节点可以修复什么，额外测试又能检测什么？",
+    "answerEn":"Increasing Q improves an approximation of the same selected moment; it cannot remove an exact null space of that test. For w=P3-P1, orthogonality gives moment1=0 and moment2=10, so adding0.3w preserves the first moment and changes the second by3. Adding test2 therefore detects this particular perturbation, but it still does not certify the complete field: P4-P2 is invisible to both tests1and2. Run K1Q64 and K2Q64 with the same seed and final update budget, recording actual errors without expecting any guaranteed optimiser outcome. Save each record under a new filename.",
+    "answerZh":"增加 Q 改善的是同一测试所定义积分的近似，不能去掉该测试的精确零空间。对 w=P3-P1，正交性给出第一矩零、第二矩十，因此加上零点三乘 w 保留第一矩、让第二矩改变三。增加第二测试能发现这一个扰动，但仍不能证明整个场：P4-P2 对前两个测试都不可见。以相同种子和最终更新预算运行 K1Q64 与 K2Q64，记录实际误差，不预设优化器一定成功；分别保存新文件。",
+    "equation":"w=P_3-P_1,\\quad \\int_{-1}^{1}w'v_1'\\,dx=0,\\quad \\int_{-1}^{1}w'v_2'\\,dx=10"
+  }]
+}

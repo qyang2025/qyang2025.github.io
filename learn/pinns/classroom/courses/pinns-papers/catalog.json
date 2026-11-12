@@ -47,6 +47,12 @@
       "number": 8,
       "courseRoot": "courses/pinns-papers/08-jagtap-2020-cpinn",
       "published": true
+    },
+    {
+      "id": "kharazmi2019",
+      "number": 9,
+      "courseRoot": "courses/pinns-papers/09-kharazmi-2019-vpinn",
+      "published": true
     }
   ]
 }

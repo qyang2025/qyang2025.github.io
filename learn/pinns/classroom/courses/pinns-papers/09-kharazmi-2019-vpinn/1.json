@@ -1,0 +1,3009 @@
+{
+  "id": "139afec2-2019-4009-8009-000000000009",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-09",
+  "chapterIndex": 0,
+  "title": "论文 09：VPINN 与弱形式残差",
+  "titleEn": "Paper 09: VPINNs and weak-form residuals",
+  "summary": "从受热杆和分部积分出发，区分测试空间、积分精度与训练误差，回放十二次小型 CPU 对照。",
+  "summaryEn": "Use a heated rod and integration by parts to separate test-space limits, quadrature accuracy and optimisation; replay twelve small CPU controls.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "kharazmi2019",
+      "name": "Kharazmi, Zhang & Karniadakis (2019), VPINNs: Variational Physics-Informed Neural Networks For Solving Partial Differential Equations",
+      "url": "https://arxiv.org/abs/1912.00873",
+      "text": "Petrov–Galerkin neural trial functions, Legendre test functions, integrated residuals and integration by parts; sections3,4.2 and5. Our smooth heated rod, hard boundary ansatz, small tanh network and Gauss-Legendre budget are explicit teaching changes, not a reproduction of the original benchmarks."
+    },
+    {
+      "id": "vpinn-primary-equations",
+      "name": "Primary paper HTML: equations4.7,4.20 and4.25",
+      "url": "https://arxiv.org/html/1912.00873v1",
+      "text": "The selected test family is P_(k+1)-P_(k-1), vanishing at both endpoints. We implement the once-integrated form. We do not implement shallow sine-network closed forms, hp-refinement, original steep layers or2D comparisons."
+    },
+    {
+      "id": "vpinn-local",
+      "name": "Twelve executed CPU runs, quadrature audits and analytic blind-mode checks",
+      "url": "/courses/pinns-papers/09-kharazmi-2019-vpinn/trace.json",
+      "text": "Three paired seeds; strong32,weakK1Q32,weakK8Q32 andweakK8Q4; independent field,flux,strong-residual and16-moment audits. The underintegrated loss floor is independently computed by a rank-four least-squares problem."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与弱形式",
+      "titleEn": "Physics and weak form"
+    },
+    {
+      "slide": 10,
+      "title": "积分与训练",
+      "titleEn": "Quadrature and training"
+    },
+    {
+      "slide": 17,
+      "title": "证据、盲区与验证",
+      "titleEn": "Evidence and validation"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 09：VPINN 与弱形式残差",
+      "titleEn": "Paper 09: VPINNs and weak-form residuals",
+      "eyebrow": "PINNs 论文 09 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 09 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从受热杆和分部积分出发，区分测试空间、积分精度与训练误差，回放十二次小型 CPU 对照。"
+      ],
+      "bulletsEn": [
+        "Use a heated rod and integration by parts to separate test-space limits, quadrature accuracy and optimisation; replay twelve small CPU controls."
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理与弱形式",
+            "labelEn": "Physics and weak form",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "积分与训练",
+            "labelEn": "Quadrature and training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "证据、盲区与验证",
+            "labelEn": "Evidence and validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "上篇 cPINN 连接了物理接口，本篇进一步追问应当怎样检查方程本身。先从受热杆与测试函数推导弱残差。再通过十二次 CPU 对照，区分测试不足、积分不准与实际场误差。",
+          "textEn": "The cPINN lecture connected physical interfaces, so we now ask how the equation itself should be tested. First derive a weak residual using a heated rod and test functions. Then run twelve CPU controls and distinguish missing tests, inaccurate integration and actual field error.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vpinn-bridge",
+      "title": "接口连接之后，为什么改变残差的表达？",
+      "titleEn": "After connecting interfaces, why change the residual?",
+      "eyebrow": "论文 09 / 2",
+      "eyebrowEn": "PAPER 09 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "接口连接之后，为什么改变残差的表达？"
+      ],
+      "bulletsEn": [
+        "After connecting interfaces, why change the residual?"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：连接两侧热流",
+            "labelEn": "Previously: connect heat fluxes",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：用积分检查物理",
+            "labelEn": "Now: test physics through integrals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-bridge-b0",
+          "text": "上篇 cPINN 连接相邻材料模型，但局部方程仍需要逐点二阶导数。本篇改变检查方程的方式。",
+          "textEn": "The cPINN episode connected neighbouring material models, but each local equation still required pointwise second derivatives. This paper changes how we test that equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-bridge-b1",
+          "text": "给残差加权并积分，再把一个导数转移到已知测试函数。随后用小型受控实验观察这个形式带来的便利与可能丢失的信息。",
+          "textEn": "We will weight the residual, integrate it, and transfer one derivative to a known test function. Then a small controlled experiment will expose both the benefit and the information we can lose.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "vpinn-physical",
+      "title": "从两端冷却、内部受热的杆开始",
+      "titleEn": "Start with a heated rod cooled at both ends",
+      "eyebrow": "论文 09 / 3",
+      "eyebrowEn": "PAPER 09 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从两端冷却、内部受热的杆开始"
+      ],
+      "bulletsEn": [
+        "Start with a heated rod cooled at both ends"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-physical-b0",
+          "text": "这根单材料杆的两端保持参考温度，内部由已知分布热源加热。u 是高于参考值的归一化温度，x 是沿杆的位置。",
+          "textEn": "Both ends of this single-material rod are held at the reference temperature, while a known distributed source heats its interior. U is the normalised temperature above that reference and x is position along the rod.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-physical-b1",
+          "text": "热量流向两端，流动方向在温度峰值附近改变。移动点表示稳态热流，不是随时间推进的数值模拟。",
+          "textEn": "Heat flows outward towards the cold ends, with its direction changing near the temperature maximum. The moving dots illustrate steady heat flow, not a time-stepping simulation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "vpinn-physical",
+      "paperTrace": "paper09"
+    },
+    {
+      "id": "vpinn-problem",
+      "title": "先写清楚同一个物理问题",
+      "titleEn": "State the same physical problem for every method",
+      "eyebrow": "论文 09 / 4",
+      "eyebrowEn": "PAPER 09 / 4",
+      "visual": "steps",
+      "formula": "-u_{xx}=f(x),\\quad x\\in(-1,1),\\quad u(-1)=u(1)=0",
+      "formulaEn": "-u_{xx}=f(x),\\quad x\\in(-1,1),\\quad u(-1)=u(1)=0",
+      "bullets": [
+        "先写清楚同一个物理问题"
+      ],
+      "bulletsEn": [
+        "State the same physical problem for every method"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-problem-b0",
+          "text": "取单位导热系数，稳态热方程就是温度空间二阶导数的负值等于 f。f 表示给定热源，两端温度为零。",
+          "textEn": "We use unit conductivity, so the steady heat equation is minus the second spatial derivative of temperature equals f. F denotes the prescribed heat source, and both endpoint temperatures are zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "-u_{xx}=f(x),\\quad x\\in(-1,1),\\quad u(-1)=u(1)=0",
+            "formulaEn": "-u_{xx}=f(x),\\quad x\\in(-1,1),\\quad u(-1)=u(1)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-problem-b1",
+          "text": "教学热源取二加零点二乘圆周率平方再乘正弦圆周率 x。独立参考解是一减 x 平方再加零点二乘正弦圆周率 x；它只用于验证，不作内部训练标签。",
+          "textEn": "Our teaching source is two plus zero point two times pi squared times sine of pi x. The independent reference is one minus x squared plus zero point two times sine of pi x; it is used for validation, never as an interior training label.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "vpinn-physical",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-strong",
+      "title": "强形式在一个个位置检查方程",
+      "titleEn": "Strong form checks the equation at individual locations",
+      "eyebrow": "论文 09 / 5",
+      "eyebrowEn": "PAPER 09 / 5",
+      "visual": "steps",
+      "formula": "r_\\theta(x)=-u_{\\theta,xx}(x)-f(x)",
+      "formulaEn": "r_\\theta(x)=-u_{\\theta,xx}(x)-f(x)",
+      "bullets": [
+        "强形式在一个个位置检查方程"
+      ],
+      "bulletsEn": [
+        "Strong form checks the equation at individual locations"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "网络给出温度与曲率",
+            "labelEn": "Network gives temperature and curvature",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "在三十二个位置检查残差",
+            "labelEn": "Check residuals at32 locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-strong-b0",
+          "text": "θ 表示全部待学习的网络参数，r θ 是强形式残差。普通 PINN 在指定空间位置计算这个不匹配。",
+          "textEn": "Theta denotes all learned network parameters, and r theta is the strong residual. A conventional PINN evaluates this mismatch at specified spatial locations.",
+          "focus": 0,
+          "scene": {
+            "formula": "r_\\theta(x)=-u_{\\theta,xx}(x)-f(x)",
+            "formulaEn": "r_\\theta(x)=-u_{\\theta,xx}(x)-f(x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-strong-b1",
+          "text": "强形式对照使用三十二个固定中点和残差平方均值。它与变分运行共享网络、边界构造、初始权重和更新预算。",
+          "textEn": "Our strong-form control uses thirty-two fixed midpoints and the mean squared residual. It shares the network, boundary construction, initial weights and update budget with the variational runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-test-picture",
+      "title": "测试函数是检查物理的加权形状",
+      "titleEn": "Test functions are weighting shapes for checking physics",
+      "eyebrow": "论文 09 / 6",
+      "eyebrowEn": "PAPER 09 / 6",
+      "visual": "steps",
+      "formula": "R_k(\\theta)=\\int_{-1}^{1}r_\\theta(x)v_k(x)\\,dx",
+      "formulaEn": "R_k(\\theta)=\\int_{-1}^{1}r_\\theta(x)v_k(x)\\,dx",
+      "bullets": [
+        "测试函数是检查物理的加权形状"
+      ],
+      "bulletsEn": [
+        "Test functions are weighting shapes for checking physics"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-test-picture-b0",
+          "text": "测试函数 v k 是已知的加权形状，不是另一个温度预测，也不是学习标签。R k 是残差与该形状相乘后的带符号积分，k 标识所用测试。",
+          "textEn": "A test function v k is a known weighting shape, not another temperature prediction or a learned label. R k is the signed residual integral against that shape, and k identifies which test we use.",
+          "focus": 0,
+          "scene": {
+            "formula": "R_k(\\theta)=\\int_{-1}^{1}r_\\theta(x)v_k(x)\\,dx",
+            "formulaEn": "R_k(\\theta)=\\int_{-1}^{1}r_\\theta(x)v_k(x)\\,dx",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-test-picture-b1",
+          "text": "蓝色和金色曲线展示前两个加权形状。不同形状检查不同空间模式，因此一个积分很小不能证明整个残差场很小。",
+          "textEn": "The blue and gold curves show the first two weighting shapes. Different shapes detect different spatial patterns, so one small integral cannot certify the entire residual field.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "vpinn-tests",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-cancellation",
+      "title": "先看清积分允许怎样的抵消",
+      "titleEn": "See what cancellation inside an integral allows",
+      "eyebrow": "论文 09 / 7",
+      "eyebrowEn": "PAPER 09 / 7",
+      "visual": "steps",
+      "formula": "\\int_{-1}^{1}r(x)v_1(x)\\,dx=0\\ \\not\\Rightarrow\\ r(x)=0",
+      "formulaEn": "\\int_{-1}^{1}r(x)v_1(x)\\,dx=0\\ \\not\\Rightarrow\\ r(x)=0",
+      "bullets": [
+        "先看清积分允许怎样的抵消"
+      ],
+      "bulletsEn": [
+        "See what cancellation inside an integral allows"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-cancellation-b0",
+          "text": "这个示意图把残差取为三 x，第一个测试函数为偶函数。二者的乘积是奇函数，因此正负面积恰好抵消。",
+          "textEn": "For this illustrative drawing, the residual is three x and the first test is an even function. Their product is odd, so equal positive and negative areas cancel.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\int_{-1}^{1}r(x)v_1(x)\\,dx=0\\ \\not\\Rightarrow\\ r(x)=0",
+            "formulaEn": "\\int_{-1}^{1}r(x)v_1(x)\\,dx=0\\ \\not\\Rightarrow\\ r(x)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-cancellation-b1",
+          "text": "图中的残差是数学示例，不是训练结果。先投影再把积分平方，并不能恢复抵消时丢掉的信息。",
+          "textEn": "The displayed residual is a mathematical example, not a trained model result. Squaring the integral after projection does not undo the information lost through cancellation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "vpinn-projection",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-parts",
+      "title": "把一个导数转移给已知测试函数",
+      "titleEn": "Move one derivative onto the known test function",
+      "eyebrow": "论文 09 / 8",
+      "eyebrowEn": "PAPER 09 / 8",
+      "visual": "steps",
+      "formula": "-\\int_{-1}^{1}u_\\theta''v_k\\,dx=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-[u_\\theta'v_k]_{-1}^{1}",
+      "formulaEn": "-\\int_{-1}^{1}u_\\theta''v_k\\,dx=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-[u_\\theta'v_k]_{-1}^{1}",
+      "bullets": [
+        "把一个导数转移给已知测试函数"
+      ],
+      "bulletsEn": [
+        "Move one derivative onto the known test function"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "网络只需一阶空间导数",
+            "labelEn": "Only first spatial derivatives of the network",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "测试函数承担另一个导数",
+            "labelEn": "Known tests carry the other derivative",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-parts-b0",
+          "text": "分部积分把网络二阶导数换成网络一阶导数与测试函数导数的乘积。方括号表示右端值减左端值的边界贡献。",
+          "textEn": "Integration by parts replaces the second derivative of the network with its first derivative multiplied by the derivative of the test. The bracket is the endpoint contribution, with the right endpoint minus the left.",
+          "focus": 0,
+          "scene": {
+            "formula": "-\\int_{-1}^{1}u_\\theta''v_k\\,dx=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-[u_\\theta'v_k]_{-1}^{1}",
+            "formulaEn": "-\\int_{-1}^{1}u_\\theta''v_k\\,dx=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-[u_\\theta'v_k]_{-1}^{1}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-parts-b1",
+          "text": "选择两端都为零的测试函数，就让这里的边界项消失。这降低了对网络求空间导数的阶数，但不取消参数反向传播。",
+          "textEn": "We choose tests that vanish at both endpoints, which makes this particular bracket zero. This step lowers the spatial derivative order required from the network; it does not remove parameter backpropagation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-weak",
+      "title": "弱残差仍然来自同一条热方程",
+      "titleEn": "The weak residual still comes from the same heat equation",
+      "eyebrow": "论文 09 / 9",
+      "eyebrowEn": "PAPER 09 / 9",
+      "visual": "steps",
+      "formula": "R_k=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-\\int_{-1}^{1}f v_k\\,dx",
+      "formulaEn": "R_k=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-\\int_{-1}^{1}f v_k\\,dx",
+      "bullets": [
+        "弱残差仍然来自同一条热方程"
+      ],
+      "bulletsEn": [
+        "The weak residual still comes from the same heat equation"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "温度梯度的加权贡献",
+            "labelEn": "Weighted temperature-gradient contribution",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "已知热源的加权贡献",
+            "labelEn": "Weighted known-source contribution",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-weak-b0",
+          "text": "第一个积分用已知测试函数的导数，对温度梯度加权。这就是示意图左边的梯度贡献。",
+          "textEn": "The first integral weights the temperature gradient by the derivative of the known test function. This is the gradient contribution shown on the left of the diagram.",
+          "focus": 0,
+          "scene": {
+            "formula": "R_k=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-\\int_{-1}^{1}f v_k\\,dx",
+            "formulaEn": "R_k=\\int_{-1}^{1}u_\\theta'v_k'\\,dx-\\int_{-1}^{1}f v_k\\,dx",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-weak-b1",
+          "text": "第二个积分用测试函数本身，对给定热源加权。把这两个贡献相减，得到的是带符号的弱残差矩，不是逐点残差平方的积分。",
+          "textEn": "The second integral weights the prescribed heat source by the test function itself. Subtracting these contributions gives the weak residual, a signed moment rather than an integral of squared pointwise error.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-legendre",
+      "title": "让测试形状天然满足端点要求",
+      "titleEn": "Make the test shapes vanish at the endpoints",
+      "eyebrow": "论文 09 / 10",
+      "eyebrowEn": "PAPER 09 / 10",
+      "visual": "steps",
+      "formula": "v_k=P_{k+1}-P_{k-1},\\qquad v_k(\\pm1)=0",
+      "formulaEn": "v_k=P_{k+1}-P_{k-1},\\qquad v_k(\\pm1)=0",
+      "bullets": [
+        "让测试形状天然满足端点要求"
+      ],
+      "bulletsEn": [
+        "Make the test shapes vanish at the endpoints"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-legendre-b0",
+          "text": "P k 表示 k 次勒让德多项式。这里选用论文中的相邻次数多项式之差作为测试函数族。",
+          "textEn": "P k denotes the Legendre polynomial of degree k. This difference of neighbouring polynomial degrees is the test family selected from the paper.",
+          "focus": 0,
+          "scene": {
+            "formula": "v_k=P_{k+1}-P_{k-1},\\qquad v_k(\\pm1)=0",
+            "formulaEn": "v_k=P_{k+1}-P_{k-1},\\qquad v_k(\\pm1)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-legendre-b1",
+          "text": "保留未归一化的缩放，导数等于二 k 加一再乘 P k。测试函数是固定的；神经网络试探空间与多项式测试空间不同，这就是 Petrov–Galerkin 构造。",
+          "textEn": "We keep its original unnormalised scaling, with derivative equal to two k plus one times P k. The tests are fixed functions; the neural trial space and polynomial test space are different, giving the Petrov–Galerkin construction.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "vpinn-tests",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-counts",
+      "title": "不要把测试函数数目和积分点数混为一谈",
+      "titleEn": "Separate the number of tests from the number of integration nodes",
+      "eyebrow": "论文 09 / 11",
+      "eyebrowEn": "PAPER 09 / 11",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "不要把测试函数数目和积分点数混为一谈"
+      ],
+      "bulletsEn": [
+        "Separate the number of tests from the number of integration nodes"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "K：检查多少个残差模式",
+            "labelEn": "K: how many residual patterns are checked",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "Q：怎样近似每一个积分",
+            "labelEn": "Q: how each integral is approximated",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-counts-b0",
+          "text": "K 是测试函数数目，决定要检查多少个残差模式。增加 K 是向学习场提出更多问题。",
+          "textEn": "K counts the test functions, so it determines how many residual patterns are checked. Increasing K asks more questions of the learned field.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-counts-b1",
+          "text": "Q 是近似每个积分所用的节点数。更多 Q 可以改善积分精度，却不能检测已选测试都看不见的模式，这与改变网络容量又是不同选择。",
+          "textEn": "Q counts the quadrature nodes used to approximate each integral. More Q can reduce integration error but cannot recover an untested pattern, which is separate from changing network capacity.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-quadrature",
+      "title": "用带权节点计算积分",
+      "titleEn": "Compute integrals with weighted nodes",
+      "eyebrow": "论文 09 / 12",
+      "eyebrowEn": "PAPER 09 / 12",
+      "visual": "steps",
+      "formula": "\\int_{-1}^{1}g(x)\\,dx\\ \\approx\\ \\sum\\nolimits_{q=1}^{Q}\\omega_q g(x_q)",
+      "formulaEn": "\\int_{-1}^{1}g(x)\\,dx\\ \\approx\\ \\sum\\nolimits_{q=1}^{Q}\\omega_q g(x_q)",
+      "bullets": [
+        "用带权节点计算积分"
+      ],
+      "bulletsEn": [
+        "Compute integrals with weighted nodes"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-quadrature-b0",
+          "text": "g 表示当前被积函数，x q 是积分位置，ω q 是积分权重。图中用 x 的八次方，只为直观展示积分误差。",
+          "textEn": "G denotes the current integrand, x q is a quadrature location, and omega q is its integration weight. The diagram uses x to the eighth power simply to make integration error visible.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\int_{-1}^{1}g(x)\\,dx\\ \\approx\\ \\sum\\nolimits_{q=1}^{Q}\\omega_q g(x_q)",
+            "formulaEn": "\\int_{-1}^{1}g(x)\\,dx\\ \\approx\\ \\sum\\nolimits_{q=1}^{Q}\\omega_q g(x_q)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-quadrature-b1",
+          "text": "使用整区间上的高斯—勒让德节点和权重。四节点只保证七次以内多项式精确，因此这个八次例子需要更多节点；神经网络被积函数通常并不是多项式。",
+          "textEn": "We use Gauss–Legendre nodes and weights on the full interval. Four nodes are exact only for polynomials through degree seven, so this eighth-degree example needs more nodes; neural integrands are generally not polynomials.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "vpinn-quadrature",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-loss",
+      "title": "先形成每个矩，再把矩的平方求平均",
+      "titleEn": "Form each moment first, then average its square",
+      "eyebrow": "论文 09 / 13",
+      "eyebrowEn": "PAPER 09 / 13",
+      "visual": "steps",
+      "formula": "\\mathcal L_{\\rm weak}=\\frac1K\\sum_{k=1}^{K}\\left|R_k^Q(\\theta)\\right|^2",
+      "formulaEn": "\\mathcal L_{\\rm weak}=\\frac1K\\sum_{k=1}^{K}\\left|R_k^Q(\\theta)\\right|^2",
+      "bullets": [
+        "先形成每个矩，再把矩的平方求平均"
+      ],
+      "bulletsEn": [
+        "Form each moment first, then average its square"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "先用 Q 个节点估计每个矩",
+            "labelEn": "Estimate every moment with Q nodes",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "再约束 K 个矩的平方",
+            "labelEn": "Then penalise the squares of K moments",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-loss-b0",
+          "text": "上标 Q 表示一个弱残差的数值积分近似。先用 Q 个积分节点，为每个已选测试计算带权残差矩。",
+          "textEn": "R k with superscript Q denotes the quadrature approximation of one weak residual. First compute that weighted moment for every selected test using Q integration nodes.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\mathcal L_{\\rm weak}=\\frac1K\\sum_{k=1}^{K}\\left|R_k^Q(\\theta)\\right|^2",
+            "formulaEn": "\\mathcal L_{\\rm weak}=\\frac1K\\sum_{k=1}^{K}\\left|R_k^Q(\\theta)\\right|^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-loss-b1",
+          "text": "形成这 K 个矩之后，才对它们的平方取平均。强形式和弱形式的原始损失衡量不同对象，不能把它们当作同一种精度指标比较。",
+          "textEn": "Only after forming those K moments do we average their squared values. Raw strong and weak losses measure different objects and should not be compared as if they were the same accuracy metric.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-trial",
+      "title": "所有对照使用相同的端点构造",
+      "titleEn": "Use the same endpoint construction in every control",
+      "eyebrow": "论文 09 / 14",
+      "eyebrowEn": "PAPER 09 / 14",
+      "visual": "steps",
+      "formula": "u_\\theta(x)=(1-x^2)N_\\theta(x)",
+      "formulaEn": "u_\\theta(x)=(1-x^2)N_\\theta(x)",
+      "bullets": [
+        "所有对照使用相同的端点构造"
+      ],
+      "bulletsEn": [
+        "Use the same endpoint construction in every control"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-trial-b0",
+          "text": "N θ 是一个小型双曲正切网络，再乘上一减 x 平方。无论参数怎样变化，这个因子都让两端温度严格为零。",
+          "textEn": "N theta is a small tanh network, multiplied by one minus x squared. This factor makes both endpoint temperatures exactly zero for any parameter values.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta(x)=(1-x^2)N_\\theta(x)",
+            "formulaEn": "u_\\theta(x)=(1-x^2)N_\\theta(x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-trial-b1",
+          "text": "每种策略都采用这个一维便利构造，不把它说成原论文这些实验的设置。后续论文会专门研究更一般几何中的边界构造。",
+          "textEn": "We use this simple one-dimensional convenience for every policy, rather than claiming the original paper used it in these experiments. A later paper will examine boundary constructions on more general geometries.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "vpinn-physical",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-code",
+      "title": "教授演示：弱形式训练循环实际做了什么",
+      "titleEn": "Professor demo: what the weak-form training loop computes",
+      "eyebrow": "论文 09 / 15",
+      "eyebrowEn": "PAPER 09 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "教授演示：弱形式训练循环实际做了什么"
+      ],
+      "bulletsEn": [
+        "Professor demo: what the weak-form training loop computes"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-code-b0",
+          "text": "沿五行代码依次观察温度试探函数、空间导数、带权残差矩和平方损失。只有测试函数与积分权重是预先计算的常数。",
+          "textEn": "Follow the five lines from the temperature trial function to the spatial derivative, the weighted moments and their squared loss. Only the test functions and quadrature weights are precomputed constants.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-code-b1",
+          "text": "反向传播仍然要对所有网络参数求损失导数。下载程序在 CPU 上用 PyTorch 实现这些步骤，随后图形回放其保存检查点。",
+          "textEn": "Backpropagation still differentiates that loss with respect to every network parameter. The downloadable program implements these steps in PyTorch on the CPU, and the following plots replay its saved checkpoints.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "vpinn-code",
+      "paperTrace": "paper09",
+      "demoCode": [
+        "u = (1 - x*x) * net(x)",
+        "ux = grad(u, x, create_graph=True)",
+        "R = sum_q(w * (ux*dv - f*v))",
+        "loss = mean_k(R**2)",
+        "loss.backward(); opt.step()"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-protocol",
+      "title": "四种约束，三个配对种子，同一个小网络",
+      "titleEn": "Four constraint choices, three paired seeds, one small network",
+      "eyebrow": "论文 09 / 16",
+      "eyebrowEn": "PAPER 09 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "四种约束，三个配对种子，同一个小网络"
+      ],
+      "bulletsEn": [
+        "Four constraint choices, three paired seeds, one small network"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "强形式与两种测试数量",
+            "labelEn": "Strong form and two test counts",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "独立加入积分不足的对照",
+            "labelEn": "Separate underintegration control",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-protocol-b0",
+          "text": "每个网络有三百二十一个参数，训练两千次 Adam 更新。每个种子内，四种策略复用相同初始权重。",
+          "textEn": "Each network has three hundred and twenty-one parameters and is trained for two thousand Adam updates. We reuse the same initial weights within each seed across all four policies.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-protocol-b1",
+          "text": "对照分别为三十二中点强形式、三十二积分点下的一或八个弱测试，以及只有四积分点的八测试。十二次运行都完成更新预算，在四个 CPU 线程上每次约四到七秒。",
+          "textEn": "The controls are strong form at thirty-two midpoints, weak form with one or eight tests at thirty-two quadrature nodes, and eight tests at only four nodes. All twelve runs finished their update budget in roughly four to seven seconds each on four CPU threads.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "vpinn-training",
+      "title": "先看温度场，而不是只看训练损失",
+      "titleEn": "Inspect the temperature field before trusting the training loss",
+      "eyebrow": "论文 09 / 17",
+      "eyebrowEn": "PAPER 09 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看温度场，而不是只看训练损失"
+      ],
+      "bulletsEn": [
+        "Inspect the temperature field before trusting the training loss"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-training-b0",
+          "text": "虚线是独立解析温度参考，彩色曲线回放种子十一。观察四种约束选择如何得到不同学习场。",
+          "textEn": "The dashed line is the independent analytic temperature reference, and the coloured curves replay seed eleven. Watch how the four constraint choices lead to different learned fields.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-training-b1",
+          "text": "强形式对照已经很准确地拟合这个光滑问题。八个弱测试也得到接近的场，而一个测试和积分不足对照会漏掉大量物理信息。",
+          "textEn": "The strong control already fits this smooth problem very accurately. Eight weak tests also give a close field, whereas one test and the underintegrated control can miss substantial physics.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "vpinn-training",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-all-seeds",
+      "title": "保留每个种子的结果，不挑最好的一次",
+      "titleEn": "Keep every seed rather than select the most attractive run",
+      "eyebrow": "论文 09 / 18",
+      "eyebrowEn": "PAPER 09 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "保留每个种子的结果，不挑最好的一次"
+      ],
+      "bulletsEn": [
+        "Keep every seed rather than select the most attractive run"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-all-seeds-b0",
+          "text": "每个点是独立训练的模型，每种策略都保留全部三个种子。纵轴是以百分比表示、采用对数刻度的场相对误差。",
+          "textEn": "Every dot is an independently trained model, and all three seeds are retained for every policy. The vertical axis is relative field error in percent on a logarithmic scale.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-all-seeds-b1",
+          "text": "强形式误差约为百分之零点零一到零点零五，八测试充分积分时约为百分之零点零四到零点一四。这个具体实验并不支持 VPINN 总有精度优势的说法。",
+          "textEn": "The strong-form errors are approximately zero point zero one to zero point zero five percent, and the eight-test well-integrated errors are about zero point zero four to zero point one four percent. This particular experiment does not show a universal accuracy advantage for VPINNs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "vpinn-error",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-low-k",
+      "title": "一个矩为零，仍然可能漏掉整个场的误差",
+      "titleEn": "One zero moment can hide substantial field error",
+      "eyebrow": "论文 09 / 19",
+      "eyebrowEn": "PAPER 09 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "一个矩为零，仍然可能漏掉整个场的误差"
+      ],
+      "bulletsEn": [
+        "One zero moment can hide substantial field error"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-low-k-b0",
+          "text": "单测试运行的训练损失在数值上为零，但场误差仍约为百分之九到三十四。审计图用独立的一百二十八节点规则检查十六个矩。",
+          "textEn": "The one-test runs reach a numerically zero training loss, yet their field errors range from roughly nine to thirty-four percent. The audit plot checks sixteen moments using a separate one hundred and twenty-eight-node rule.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-low-k-b1",
+          "text": "一个约束即使完全满足，也可能不足以确定解。这说明有限测试空间有局限，并不表示零损失能证明处处满足物理。",
+          "textEn": "A constraint can be perfectly satisfied while being insufficient to identify the solution. This is a finite-test-space limitation, not evidence that a zero loss proves the physics everywhere.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "vpinn-moments",
+      "paperTrace": "paper09"
+    },
+    {
+      "id": "vpinn-blind",
+      "title": "用解析反例解释盲模式",
+      "titleEn": "A mode the first test cannot see",
+      "eyebrow": "论文 09 / 20",
+      "eyebrowEn": "PAPER 09 / 20",
+      "visual": "steps",
+      "formula": "\\int_{-1}^{1}w'(x)v_1'(x)\\,dx=0",
+      "formulaEn": "\\int_{-1}^{1}w'(x)v_1'(x)\\,dx=0",
+      "bullets": [
+        "用解析反例解释盲模式"
+      ],
+      "bulletsEn": [
+        "A mode the first test cannot see"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-blind-b0",
+          "text": "这里 w 是三次勒让德多项式减一次多项式，在两端都为零。加上零点三乘 w 会改变温度场，却不改变第一个弱残差。",
+          "textEn": "Here w is the polynomial P three minus P one, which vanishes at both endpoints. Adding zero point three times w changes the temperature field while leaving its first weak residual unchanged.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\int_{-1}^{1}w'(x)v_1'(x)\\,dx=0",
+            "formulaEn": "\\int_{-1}^{1}w'(x)v_1'(x)\\,dx=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "vpinn-blind-b1",
+          "text": "第一个残差看不见它，是因为 w 的导数正比于 P 二，与第一测试导数中的 P 一正交。第二测试能检测该扰动，所以即使积分精确，测试空间的选择仍然重要。",
+          "textEn": "The first residual is blind because w prime is proportional to P two, orthogonal to the P one in the first test derivative. The second test does detect the perturbation, so choosing the test space matters even with exact integration.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "vpinn-blind",
+      "paperTrace": "paper09",
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-low-q",
+      "title": "积分不足还能制造无法满足的离散约束",
+      "titleEn": "Underintegration can create incompatible discrete constraints",
+      "eyebrow": "论文 09 / 21",
+      "eyebrowEn": "PAPER 09 / 21",
+      "visual": "steps",
+      "formula": "v_4'(x_q)=9P_4(x_q)=0\\qquad(Q=4)",
+      "formulaEn": "v_4'(x_q)=9P_4(x_q)=0\\qquad(Q=4)",
+      "bullets": [
+        "积分不足还能制造无法满足的离散约束"
+      ],
+      "bulletsEn": [
+        "Underintegration can create incompatible discrete constraints"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "四节点是 P 四的零点",
+            "labelEn": "Four Gauss nodes are roots of P four",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "热源矩却不一定为零",
+            "labelEn": "The source moment need not vanish",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-low-q-b0",
+          "text": "四节点高斯规则把所有节点放在 P 四的零点。因此第四测试的导数在全部训练节点处为零。",
+          "textEn": "The four-node Gauss rule places every node at a zero of P four. The fourth test derivative therefore vanishes at every training node.",
+          "focus": 0,
+          "scene": {
+            "formula": "v_4'(x_q)=9P_4(x_q)=0\\qquad(Q=4)",
+            "formulaEn": "v_4'(x_q)=9P_4(x_q)=0\\qquad(Q=4)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "vpinn-low-q-b1",
+          "text": "但离散热源矩约为一点三五，所以在这个积分规则下，任何网络斜率值都无法修复该项不匹配。独立最小二乘计算得到残差矩平方均值的下限约三点零五，与三个积分不足运行一致。",
+          "textEn": "Its discrete source moment is nevertheless about one point three five, so no network slope values can repair that mismatch under this rule. An independent least-squares calculation gives a minimum mean squared moment loss of about three point zero five, matching all three underintegrated runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "vpinn-validation",
+      "title": "验证必须跳出训练所用的那组检查",
+      "titleEn": "Validate beyond the checks used during training",
+      "eyebrow": "论文 09 / 22",
+      "eyebrowEn": "PAPER 09 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "验证必须跳出训练所用的那组检查"
+      ],
+      "bulletsEn": [
+        "Validate beyond the checks used during training"
+      ],
+      "sourceIds": [
+        "kharazmi2019",
+        "vpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-validation-b0",
+          "text": "把场和热流与独立解析值比较，再在偏移位置检查强残差。还使用比训练更多的节点和测试函数重新计算残差矩。",
+          "textEn": "We compare the field and heat flux against independent analytic values and test strong residuals at shifted locations. We also recompute moments with more nodes and more test functions than the training rule.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-validation-b1",
+          "text": "三百零一个场位置、二百五十七个偏移残差位置和十六个审计测试都不用于选择检查点。报告结果全部来自最终两千更新的模型。",
+          "textEn": "The three hundred and one field points, two hundred and fifty-seven shifted residual points and sixteen audit tests do not choose a checkpoint. Every reported result uses the final two-thousand-update model.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "vpinn-moments",
+      "paperTrace": "paper09"
+    },
+    {
+      "id": "vpinn-scope",
+      "title": "理解原论文的思想，同时说清实现的边界",
+      "titleEn": "Retain the paper’s idea and state the implementation limits",
+      "eyebrow": "论文 09 / 23",
+      "eyebrowEn": "PAPER 09 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "理解原论文的思想，同时说清实现的边界"
+      ],
+      "bulletsEn": [
+        "Retain the paper’s idea and state the implementation limits"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "compare",
+        "nodes": [
+          {
+            "label": "保留变分残差与勒让德测试",
+            "labelEn": "Keep variational residuals and Legendre tests",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "独立光滑受热杆教学改编",
+            "labelEn": "Independent smooth heated-rod adaptation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "vpinn-scope-b0",
+          "text": "保留论文的 Petrov–Galerkin 思想、所选勒让德测试和一次分部积分残差。热源、硬端点构造、小型双曲正切网络与高斯—勒让德预算都是明确的教学改变。",
+          "textEn": "We retain the paper’s Petrov–Galerkin idea, selected Legendre tests and once-integrated residual. Our source, hard endpoint construction, small tanh network and Gauss–Legendre budget are explicit teaching changes.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-scope-b1",
+          "text": "没有复现原始浅层正弦解析公式、陡层基准、二维比较或 hp-VPINNs。降低导数阶数是有用机制，但它本身不保证更高精度，也不保证更快达到给定误差。",
+          "textEn": "We do not reproduce the original shallow sine formulas, steep-layer benchmarks, two-dimensional comparisons or hp-VPINNs. Lower derivative order is a useful mechanism, but it does not by itself guarantee better accuracy or faster time to a prescribed error.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "vpinn-exercise",
+      "title": "先预测：加测试和加节点分别能修复什么？",
+      "titleEn": "Predict what more tests and more nodes can repair",
+      "eyebrow": "论文 09 / 24",
+      "eyebrowEn": "PAPER 09 / 24",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先预测：加测试和加节点分别能修复什么？"
+      ],
+      "bulletsEn": [
+        "Predict what more tests and more nodes can repair"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "增加 Q 能否消除盲模式？",
+            "labelEn": "Can more Q remove an invisible mode?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "增加 K 是否需要同步检查积分？",
+            "labelEn": "Does more K require checking quadrature?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-exercise-b0",
+          "text": "保持网络与更新预算不变，预测一个测试从三十二增至六十四积分节点会怎样。再预测第二个测试会怎样检测解析扰动 w。",
+          "textEn": "Keep the network and update budget fixed, and predict what happens when one test uses sixty-four rather than thirty-two nodes. Then predict what a second test does to the analytic perturbation w.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-exercise-b1",
+          "text": "先解释这两种干预为何不同，再运行新实验。探索记录要保存为新文件，不要覆盖已发布的十二次运行证据。",
+          "textEn": "Explain why these are different interventions before running new experiments. Save any exploratory record under a new filename so that the published twelve-run evidence stays unchanged.",
+          "focus": 0,
+          "pauseAfter": 60,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    },
+    {
+      "id": "vpinn-next",
+      "title": "残差形式之后，为什么专门研究边界构造？",
+      "titleEn": "After residual formulations, why study boundary constructions?",
+      "eyebrow": "论文 09 / 25",
+      "eyebrowEn": "PAPER 09 / 25",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "残差形式之后，为什么专门研究边界构造？"
+      ],
+      "bulletsEn": [
+        "After residual formulations, why study boundary constructions?"
+      ],
+      "sourceIds": [
+        "kharazmi2019"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：改变怎样检查内部方程",
+            "labelEn": "Here: change how the interior equation is checked",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一篇：改变怎样满足边界",
+            "labelEn": "Next: change how boundaries are satisfied",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "vpinn-next-b0",
+          "text": "本篇降低了空间求导阶数，但依赖很简单的一维边界因子。真实几何让这种构造不再明显，而软惩罚也有自己的取舍。",
+          "textEn": "This episode reduced spatial derivative order but relied on a very simple one-dimensional boundary factor. Real geometries make that construction less obvious, and soft penalties introduce their own trade-offs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "none",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "vpinn-next-b1",
+          "text": "下一篇计划研究通过几何相关试探函数精确满足边界条件。它与刚完成的强弱残差比较，是不同的设计选择。",
+          "textEn": "The next planned paper studies geometry-aware trial functions for imposing boundary conditions exactly. That is a separate design choice from the strong-versus-weak residual comparison we have just completed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false
+    }
+  ]
+}

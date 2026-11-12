@@ -6,17 +6,18 @@
       "title": "Physics-informed neural networks",
       "presenter": "Professor Vee",
       "audience": "postgraduate",
-      "slides": 191,
-      "plannedMinutes": 325,
+      "slides": 216,
+      "plannedMinutes": 370,
       "url": "pinns/",
       "classroom": "pinns/classroom/?paper=raissi2017",
-      "description": "8 papers with small CPU implementations: forward solutions, inverse identification, optimisation and progressively advanced PINNs.",
+      "description": "9 papers with small CPU implementations: forward solutions, inverse identification, optimisation and progressively advanced PINNs.",
       "cover": "pinns/cover.svg",
-      "paperCount": 8,
+      "paperCount": 9,
       "primer": {
         "chapters": 6,
         "url": "pinns/classroom/?chapter=1"
-      }
+      },
+      "targetPaperCount": 16
     }
   ]
 }

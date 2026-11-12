@@ -91,6 +91,73 @@
       "status": "Implemented",
       "classroom": "classroom/?paper=jagtap2020&language=en",
       "scope": "Independent two-material steady-conduction adaptation of cPINN state/flux coupling; four interface ablations, not original nonlinear benchmarks, XPINNs or parallel speedup."
+    },
+    {
+      "number": "09",
+      "status": "Implemented",
+      "paper": "Kharazmi, Zhang & Karniadakis (2019), VPINNs",
+      "source": "https://arxiv.org/abs/1912.00873",
+      "topic": "Weak-form residuals, test spaces and quadrature",
+      "scope": "Independent smooth1D heated-rod adaptation of VPINN equations4.7,4.20 and4.25; hard endpoints,Gauss-Legendre quadrature and321-parameter tanh;not original steep-layer/2D benchmarks or hp-VPINNs.",
+      "classroom": "classroom/?paper=kharazmi2019&language=en"
+    },
+    {
+      "number": "10",
+      "status": "Planned",
+      "paper": "Sukumar & Srivastava, Exact imposition of boundary conditions with distance functions",
+      "source": "https://arxiv.org/abs/2104.08426",
+      "topic": "Geometry-aware exact boundary conditions",
+      "scope": "Planned simple-domain soft/hard-boundary comparison;CPU feasibility to be checked before implementation."
+    },
+    {
+      "number": "11",
+      "status": "Planned",
+      "paper": "Wang, Yu & Perdikaris, When and why PINNs fail to train: A neural tangent kernel perspective",
+      "source": "https://arxiv.org/abs/2007.14527",
+      "topic": "NTK, eigenvalues and competing convergence rates",
+      "scope": "Planned small-network kernel and training experiment;finite-network limits distinguished from infinite-width theory."
+    },
+    {
+      "number": "12",
+      "status": "Planned",
+      "paper": "Wang, Wang & Perdikaris, On the eigenvector bias of Fourier feature networks",
+      "source": "https://arxiv.org/abs/2012.10047",
+      "topic": "Fourier features and multiscale PDEs",
+      "scope": "Planned1D mixed-frequency controlled example,not large wave or reaction-diffusion benchmarks."
+    },
+    {
+      "number": "13",
+      "status": "Planned",
+      "paper": "Moseley, Markham & Nissen-Meyer, Finite Basis Physics-Informed Neural Networks",
+      "source": "https://arxiv.org/abs/2107.07871",
+      "topic": "Overlapping subdomains and local multiscale representations",
+      "scope": "Planned few-subdomain1D example;no large-scale or parallel speedup claim."
+    },
+    {
+      "number": "14",
+      "status": "Planned",
+      "paper": "Yang, Meng & Karniadakis, B-PINNs",
+      "source": "https://arxiv.org/abs/2003.06097",
+      "topic": "Bayesian uncertainty and noisy inverse problems",
+      "scope": "Planned tiny-network posterior experiment;sampling cost and diagnostics must be validated before implementation."
+    },
+    {
+      "number": "15",
+      "status": "Planned",
+      "paper": "Raissi, Yazdani & Karniadakis, Hidden fluid mechanics",
+      "source": "https://maziarraissi.github.io/research/09_hidden_fluid_mechanics/",
+      "topic": "Infer hidden flow quantities from observations",
+      "scope": "Planned simplified2D transport example;identifiability and CPU budget to be verified,not original high-resolution or3D reproductions."
+    },
+    {
+      "number": "16",
+      "status": "Planned",
+      "paper": "Lu et al., Physics-informed neural networks with hard constraints for inverse design",
+      "source": "https://arxiv.org/abs/2102.04626",
+      "topic": "PDE-constrained inverse design",
+      "scope": "Planned low-dimensional design adaptation;not original large topology optimisation benchmarks."
     }
-  ]
+  ],
+  "targetPaperCount": 16,
+  "selectionPolicy": "Editorial teaching route,not an exhaustive survey or citation ranking;core mechanisms plus representative applications,each with CPU-budget validation and explicit benchmark departures."
 }

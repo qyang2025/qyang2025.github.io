@@ -240,9 +240,22 @@
           "ready": 151
         }
       }
+    ],
+    "kharazmi2019": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 103,
+          "ready": 103
+        },
+        "zh": {
+          "total": 102,
+          "ready": 102
+        }
+      }
     ]
   },
-  "clips": 3030,
+  "clips": 3235,
   "features": [
     "progressive-reveal",
     "physical-animation",
