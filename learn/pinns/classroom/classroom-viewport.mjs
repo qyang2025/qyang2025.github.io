@@ -53,19 +53,27 @@ export class ClassroomViewport {
  close(){this.closed=true;cancelAnimationFrame(this.frame);this.resize.disconnect();this.mutations.disconnect();window.removeEventListener('resize',this.schedule);document.removeEventListener('keydown',this.escape);document.getElementById('outline').removeEventListener('click',this.selectPanelItem,true);document.getElementById('chapter-select')?.removeEventListener('change',this.selectPanelItem);this.panelButtons.remove();}
 }
 
-function layoutDiagram(scene){
+// Never fund long connectors by shrinking nodes below an unbreakable word.
+export function diagramWidths(nodes,links,available=880,gap=12){
+ const gaps=Math.max(0,nodes.length+links.length-1)*gap;
+ const minimum=nodes.map(n=>Math.max(140,n.word+32));
+ const arrows=links.map(l=>Math.max(54,l.word+16));
+ const required=minimum.reduce((a,b)=>a+b,0)+arrows.reduce((a,b)=>a+b,0)+gaps;
+ const desired=nodes.map((n,i)=>Math.max(minimum[i],n.full+32));
+ const width=Math.min(available,Math.max(560,desired.reduce((a,b)=>a+b,0)+arrows.reduce((a,b)=>a+b,0)+gaps));
+ let spare=Math.max(0,width-required),deficits=desired.map((v,i)=>v-minimum[i]),total=deficits.reduce((a,b)=>a+b,0);
+ const result=minimum.map((v,i)=>v+(total?Math.min(spare,total)*deficits[i]/total:0));
+ return{nodes:result,links:arrows,width,needsFold:required>available};
+}
+export function layoutDiagram(scene){
  const figure=scene.querySelector('.schematic');if(!figure)return;
- const nodes=[...figure.querySelectorAll('.schematic-node')];
- // Measure in the logical canvas, before the viewport transform. Include future
- // nodes so progressive reveals do not cause existing boxes to jump sideways.
- const widths=nodes.map(node=>{let width=0;for(const text of node.querySelectorAll('strong,span')){const saved=text.style.cssText;Object.assign(text.style,{position:'absolute',width:'max-content',maxWidth:'none',whiteSpace:'nowrap',visibility:'hidden'});width=Math.max(width,text.offsetWidth);text.style.cssText=saved;}return Math.ceil(width+40);});
- const tree=figure.classList.contains('schematic-tree');
- nodes.forEach((node,i)=>{node.style.flexBasis=tree?'auto':`${Math.max(150,widths[i])}px`;node.style.flexGrow=tree?'0':String(Math.max(150,widths[i]));});
- const arrowLabels=[...figure.querySelectorAll('.schematic-link')];
- let linkWidth=0;
- const measure=document.createElement('canvas').getContext('2d');
- for(const link of arrowLabels){const text=link.querySelector('span'),font=getComputedStyle(text);measure.font=`${font.fontWeight} ${font.fontSize} ${font.fontFamily}`;const longest=Math.max(0,...text.textContent.split(/\s+/).map(word=>measure.measureText(word).width));const width=Math.ceil(Math.max(110,longest+24,Math.min(260,measure.measureText(text.textContent).width+24)));link.style.flexBasis=tree?'auto':`${width}px`;link.style.width=`${width}px`;linkWidth+=width;}
- const links=linkWidth;
- const desired=Math.min(880,Math.max(560,widths.reduce((a,b)=>a+b,0)+links+Math.max(0,nodes.length+arrowLabels.length-1)*12));
- scene.style.width=`min(100%, ${desired}px)`;
+ const nodes=[...figure.querySelectorAll('.schematic-node')],links=[...figure.querySelectorAll('.schematic-link')],tree=figure.classList.contains('schematic-tree');
+ const canvas=document.createElement('canvas').getContext('2d');
+ const measure=el=>{const font=getComputedStyle(el);canvas.font=`${font.fontWeight} ${font.fontSize} ${font.fontFamily}`;const clone=el.cloneNode(true);clone.querySelectorAll('.katex-mathml').forEach(x=>x.remove());const text=clone.textContent;const tokens=text.replace(/([\u3400-\u9fff])/g,' $1 ').split(/[ \t\r\n]+/).filter(Boolean);return{full:canvas.measureText(text).width,word:Math.max(0,...tokens.map(w=>canvas.measureText(w).width))};};
+ const sizes=nodes.map(node=>{const m=[...node.querySelectorAll('strong,span')].map(measure);return{full:Math.max(0,...m.map(x=>x.full)),word:Math.max(0,...m.map(x=>x.word))};});
+ const plan=diagramWidths(sizes,links.map(link=>measure(link.querySelector('span'))));
+ const folded=!tree&&nodes.length===4&&plan.needsFold;figure.classList.toggle('schematic-folded',folded);
+ nodes.forEach((node,i)=>{node.style.flexBasis=tree?'auto':`${plan.nodes[i]}px`;node.style.flexGrow='0';node.style.flexShrink='0';node.style.minWidth=tree?'0':`${plan.nodes[i]}px`;});
+ links.forEach((link,i)=>{link.style.flexBasis=tree?'auto':`${plan.links[i]}px`;link.style.width=`${plan.links[i]}px`;});
+ scene.style.width=`min(100%, ${plan.width}px)`;
 }

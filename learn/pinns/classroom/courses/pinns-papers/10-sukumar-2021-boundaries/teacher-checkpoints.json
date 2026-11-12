@@ -1,0 +1,13 @@
+{
+  "paper": "10",
+  "checks": [
+    {
+      "slideId": "boundary-exercise",
+      "questionEn": "If the known lift changes from0.2x to ax, what remains exact and what still needs validation?",
+      "questionZh": "已知延拓从零点二 x 改为 a x 后，什么仍然精确，什么仍需要验证？",
+      "answerEn": "For any known constant a, the reference ax+1-x²-y² has source4 because the linear lift has zero Laplacian. On the unit circle the quadratic correction vanishes, so g+phi*N matches ax for every network parameter value. This boundary identity does not guarantee the learned interior field is accurate. The raw exact-distance factor still has a centre cusp; changing the lift cannot repair its missing second derivative. Run any changed configuration into a separate record and compare full-disk error, shifted rim values and centre derivatives.",
+      "answerZh": "对任意已知常数 a，参考解 ax+1-x²-y² 的热源仍是四，因为线性延拓的拉普拉斯为零。单位圆周上二次修正消失，所以任意网络参数下，g+φN 都匹配 ax。这个边界恒等式不能保证内部学习场准确。真实距离因子的圆心尖点仍存在；改变延拓无法修复缺失的二阶导数。修改实验时另存记录，比较全圆盘误差、错开圆周值及圆心导数。",
+      "equation": "u_a^*=ax+1-x^2-y^2,\\qquad -\\Delta u_a^*=4"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "sukumar2021",
+  "paper": {
+    "number": 10,
+    "shortTitle": "Sukumar 2021 · exact boundaries",
+    "title": "Sukumar & Srivastava (2021 preprint), Exact imposition of boundary conditions with distance functions in physics-informed deep neural networks",
+    "url": "https://arxiv.org/abs/2104.08426",
+    "year": 2021,
+    "scope": "Independent unit-disk Poisson/Dirichlet teaching adaptation using circular ADF equation7 and a known nonzero lift;not original multidomain,R-function assembly,Neumann,Robin,biharmonic or4D benchmarks. Raw exact-distance control is intentionally non-C1 at centre and cannot define a classical strong residual there."
+  },
+  "title": "Paper 10: distance functions and exact boundary construction",
+  "titleZh": "论文 10：距离函数与精确边界构造",
+  "totalMinutes": 45,
+  "download": "paper-10.zip",
+  "modules": [
+    {
+      "id": "139afec2-2021-4010-8010-000000000010",
+      "index": 0,
+      "title": "论文 10：距离函数与精确边界构造",
+      "titleEn": "Paper 10: distance functions and exact boundary construction",
+      "file": "1.json",
+      "pages": 25,
+      "sentenceCount": 102,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "sukumar2021",
+      "name": "Sukumar & Srivastava (2021 preprint), Exact imposition of boundary conditions with distance functions in physics-informed deep neural networks",
+      "url": "https://arxiv.org/abs/2104.08426",
+      "text": "Sections2 and5: smooth approximate distance fields and boundary-satisfying trial functions; circular construction equation7 and Dirichlet ansatz equation21. Our unit-disk source, lift, network and CPU controls are independent teaching choices."
+    },
+    {
+      "id": "boundary-local",
+      "name": "Twelve executed disk controls and independent boundary/field audits",
+      "url": "/courses/pinns-papers/10-sukumar-2021-boundaries/trace.json",
+      "text": "Three paired seeds; two soft penalties, smooth hard construction and deliberately nonsmooth exact-distance control. All final fields and centre-derivative failures are retained."
+    }
+  ],
+  "downloadSha256": "acc46e3554a2ebceb3acf925a04710f50908347d74e2380e5289f09309ca6559"
+}

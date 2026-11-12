@@ -1,22 +1,24 @@
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper09a';
+import {SyncAudit} from './sync-audit.mjs?v=paper10d';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper10d';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
-import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper09a';
+import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper10d';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=paper09a';
-import {lessonSections,isOutline} from './course-outline.mjs?v=paper09a';
-import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper09a';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=paper10d';
+import {lessonSections,isOutline} from './course-outline.mjs?v=paper10d';
+import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper10d';
 import {schematicHtml} from './schematic.mjs';
 import {mathHtml,proseHtml} from './math.mjs';
 import {lectureChart} from './lecture-chart.mjs';
-import {LecturePlayer,sentences} from './player.mjs?v=paper09a';
-import {currentScene,ProfessorStage} from './stage.mjs';
-import {NeuralSpeech} from './neural-speech.mjs?v=paper09a';
+import {LecturePlayer,sentences} from './player.mjs?v=paper10d';
+import {currentScene,ProfessorStage} from './stage.mjs?v=paper10d';
+import {NeuralSpeech} from './neural-speech.mjs?v=paper10d';
 import {localizeLesson} from './languages.mjs';
 const $=id=>document.getElementById(id),escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedPaper=new URLSearchParams(location.search).get('paper')||'';let courseRoot='courses/pinns',courseKey='pinns',paperCatalog=[];
-const classroomSearch=(chapter,language)=>'?'+new URLSearchParams({...requestedPaper?{paper:requestedPaper}:{},chapter:String(chapter+1),language}).toString();
+const auditEnabled=new URLSearchParams(location.search).get('audit')==='1';
+const classroomSearch=(chapter,language)=>'?'+new URLSearchParams({...auditEnabled?{audit:'1'}:{},...requestedPaper?{paper:requestedPaper}:{},chapter:String(chapter+1),language}).toString();
 let manifest,audioPack,rawLesson,chapter=0,language=new URLSearchParams(location.search).get('language')==='zh'?'zh':'en',loading=true,loadEpoch=0;
 const t=(en,zh)=>language==='en'?en:zh;
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').hidden=true,6500);}
@@ -27,9 +29,10 @@ const speech=new NeuralSpeech({fetcher:async(url,options)=>{
  const input=JSON.parse(options.body),key=[input.lessonId,input.language,input.slideId,input.beatId,input.sentenceIndex].join('/');
  const clip=audioPack.clips[key];return clip?Response.json(clip):Response.json({error:t('This sentence has no published audio. Read the transcript and use Next step.','这句话尚无已发布语音。请阅读讲稿并点击下一步。')},{status:404});
 }});
+const audit=new SyncAudit(auditEnabled);
 const player=new LecturePlayer({speech,utterance:text=>({text}),onChange:()=>{if(player.lesson)render();},onError:toast,onActivity:activity=>{
  if(activity.reason==='paused')playback?.release();professor.activity(activity);pointer.activity(activity);
- if(player.lesson){const position=player.displayPosition(),slide=player.lesson.slides[position.slide];syncPaperDemo(activity,position,slide,language);syncHeatRod(activity,position,slide,language);syncPinnDemo(activity,position,slide,language);}
+ if(player.lesson){const position=player.displayPosition(),slide=player.lesson.slides[position.slide];syncPaperDemo(activity,position,slide,language);syncHeatRod(activity,position,slide,language);syncPinnDemo(activity,position,slide,language);audit.activity(player,activity);}
 }});
 const playback=new PlaybackControl({onStop:()=>player.pauseAtVisible()});speech.playback=playback;
 function visual(slide, beat) {
@@ -68,7 +71,7 @@ function render(){
  syncPaperDemo({audioTime:0,duration:1},p,slide,language);syncHeatRod({audioTime:0,duration:1},p,slide,language);syncPinnDemo({audioTime:0,duration:1},p,slide,language);
  }
  applyProgressiveReveal($('slide'),slide,p,language);$('slide').querySelectorAll('[data-focus]').forEach(node=>node.classList.toggle('focus',Number(node.dataset.focus)===beat.focus));
- $('caption-text').textContent=player.displayText();document.querySelector('#avatar-stage canvas')?.setAttribute('aria-label',t('3D Professor Vee','三维维教授'));professor.setScene(scene,{text:player.displayText(),thinking:!!player.activityHold,buffering:player.buffering,playing:player.playing,speaking:player.speaking});pointer.setTarget(attentionTarget(slide,p.beat,p.sentence,language));viewport.schedule();
+ $('caption-text').textContent=player.displayText();document.querySelector('#avatar-stage canvas')?.setAttribute('aria-label',t('3D Professor Vee','三维维教授'));professor.setScene(scene,{text:player.displayText(),thinking:!!player.activityHold,buffering:player.buffering,playing:player.playing,speaking:player.speaking});pointer.setTarget(attentionTarget(slide,p.beat,p.sentence,language));viewport.schedule();audit.render(player);
  $('page-count').textContent=`${String(p.slide+1).padStart(2,'0')} / ${lesson.slides.length}`;$('lesson-kind').textContent=manifest.paper?t(`PINNs · Paper ${paperNumber} · ${paperTitle}`,`PINNs · 论文 ${paperNumber} · ${paperTitle}`):t('PINNs primer · Chapter ','PINNs 先修课 · 第 ')+(chapter+1)+(en?'':' 章');$('beat-label').textContent=t('Segment ','片段 ')+`${p.beat+1} / ${slide.beats.length}`;
  const counts=lesson.slides.map(s=>s.beats.length);$('timeline-fill').style.width=`${100*(counts.slice(0,p.slide).reduce((a,b)=>a+b,0)+p.beat+1)/counts.reduce((a,b)=>a+b,0)}%`;
  const coverage=(audioPack.courseCoverage?.[courseKey]||audioPack.coverage)[chapter][language],complete=coverage.ready===coverage.total;

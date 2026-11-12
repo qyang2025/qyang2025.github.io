@@ -103,11 +103,12 @@
     },
     {
       "number": "10",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Sukumar & Srivastava, Exact imposition of boundary conditions with distance functions",
       "source": "https://arxiv.org/abs/2104.08426",
       "topic": "Geometry-aware exact boundary conditions",
-      "scope": "Planned simple-domain soft/hard-boundary comparison;CPU feasibility to be checked before implementation."
+      "scope": "Independent unit-disk Poisson/Dirichlet teaching adaptation using circular ADF equation7 and a known nonzero lift;not original multidomain,R-function assembly,Neumann,Robin,biharmonic or4D benchmarks. Raw exact-distance control is intentionally non-C1 at centre and cannot define a classical strong residual there.",
+      "classroom": "classroom/?paper=sukumar2021&language=en"
     },
     {
       "number": "11",

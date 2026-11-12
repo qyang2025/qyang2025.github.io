@@ -1,4 +1,4 @@
-import {ProfessorRig} from './professor-3d.mjs';
+import {ProfessorRig} from './professor-3d.mjs?v=paper10d';
 import {poses,chooseExpression,easeToward} from './expression.mjs';
 export function currentScene(slide,beat){return beat.scene||{formula:slide.formula,caption:slide.bullets[beat.focus],gesture:slide.visual==='equation'?'write':'point',stage:beat.focus};}
 export class ProfessorStage {
@@ -20,7 +20,7 @@ export class ProfessorStage {
  getLaserPoses(point,landings){return this.rig?.laserPoseCandidates(point,landings);}
  isLaserAligned(){return this.rig?.isLaserAligned()??true;}
  getScreenAnchors(){return this.rig?.screenAnchors();}
- activity({speaking,amplitude}){this.speaking=!!speaking;this.level=speaking&&Number.isFinite(amplitude)?Math.min(1,amplitude*8):0;}
+ activity({speaking,amplitude}){this.speaking=!!speaking;this.element.dataset.speaking=String(this.speaking);this.level=speaking&&Number.isFinite(amplitude)?Math.min(1,amplitude*8):0;}
  tick(time){
   if(this.closed)return;
   const dt=this.last?time-this.last:16;this.last=time;

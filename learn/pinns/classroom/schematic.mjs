@@ -36,7 +36,7 @@ export function validateSchematic(diagram, beats) {
 }
 export function schematicHtml(diagram, step = 0, language = 'zh') {
   if (!diagram || diagram.kind === 'none') return '';
-  const keepTail = (text='') => language === 'en' && !text.includes('$') ? text.replace(/(\S+)\s+(\S+)$/, '$1\u00a0$2') : text;
+  const keepTail = (text='') => language === 'en' && !text.includes('$') ? text.replace(/(\S+)\s+([+-]?\d+(?:\.\d+)?%?)$/, '$1\u00a0$2') : text;
   const label = n => keepTail(language === 'en' ? n.labelEn : n.label);
   const detail = n => keepTail(language === 'en' ? n.detailEn : n.detail);
   const card = (n,i) => `<div class="schematic-node ${n.revealAt === step ? 'node-current' : ''}" ${n.revealAt > step ? 'hidden' : ''} data-reveal="${n.revealAt}" data-diagram-node="${i}"><svg viewBox="0 0 48 48" aria-hidden="true">${paths[n.icon] || paths.gear}</svg><strong>${proseHtml(label(n))}</strong>${detail(n) ? `<span>${proseHtml(detail(n))}</span>` : ''}</div>`;

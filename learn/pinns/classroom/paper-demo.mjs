@@ -1,8 +1,9 @@
-import {drawVpinn} from './vpinn-demo.mjs?v=paper09a';
+import {drawBoundary} from './boundary-demo.mjs?v=paper10b';
+import {drawVpinn} from './vpinn-demo.mjs?v=paper10b';
 import {drawCpinn} from './cpinn-demo.mjs?v=night-08b';
 import {drawSampling} from './sampling-demo.mjs?v=night-08b';
 import {drawGPinn} from './gpinn-demo.mjs?v=night-06a';
-import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper09a';
+import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper10b';
 import {drawCausal,causalKinds} from './causal-demo.mjs?v=night-05a';
 import {drawTransport,transportKinds} from './transport-demo.mjs?v=night-04b';
 import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=night-03b';
@@ -35,6 +36,7 @@ export function syncPaperDemo(activity,position,slide,language){
 function draw(host,progress){
  const trace=traces.get(host.dataset.paperTrace||'paper01');if(!trace||paperDemoMeta[host.dataset.paperDemo]?.code)return;
  const kind=host.dataset.paperDemo,en=document.querySelector('#slide')?.lang==='en',svg=host.querySelector('svg');
+ if(paperDemoMeta[kind]?.renderer==='boundary'){drawBoundary(host,trace,progress,en);return;}
  if(paperDemoMeta[kind]?.renderer==='vpinn'){drawVpinn(host,trace,progress,en);return;}
  if(paperDemoMeta[kind]?.renderer==='cpinn'){drawCpinn(host,trace,progress,en);return;}
  if(paperDemoMeta[kind]?.renderer==='sampling'){drawSampling(host,trace,progress,en);return;}

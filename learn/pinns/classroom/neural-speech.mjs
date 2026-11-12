@@ -61,7 +61,7 @@ export class NeuralSpeech {
   speak(message) {
     this.cancel();
     const token = this.sequence;
-    const current = { message, token }; this.current = current;
+    const current = { message, token, requestedAt: performance.now() }; this.current = current;
     const valid = () => this.current === current && token === this.sequence;
     const permitted = () => valid() && (!this.playback || this.playback.canPlay());
     const fail = error => {
@@ -77,7 +77,9 @@ export class NeuralSpeech {
       const manifest = await this.prepare(message.context, voice);
       if (!permitted()) return;
       if (typeof manifest.text === 'string' && manifest.text !== message.text) throw new Error('音频与当前字幕不匹配，请重新加载课件');
+      const preparedAt = performance.now();
       const audio = this.audioFactory(); current.audio = audio;
+      if (audio.dataset) Object.assign(audio.dataset, { slideId: message.context?.slideId || "", beatId: message.context?.beatId || "", sentenceIndex: String(message.context?.sentenceIndex ?? 0), language, preparationMs: String(Math.round(preparedAt - current.requestedAt)), waitingEvents: "0", rebufferingEvents: "0" });
       if (typeof document !== 'undefined') {
         audio.id = 'narration-audio'; audio.hidden = true;
         document.body.append(audio);
@@ -114,10 +116,12 @@ export class NeuralSpeech {
       };
       audio.onplaying = () => {
         if (!permitted()){if(valid())this.playback?.stop('lost-permission');return;}
-        cancelAnimationFrame(current.frame); message.onstart?.(); meter();
+        cancelAnimationFrame(current.frame);
+        if (audio.dataset && !audio.dataset.startupMs) { audio.dataset.startupMs = String(Math.round(performance.now() - current.requestedAt)); audio.dataset.mediaStartMs = String(Math.round(performance.now() - preparedAt)); }
+        message.onstart?.(); meter();
         if (message.nextContext) this.prepare(message.nextContext, voice).catch(() => {});
       };
-      audio.onwaiting = () => { if (valid()) { cancelAnimationFrame(current.frame); message.onbuffering?.(); } };
+      audio.onwaiting = () => { if (valid()) { if(audio.dataset){audio.dataset.waitingEvents=String(Number(audio.dataset.waitingEvents||0)+1);if(audio.dataset.startupMs)audio.dataset.rebufferingEvents=String(Number(audio.dataset.rebufferingEvents||0)+1);} cancelAnimationFrame(current.frame); message.onbuffering?.(); } };
       audio.onended = () => {
         if (!valid()) return;
         const completion={audioTime:audio.currentTime,duration:audio.duration};

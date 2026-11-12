@@ -2965,8 +2965,8 @@
         },
         {
           "id": "vpinn-next-b1",
-          "text": "下一篇计划研究通过几何相关试探函数精确满足边界条件。它与刚完成的强弱残差比较，是不同的设计选择。",
-          "textEn": "The next planned paper studies geometry-aware trial functions for imposing boundary conditions exactly. That is a separate design choice from the strong-versus-weak residual comparison we have just completed.",
+          "text": "下一篇研究通过几何相关试探函数精确满足边界条件。它与刚完成的强弱残差比较，是不同的设计选择。",
+          "textEn": "The next paper studies geometry-aware trial functions for imposing boundary conditions exactly. That is a separate design choice from the strong-versus-weak residual comparison we have just completed.",
           "focus": 0,
           "scene": {
             "formula": "",

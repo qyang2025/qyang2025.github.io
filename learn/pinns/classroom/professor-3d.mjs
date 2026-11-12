@@ -12,11 +12,14 @@ export const facePoses={
 export const laserPoseAngles=[10,20,32,45,60,75,90,105,120];
 // Acceleration-limited easing avoids a fast snap when the selected elevation changes.
 export function naturalArmStep(state,target,dt){
- const h=Math.min(.05,Math.max(0,dt/1000)),speed=80*Math.PI/180,acceleration=200*Math.PI/180;
- const distance=target-state.angle,force=Math.max(-acceleration,Math.min(acceleration,36*distance-12*state.velocity));
- const velocity=Math.max(-speed,Math.min(speed,state.velocity+force*h));
- const angle=state.angle+velocity*h;
- return distance*(target-angle)<=0?{angle:target,velocity:0}:{angle,velocity};
+ const elapsed=Math.min(.25,Math.max(0,dt/1000)),steps=Math.max(1,Math.ceil(elapsed/.02)),h=elapsed/steps,speed=80*Math.PI/180,acceleration=200*Math.PI/180;
+ let next={...state};
+ for(let i=0;i<steps;i++){
+  const distance=target-next.angle,force=Math.max(-acceleration,Math.min(acceleration,36*distance-12*next.velocity));
+  const velocity=Math.max(-speed,Math.min(speed,next.velocity+force*h)),angle=next.angle+velocity*h;
+  next=distance*(target-angle)<=0?{angle:target,velocity:0}:{angle,velocity};
+ }
+ return next;
 }
 export function aimRotation(angle){let a=(94-angle)*Math.PI/180;return Math.atan2(Math.sin(a),Math.cos(a));}
 export function smoothAngle(current,target,dt){const d=Math.atan2(Math.sin(target-current),Math.cos(target-current));return current+easeToward(0,d,dt,180);}
@@ -124,7 +127,7 @@ export class ProfessorRig {
   this.canvas.dataset.gestureDegrees=this.arms.map(a=>new T.Euler().setFromQuaternion(a.joint.quaternion).z*180/Math.PI).map(a=>a.toFixed(2)).join(',');
   this.badge.textContent='';
   this.badge.dataset.expression=expression;this.element.dataset.expressionIntensity=String(g);
-  this.canvas.dataset.mouthOpening=open.toFixed(4);this.canvas.dataset.headPose=[this.head.rotation.x,this.head.rotation.y,this.head.rotation.z].map(v=>v.toFixed(3)).join(',');this.canvas.dataset.armAngle=this.pointArm.rotation.z.toFixed(4);
+  this.canvas.dataset.mouthOpening=open.toFixed(4);this.canvas.dataset.headPose=[this.head.rotation.x,this.head.rotation.y,this.head.rotation.z].map(v=>v.toFixed(3)).join(',');this.canvas.dataset.armAngle=this.pointArm.rotation.z.toFixed(4);this.canvas.dataset.laserGoalDegrees=String(this.laserArmAngle??'');this.canvas.dataset.laserAligned=String(this.isLaserAligned());
   this.renderer.render(this.scene,this.camera);
  }
  laserPoseCandidates(point,landings=[point]){

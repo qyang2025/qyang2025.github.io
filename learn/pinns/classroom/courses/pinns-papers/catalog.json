@@ -53,6 +53,12 @@
       "number": 9,
       "courseRoot": "courses/pinns-papers/09-kharazmi-2019-vpinn",
       "published": true
+    },
+    {
+      "id": "sukumar2021",
+      "number": 10,
+      "courseRoot": "courses/pinns-papers/10-sukumar-2021-boundaries",
+      "published": true
     }
   ]
 }

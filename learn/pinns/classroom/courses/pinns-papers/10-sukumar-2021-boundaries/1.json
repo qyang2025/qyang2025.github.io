@@ -1,0 +1,3085 @@
+{
+  "id": "139afec2-2021-4010-8010-000000000010",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-10",
+  "chapterIndex": 0,
+  "title": "论文 10：距离函数与精确边界构造",
+  "titleEn": "Paper 10: distance functions and exact boundary construction",
+  "summary": "从受热圆盘出发，用十二次 CPU 对照区分边界恒等式、距离光滑性与内部解误差。",
+  "summaryEn": "Use a heated disk and twelve CPU controls to distinguish boundary identities, distance smoothness and interior field error.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "sukumar2021",
+      "name": "Sukumar & Srivastava (2021 preprint), Exact imposition of boundary conditions with distance functions in physics-informed deep neural networks",
+      "url": "https://arxiv.org/abs/2104.08426",
+      "text": "Sections2 and5: smooth approximate distance fields and boundary-satisfying trial functions; circular construction equation7 and Dirichlet ansatz equation21. Our unit-disk source, lift, network and CPU controls are independent teaching choices."
+    },
+    {
+      "id": "boundary-local",
+      "name": "Twelve executed disk controls and independent boundary/field audits",
+      "url": "/courses/pinns-papers/10-sukumar-2021-boundaries/trace.json",
+      "text": "Three paired seeds; two soft penalties, smooth hard construction and deliberately nonsmooth exact-distance control. All final fields and centre-derivative failures are retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与几何构造",
+      "titleEn": "Physics and geometry"
+    },
+    {
+      "slide": 9,
+      "title": "光滑性与实现",
+      "titleEn": "Smoothness and implementation"
+    },
+    {
+      "slide": 17,
+      "title": "训练、验证与局限",
+      "titleEn": "Training and validation"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 10：距离函数与精确边界构造",
+      "titleEn": "Paper 10: distance functions and exact boundary construction",
+      "eyebrow": "PINNs 论文 10 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 10 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从受热圆盘出发，用十二次 CPU 对照区分边界恒等式、距离光滑性与内部解误差。"
+      ],
+      "bulletsEn": [
+        "Use a heated disk and twelve CPU controls to distinguish boundary identities, distance smoothness and interior field error."
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理与几何构造",
+            "labelEn": "Physics and geometry",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "光滑性与实现",
+            "labelEn": "Smoothness and implementation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "训练、验证与局限",
+            "labelEn": "Training and validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "弱残差之后，我们转向通过构造满足边界值。先把受热圆盘与光滑几何因子连接起来。再检查自动导数和十二次 CPU 对照，区分圆周精确值与内部精度。",
+          "textEn": "After weak residuals, we turn to satisfying boundary values by construction. First connect a heated disk to a smooth geometric factor. Then inspect automatic derivatives and twelve CPU controls, separating exact rim values from interior accuracy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "boundary-bridge",
+      "title": "检查方程之后，怎样满足边界？",
+      "titleEn": "After testing the equation, how do we satisfy its boundary?",
+      "eyebrow": "论文 10 / 2",
+      "eyebrowEn": "PAPER 10 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "检查方程之后，怎样满足边界？"
+      ],
+      "bulletsEn": [
+        "After testing the equation, how do we satisfy its boundary?"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：选择残差测试",
+            "labelEn": "Previously: choose residual tests",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：设计边界构造",
+            "labelEn": "Now: design the boundary ansatz",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-bridge-b0",
+          "text": "上篇 VPINN 改变了内部方程的检查方式。它用一个简单因子满足杆两端的温度。",
+          "textEn": "The VPINN lecture changed how we tested the equation inside the domain. It used a simple factor to satisfy endpoint temperatures.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-bridge-b1",
+          "text": "本篇追问，几何形状怎样为曲线边界提供这样的因子。我们将区分边界值精确满足与内部温度场的学习精度。",
+          "textEn": "This paper asks how geometry can supply such a factor on a curved boundary. We will separate exact boundary values from the accuracy of the learned interior field.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-physical",
+      "title": "先看受热圆盘与圆周温度",
+      "titleEn": "Start with a heated disk and its rim temperature",
+      "eyebrow": "论文 10 / 3",
+      "eyebrowEn": "PAPER 10 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看受热圆盘与圆周温度"
+      ],
+      "bulletsEn": [
+        "Start with a heated disk and its rim temperature"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-physical-b0",
+          "text": "想象一块单位导热系数的薄圆盘，内部有均匀热源。u 是归一化稳态温度，x 和 y 表示单位圆盘内的位置。",
+          "textEn": "Imagine a thin circular plate with unit conductivity and a uniform internal heat source. U is its normalised steady temperature, while x and y locate a point in the unit disk.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-physical-b1",
+          "text": "圆周温度已知，并从左向右略微升高。移动标记表示向外的热流；这是稳态示意，不是瞬态数值模拟。",
+          "textEn": "The rim is maintained at a prescribed temperature that increases slightly from left to right. Moving markers show outward heat flux; they illustrate a steady state, not a transient numerical simulation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "boundary-physical",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-equation",
+      "title": "同一个圆盘，四种训练构造",
+      "titleEn": "One disk, four training constructions",
+      "eyebrow": "论文 10 / 4",
+      "eyebrowEn": "PAPER 10 / 4",
+      "visual": "steps",
+      "formula": "-\\Delta u=4,\\quad x^2+y^2<1,\\qquad u|_{\\partial\\Omega}=g=0.2x",
+      "formulaEn": "-\\Delta u=4,\\quad x^2+y^2<1,\\qquad u|_{\\partial\\Omega}=g=0.2x",
+      "bullets": [
+        "同一个圆盘，四种训练构造"
+      ],
+      "bulletsEn": [
+        "One disk, four training constructions"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-equation-b0",
+          "text": "Δ 是拉普拉斯算子，表示对 x 和 y 的二阶导数之和。热源为四，边界符号表示 x 平方加 y 平方等于一的圆周。",
+          "textEn": "Delta is the Laplacian, the sum of the second derivatives with respect to x and y. The source is four, and the boundary symbol denotes the circle where x squared plus y squared equals one.",
+          "focus": 0,
+          "scene": {
+            "formula": "-\\Delta u=4,\\quad x^2+y^2<1,\\qquad u|_{\\partial\\Omega}=g=0.2x",
+            "formulaEn": "-\\Delta u=4,\\quad x^2+y^2<1,\\qquad u|_{\\partial\\Omega}=g=0.2x",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-equation-b1",
+          "text": "g 是给定圆周温度，这里取零点二 x。四个对照都求解同一问题，不把内部参考温度当作训练标签。",
+          "textEn": "G is the prescribed rim temperature, here zero point two x. All four controls solve this same problem without using interior reference temperatures as training labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "boundary-physical",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-soft",
+      "title": "软约束把边界误差加入损失",
+      "titleEn": "Soft constraints add boundary error to the loss",
+      "eyebrow": "论文 10 / 5",
+      "eyebrowEn": "PAPER 10 / 5",
+      "visual": "steps",
+      "formula": "u_\\theta=g+N_\\theta,\\qquad L=L_{\\mathrm{PDE}}+\\lambda L_{\\mathrm{BC}}",
+      "formulaEn": "u_\\theta=g+N_\\theta,\\qquad L=L_{\\mathrm{PDE}}+\\lambda L_{\\mathrm{BC}}",
+      "bullets": [
+        "软约束把边界误差加入损失"
+      ],
+      "bulletsEn": [
+        "Soft constraints add boundary error to the loss"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "内部残差：方程是否满足",
+            "labelEn": "Interior residual: is the equation satisfied?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "边界误差：圆周是否匹配",
+            "labelEn": "Boundary error: does the rim match?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-soft-b0",
+          "text": "N θ 是神经网络修正，θ 表示待训练参数。第一个损失在内部采样点平均方程残差的平方。",
+          "textEn": "N theta is the neural correction and theta denotes its trainable parameters. The first loss averages squared equation residuals at interior points.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta=g+N_\\theta,\\qquad L=L_{\\mathrm{PDE}}+\\lambda L_{\\mathrm{BC}}",
+            "formulaEn": "u_\\theta=g+N_\\theta,\\qquad L=L_{\\mathrm{PDE}}+\\lambda L_{\\mathrm{BC}}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-soft-b1",
+          "text": "第二个损失在圆周采样点检查修正，λ 是惩罚权重。比较权重一与一百，但不把任何一个说成普遍最优。",
+          "textEn": "The second loss checks the correction at sampled rim points, and lambda weights that penalty. We compare lambda equal to one and one hundred, without claiming either is universally optimal.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-samples",
+      "title": "采样边界与精确边界不是一回事",
+      "titleEn": "Sampled boundary checks are not an exact boundary identity",
+      "eyebrow": "论文 10 / 6",
+      "eyebrowEn": "PAPER 10 / 6",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "采样边界与精确边界不是一回事"
+      ],
+      "bulletsEn": [
+        "Sampled boundary checks are not an exact boundary identity"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "训练：六十四个圆周点",
+            "labelEn": "Training:64 rim points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "验证：错开的二百五十七点",
+            "labelEn": "Audit:257 shifted rim points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-samples-b0",
+          "text": "软约束训练只使用六十四个等间距圆周位置。那里损失很小，说明这些点表现较好，不是对所有边界位置的代数保证。",
+          "textEn": "The soft controls see sixty-four equally spaced boundary locations during training. A small loss there is evidence at those points, not an algebraic statement about every boundary location.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-samples-b1",
+          "text": "另用角度错开的二百五十七个圆周点验证。这个独立检查能够暴露训练位置之间的边界误差。",
+          "textEn": "We evaluate another two hundred and fifty-seven angularly shifted rim points. This independent check can reveal boundary error between the training locations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-ansatz",
+      "title": "让网络修正在圆周自动消失",
+      "titleEn": "Make the neural correction vanish on the rim",
+      "eyebrow": "论文 10 / 7",
+      "eyebrowEn": "PAPER 10 / 7",
+      "visual": "steps",
+      "formula": "u_\\theta=\\underbrace{g}_{\\text{known lift}}+\\underbrace{\\varphi N_\\theta}_{\\text{zero on rim}}",
+      "formulaEn": "u_\\theta=\\underbrace{g}_{\\text{known lift}}+\\underbrace{\\varphi N_\\theta}_{\\text{zero on rim}}",
+      "bullets": [
+        "让网络修正在圆周自动消失"
+      ],
+      "bulletsEn": [
+        "Make the neural correction vanish on the rim"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "已知延拓提供边界温度",
+            "labelEn": "Known lift supplies boundary temperature",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "几何因子关闭边界修正",
+            "labelEn": "Geometry factor switches off the rim correction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-ansatz-b0",
+          "text": "已知延拓 g 把给定边界值扩展到圆盘内部。这里简单选择处处有定义的零点二 x，它已经匹配圆周。",
+          "textEn": "The known lift g extends the prescribed boundary values into the disk. Our simple choice zero point two x is defined everywhere and already matches the rim.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta=\\underbrace{g}_{\\text{known lift}}+\\underbrace{\\varphi N_\\theta}_{\\text{zero on rim}}",
+            "formulaEn": "u_\\theta=\\underbrace{g}_{\\text{known lift}}+\\underbrace{\\varphi N_\\theta}_{\\text{zero on rim}}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-ansatz-b1",
+          "text": "φ 是在整个圆周都为零的几何因子。把学习修正乘以 φ，就让任何网络权重下的边界修正都为零。",
+          "textEn": "Phi is a geometric factor that equals zero on the entire rim. Multiplying the learned correction by phi makes its boundary contribution zero for any network weights.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-proof",
+      "title": "精确满足的是边界值",
+      "titleEn": "It is the boundary value that is exact",
+      "eyebrow": "论文 10 / 8",
+      "eyebrowEn": "PAPER 10 / 8",
+      "visual": "steps",
+      "formula": "\\varphi|_{\\partial\\Omega}=0\\quad\\Longrightarrow\\quad u_\\theta|_{\\partial\\Omega}=g",
+      "formulaEn": "\\varphi|_{\\partial\\Omega}=0\\quad\\Longrightarrow\\quad u_\\theta|_{\\partial\\Omega}=g",
+      "bullets": [
+        "精确满足的是边界值"
+      ],
+      "bulletsEn": [
+        "It is the boundary value that is exact"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "代入圆周：修正项为零",
+            "labelEn": "On the rim: correction is zero",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "进入内部：方程仍需训练",
+            "labelEn": "Inside: the equation still needs training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-proof-b0",
+          "text": "在圆周位置，φ 为零，因此无论 θ 如何，试探温度都等于 g。这是代数边界恒等式，数值计算时仍受浮点舍入影响。",
+          "textEn": "At a rim point, phi is zero, so the trial temperature equals g regardless of theta. This is an algebraic boundary identity, up to floating-point round-off in evaluation.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\varphi|_{\\partial\\Omega}=0\\quad\\Longrightarrow\\quad u_\\theta|_{\\partial\\Omega}=g",
+            "formulaEn": "\\varphi|_{\\partial\\Omega}=0\\quad\\Longrightarrow\\quad u_\\theta|_{\\partial\\Omega}=g",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-proof-b1",
+          "text": "在圆盘内部，φ 为正，神经修正仍需要满足方程。边界精确施加本身，并不带来精确的内部解。",
+          "textEn": "Inside the disk, phi is positive and the neural correction still has to solve the equation. Exact boundary enforcement alone does not give an exact interior solution.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-circle",
+      "title": "圆形的光滑近似距离因子",
+      "titleEn": "A smooth approximate distance factor for a circle",
+      "eyebrow": "论文 10 / 9",
+      "eyebrowEn": "PAPER 10 / 9",
+      "visual": "steps",
+      "formula": "\\varphi=\\frac{R^2-\\|\\mathbf{x}-\\mathbf{x}_c\\|^2}{2R},\\qquad R=1,\\quad\\mathbf{x}_c=\\mathbf{0}",
+      "formulaEn": "\\varphi=\\frac{R^2-\\|\\mathbf{x}-\\mathbf{x}_c\\|^2}{2R},\\qquad R=1,\\quad\\mathbf{x}_c=\\mathbf{0}",
+      "bullets": [
+        "圆形的光滑近似距离因子"
+      ],
+      "bulletsEn": [
+        "A smooth approximate distance factor for a circle"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-circle-b0",
+          "text": "论文给出这个圆形近似距离函数，R 是半径，x c 向量是圆心。对单位圆盘，它就是一减 x 平方减 y 平方，再除以二。",
+          "textEn": "The paper gives this circular approximate distance function, with radius R and centre vector x c. For our unit disk it becomes one minus x squared minus y squared, divided by two.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\varphi=\\frac{R^2-\\|\\mathbf{x}-\\mathbf{x}_c\\|^2}{2R},\\qquad R=1,\\quad\\mathbf{x}_c=\\mathbf{0}",
+            "formulaEn": "\\varphi=\\frac{R^2-\\|\\mathbf{x}-\\mathbf{x}_c\\|^2}{2R},\\qquad R=1,\\quad\\mathbf{x}_c=\\mathbf{0}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-circle-b1",
+          "text": "金色直径曲线在圆心处光滑，内部为正，两端为零。它并非处处等于真实距离；有用之处是边界行为与可微性。",
+          "textEn": "The gold diameter curve is smooth through the centre, positive inside and zero at both ends. It is not the exact distance everywhere; its useful features are boundary behaviour and differentiability.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "boundary-distance",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-normal",
+      "title": "归一化针对靠近边界的行为",
+      "titleEn": "Normalisation concerns behaviour near the boundary",
+      "eyebrow": "论文 10 / 10",
+      "eyebrowEn": "PAPER 10 / 10",
+      "visual": "steps",
+      "formula": "\\partial_\\nu\\varphi=1\\ \\text{on the rim},\\qquad \\boldsymbol\\nu=-\\mathbf n",
+      "formulaEn": "\\partial_\\nu\\varphi=1\\ \\text{on the rim},\\qquad \\boldsymbol\\nu=-\\mathbf n",
+      "bullets": [
+        "归一化针对靠近边界的行为"
+      ],
+      "bulletsEn": [
+        "Normalisation concerns behaviour near the boundary"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "外法向指向圆盘外侧",
+            "labelEn": "Outward normal points outside",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "内法向导数在圆周为一",
+            "labelEn": "Inward normal derivative is one on the rim",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-normal-b0",
+          "text": "向量 n 是外单位法向，ν 则是内单位法向。在单位圆周上，φ 的梯度指向内部，长度为一。",
+          "textEn": "The vector n is the outward unit normal, so nu is the inward unit normal. On the unit circle, the gradient of phi points inward with unit magnitude.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\partial_\\nu\\varphi=1\\ \\text{on the rim},\\qquad \\boldsymbol\\nu=-\\mathbf n",
+            "formulaEn": "\\partial_\\nu\\varphi=1\\ \\text{on the rim},\\qquad \\boldsymbol\\nu=-\\mathbf n",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-normal-b1",
+          "text": "因此它沿内法向的导数在边界上为一。这个一阶归一化，并不是说 φ 在整个区域都等于真实距离。",
+          "textEn": "Therefore the inward normal derivative is one on the boundary. This first-order normalisation does not say phi equals the true distance throughout the domain.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-distance-choice",
+      "title": "真实距离为什么不一定更适合？",
+      "titleEn": "Why is the true distance not automatically a better choice?",
+      "eyebrow": "论文 10 / 11",
+      "eyebrowEn": "PAPER 10 / 11",
+      "visual": "steps",
+      "formula": "d=1-\\sqrt{x^2+y^2},\\qquad d(x,0)=1-|x|",
+      "formulaEn": "d=1-\\sqrt{x^2+y^2},\\qquad d(x,0)=1-|x|",
+      "bullets": [
+        "真实距离为什么不一定更适合？"
+      ],
+      "bulletsEn": [
+        "Why is the true distance not automatically a better choice?"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-distance-choice-b0",
+          "text": "d 是单位圆盘内部到圆周的真实距离。粉色直径曲线同样在两端为零，但圆心处有尖点。",
+          "textEn": "D is the exact distance to the rim from inside the unit disk. Its pink diameter profile has the same zero endpoints but a cusp at the centre.",
+          "focus": 0,
+          "scene": {
+            "formula": "d=1-\\sqrt{x^2+y^2},\\qquad d(x,0)=1-|x|",
+            "formulaEn": "d=1-\\sqrt{x^2+y^2},\\qquad d(x,0)=1-|x|",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-distance-choice-b1",
+          "text": "金色二次因子去掉这个尖点，同时保留需要的边界值。强形式自动微分关心这样的内部光滑性，而不仅是距离是否精确。",
+          "textEn": "The gold quadratic factor removes that cusp while preserving the required boundary values. Strong-form automatic differentiation cares about this interior smoothness, not just geometric distance accuracy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "boundary-distance",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-curvature",
+      "title": "二阶导数会暴露圆心奇点",
+      "titleEn": "Second derivatives expose the centre singularity",
+      "eyebrow": "论文 10 / 12",
+      "eyebrowEn": "PAPER 10 / 12",
+      "visual": "steps",
+      "formula": "\\Delta\\varphi=-2,\\qquad \\Delta d=-1/r\\ (r>0),\\quad r=\\sqrt{x^2+y^2}",
+      "formulaEn": "\\Delta\\varphi=-2,\\qquad \\Delta d=-1/r\\ (r>0),\\quad r=\\sqrt{x^2+y^2}",
+      "bullets": [
+        "二阶导数会暴露圆心奇点"
+      ],
+      "bulletsEn": [
+        "Second derivatives expose the centre singularity"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-curvature-b0",
+          "text": "r 是到圆心的径向距离，图中幅值的纵轴采用对数尺度。光滑因子的拉普拉斯恒为负二，真实距离在非零位置则为负一除以 r。",
+          "textEn": "R is radial distance from the centre, and the plotted magnitudes use a logarithmic vertical scale. The smooth factor has constant Laplacian minus two, while the true distance has minus one over r away from zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\Delta\\varphi=-2,\\qquad \\Delta d=-1/r\\ (r>0),\\quad r=\\sqrt{x^2+y^2}",
+            "formulaEn": "\\Delta\\varphi=-2,\\qquad \\Delta d=-1/r\\ (r>0),\\quad r=\\sqrt{x^2+y^2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-curvature-b1",
+          "text": "圆心处真实距离的经典二阶导数无定义。我们保留这个失败，不悄悄把距离换成平滑或截断后的公式。",
+          "textEn": "At the centre the classical second derivative of the true distance is undefined. We keep this failure visible rather than silently replacing the distance by a smoothed or clamped formula.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "boundary-curvature",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-products",
+      "title": "硬边界不会取消方程中的导数",
+      "titleEn": "Hard boundaries do not remove derivatives from the equation",
+      "eyebrow": "论文 10 / 13",
+      "eyebrowEn": "PAPER 10 / 13",
+      "visual": "steps",
+      "formula": "\\Delta(\\varphi N)=\\varphi\\Delta N+2\\nabla\\varphi\\cdot\\nabla N+N\\Delta\\varphi",
+      "formulaEn": "\\Delta(\\varphi N)=\\varphi\\Delta N+2\\nabla\\varphi\\cdot\\nabla N+N\\Delta\\varphi",
+      "bullets": [
+        "硬边界不会取消方程中的导数"
+      ],
+      "bulletsEn": [
+        "Hard boundaries do not remove derivatives from the equation"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "几何因子也参与求导",
+            "labelEn": "Geometry also participates in derivatives",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "自动微分保留全部乘积项",
+            "labelEn": "Automatic differentiation retains all product terms",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-products-b0",
+          "text": "乘积的拉普拉斯包含网络曲率、梯度交叉项与几何曲率。∇ 表示空间梯度，点号表示内积。",
+          "textEn": "The Laplacian of a product contains the network curvature, the cross-gradient term and the geometry curvature. Nabla is the spatial gradient, and the dot denotes its inner product.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\Delta(\\varphi N)=\\varphi\\Delta N+2\\nabla\\varphi\\cdot\\nabla N+N\\Delta\\varphi",
+            "formulaEn": "\\Delta(\\varphi N)=\\varphi\\Delta N+2\\nabla\\varphi\\cdot\\nabla N+N\\Delta\\varphi",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-products-b1",
+          "text": "我们对完整试探函数自动微分。即使边界值看起来正确，丢掉几何导数也会让训练求解另一条方程。",
+          "textEn": "We differentiate the complete trial function with automatic differentiation. Dropping geometry derivatives would train a different equation even if the boundary values looked correct.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-neumann",
+      "title": "温度值和法向热流是不同条件",
+      "titleEn": "Temperature values and normal heat flux are different conditions",
+      "eyebrow": "论文 10 / 14",
+      "eyebrowEn": "PAPER 10 / 14",
+      "visual": "steps",
+      "formula": "\\partial_\\nu u_\\theta=\\partial_\\nu g+(\\partial_\\nu\\varphi)N_\\theta\\quad\\text{on the rim}",
+      "formulaEn": "\\partial_\\nu u_\\theta=\\partial_\\nu g+(\\partial_\\nu\\varphi)N_\\theta\\quad\\text{on the rim}",
+      "bullets": [
+        "温度值和法向热流是不同条件"
+      ],
+      "bulletsEn": [
+        "Temperature values and normal heat flux are different conditions"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本实验精确施加温度值",
+            "labelEn": "This experiment enforces temperature values",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "热流条件需要相应构造",
+            "labelEn": "Flux conditions need their own construction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-neumann-b0",
+          "text": "圆周上，法向导数仍通过 φ 的导数依赖网络。精确施加温度值，不会自动指定法向热流。",
+          "textEn": "On the rim, the normal derivative still depends on the network through the derivative of phi. Enforcing the temperature value does not automatically prescribe its normal heat flux.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\partial_\\nu u_\\theta=\\partial_\\nu g+(\\partial_\\nu\\varphi)N_\\theta\\quad\\text{on the rim}",
+            "formulaEn": "\\partial_\\nu u_\\theta=\\partial_\\nu g+(\\partial_\\nu\\varphi)N_\\theta\\quad\\text{on the rim}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-neumann-b1",
+          "text": "论文还为其他边界类型和复杂几何发展了相应构造。我们的小实验只实现这个光滑圆盘的狄利克雷温度边界。",
+          "textEn": "The paper develops further constructions for other boundary types and complex geometries. Our small experiment implements only this smooth disk with a Dirichlet temperature boundary.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-controls",
+      "title": "配对初始权重，保留四种构造",
+      "titleEn": "Pair initial weights across four constructions",
+      "eyebrow": "论文 10 / 15",
+      "eyebrowEn": "PAPER 10 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "配对初始权重，保留四种构造"
+      ],
+      "bulletsEn": [
+        "Pair initial weights across four constructions"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "软约束：权重一与一百",
+            "labelEn": "Soft penalties: one and one hundred",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "硬构造：光滑因子与真实距离",
+            "labelEn": "Hard ansatz: smooth factor and true distance",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-controls-b0",
+          "text": "两个软约束都用 g 加原始网络，只改变边界惩罚权重。每个种子下，它们与两个硬构造共享全部初始参数权重。",
+          "textEn": "Both soft controls use g plus the raw network and differ only in boundary penalty weight. They share all initial parameter weights with the two hard constructions for each seed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-controls-b1",
+          "text": "硬构造分别用光滑因子或故意保留非光滑性的真实距离。相同参数权重不代表相同初始温度函数，因为乘法因子改变了函数。",
+          "textEn": "The hard controls use either the smooth factor or the deliberately nonsmooth true distance. Equal parameter weights do not mean equal initial temperature functions, because multiplying factors changes the function.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-budget",
+      "title": "本机可运行的小实验预算",
+      "titleEn": "A small experiment that runs on this CPU",
+      "eyebrow": "论文 10 / 16",
+      "eyebrowEn": "PAPER 10 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "本机可运行的小实验预算"
+      ],
+      "bulletsEn": [
+        "A small experiment that runs on this CPU"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "网络：三百三十七个参数",
+            "labelEn": "Network:337 parameters",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "训练：一百二十八个内部点",
+            "labelEn": "Training:128 interior points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-budget-b0",
+          "text": "采用两个输入、两个十六单元隐藏层的双曲正切网络，共三百三十七个参数。三个种子、四种构造，每次 Adam 做两千步更新。",
+          "textEn": "We use a two-input tanh network with two hidden layers of sixteen units and three hundred and thirty-seven parameters. Adam performs two thousand updates for each of three seeds and four constructions.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-budget-b1",
+          "text": "内部固定一百二十八点，圆周训练六十四点。记录每次九十秒上限，十二次运行都完成了完整更新预算。",
+          "textEn": "There are one hundred and twenty-eight fixed interior points and sixty-four rim training points. The ninety-second per-run cap is recorded, and all twelve runs finish the full update budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-code",
+      "title": "先构造温度，再自动微分",
+      "titleEn": "Construct temperature before differentiating it",
+      "eyebrow": "论文 10 / 17",
+      "eyebrowEn": "PAPER 10 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先构造温度，再自动微分"
+      ],
+      "bulletsEn": [
+        "Construct temperature before differentiating it"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-code-b0",
+          "text": "代码先形成已知延拓与光滑几何因子，再乘网络修正。xy 是坐标数组，平方后求和得到半径平方。",
+          "textEn": "The code first forms the known lift and smooth geometric factor, then multiplies the network correction. X y is the coordinate array, and square followed by sum computes squared radius.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-code-b1",
+          "text": "残差对完整温度求导，再减热源四。这个硬构造不需要边界惩罚，但内部残差仍需要优化。",
+          "textEn": "The residual differentiates the complete temperature before subtracting the source four. No boundary penalty is needed for this hard construction, but the interior residual must still be optimised.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "boundary-code",
+      "paperTrace": "paper10",
+      "demoCode": [
+        "g = 0.2 * xy[:, :1]",
+        "phi = (1 - xy.square().sum(1, keepdim=True))/2",
+        "u = g + phi * net(xy)",
+        "r = -laplacian(u, xy) - 4",
+        "loss = r.square().mean()"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-reference",
+      "title": "参考解只用来做独立验证",
+      "titleEn": "Use the reference solution only for validation",
+      "eyebrow": "论文 10 / 18",
+      "eyebrowEn": "PAPER 10 / 18",
+      "visual": "steps",
+      "formula": "u^*(x,y)=0.2x+1-x^2-y^2,\\qquad -\\Delta u^*=4",
+      "formulaEn": "u^*(x,y)=0.2x+1-x^2-y^2,\\qquad -\\Delta u^*=4",
+      "bullets": [
+        "参考解只用来做独立验证"
+      ],
+      "bulletsEn": [
+        "Use the reference solution only for validation"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "代入方程：热源为四",
+            "labelEn": "Substitute into the PDE: source is four",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "代入圆周：只剩已知延拓",
+            "labelEn": "Substitute onto the rim: only the lift remains",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-reference-b0",
+          "text": "星号表示独立解析参考，不是另一个学习预测。它的两个二阶导数各为负二，因此给出需要的热源四。",
+          "textEn": "The star marks an independent analytic reference, not another learned prediction. Its two second derivatives are each minus two, giving the required source four.",
+          "focus": 0,
+          "scene": {
+            "formula": "u^*(x,y)=0.2x+1-x^2-y^2,\\qquad -\\Delta u^*=4",
+            "formulaEn": "u^*(x,y)=0.2x+1-x^2-y^2,\\qquad -\\Delta u^*=4",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-reference-b1",
+          "text": "单位圆周上二次修正消失，只剩零点二 x。这个表达式的内部值用于测量误差，从不用于训练。",
+          "textEn": "On the unit circle the quadratic correction vanishes and only zero point two x remains. Interior values from this expression are used for error measurement, never for training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-training",
+      "title": "自动回放真实训练检查点",
+      "titleEn": "Replay the actual training checkpoints",
+      "eyebrow": "论文 10 / 19",
+      "eyebrowEn": "PAPER 10 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "自动回放真实训练检查点"
+      ],
+      "bulletsEn": [
+        "Replay the actual training checkpoints"
+      ],
+      "sourceIds": [
+        "sukumar2021",
+        "boundary-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-training-b0",
+          "text": "这些曲线使用保存的训练检查点，展示种子十一在 y 等于零处的水平直径。浅色参考与四条彩色对照都是线截面，不是整个二维温度场。",
+          "textEn": "These curves show the horizontal diameter at y equal to zero for seed eleven, using saved training checkpoints. The pale reference and four coloured controls are line slices, not the entire two-dimensional field.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-training-b1",
+          "text": "下面数字采用独立全圆盘网格上的相对误差。训练从真实 CPU 记录回放；浏览器不训练模型，也不虚构收敛曲线。",
+          "textEn": "The numbers below use relative error over an independent full-disk grid. Training is replayed from actual CPU records; the browser does not train the models or animate a fabricated convergence curve.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "boundary-training",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-rim-error",
+      "title": "精确边界来自构造，而非惩罚收敛",
+      "titleEn": "Exact rim values come from construction",
+      "eyebrow": "论文 10 / 20",
+      "eyebrowEn": "PAPER 10 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "精确边界来自构造，而非惩罚收敛"
+      ],
+      "bulletsEn": [
+        "Exact rim values come from construction"
+      ],
+      "sourceIds": [
+        "sukumar2021",
+        "boundary-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-rim-error-b0",
+          "text": "每组彩色点包含三个种子，展示错开圆周验证点上的最大边界误差。两个硬构造都达到浮点舍入量级，因为修正在圆周消失。",
+          "textEn": "Each coloured group contains all three seeds, with maximum boundary error evaluated on the shifted rim audit. Both hard constructions reach floating-point round-off levels because their correction vanishes on the rim.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-rim-error-b1",
+          "text": "软惩罚在最终检查点仍留下有限边界误差。较大权重改善了这些具体对照，但这个小实验不是选择 λ 的通用规则。",
+          "textEn": "The soft penalties leave finite boundary errors at the final checkpoint. A larger penalty improves these particular controls, but this small experiment is not a general rule for choosing lambda.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "boundary-error",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-field-error",
+      "title": "边界精确，不代表内部误差相同",
+      "titleEn": "Exact boundaries do not imply equal interior errors",
+      "eyebrow": "论文 10 / 21",
+      "eyebrowEn": "PAPER 10 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "边界精确，不代表内部误差相同"
+      ],
+      "bulletsEn": [
+        "Exact boundaries do not imply equal interior errors"
+      ],
+      "sourceIds": [
+        "sukumar2021",
+        "boundary-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "boundary-field-error-b0",
+          "text": "现在纵轴测量同样十二个最终模型的全圆盘相对场误差。光滑硬构造在这些运行中约为百分之零点一到零点二三。",
+          "textEn": "Now the vertical axis measures full-disk relative field error for the same twelve final models. The smooth hard construction gives about zero point one to zero point two three percent in these runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-field-error-b1",
+          "text": "真实距离对照尽管圆周值精确，场误差仍约百分之三点二。它的圆心导数检查失败，因此只报告边界成功会隐藏重要缺陷。",
+          "textEn": "The true-distance control remains around three point two percent despite its exact rim values. Its centre derivative audit fails, so reporting boundary success alone would hide an important defect.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "boundary-field-error",
+      "paperTrace": "paper10",
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-audit",
+      "title": "圆心必须出现在验证里",
+      "titleEn": "The centre must appear in validation",
+      "eyebrow": "论文 10 / 22",
+      "eyebrowEn": "PAPER 10 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "圆心必须出现在验证里"
+      ],
+      "bulletsEn": [
+        "The centre must appear in validation"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "训练点避开圆心",
+            "labelEn": "Training points exclude the centre",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "验证检查圆心二阶导数",
+            "labelEn": "Audit checks second derivatives at the centre",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-audit-b0",
+          "text": "固定内部训练设计避开圆心，最近半径为零点零六二五。因此有限训练残差不能证明真实距离构造在圆心可微。",
+          "textEn": "The fixed interior training design excludes the centre, with its closest radius equal to zero point zero six two five. A finite training residual therefore cannot certify that the true-distance ansatz is differentiable at the centre.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        },
+        {
+          "id": "boundary-audit-b1",
+          "text": "我们专门检查这个缺失位置，并保留非有限导数标记。另外还用错开的残差点、圆周点与全圆盘参考网格分别检查。",
+          "textEn": "We explicitly evaluate that missing location and retain the non-finite derivative flag. Separate checks use shifted residual points, shifted rim points and the full-disk reference grid.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-limits",
+      "title": "把论文思想与本机实验范围分开",
+      "titleEn": "Separate the paper idea from this CPU adaptation",
+      "eyebrow": "论文 10 / 23",
+      "eyebrowEn": "PAPER 10 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把论文思想与本机实验范围分开"
+      ],
+      "bulletsEn": [
+        "Separate the paper idea from this CPU adaptation"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留：距离因子与边界恒等式",
+            "labelEn": "Retained: distance factor and boundary identity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "范围：光滑圆盘与温度边界",
+            "labelEn": "Scope: smooth disk and temperature boundary",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-limits-b0",
+          "text": "本讲保留论文的几何试探函数思想与圆形近似距离因子。为小型可复现对照，改变了热源、已知延拓、网络规模与训练预算。",
+          "textEn": "This lesson retains the paper’s geometric trial-function idea and its circular approximate distance factor. It changes the source, known lift, network size and training budget for a small reproducible comparison.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-limits-b1",
+          "text": "没有实现一般几何组装、诺依曼或罗宾构造、高阶方程或原始大型基准。计时包含检查点验证，不用来宣称达到同等精度的加速比。",
+          "textEn": "We do not implement general geometry assembly, Neumann or Robin constructions, higher-order equations or the original large benchmarks. Training times include checkpoint audits and are not a time-to-accuracy speedup claim.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-exercise",
+      "title": "先预测，再修改已知圆周温度",
+      "titleEn": "Predict before changing the known rim temperature",
+      "eyebrow": "论文 10 / 24",
+      "eyebrowEn": "PAPER 10 / 24",
+      "visual": "steps",
+      "formula": "g_a=ax,\\qquad u_a^*=ax+1-x^2-y^2",
+      "formulaEn": "g_a=ax,\\qquad u_a^*=ax+1-x^2-y^2",
+      "bullets": [
+        "先预测，再修改已知圆周温度"
+      ],
+      "bulletsEn": [
+        "Predict before changing the known rim temperature"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "预测：改变延拓后边界仍精确吗？",
+            "labelEn": "Predict: does the changed lift preserve exact rim values?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "检查：内部误差与圆心光滑性",
+            "labelEn": "Check: interior error and centre smoothness",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-exercise-b0",
+          "text": "在独立实验中，把延拓系数零点二换成另一个已知值 a。先预测新参考解，并解释光滑构造为什么仍满足整个圆周的值。",
+          "textEn": "Replace the lift coefficient zero point two by another known value a in a separate experiment. Predict the new reference and explain why the smooth construction still satisfies every rim value.",
+          "focus": 0,
+          "scene": {
+            "formula": "g_a=ax,\\qquad u_a^*=ax+1-x^2-y^2",
+            "formulaEn": "g_a=ax,\\qquad u_a^*=ax+1-x^2-y^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "boundary-exercise-b1",
+          "text": "然后区分这个代数预测与优化器实际得到的场误差。改变延拓不会修复真实距离因子的尖点，因此仍要保留圆心导数检查。",
+          "textEn": "Then distinguish that algebraic prediction from the optimiser’s actual field error. Changing the lift does not repair the cusp of the true-distance factor, so retain the centre-derivative audit.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "boundary-next",
+      "title": "下一步：为什么不同损失学得不同步？",
+      "titleEn": "Next: why do different losses learn at different rates?",
+      "eyebrow": "论文 10 / 25",
+      "eyebrowEn": "PAPER 10 / 25",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一步：为什么不同损失学得不同步？"
+      ],
+      "bulletsEn": [
+        "Next: why do different losses learn at different rates?"
+      ],
+      "sourceIds": [
+        "sukumar2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：从构造中满足边界",
+            "labelEn": "This paper: satisfy the boundary by construction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一篇：神经切线核与训练速率",
+            "labelEn": "Next: neural tangent kernels and training rates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "boundary-next-b0",
+          "text": "我们已经区分边界恒等式、几何光滑性与内部学习精度。边界构造提供一种避免残差惩罚与边界惩罚竞争的方式。",
+          "textEn": "We have separated boundary identities, geometric smoothness and learned interior accuracy. Boundary construction is one way to avoid a competition between residual and boundary penalties.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "boundary-next-b1",
+          "text": "下一篇计划用神经切线核研究这种竞争。它追问，同一物理问题中的不同损失分量为什么会以不同速率收敛。",
+          "textEn": "The next planned paper studies that competition through the neural tangent kernel. It asks why different loss components can converge at different rates even when they belong to the same physical problem.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}
