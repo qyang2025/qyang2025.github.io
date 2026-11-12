@@ -1,4 +1,4 @@
-import {conceptFocus} from './teaching-presence.mjs?v=presence2';
+import {conceptFocus} from './teaching-presence.mjs?v=series16';
 import { attentionTarget } from './attention.mjs';
 
 // Opt-in diagnostics for real classroom media. This never advances or simulates audio.
@@ -49,6 +49,8 @@ export class SyncAudit {
     if(!clip.targets.some(t=>t.kind===cue.kind&&t.index===cue.index))clip.targets.push({kind:cue.kind,index:cue.index});
     clip.armMoved ||= !!document.querySelector('.pointing-arm').style.transform;
     clip.animationStates=[...document.querySelectorAll('.current-step,.node-current')].map(e=>getComputedStyle(e).animationPlayState);
+    const demo=document.querySelector('[data-paper-demo]');
+    if(demo){const progress=Number(demo.dataset.progress||0);clip.demoKind=demo.dataset.paperDemo;clip.minDemoProgress=Math.min(clip.minDemoProgress??1,progress);clip.maxDemoProgress=Math.max(clip.maxDemoProgress??0,progress);clip.demoCheckpoints||=[];const checkpoint={progress:Number(progress.toFixed(3)),step:demo.dataset.trainingStep||null,physicalTime:demo.dataset.physicalTime||null};if(clip.demoCheckpoints.length<64&&JSON.stringify(clip.demoCheckpoints.at(-1))!==JSON.stringify(checkpoint))clip.demoCheckpoints.push(checkpoint);}
     this.clips.set(key,clip);
     if(errors.length && !this.violations.some(v=>v.key===key&&v.errors?.join()===errors.join()))this.violations.push({key,errors,time:activity.audioTime});
     if(clip.samples===1 || clip.samples%5===0)this.flush();

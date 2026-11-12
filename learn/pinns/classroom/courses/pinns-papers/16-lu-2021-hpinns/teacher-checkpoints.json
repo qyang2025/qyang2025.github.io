@@ -1,0 +1,13 @@
+{
+  "paper": "16",
+  "checks": [
+    {
+      "slideId": "hpinn-exercise",
+      "questionEn": "Does a near-zero neural objective establish a good physical design?",
+      "questionZh": "近零神经目标能证明物理设计好吗？",
+      "answerEn": "No. Exact endpoints and positive temperature do not enforce the interior differential equation. Independently solve the same material distribution and compare its actual objective, material budget and residuals. A false neural score invalidates the score, but does not alone establish that the material design is poor: our weak-penalty candidates can improve the independently verified objective despite inaccurate neural fields.",
+      "answerZh": "不能。精确端点和正温度不会强制内部微分方程成立。应对同一材料分布独立求解，并检查真实目标、用量和残差。错误神经分数使分数本身无效，却不能单凭这一点认定材料设计差；弱惩罚候选虽然神经场不准，仍可能改善独立验证目标。",
+      "equation": "J_{\\rm neural}\\ne J_{\\rm physical}"
+    }
+  ]
+}

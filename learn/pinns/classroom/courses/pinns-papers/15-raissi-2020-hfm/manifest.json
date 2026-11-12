@@ -1,0 +1,42 @@
+{
+  "id": "raissi2020hfm",
+  "paper": {
+    "number": 15,
+    "shortTitle": "Raissi2020 · HFM",
+    "title": "Raissi, Yazdani & Karniadakis (2020), Hidden fluid mechanics",
+    "url": "https://maziarraissi.github.io/HFM/",
+    "year": 2020,
+    "scope": "Reduced HFM transport mechanism: constant incompressible velocity and constant pressure satisfy unforced Navier-Stokes by construction. Neural tracer plus2 velocity coefficients; not full spatial velocity/pressure reconstruction, no biomedical benchmark reproduction."
+  },
+  "title": "Paper15: Hidden fluid mechanics from a visible tracer",
+  "titleZh": "论文15：从示踪剂识别隐藏流动",
+  "totalMinutes": 45,
+  "download": "paper-15.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4015-8015-000000000015",
+      "index": 0,
+      "title": "论文15：从示踪剂识别隐藏流动",
+      "titleEn": "Paper15: Hidden fluid mechanics from a visible tracer",
+      "file": "1.json",
+      "pages": 22,
+      "sentenceCount": 93,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "raissi2020hfm",
+      "name": "Raissi, Yazdani & Karniadakis (2020), Hidden fluid mechanics",
+      "url": "https://maziarraissi.github.io/HFM/",
+      "text": "Primary paper project: hidden velocity and pressure from passive-scalar observations with transport and Navier-Stokes physics. Our small experiment isolates transport-based identification within a constant-velocity family; it does not recover general spatial flow or pressure fields."
+    },
+    {
+      "id": "hfm-local",
+      "name": "Twelve CPU tracer-identification controls and held-out checks",
+      "url": "/courses/pinns-papers/15-raissi-2020-hfm/trace.json",
+      "text": "Neural concentration, periodic inputs, bounded outputs, two velocity parameters, full/noisy/data-only/stripe controls. Constant flow and constant pressure satisfy Navier-Stokes and continuity by construction. All final velocities, concentration fields and initial values retained."
+    }
+  ],
+  "downloadSha256": "1e3174d2a0243293800adc388809285b12ff944dc4ba42a68974408b32e3b20f"
+}

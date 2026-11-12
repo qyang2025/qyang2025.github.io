@@ -139,27 +139,30 @@
     },
     {
       "number": "14",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Yang, Meng & Karniadakis, B-PINNs",
-      "source": "https://arxiv.org/abs/2003.06097",
+      "source": "https://arxiv.org/html/2003.06097v1",
       "topic": "Bayesian uncertainty and noisy inverse problems",
-      "scope": "Planned tiny-network posterior experiment;sampling cost and diagnostics must be validated before implementation."
+      "scope": "Teaching adaptation: full11-dimensional BNN/log-diffusivity posterior, hard endpoints, known Gaussian sensor noise and sequential NUTS chains in fixed affine whitened coordinates. No Gaussian posterior approximation. Not original wide BNN, VI or dropout benchmark reproduction.",
+      "classroom": "classroom/?paper=yang2020bpinns&language=en"
     },
     {
       "number": "15",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Raissi, Yazdani & Karniadakis, Hidden fluid mechanics",
-      "source": "https://maziarraissi.github.io/research/09_hidden_fluid_mechanics/",
+      "source": "https://maziarraissi.github.io/HFM/",
       "topic": "Infer hidden flow quantities from observations",
-      "scope": "Planned simplified2D transport example;identifiability and CPU budget to be verified,not original high-resolution or3D reproductions."
+      "scope": "Reduced HFM transport mechanism: constant incompressible velocity and constant pressure satisfy unforced Navier-Stokes by construction. Neural tracer plus2 velocity coefficients; not full spatial velocity/pressure reconstruction, no biomedical benchmark reproduction.",
+      "classroom": "classroom/?paper=raissi2020hfm&language=en"
     },
     {
       "number": "16",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Lu et al., Physics-informed neural networks with hard constraints for inverse design",
-      "source": "https://arxiv.org/abs/2102.04626",
+      "source": "https://arxiv.org/html/2102.04626v1",
       "topic": "PDE-constrained inverse design",
-      "scope": "Planned low-dimensional design adaptation;not original large topology optimisation benchmarks."
+      "scope": "Two-parameter symmetric thermal design adaptation of hard constraints and augmented Lagrangians. Not original holography/Stokes topology benchmarks; finite-volume solves are independent validation, not the training loop.",
+      "classroom": "classroom/?paper=lu2021hpinns&language=en"
     }
   ],
   "targetPaperCount": 16,

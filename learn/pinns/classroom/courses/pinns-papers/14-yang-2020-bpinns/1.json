@@ -1,0 +1,2871 @@
+{
+  "id": "139afec2-2020-4014-8014-000000000014",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-14",
+  "chapterIndex": 0,
+  "title": "论文14：贝叶斯 PINNs 与后验不确定性",
+  "titleEn": "Paper14: Bayesian PINNs and posterior uncertainty",
+  "summary": "用真实十一维后验采样解释含噪逆问题，展示场与系数区间，同时保留采样诊断与失败记录。",
+  "summaryEn": "Use genuine eleven-dimensional posterior sampling to explain noisy inversion,field/coefficient intervals and explicit sampler limitations.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "yang2020bpinns",
+      "name": "Yang,Meng & Karniadakis (2020/2021), B-PINNs: Bayesian physics-informed neural networks",
+      "url": "https://arxiv.org/html/2003.06097v1",
+      "text": "Primary Bayesian PINN paper: noisy forward and inverse PDE problems, Bayesian neural networks, HMC and variational inference. This adaptation uses a tiny full BNN with NUTS,a variant of HMC; it does not reproduce the original wide networks or VI comparisons."
+    },
+    {
+      "id": "bpinn-local",
+      "name": "Eight retained CPU posterior chains and diagnostics",
+      "url": "/courses/pinns-papers/14-yang-2020-bpinns/trace.json",
+      "text": "Eleven-dimensional neural-weight/log-diffusivity posterior, known Gaussian observation noise, exact endpoints, low/high paired noise. Fixed invertible Hessian-based coordinate transform is sampling preconditioning,not a Gaussian posterior approximation. Failed and divergent original attempts preserved; final chains have no divergences but observable and weight convergence limitations remain."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理、先验与观测",
+      "titleEn": "Physics,priors and observations"
+    },
+    {
+      "slide": 7,
+      "title": "后验与实际采样",
+      "titleEn": "Posterior and actual sampling"
+    },
+    {
+      "slide": 14,
+      "title": "诊断与解释边界",
+      "titleEn": "Diagnostics and interpretation limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文14：贝叶斯 PINNs 与后验不确定性",
+      "titleEn": "Paper14: Bayesian PINNs and posterior uncertainty",
+      "eyebrow": "PINNs 论文 14 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 14 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用真实十一维后验采样解释含噪逆问题，展示场与系数区间，同时保留采样诊断与失败记录。"
+      ],
+      "bulletsEn": [
+        "Use genuine eleven-dimensional posterior sampling to explain noisy inversion,field/coefficient intervals and explicit sampler limitations."
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理、先验与观测",
+            "labelEn": "Physics,priors and observations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "后验与实际采样",
+            "labelEn": "Posterior and actual sampling",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "诊断与解释边界",
+            "labelEn": "Diagnostics and interpretation limits",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先把含噪受热杆连接到贝叶斯神经模型。再解释完整后验并回放真实 CPU 采样。最后检查系数区间、链诊断与条件不确定性的边界，再衔接隐藏流动。",
+          "textEn": "First connect a noisy heated rod to a Bayesian neural model. Then explain the full posterior and replay genuine CPU sampling. Finally inspect coefficient intervals,chain diagnostics and the limits of conditional uncertainty before moving to hidden flow.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bpinn-bridge",
+      "title": "局部表示改变预测，后验描述不确定性",
+      "titleEn": "Local representations change predictions; posteriors describe uncertainty",
+      "eyebrow": "论文 14 / 2",
+      "eyebrowEn": "PAPER 14 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "局部表示改变预测，后验描述不确定性"
+      ],
+      "bulletsEn": [
+        "Local representations change predictions; posteriors describe uncertainty"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：改变空间表示",
+            "labelEn": "Previously: change the spatial representation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：推断参数与场的后验分布",
+            "labelEn": "Now: infer a posterior over parameters and fields",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-bridge-b0",
+          "text": "上篇改变了解在空间中的表示。不同随机起点产生不同训练曲线，但这种变动不会自动成为贝叶斯不确定性。",
+          "textEn": "The previous paper changed how a solution is represented in space. Its different random starts produced different trained curves, but that variability was not automatically Bayesian uncertainty.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-bridge-b1",
+          "text": "本篇给神经权重与未知物理系数赋予概率。我们在极小问题中进行真实后验采样，并展示数值诊断。",
+          "textEn": "This paper assigns probabilities to neural weights and an unknown physical coefficient. We will perform actual posterior sampling in a tiny problem and keep the numerical diagnostics visible.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-physical",
+      "title": "含噪温度与热源，能确定导热系数吗？",
+      "titleEn": "Can noisy temperature and source data identify conductivity?",
+      "eyebrow": "论文 14 / 3",
+      "eyebrowEn": "PAPER 14 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "含噪温度与热源，能确定导热系数吗？"
+      ],
+      "bulletsEn": [
+        "Can noisy temperature and source data identify conductivity?"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "bpinn-physical-b0",
+          "text": "考虑两端温度为零、处于稳态热平衡的单位杆。x 是位置，u 是相对端点的温度，正常数 k 未知。",
+          "textEn": "Consider a unit rod in steady thermal balance with zero temperature at both endpoints. Position is x, temperature relative to the endpoints is u, and the positive constant k is unknown.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-physical-b1",
+          "text": "我们观测少量含噪温度与热源值。移动热流箭头只是稳态示意，实验不求解瞬态加热过程。",
+          "textEn": "We observe a few noisy temperatures and noisy source values. Moving heat arrows are only a steady-flow illustration; our experiment does not solve a transient heating process.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "bpinn-physical",
+      "paperTrace": "paper14",
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-equation",
+      "title": "方程把温度形状与未知系数连接",
+      "titleEn": "The equation connects temperature shape and the unknown coefficient",
+      "eyebrow": "论文 14 / 4",
+      "eyebrowEn": "PAPER 14 / 4",
+      "visual": "steps",
+      "formula": "-k u_{xx}=f,\\quad u(0)=u(1)=0",
+      "formulaEn": "-k u_{xx}=f,\\quad u(0)=u(1)=0",
+      "bullets": [
+        "方程把温度形状与未知系数连接"
+      ],
+      "bulletsEn": [
+        "The equation connects temperature shape and the unknown coefficient"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "温度曲率 uₓₓ 与未知 k",
+            "labelEn": "Temperature curvature and unknown k",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "热源观测 f 提供另一个尺度",
+            "labelEn": "Source observations supply another scale",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-equation-b0",
+          "text": "f 表示热源，下标 x x 表示空间二阶导数。合成实验的验证参考为 sin πx，真实 k 为零点七。",
+          "textEn": "F denotes the source, and the subscript x x means the second spatial derivative. In this synthetic experiment the validation reference is sine pi x and the true k is zero point seven.",
+          "focus": 0,
+          "scene": {
+            "formula": "-k u_{xx}=f,\\quad u(0)=u(1)=0",
+            "formulaEn": "-k u_{xx}=f,\\quad u(0)=u(1)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-equation-b1",
+          "text": "参考系数和精确场只用于验证，不作为参数标签。含噪热源与温度测量通过方程约束两者关系。",
+          "textEn": "The reference coefficient and exact field are reserved for validation, not supplied as parameter labels. Noisy source and temperature measurements constrain their relationship through this equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-network",
+      "title": "把所有神经权重也当作未知随机量",
+      "titleEn": "Treat every neural weight as an unknown random quantity",
+      "eyebrow": "论文 14 / 5",
+      "eyebrowEn": "PAPER 14 / 5",
+      "visual": "steps",
+      "formula": "u_\\theta=x(1-x)N_\\theta(x),\\quad k=e^\\eta",
+      "formulaEn": "u_\\theta=x(1-x)N_\\theta(x),\\quad k=e^\\eta",
+      "bullets": [
+        "把所有神经权重也当作未知随机量"
+      ],
+      "bulletsEn": [
+        "Treat every neural weight as an unknown random quantity"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "10 个网络参数：3 个隐单元",
+            "labelEn": "10 neural parameters:3 hidden units",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "1 个对数系数 η：保证 k 为正",
+            "labelEn": "1 log coefficient η:positive k",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-network-b0",
+          "text": "θ 包含三隐单元双曲正切网络的十个权重和偏置。x 乘一减 x 因子使两端值严格为零。",
+          "textEn": "Theta contains ten weights and biases of a three-hidden-unit tanh network. The factor x times one minus x enforces both endpoint values exactly.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta=x(1-x)N_\\theta(x),\\quad k=e^\\eta",
+            "formulaEn": "u_\\theta=x(1-x)N_\\theta(x),\\quad k=e^\\eta",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-network-b1",
+          "text": "η 是 k 的对数，因此指数映射保证导热率为正。一起采样全部十一个未知量，而不是只扰动最终拟合系数。",
+          "textEn": "Eta is the logarithm of k, so exponentiation keeps conductivity positive. We sample all eleven unknowns together rather than only perturbing a final fitted coefficient.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-prior",
+      "title": "先验表达建模假设，不是额外观测",
+      "titleEn": "Priors express modelling assumptions, not extra observations",
+      "eyebrow": "论文 14 / 6",
+      "eyebrowEn": "PAPER 14 / 6",
+      "visual": "steps",
+      "formula": "\\eta\\sim\\mathcal N(0,1),\\quad\\theta_j\\sim\\mathcal N(0,s_j^2)",
+      "formulaEn": "\\eta\\sim\\mathcal N(0,1),\\quad\\theta_j\\sim\\mathcal N(0,s_j^2)",
+      "bullets": [
+        "先验表达建模假设，不是额外观测"
+      ],
+      "bulletsEn": [
+        "Priors express modelling assumptions, not extra observations"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "权重尺度 1.5，输出偏置尺度 3",
+            "labelEn": "Weight scale1.5,output-offset scale3",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "log k 的先验没有以真值为中心",
+            "labelEn": "The log-k prior is not centred on the truth",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-prior-b0",
+          "text": "参数采用独立高斯先验。九个神经参数的标准差为一点五，输出偏置为三，η 为一。",
+          "textEn": "The parameters have independent Gaussian priors. Nine neural parameters use standard deviation one point five, the output offset uses three, and eta uses one.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\eta\\sim\\mathcal N(0,1),\\quad\\theta_j\\sim\\mathcal N(0,s_j^2)",
+            "formulaEn": "\\eta\\sim\\mathcal N(0,1),\\quad\\theta_j\\sim\\mathcal N(0,s_j^2)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-prior-b1",
+          "text": "这些选择会影响后验，必须说明。η 的先验以零为中心，对应导热率中位数一，没有暗中以合成真值为中心。",
+          "textEn": "These choices affect the posterior and must be stated. The prior for eta is centred at zero, corresponding to median conductivity one, rather than secretly centred on the known synthetic truth.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-noise",
+      "title": "噪声模型决定如何解释测量偏差",
+      "titleEn": "The noise model determines how measurement discrepancies are interpreted",
+      "eyebrow": "论文 14 / 7",
+      "eyebrowEn": "PAPER 14 / 7",
+      "visual": "steps",
+      "formula": "y_u=u_\\theta(x_u)+\\epsilon_u,\\quad y_f=-k u_{\\theta,xx}(x_f)+\\epsilon_f",
+      "formulaEn": "y_u=u_\\theta(x_u)+\\epsilon_u,\\quad y_f=-k u_{\\theta,xx}(x_f)+\\epsilon_f",
+      "bullets": [
+        "噪声模型决定如何解释测量偏差"
+      ],
+      "bulletsEn": [
+        "The noise model determines how measurement discrepancies are interpreted"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "6 个温度点，8 个热源点",
+            "labelEn": "6 temperature sensors,8 source sensors",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "已知独立高斯噪声尺度",
+            "labelEn": "Known independent Gaussian noise scales",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-noise-b0",
+          "text": "y u 和 y f 是传感位置的温度与热源测量，ε 表示独立零均值高斯测量噪声。",
+          "textEn": "Y u and y f are the measured temperature and source values at their sensor locations. Epsilon denotes independent zero-mean Gaussian measurement noise.",
+          "focus": 0,
+          "scene": {
+            "formula": "y_u=u_\\theta(x_u)+\\epsilon_u,\\quad y_f=-k u_{\\theta,xx}(x_f)+\\epsilon_f",
+            "formulaEn": "y_u=u_\\theta(x_u)+\\epsilon_u,\\quad y_f=-k u_{\\theta,xx}(x_f)+\\epsilon_f",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-noise-b1",
+          "text": "低噪声的两个标准差分别为零点零三和零点一，高噪声为零点一和零点三。两者在缩放前复用相同标准正态样本，构成配对比较。",
+          "textEn": "We compare low noise with standard deviations zero point zero three and zero point one, and high noise with zero point one and zero point three. Both cases reuse the same standard-normal draws before scaling, making the comparison paired.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-posterior",
+      "title": "后验是先验与似然共同给出的条件分布",
+      "titleEn": "The posterior combines prior assumptions and likelihood",
+      "eyebrow": "论文 14 / 8",
+      "eyebrowEn": "PAPER 14 / 8",
+      "visual": "steps",
+      "formula": "p(\\theta,\\eta\\mid y)\\propto p(y\\mid\\theta,\\eta)\\,p(\\theta)\\,p(\\eta)",
+      "formulaEn": "p(\\theta,\\eta\\mid y)\\propto p(y\\mid\\theta,\\eta)\\,p(\\theta)\\,p(\\eta)",
+      "bullets": [
+        "后验是先验与似然共同给出的条件分布"
+      ],
+      "bulletsEn": [
+        "The posterior combines prior assumptions and likelihood"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "似然：哪些参数能解释含噪数据",
+            "labelEn": "Likelihood:which parameters explain noisy data",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "后验：结合先验后的条件不确定性",
+            "labelEn": "Posterior:conditional uncertainty after the prior",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-posterior-b0",
+          "text": "y 收集两组观测。似然衡量参数与所设噪声模型的相容程度，先验为参数配置赋予权重。",
+          "textEn": "Y collects both observation sets. The likelihood measures compatibility with the stated noise model, while the prior weights the allowed parameter configurations.",
+          "focus": 0,
+          "scene": {
+            "formula": "p(\\theta,\\eta\\mid y)\\propto p(y\\mid\\theta,\\eta)\\,p(\\theta)\\,p(\\eta)",
+            "formulaEn": "p(\\theta,\\eta\\mid y)\\propto p(y\\mid\\theta,\\eta)\\,p(\\theta)\\,p(\\eta)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-posterior-b1",
+          "text": "后验以这个网络、方程、先验和噪声假设为条件，不会自动包含未知模型误差或错误物理方程。",
+          "textEn": "The posterior is conditional on this architecture, equation, prior and noise assumptions. It does not automatically include unknown model error or a wrong physical equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-potential",
+      "title": "负对数后验看似损失，目标却是采样分布",
+      "titleEn": "A loss-shaped potential is used to sample a distribution",
+      "eyebrow": "论文 14 / 9",
+      "eyebrowEn": "PAPER 14 / 9",
+      "visual": "steps",
+      "formula": "U=\\tfrac12\\|q/s\\|^2+\\tfrac12\\|(u-y_u)/\\sigma_u\\|^2+\\tfrac12\\|(-ku_{xx}-y_f)/\\sigma_f\\|^2",
+      "formulaEn": "U=\\tfrac12\\|q/s\\|^2+\\tfrac12\\|(u-y_u)/\\sigma_u\\|^2+\\tfrac12\\|(-ku_{xx}-y_f)/\\sigma_f\\|^2",
+      "bullets": [
+        "负对数后验看似损失，目标却是采样分布"
+      ],
+      "bulletsEn": [
+        "A loss-shaped potential is used to sample a distribution"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "q 收集全部 11 个未知参数",
+            "labelEn": "q collects all11 unknown parameters",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "保留分布，而不是只找最小点",
+            "labelEn": "Retain a distribution,instead of only its minimum",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-potential-b0",
+          "text": "q 收集 θ 与 η，s 包含先验尺度，σ 是已知测量标准差。与 q 无关的常数可以从采样势能中省略。",
+          "textEn": "Q collects theta and eta, s contains their prior scales, and sigma denotes the known measurement standard deviations. Constants independent of q can be omitted from this sampling potential.",
+          "focus": 0,
+          "scene": {
+            "formula": "U=\\tfrac12\\|q/s\\|^2+\\tfrac12\\|(u-y_u)/\\sigma_u\\|^2+\\tfrac12\\|(-ku_{xx}-y_f)/\\sigma_f\\|^2",
+            "formulaEn": "U=\\tfrac12\\|q/s\\|^2+\\tfrac12\\|(u-y_u)/\\sigma_u\\|^2+\\tfrac12\\|(-ku_{xx}-y_f)/\\sigma_f\\|^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-potential-b1",
+          "text": "最小化该式只找到后验众数，不是完整后验。我们只用众数准备采样器，随后保留真实马尔可夫链样本。",
+          "textEn": "Minimising this expression finds a posterior mode, not the whole posterior. We use that mode only to prepare a sampler, then retain actual Markov-chain draws.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-hmc",
+      "title": "用 NUTS 采样，而不是重复训练当作后验",
+      "titleEn": "Use NUTS sampling, not repeated fits labelled as a posterior",
+      "eyebrow": "论文 14 / 10",
+      "eyebrowEn": "PAPER 14 / 10",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用 NUTS 采样，而不是重复训练当作后验"
+      ],
+      "bulletsEn": [
+        "Use NUTS sampling,not repeated fits labelled as a posterior"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "原论文：HMC 与变分推断",
+            "labelEn": "Paper:HMC and variational inference",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本实验：HMC 的自适应 NUTS 变体",
+            "labelEn": "Here:the adaptive NUTS variant of HMC",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-hmc-b0",
+          "text": "哈密顿蒙特卡洛利用对数后验导数，提出协调参数移动。NUTS 自适应轨迹长度，是本实现使用的 HMC 变体。",
+          "textEn": "Hamiltonian Monte Carlo uses derivatives of the log posterior to propose coordinated parameter moves. NUTS adapts the trajectory length and is the HMC variant used in this implementation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-hmc-b1",
+          "text": "每个噪声水平使用四条独立初始化、单 CPU 线程顺序运行的链。每链预热四百次后保留五百个样本；四次优化重启并不等价。",
+          "textEn": "Four separately initialised chains are run sequentially on one CPU thread for each noise level. Each keeps five hundred draws after four hundred warmup transitions; four optimiser restarts would not be equivalent.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-whitening",
+      "title": "改变采样坐标，不把后验替换为高斯",
+      "titleEn": "Change sampling coordinates without replacing the posterior by a Gaussian",
+      "eyebrow": "论文 14 / 11",
+      "eyebrowEn": "PAPER 14 / 11",
+      "visual": "steps",
+      "formula": "q=q_{\\rm MAP}+Lz",
+      "formulaEn": "q=q_{\\rm MAP}+Lz",
+      "bullets": [
+        "改变采样坐标，不把后验替换为高斯"
+      ],
+      "bulletsEn": [
+        "Change sampling coordinates without replacing the posterior by a Gaussian"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "固定可逆 L：改善采样尺度",
+            "labelEn": "Fixed invertible L:improve sampling scales",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "仍然计算完整非线性后验势能",
+            "labelEn": "Still evaluate the full nonlinear posterior potential",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-whitening-b0",
+          "text": "q MAP 是拟合后验众数，L 是基于该点正则化 Hessian 的固定可逆矩阵，z 是采样坐标。该变换调整局部曲率尺度以改善探索。",
+          "textEn": "Q M A P is the fitted posterior mode, L is a fixed invertible matrix based on a regularised Hessian there, and z is the sampler coordinate. This rescales local curvature for more efficient exploration.",
+          "focus": 0,
+          "scene": {
+            "formula": "q=q_{\\rm MAP}+Lz",
+            "formulaEn": "q=q_{\\rm MAP}+Lz",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-whitening-b1",
+          "text": "每个映射 q 仍计算原始非线性势能。雅可比行列式为常数，不改变相对概率；这不是 Laplace 或高斯后验近似。",
+          "textEn": "We still evaluate the original nonlinear potential at every mapped q. The Jacobian determinant is constant, so it does not alter relative probabilities; this is not a Laplace or Gaussian posterior approximation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-code",
+      "title": "每个样本同时给出一个场和一个系数",
+      "titleEn": "Every retained draw supplies a field and a coefficient",
+      "eyebrow": "论文 14 / 12",
+      "eyebrowEn": "PAPER 14 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "每个样本同时给出一个场和一个系数"
+      ],
+      "bulletsEn": [
+        "Every retained draw supplies a field and a coefficient"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "bpinn-code-b0",
+          "text": "代码示意把采样坐标映射到物理参数，计算完整先验与似然，再保留后验样本。下载代码包含完整导数与采样设置。",
+          "textEn": "The code sketch maps sampler coordinates to physical parameters, evaluates the full prior and likelihood, and retains posterior draws. The downloaded code contains the complete derivative and sampler setup.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-code-b1",
+          "text": "每个样本通过网络得到温度曲线，其 η 指数给出正导热系数。逐点汇总必须来自这些联合样本，不能独立编造误差棒。",
+          "textEn": "Pushing each draw through the network produces a temperature curve; exponentiating its eta produces a positive conductivity. Pointwise summaries must come from these joint samples,not from independently invented error bars.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "bpinn-code",
+      "paperTrace": "paper14",
+      "demoCode": [
+        "q = map_point + L @ z",
+        "u, ux, uxx = field(q, sensors)",
+        "potential = prior_term + likelihood_terms",
+        "samples = NUTS(potential).run(warmup=400, draws=500)",
+        "k_samples = exp(samples[:, 10])"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-sampling",
+      "title": "回放样本累积，不是确定性训练收敛",
+      "titleEn": "Replay accumulated posterior draws, not deterministic training",
+      "eyebrow": "论文 14 / 13",
+      "eyebrowEn": "PAPER 14 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回放样本累积，不是确定性训练收敛"
+      ],
+      "bulletsEn": [
+        "Replay accumulated posterior draws,not deterministic training"
+      ],
+      "sourceIds": [
+        "yang2020bpinns",
+        "bpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "bpinn-sampling-b0",
+          "text": "回放汇合低噪声各链最早保留的样本。金色是后验均值，蓝色是逐点中央百分之九十五区间，虚线是独立参考。",
+          "textEn": "This replay combines the first recorded samples from each low-noise chain. Gold is the posterior mean, blue spans the pointwise central ninety-five percent interval, and the dashed curve is the independent reference.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-sampling-b1",
+          "text": "计数器增加的是每链保留样本数。更多蒙特卡洛样本使同一条件分布的估计稳定，并没有增加观测，区间也不必单调缩小。",
+          "textEn": "The counter increases retained draws per chain. More Monte Carlo samples stabilise an estimate of the same conditional distribution; they do not add measurements,and the interval need not shrink monotonically.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "bpinn-sampling",
+      "paperTrace": "paper14",
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-high",
+      "title": "增加测量噪声，后验场会发生什么？",
+      "titleEn": "What changes when measurement noise increases?",
+      "eyebrow": "论文 14 / 14",
+      "eyebrowEn": "PAPER 14 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "增加测量噪声，后验场会发生什么？"
+      ],
+      "bulletsEn": [
+        "What changes when measurement noise increases?"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "bpinn-high-b0",
+          "text": "这里提高传感器的已知噪声尺度，网络与先验保持固定。把观测与蓝色区间和前面的低噪声情形比较。",
+          "textEn": "Here the sensors have the higher stated noise scales while the architecture and prior remain fixed. Compare the observations and blue interval with the preceding low-noise case.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-high-b1",
+          "text": "这个实验得到更宽的不确定性范围和不同后验均值。这是配对合成数据与模型的结果，不保证所有后验在所有数据下都有相同反应。",
+          "textEn": "This experiment produces a broader uncertainty range and a different posterior mean. That is a result for this paired synthetic dataset and model,not a guarantee that every posterior responds identically to every dataset.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "bpinn-high",
+      "paperTrace": "paper14",
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-k",
+      "title": "未知系数也有后验，而不是一个答案",
+      "titleEn": "The unknown coefficient has a posterior, not just one answer",
+      "eyebrow": "论文 14 / 15",
+      "eyebrowEn": "PAPER 14 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "未知系数也有后验，而不是一个答案"
+      ],
+      "bulletsEn": [
+        "The unknown coefficient has a posterior,not just one answer"
+      ],
+      "sourceIds": [
+        "yang2020bpinns",
+        "bpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "bpinn-k-b0",
+          "text": "圆点表示导热系数后验中位数，横线表示中央百分之九十五区间。粉色参考是合成真值零点七。",
+          "textEn": "The dots mark posterior medians for conductivity,and the horizontal lines span central ninety-five percent intervals. The pink reference is the synthetic truth,zero point seven.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-k-b1",
+          "text": "低噪声区间约零点六八至零点七三，高噪声约零点六四至零点八二。这是条件可信区间，不是已证明的频率学覆盖保证。",
+          "textEn": "The low-noise interval is roughly zero point six eight to zero point seven three; the high-noise interval is roughly zero point six four to zero point eight two. These are conditional credible intervals,not a demonstrated frequentist coverage guarantee.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "bpinn-k",
+      "paperTrace": "paper14",
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-rhat",
+      "title": "先检查链的行为，再相信汇总曲线",
+      "titleEn": "Check chain behaviour before trusting posterior summaries",
+      "eyebrow": "论文 14 / 16",
+      "eyebrowEn": "PAPER 14 / 16",
+      "visual": "steps",
+      "formula": "\\widehat R_k\\approx1.020\\;\\text{or}\\;1.011,\\quad\\mathrm{ESS}_k\\approx256\\;\\text{or}\\;319",
+      "formulaEn": "\\widehat R_k\\approx1.020\\;\\text{or}\\;1.011,\\quad\\mathrm{ESS}_k\\approx256\\;\\text{or}\\;319",
+      "bullets": [
+        "先检查链的行为，再相信汇总曲线"
+      ],
+      "bulletsEn": [
+        "Check chain behaviour before trusting posterior summaries"
+      ],
+      "sourceIds": [
+        "yang2020bpinns",
+        "bpinn-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "Rhat：链内与链间变化的诊断",
+            "labelEn": "Rhat:within-chain versus between-chain variation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "ESS：相关样本所含的有效信息",
+            "labelEn": "ESS:effective information in correlated draws",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-rhat-b0",
+          "text": "Rhat 比较拆分链之间与链内部的变化。有效样本量 ESS 考虑保留样本之间的相关性，因此两千个样本不等于两千个独立观测。",
+          "textEn": "R hat compares variation across and within split chains. The effective sample size,or E S S,accounts for correlation between retained draws,so two thousand draws do not imply two thousand independent observations.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\widehat R_k\\approx1.020\\;\\text{or}\\;1.011,\\quad\\mathrm{ESS}_k\\approx256\\;\\text{or}\\;319",
+            "formulaEn": "\\widehat R_k\\approx1.020\\;\\text{or}\\;1.011,\\quad\\mathrm{ESS}_k\\approx256\\;\\text{or}\\;319",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "bpinn-rhat-b1",
+          "text": "显示的是低、高噪声下导热系数诊断。Rhat 仍高于严格的一点零一目标，所以小链只能作为有限后验估计，不能宣称推断已获认证。",
+          "textEn": "The displayed diagnostics are for conductivity under low and high noise. They remain above a strict one point zero one R hat target,so these small chains should be presented as limited posterior estimates,not certified final inference.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-modes",
+      "title": "可观测量接近，不代表权重空间充分探索",
+      "titleEn": "Observable agreement does not prove full weight-space exploration",
+      "eyebrow": "论文 14 / 17",
+      "eyebrowEn": "PAPER 14 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "可观测量接近，不代表权重空间充分探索"
+      ],
+      "bulletsEn": [
+        "Observable agreement does not prove full weight-space exploration"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "温度中心与导热系数：诊断较接近",
+            "labelEn": "Temperature centre and k:closer diagnostics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "神经权重：Rhat 仍很大",
+            "labelEn": "Neural weights:Rhat remains large",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-modes-b0",
+          "text": "不同隐单元排列与符号组合可以表示相似函数。即使温度中心和导热系数诊断更接近，权重诊断仍然很大。",
+          "textEn": "Different hidden-unit permutations and sign patterns can represent similar functions. Our weight diagnostics remain large,even when temperature-centre and conductivity diagnostics are much closer.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-modes-b1",
+          "text": "这不证明所有未探索模式都是无害对称性。必须报告权重空间限制，避免声称这些短链充分探索了全局神经后验。",
+          "textEn": "This does not prove that all unexplored modes are harmless symmetries. We report the weight-space limitation and avoid claiming that these short chains fully explore the global neural posterior.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-retry",
+      "title": "失败与重跑也属于实验结果",
+      "titleEn": "Failures and diagnostic retries belong in the experiment record",
+      "eyebrow": "论文 14 / 18",
+      "eyebrowEn": "PAPER 14 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "失败与重跑也属于实验结果"
+      ],
+      "bulletsEn": [
+        "Failures and diagnostic retries belong in the experiment record"
+      ],
+      "sourceIds": [
+        "yang2020bpinns",
+        "bpinn-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "首轮：一条发散，一次时间上限",
+            "labelEn": "Initial attempts:one divergence,one time cap",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "重跑：更严格接受率，保留原始记录",
+            "labelEn": "Retries:stricter acceptance,preserved original records",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-retry-b0",
+          "text": "最初一条低噪声链有发散转移，一次高噪声尝试触发九十秒 CPU 上限。我们保留这些记录，没有暗中隐藏。",
+          "textEn": "One initial low-noise chain had a divergent transition,and a high-noise attempt reached the ninety-second CPU cap. We retained those records rather than silently hiding them.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-retry-b1",
+          "text": "诊断重跑采用零点九九目标接受率与一百八十秒上限。最终保留链没有发散，但这一点不证明收敛，也不消除仍存在的 Rhat 限制。",
+          "textEn": "Diagnostic retries used target acceptance zero point nine nine and a one-hundred-and-eighty-second cap. Final retained chains have no divergences,but that alone does not establish convergence or eliminate the remaining R hat limitations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-interval",
+      "title": "场的逐点区间，不是同时覆盖整条曲线",
+      "titleEn": "Pointwise field intervals are not whole-curve coverage",
+      "eyebrow": "论文 14 / 19",
+      "eyebrowEn": "PAPER 14 / 19",
+      "visual": "steps",
+      "formula": "[Q_{0.025}(u(x)),Q_{0.975}(u(x))]",
+      "formulaEn": "[Q_{0.025}(u(x)),Q_{0.975}(u(x))]",
+      "bullets": [
+        "场的逐点区间，不是同时覆盖整条曲线"
+      ],
+      "bulletsEn": [
+        "Pointwise field intervals are not whole-curve coverage"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "固定位置：样本分位数",
+            "labelEn": "At a fixed location:sample quantiles",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "整条曲线：需要不同的同时覆盖定义",
+            "labelEn": "Whole curve:requires a simultaneous-coverage definition",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-interval-b0",
+          "text": "Q 表示固定空间位置的后验分位数。连接这些区间得到蓝带，却不会自动成为整条函数百分之九十五的同时覆盖带。",
+          "textEn": "Q denotes a posterior quantile at a fixed spatial location. Connecting those intervals gives the blue band,but it is not automatically a ninety-five-percent simultaneous band for an entire function.",
+          "focus": 0,
+          "scene": {
+            "formula": "[Q_{0.025}(u(x)),Q_{0.975}(u(x))]",
+            "formulaEn": "[Q_{0.025}(u(x)),Q_{0.975}(u(x))]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "bpinn-interval-b1",
+          "text": "一条合成参考曲线落入带内的点比例，只是描述性检查。统计校准需要重复数据集与明确定义的覆盖实验。",
+          "textEn": "The fraction of one synthetic reference curve inside that band is only a descriptive check. Statistical calibration would require repeated datasets and a clearly defined coverage experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-limits",
+      "title": "不确定性以假设为条件，也受计算预算限制",
+      "titleEn": "Uncertainty is conditional on assumptions and computation",
+      "eyebrow": "论文 14 / 20",
+      "eyebrowEn": "PAPER 14 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "不确定性以假设为条件，也受计算预算限制"
+      ],
+      "bulletsEn": [
+        "Uncertainty is conditional on assumptions and computation"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "已知噪声、正确方程、小型网络先验",
+            "labelEn": "Known noise,assumed equation,tiny-network prior",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "没有复现宽网络、变分方法或模型误差",
+            "labelEn": "No wide-network,variational or model-error reproduction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-limits-b0",
+          "text": "我们在真实非线性贝叶斯神经模型中采样全部十一个参数。但是噪声尺度假设已知，方程假设正确，网络也极小。",
+          "textEn": "We sample all eleven parameters in a genuine nonlinear Bayesian neural model. However,noise scales are assumed known,the equation is assumed correct,and the network is tiny.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-limits-b1",
+          "text": "没有复现原文宽网络、变分比较或大型基准。短 CPU 链展示机制，同时明确保留收敛与模型充分性限制。",
+          "textEn": "We do not reproduce the paper’s wide architectures,variational comparisons or large benchmarks. Short CPU chains illustrate the mechanism while leaving explicit convergence and model-adequacy limitations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-exercise",
+      "title": "多采一些样本，会让物理更确定吗？",
+      "titleEn": "Do more sampler draws make the physics more certain?",
+      "eyebrow": "论文 14 / 21",
+      "eyebrowEn": "PAPER 14 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "多采一些样本，会让物理更确定吗？"
+      ],
+      "bulletsEn": [
+        "Do more sampler draws make the physics more certain?"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "更多样本：降低蒙特卡洛估计误差",
+            "labelEn": "More draws:reduce Monte Carlo estimation error",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "更多有效观测：可能改变后验本身",
+            "labelEn": "More informative data:may change the posterior itself",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-exercise-b0",
+          "text": "停一下，区分两个操作：把保留采样数加倍，或者增加一个有信息的温度传感器。哪一个会改变由观测定义的后验分布？",
+          "textEn": "Pause and distinguish two actions: doubling retained sampler draws,or adding an informative temperature sensor. Which one changes the posterior distribution defined by the observations?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "bpinn-exercise-b1",
+          "text": "如果链探索良好，更多样本会改善同一目标的数值估计。新的有效观测能够改变目标；两者都不会自动修正错误方程或不可辨识参数。",
+          "textEn": "More draws improve numerical estimation of the same target if the chain explores it well. A new informative observation can change the target; neither action fixes a wrong equation or an unidentified parameter automatically.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "bpinn-next",
+      "title": "下一篇：图像里究竟包含多少隐藏物理信息？",
+      "titleEn": "Next: how much hidden physics does an image actually contain?",
+      "eyebrow": "论文 14 / 22",
+      "eyebrowEn": "PAPER 14 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一篇：图像里究竟包含多少隐藏物理信息？"
+      ],
+      "bulletsEn": [
+        "Next:how much hidden physics does an image actually contain?"
+      ],
+      "sourceIds": [
+        "yang2020bpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：给定模型和数据的后验",
+            "labelEn": "Here:posterior conditional on model and data",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下篇：从示踪剂推断隐藏流动",
+            "labelEn": "Next:infer hidden flow from a tracer",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "bpinn-next-b0",
+          "text": "贝叶斯推断描述给定模型与测量下的不确定性，无法创造测量中不存在的信息。",
+          "textEn": "Bayesian inference describes uncertainty conditional on a stated model and measurements. It cannot create information that those measurements do not contain.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "bpinn-next-b1",
+          "text": "下一篇问可见染料能否揭示隐藏速度。小型输运例子将说明，优秀浓度重建为何仍可能无法确定某个流速分量。",
+          "textEn": "The next paper asks whether visible dye can reveal hidden velocity. A small transport example will show why excellent concentration reconstruction may still leave a flow component undetermined.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

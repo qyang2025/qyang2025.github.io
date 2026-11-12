@@ -1,0 +1,42 @@
+{
+  "id": "yang2020bpinns",
+  "paper": {
+    "number": 14,
+    "shortTitle": "Yang2020 · B-PINNs",
+    "title": "Yang,Meng & Karniadakis (2020/2021), B-PINNs: Bayesian physics-informed neural networks",
+    "url": "https://arxiv.org/html/2003.06097v1",
+    "year": 2020,
+    "scope": "Teaching adaptation: full11-dimensional BNN/log-diffusivity posterior, hard endpoints, known Gaussian sensor noise and sequential NUTS chains in fixed affine whitened coordinates. No Gaussian posterior approximation. Not original wide BNN, VI or dropout benchmark reproduction."
+  },
+  "title": "Paper14: Bayesian PINNs and posterior uncertainty",
+  "titleZh": "论文14：贝叶斯 PINNs 与后验不确定性",
+  "totalMinutes": 50,
+  "download": "paper-14.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4014-8014-000000000014",
+      "index": 0,
+      "title": "论文14：贝叶斯 PINNs 与后验不确定性",
+      "titleEn": "Paper14: Bayesian PINNs and posterior uncertainty",
+      "file": "1.json",
+      "pages": 22,
+      "sentenceCount": 94,
+      "plannedMinutes": 50
+    }
+  ],
+  "sources": [
+    {
+      "id": "yang2020bpinns",
+      "name": "Yang,Meng & Karniadakis (2020/2021), B-PINNs: Bayesian physics-informed neural networks",
+      "url": "https://arxiv.org/html/2003.06097v1",
+      "text": "Primary Bayesian PINN paper: noisy forward and inverse PDE problems, Bayesian neural networks, HMC and variational inference. This adaptation uses a tiny full BNN with NUTS,a variant of HMC; it does not reproduce the original wide networks or VI comparisons."
+    },
+    {
+      "id": "bpinn-local",
+      "name": "Eight retained CPU posterior chains and diagnostics",
+      "url": "/courses/pinns-papers/14-yang-2020-bpinns/trace.json",
+      "text": "Eleven-dimensional neural-weight/log-diffusivity posterior, known Gaussian observation noise, exact endpoints, low/high paired noise. Fixed invertible Hessian-based coordinate transform is sampling preconditioning,not a Gaussian posterior approximation. Failed and divergent original attempts preserved; final chains have no divergences but observable and weight convergence limitations remain."
+    }
+  ],
+  "downloadSha256": "55fe3b9d1280880ca77fd0e68943731c02ce3f8a6a0a51d3f74574097d5ca080"
+}

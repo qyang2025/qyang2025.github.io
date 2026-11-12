@@ -2835,8 +2835,8 @@
         },
         {
           "id": "fbp-next-b1",
-          "text": "下一篇计划介绍贝叶斯 PINNs，并在极小问题中进行真实后验推断。我们将区分数据、模型假设与数值近似带来的不确定性，同时保持小型 CPU 预算。",
-          "textEn": "The next planned paper introduces Bayesian PINNs and actual posterior inference in a tiny problem. We will distinguish uncertainty from data, model assumptions and numerical approximation while staying within a small CPU budget.",
+          "text": "下一篇介绍贝叶斯 PINNs，并在极小问题中进行真实后验推断。我们将区分数据、模型假设与数值近似带来的不确定性，同时保持小型 CPU 预算。",
+          "textEn": "The next paper introduces Bayesian PINNs and actual posterior inference in a tiny problem. We will distinguish uncertainty from data, model assumptions and numerical approximation while staying within a small CPU budget.",
           "focus": 0,
           "scene": {
             "formula": "",

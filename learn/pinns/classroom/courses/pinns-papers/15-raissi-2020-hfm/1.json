@@ -1,0 +1,2850 @@
+{
+  "id": "139afec2-2020-4015-8015-000000000015",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-15",
+  "chapterIndex": 0,
+  "title": "论文15：从示踪剂识别隐藏流动",
+  "titleEn": "Paper15: Hidden fluid mechanics from a visible tracer",
+  "summary": "从运动浓度图像解释输运逆问题，用十二次 CPU 对照揭示噪声与缺失梯度方向。",
+  "summaryEn": "Explain transport inversion through moving tracer images and twelve CPU controls, including missing-gradient identifiability.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "raissi2020hfm",
+      "name": "Raissi, Yazdani & Karniadakis (2020), Hidden fluid mechanics",
+      "url": "https://maziarraissi.github.io/HFM/",
+      "text": "Primary paper project: hidden velocity and pressure from passive-scalar observations with transport and Navier-Stokes physics. Our small experiment isolates transport-based identification within a constant-velocity family; it does not recover general spatial flow or pressure fields."
+    },
+    {
+      "id": "hfm-local",
+      "name": "Twelve CPU tracer-identification controls and held-out checks",
+      "url": "/courses/pinns-papers/15-raissi-2020-hfm/trace.json",
+      "text": "Neural concentration, periodic inputs, bounded outputs, two velocity parameters, full/noisy/data-only/stripe controls. Constant flow and constant pressure satisfy Navier-Stokes and continuity by construction. All final velocities, concentration fields and initial values retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理图像与模型",
+      "titleEn": "Physical picture and model"
+    },
+    {
+      "slide": 8,
+      "title": "实验与真实回放",
+      "titleEn": "Experiment and actual replay"
+    },
+    {
+      "slide": 15,
+      "title": "可辨识性与独立检查",
+      "titleEn": "Identifiability and independent checks"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文15：从示踪剂识别隐藏流动",
+      "titleEn": "Paper15: Hidden fluid mechanics from a visible tracer",
+      "eyebrow": "PINNs 论文 15 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 15 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从运动浓度图像解释输运逆问题，用十二次 CPU 对照揭示噪声与缺失梯度方向。"
+      ],
+      "bulletsEn": [
+        "Explain transport inversion through moving tracer images and twelve CPU controls, including missing-gradient identifiability."
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理图像与模型",
+            "labelEn": "Physical picture and model",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "实验与真实回放",
+            "labelEn": "Experiment and actual replay",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "可辨识性与独立检查",
+            "labelEn": "Identifiability and independent checks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先把可见示踪剂运动与隐藏输运方程连接。再回放带噪声与缺失梯度信息的 CPU 对照。最后区分浓度拟合与速度识别，并衔接逆设计。",
+          "textEn": "First connect visible tracer motion with the hidden transport equation. Then replay matched CPU controls with noise and missing gradient information. Finally distinguish concentration fit from velocity identification and bridge to inverse design.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hfm-bridge",
+      "title": "有了不确定性，还要问观测究竟能确定什么",
+      "titleEn": "After uncertainty, ask what the observations can identify",
+      "eyebrow": "论文 15 / 2",
+      "eyebrowEn": "PAPER 15 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "有了不确定性，还要问观测究竟能确定什么"
+      ],
+      "bulletsEn": [
+        "After uncertainty, ask what the observations can identify"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：用后验描述不确定性",
+            "labelEn": "Previously: describe uncertainty with a posterior",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：观察示踪剂，推断隐藏流速",
+            "labelEn": "Now: infer hidden flow from a visible tracer",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-bridge-b0",
+          "text": "上篇用后验描述给定模型与观测下的不确定性。可是，如果观测根本分不清两种不同的物理解释呢？",
+          "textEn": "The Bayesian lesson described uncertainty conditional on a model and its measurements. But what if the observations cannot distinguish two different physical explanations at all?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "hfm-bridge-b1",
+          "text": "本篇从看得见的染料或烟雾推断隐藏流动。我们用一个小型二维输运问题检验这个想法，也保留一个确实看不见某个速度分量的例子。",
+          "textEn": "This paper uses visible dye or smoke to infer hidden flow. We will test that idea in a small two-dimensional transport problem, including a case where one velocity component is genuinely invisible.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-physical",
+      "title": "看得见染料，却没有直接测量流速",
+      "titleEn": "We can see the dye without measuring its velocity",
+      "eyebrow": "论文 15 / 3",
+      "eyebrowEn": "PAPER 15 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "看得见染料，却没有直接测量流速"
+      ],
+      "bulletsEn": [
+        "We can see the dye without measuring its velocity"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hfm-physical-b0",
+          "text": "先看这个彩色图案在周期区域里移动。颜色表示零到一之间的归一化被动浓度 c，不是温度，也不是速度大小。",
+          "textEn": "Watch the coloured pattern move across this periodic box. Colour represents a normalised passive concentration c between zero and one, not temperature or a velocity magnitude.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hfm-physical-b1",
+          "text": "参考流动向右、向上运动，分子扩散同时使图案变平滑。箭头是教学中展示的已知参考，训练时从不提供这个速度标签。",
+          "textEn": "The reference flow moves rightwards and upwards while molecular diffusion smooths the pattern. The arrow shows the known reference for teaching; its velocity is never supplied as a training label.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hfm-physical",
+      "paperTrace": "paper15",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-unknowns",
+      "title": "把能测到的量与待推断的量分开",
+      "titleEn": "Separate the measured field from the hidden quantities",
+      "eyebrow": "论文 15 / 4",
+      "eyebrowEn": "PAPER 15 / 4",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把能测到的量与待推断的量分开"
+      ],
+      "bulletsEn": [
+        "Separate the measured field from the hidden quantities"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "观测：位置、时间与浓度 c",
+            "labelEn": "Observed: position, time and concentration c",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "未知：速度 u、v；原论文还包含压力",
+            "labelEn": "Hidden: velocities u,v; the paper also treats pressure",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-unknowns-b0",
+          "text": "x 与 y 是空间坐标，t 是时间。传感器只给选定位置、时刻的浓度值，没有直接速度观测。",
+          "textEn": "X and y are spatial coordinates, and t is time. Our sensors give concentration values at selected positions and times, with no direct velocity observations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hfm-unknowns-b1",
+          "text": "u 与 v 表示两个流速分量。原方法还在更一般的流动中重建压力，而这个 CPU 示例固定常压力，只学习两个常数速度系数。",
+          "textEn": "U and v denote the two flow-velocity components. The original method also reconstructs pressure in more general flows, whereas this CPU example fixes constant pressure and learns only two constant velocity coefficients.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-transport",
+      "title": "运动和扩散共同改变浓度图像",
+      "titleEn": "Advection and diffusion jointly change the concentration image",
+      "eyebrow": "论文 15 / 5",
+      "eyebrowEn": "PAPER 15 / 5",
+      "visual": "steps",
+      "formula": "c_t+u c_x+v c_y=\\kappa(c_{xx}+c_{yy})",
+      "formulaEn": "c_t+u c_x+v c_y=\\kappa(c_{xx}+c_{yy})",
+      "bullets": [
+        "运动和扩散共同改变浓度图像"
+      ],
+      "bulletsEn": [
+        "Advection and diffusion jointly change the concentration image"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hfm-transport-b0",
+          "text": "左边把时间变化与沿浓度梯度的输运组合起来。下标表示求导，κ 是已知分子扩散率，在本实验单位中取零点零二。",
+          "textEn": "The left-hand side combines time change with transport along the concentration gradients. Subscripts mark derivatives, and kappa is the known molecular diffusivity, zero point zero two in our chosen units.",
+          "focus": 0,
+          "scene": {
+            "formula": "c_t+u c_x+v c_y=\\kappa(c_{xx}+c_{yy})",
+            "formulaEn": "c_t+u c_x+v c_y=\\kappa(c_{xx}+c_{yy})",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hfm-transport-b1",
+          "text": "右边用空间拉普拉斯描述扩散。流动搬运图案，扩散使它平滑，混淆这两种作用会影响速度估计。",
+          "textEn": "The right-hand side describes diffusion through the spatial Laplacian. The flow moves the pattern, while diffusion smooths it; confusing those effects can bias a velocity estimate.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "hfm-physical",
+      "paperTrace": "paper15",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-ns",
+      "title": "原方法用流体方程约束隐藏流场",
+      "titleEn": "The original method also constrains the hidden fluid field",
+      "eyebrow": "论文 15 / 6",
+      "eyebrowEn": "PAPER 15 / 6",
+      "visual": "steps",
+      "formula": "\\boldsymbol u_t+(\\boldsymbol u\\!\\cdot\\!\\nabla)\\boldsymbol u=-\\nabla p+\\nu\\Delta\\boldsymbol u,\\quad\\nabla\\!\\cdot\\!\\boldsymbol u=0",
+      "formulaEn": "\\boldsymbol u_t+(\\boldsymbol u\\!\\cdot\\!\\nabla)\\boldsymbol u=-\\nabla p+\\nu\\Delta\\boldsymbol u,\\quad\\nabla\\!\\cdot\\!\\boldsymbol u=0",
+      "bullets": [
+        "原方法用流体方程约束隐藏流场"
+      ],
+      "bulletsEn": [
+        "The original method also constrains the hidden fluid field"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "动量：速度与压力相互约束",
+            "labelEn": "Momentum couples velocity and pressure",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "连续性：不可压缩流动无散度",
+            "labelEn": "Continuity enforces incompressibility",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-ns-b0",
+          "text": "粗体 u 表示速度向量，p 是压力，ν 是运动黏度。原框架把示踪剂输运与动量守恒耦合，而不是把任意图像运动都当作流体解。",
+          "textEn": "Bold u denotes the velocity vector, p is pressure and nu is kinematic viscosity. The original framework couples tracer transport with momentum conservation rather than treating arbitrary image motion as a fluid solution.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\boldsymbol u_t+(\\boldsymbol u\\!\\cdot\\!\\nabla)\\boldsymbol u=-\\nabla p+\\nu\\Delta\\boldsymbol u,\\quad\\nabla\\!\\cdot\\!\\boldsymbol u=0",
+            "formulaEn": "\\boldsymbol u_t+(\\boldsymbol u\\!\\cdot\\!\\nabla)\\boldsymbol u=-\\nabla p+\\nu\\Delta\\boldsymbol u,\\quad\\nabla\\!\\cdot\\!\\boldsymbol u=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hfm-ns-b1",
+          "text": "散度约束表达不可压缩性。在本实验的常流速族中，速度的空间与时间导数均为零，所以这些流体方程通过构造满足，而不是通过额外损失学习。",
+          "textEn": "The divergence constraint expresses incompressibility. In our constant-flow family all spatial and temporal velocity derivatives vanish, so these fluid equations hold by construction rather than being learned through an additional loss.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-family",
+      "title": "先缩小模型族，让本机 CPU 能完整检验",
+      "titleEn": "Restrict the model family so the CPU can test it completely",
+      "eyebrow": "论文 15 / 7",
+      "eyebrowEn": "PAPER 15 / 7",
+      "visual": "steps",
+      "formula": "\\boldsymbol u=(a,b),\\quad p=0,\\quad (a^*,b^*)=(0.8,0.35)",
+      "formulaEn": "\\boldsymbol u=(a,b),\\quad p=0,\\quad (a^*,b^*)=(0.8,0.35)",
+      "bullets": [
+        "先缩小模型族，让本机 CPU 能完整检验"
+      ],
+      "bulletsEn": [
+        "Restrict the model family so the CPU can test it completely"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "网络预测浓度，两个参数表示流速",
+            "labelEn": "A network predicts concentration; two parameters encode flow",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "参考只用于合成观测与最终验证",
+            "labelEn": "Reference only generates observations and validates results",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-family-b0",
+          "text": "a 与 b 是待训练的常数速度系数，星号表示参考值。压力取零是选定的常数基准，不是推断得到的压力场。",
+          "textEn": "A and b are the trainable constant velocity coefficients, with the star marking the reference values. Pressure zero is a chosen constant gauge, not an inferred pressure field.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\boldsymbol u=(a,b),\\quad p=0,\\quad (a^*,b^*)=(0.8,0.35)",
+            "formulaEn": "\\boldsymbol u=(a,b),\\quad p=0,\\quad (a^*,b^*)=(0.8,0.35)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hfm-family-b1",
+          "text": "这个简化保留隐藏输运机制，也避免大型流体模拟。它不能展示涡流、壁面剪切或一般压力分布的恢复。",
+          "textEn": "This reduction keeps the hidden-transport mechanism while avoiding a large fluid simulation. It cannot demonstrate recovery of vortices, wall shear or general pressure distributions.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-data",
+      "title": "用可独立验证的图案，生成浓度观测",
+      "titleEn": "Generate concentration observations from a checkable pattern",
+      "eyebrow": "论文 15 / 8",
+      "eyebrowEn": "PAPER 15 / 8",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用可独立验证的图案，生成浓度观测"
+      ],
+      "bulletsEn": [
+        "Generate concentration observations from a checkable pattern"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "144 个浓度点，分布在三个时刻",
+            "labelEn": "144 concentration samples at three times",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "256 个内部输运残差点",
+            "labelEn": "256 interior transport-residual points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-data-b0",
+          "text": "在零、二分之一和一这三个时刻，各采样四十八个浓度位置。平滑周期参考通过解析式输运，因此生成这些观测不需要昂贵的数值流场求解。",
+          "textEn": "We sample forty-eight concentration positions at each of three times: zero, one half and one. The smooth periodic reference is transported analytically, so generating these observations needs no expensive numerical flow solve.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hfm-data-b1",
+          "text": "另外二百五十六个点在训练中检查输运方程。训练之后，再用独立的一千个点评价场与残差误差。",
+          "textEn": "Two hundred and fifty-six additional points test the transport equation during training. A separate set of one thousand points evaluates field and residual errors afterwards.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-network",
+      "title": "先尊重周期性与浓度范围",
+      "titleEn": "Respect periodicity and the concentration range",
+      "eyebrow": "论文 15 / 9",
+      "eyebrowEn": "PAPER 15 / 9",
+      "visual": "steps",
+      "formula": "c_\\theta=0.5+0.5\\tanh N_\\theta(\\sin x,\\cos x,\\sin y,\\cos y,2t-1)",
+      "formulaEn": "c_\\theta=0.5+0.5\\tanh N_\\theta(\\sin x,\\cos x,\\sin y,\\cos y,2t-1)",
+      "bullets": [
+        "先尊重周期性与浓度范围"
+      ],
+      "bulletsEn": [
+        "Respect periodicity and the concentration range"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "正弦余弦输入保证空间周期性",
+            "labelEn": "Sine-cosine inputs enforce spatial periodicity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "输出映射将浓度限制在零与一之间",
+            "labelEn": "Output mapping bounds concentration between zero and one",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-network-b0",
+          "text": "θ 表示浓度网络的权重与偏置。周期正弦余弦输入让相对空间边缘自动一致，不需要额外边界惩罚。",
+          "textEn": "Theta collects the concentration-network weights and biases. Periodic sine-cosine inputs make opposite spatial edges agree without an extra boundary penalty.",
+          "focus": 0,
+          "scene": {
+            "formula": "c_\\theta=0.5+0.5\\tanh N_\\theta(\\sin x,\\cos x,\\sin y,\\cos y,2t-1)",
+            "formulaEn": "c_\\theta=0.5+0.5\\tanh N_\\theta(\\sin x,\\cos x,\\sin y,\\cos y,2t-1)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hfm-network-b1",
+          "text": "最后的双曲正切映射把预测浓度限制在零到一之间。这些有用构造并不会自动揭示隐藏速度，仍要靠观测与输运残差提供约束。",
+          "textEn": "The final tanh mapping bounds the predicted concentration between zero and one. Those useful constructions do not reveal the hidden velocity automatically; the observations and transport residual must still constrain it.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-code",
+      "title": "让速度参数参与输运残差的自动微分",
+      "titleEn": "Let the velocity parameters participate in the transport residual",
+      "eyebrow": "论文 15 / 10",
+      "eyebrowEn": "PAPER 15 / 10",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "让速度参数参与输运残差的自动微分"
+      ],
+      "bulletsEn": [
+        "Let the velocity parameters participate in the transport residual"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hfm-code-b0",
+          "text": "网络提供浓度及其时空导数。a 与 b 是残差里的普通待训练参数，因此物理项可以把梯度传给它们。",
+          "textEn": "The network supplies concentration and its space-time derivatives. A and b are ordinary trainable parameters inside the residual, so the physics term can send gradients to them.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hfm-code-b1",
+          "text": "显示的导数辅助函数，是下载代码中显式自动求导的缩写。这个损失里没有直接速度标签。",
+          "textEn": "The displayed derivative helper abbreviates explicit automatic differentiation in the downloaded code. No direct velocity label appears in this loss.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hfm-code",
+      "paperTrace": "paper15",
+      "demoCode": [
+        "c = model(points)",
+        "cx, cy, ct = spatial_time_grad(c, points)",
+        "r = ct + model.a*cx + model.b*cy",
+        "r = r - 0.02*(cxx + cyy)",
+        "loss = 20*mse(c_data, labels) + mean(r*r)"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-loss",
+      "title": "先学到浓度结构，再联合识别速度",
+      "titleEn": "Learn concentration structure, then jointly identify velocity",
+      "eyebrow": "论文 15 / 11",
+      "eyebrowEn": "PAPER 15 / 11",
+      "visual": "steps",
+      "formula": "L=20L_c+L_r",
+      "formulaEn": "L=20L_c+L_r",
+      "bullets": [
+        "先学到浓度结构，再联合识别速度"
+      ],
+      "bulletsEn": [
+        "Learn concentration structure, then jointly identify velocity"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "前 500 步只拟合浓度观测",
+            "labelEn": "First500 updates fit concentration observations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "后 1500 步联合训练物理残差",
+            "labelEn": "Next1500 updates jointly train the physics residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-loss-b0",
+          "text": "L c 是浓度均方误差，L r 是输运残差均方值。每次运行共用两千步预算，先用五百步只拟合浓度。",
+          "textEn": "L c is the mean squared concentration error and L r is the mean squared transport residual. Each run has the same two-thousand-update budget, beginning with five hundred concentration-only updates.",
+          "focus": 0,
+          "scene": {
+            "formula": "L=20L_c+L_r",
+            "formulaEn": "L=20L_c+L_r",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hfm-loss-b1",
+          "text": "除明确标出的仅数据对照外，后面一千五百步都加入物理项。采用六十四位浮点与两个 CPU 线程，浏览器只会回放已保存结果。",
+          "textEn": "The remaining fifteen hundred updates include physics, except in the explicitly labelled data-only control. We use sixty-four-bit arithmetic and two CPU threads; the browser will only replay saved results.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-controls",
+      "title": "四种对照，检查数据、噪声与可辨识性",
+      "titleEn": "Four controls test data, noise and identifiability",
+      "eyebrow": "论文 15 / 12",
+      "eyebrowEn": "PAPER 15 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "四种对照，检查数据、噪声与可辨识性"
+      ],
+      "bulletsEn": [
+        "Four controls test data, noise and identifiability"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "完整图案：物理、有噪声、仅数据",
+            "labelEn": "Full pattern: physics, noise and data-only",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "条纹图案：缺少一个空间方向的信息",
+            "labelEn": "Stripe pattern: missing one spatial direction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-controls-b0",
+          "text": "比较完整图案加物理、同一图案加入浓度噪声，以及仅数据对照。有噪声情形在固定标准正态样本上乘以零点零二。",
+          "textEn": "We compare the full pattern with physics, the same pattern with concentration noise, and a data-only control. The noisy case adds fixed standard-normal draws scaled by zero point zero two.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hfm-controls-b1",
+          "text": "第四种对照使用不依赖 y 的条纹，并把这种独立性写进网络。每种设置使用三个随机起点编号，也就是种子十一、二十二和三十三，保留全部最终结果。",
+          "textEn": "A fourth control uses stripes independent of y, with that independence built into its network. Each setting uses three random starting identifiers, or seeds: eleven, twenty-two and thirty-three, preserving every final result.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-training",
+      "title": "回放真实训练：浓度和速度一起变化",
+      "titleEn": "Replay the actual concentration and velocity updates",
+      "eyebrow": "论文 15 / 13",
+      "eyebrowEn": "PAPER 15 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回放真实训练：浓度和速度一起变化"
+      ],
+      "bulletsEn": [
+        "Replay the actual concentration and velocity updates"
+      ],
+      "sourceIds": [
+        "raissi2020hfm",
+        "hfm-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hfm-training-b0",
+          "text": "这里回放完整图案、随机起点十一的真实运行。图像是时刻二分之一的学习浓度，旁边数值显示两个学习到的速度系数。",
+          "textEn": "This is the saved full-pattern run with starting identifier eleven. The image is the learned concentration at time one half, while the accompanying values report the two learned velocity coefficients.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hfm-training-b1",
+          "text": "浓度预训练之后，物理项开始更新隐藏速度。动画逐个展示保存的检查点，不会在浏览器训练；图像看起来合理，并不证明速度正确。",
+          "textEn": "After concentration pretraining, physics begins updating the hidden velocity. The animation advances through recorded checkpoints rather than training in your browser; a plausible image alone is not evidence that its velocity is correct.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hfm-training",
+      "paperTrace": "paper15",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-velocity",
+      "title": "把十二次运行的隐藏速度放在一起",
+      "titleEn": "Compare the hidden velocities from all twelve runs",
+      "eyebrow": "论文 15 / 14",
+      "eyebrowEn": "PAPER 15 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把十二次运行的隐藏速度放在一起"
+      ],
+      "bulletsEn": [
+        "Compare the hidden velocities from all twelve runs"
+      ],
+      "sourceIds": [
+        "raissi2020hfm",
+        "hfm-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hfm-velocity-b0",
+          "text": "参考十字位于水平速度零点八、竖直速度零点三五。每个点都是最终检查点，颜色区分四种对照。",
+          "textEn": "The reference cross is at horizontal velocity zero point eight and vertical velocity zero point three five. Every marker is a final checkpoint, and colours distinguish the four controls.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hfm-velocity-b1",
+          "text": "完整图案加物理的结果接近参考，而仅数据的速度停在初始值。条纹对照恢复水平分量，却保留任意竖直速度：这是信息不足，不只是训练失败。",
+          "textEn": "Full-pattern physics controls approach the reference, while data-only velocities remain at their initial values. Stripe controls recover the horizontal component but retain arbitrary vertical velocities: that is an information problem, not merely a training failure.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hfm-velocity",
+      "paperTrace": "paper15",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-noise",
+      "title": "噪声改变推断，也需要重复起点检查",
+      "titleEn": "Noise changes inference and calls for repeated starts",
+      "eyebrow": "论文 15 / 15",
+      "eyebrowEn": "PAPER 15 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "噪声改变推断，也需要重复起点检查"
+      ],
+      "bulletsEn": [
+        "Noise changes inference and calls for repeated starts"
+      ],
+      "sourceIds": [
+        "raissi2020hfm",
+        "hfm-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "完整图案：速度接近参考",
+            "labelEn": "Full pattern: velocities approach the reference",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "有噪声：误差增大，不能只看浓度拟合",
+            "labelEn": "With noise: inspect more than concentration fit",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-noise-b0",
+          "text": "加入浓度噪声会改变恢复速度，并增大浓度误差。保留全部三个随机起点，因此结论不依赖挑选某一次好结果。",
+          "textEn": "Adding concentration noise moves the recovered velocities and increases concentration error. We retain all three starting identifiers, so the displayed conclusion does not depend on selecting one favourable run.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hfm-noise-b1",
+          "text": "浓度误差用真实场相对二分之一背景的波动归一化。如果用整个正值场作分母，常数背景就会掩盖运动图案中的误差。",
+          "textEn": "Our concentration error is normalised by the true fluctuation around one half. Using the entire positive field in the denominator would let the constant background hide errors in the moving pattern.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-stripes",
+      "title": "条纹沿着自身方向运动，图像看不出区别",
+      "titleEn": "Motion along a stripe can leave its image unchanged",
+      "eyebrow": "论文 15 / 16",
+      "eyebrowEn": "PAPER 15 / 16",
+      "visual": "steps",
+      "formula": "c_y=0\\quad\\Longrightarrow\\quad v c_y=0",
+      "formulaEn": "c_y=0\\quad\\Longrightarrow\\quad v c_y=0",
+      "bullets": [
+        "条纹沿着自身方向运动，图像看不出区别"
+      ],
+      "bulletsEn": [
+        "Motion along a stripe can leave its image unchanged"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hfm-stripes-b0",
+          "text": "这个浓度图案随 x 变化，却不随 y 变化。想象把一条竖直条纹向上移动：浓度图像不变，观测因此无法报告这个运动。",
+          "textEn": "This concentration pattern varies with x but not y. Imagine sliding a vertical stripe upwards: its concentration image does not change, so the observation cannot report that motion.",
+          "focus": 0,
+          "scene": {
+            "formula": "c_y=0\\quad\\Longrightarrow\\quad v c_y=0",
+            "formulaEn": "c_y=0\\quad\\Longrightarrow\\quad v c_y=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hfm-stripes-b1",
+          "text": "同一事实也出现在方程中：y 导数为零，使 v 从输运残差中消失。因此，极准确的条纹拟合也可以同时具有完全无法确定的竖直速度。",
+          "textEn": "The same fact appears in the equation: the y derivative is zero, removing v from the transport residual. A very accurate stripe fit can therefore coexist with a completely undetermined vertical velocity.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "hfm-stripes",
+      "paperTrace": "paper15",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-projection",
+      "title": "一个浓度梯度，只约束一个速度投影",
+      "titleEn": "One concentration gradient constrains one velocity projection",
+      "eyebrow": "论文 15 / 17",
+      "eyebrowEn": "PAPER 15 / 17",
+      "visual": "steps",
+      "formula": "[c_x\\;c_y]\\begin{bmatrix}u\\\\v\\end{bmatrix}=-c_t+\\kappa\\Delta c",
+      "formulaEn": "[c_x\\;c_y]\\begin{bmatrix}u\\\\v\\end{bmatrix}=-c_t+\\kappa\\Delta c",
+      "bullets": [
+        "一个浓度梯度，只约束一个速度投影"
+      ],
+      "bulletsEn": [
+        "One concentration gradient constrains one velocity projection"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "梯度方向：浓度变化能感知的运动",
+            "labelEn": "Gradient direction: motion the concentration senses",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "沿等浓度线：单点约束看不见",
+            "labelEn": "Along a contour: invisible to one local constraint",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-projection-b0",
+          "text": "在单个时空位置，输运方程只为两个速度分量提供一个标量约束。它测量的是速度在浓度梯度方向上的投影。",
+          "textEn": "At one space-time point, the transport equation provides one scalar constraint on two velocity components. It measures the projection of velocity onto the concentration gradient.",
+          "focus": 0,
+          "scene": {
+            "formula": "[c_x\\;c_y]\\begin{bmatrix}u\\\\v\\end{bmatrix}=-c_t+\\kappa\\Delta c",
+            "formulaEn": "[c_x\\;c_y]\\begin{bmatrix}u\\\\v\\end{bmatrix}=-c_t+\\kappa\\Delta c",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hfm-projection-b1",
+          "text": "沿着局部等浓度线的运动，对这一条约束不可见。在常速度模型族中，不同位置和时刻、方向不同的梯度，能够提供互补信息。",
+          "textEn": "Motion tangent to the local concentration contour is invisible to that individual constraint. Multiple positions and times with differently oriented gradients can provide complementary information in our constant-velocity family.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-rank",
+      "title": "多个方向的信息，才能区分两个常速度",
+      "titleEn": "Complementary gradient directions identify two constant velocities",
+      "eyebrow": "论文 15 / 18",
+      "eyebrowEn": "PAPER 15 / 18",
+      "visual": "steps",
+      "formula": "G=\\frac1N\\sum_{j=1}^{N}\\nabla c_j\\nabla c_j^{\\mathsf T}",
+      "formulaEn": "G=\\frac1N\\sum_{j=1}^{N}\\nabla c_j\\nabla c_j^{\\mathsf T}",
+      "bullets": [
+        "多个方向的信息，才能区分两个常速度"
+      ],
+      "bulletsEn": [
+        "Complementary gradient directions identify two constant velocities"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "完整图案：两个独立梯度方向",
+            "labelEn": "Full pattern: two independent gradient directions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "条纹：一个特征值为零",
+            "labelEn": "Stripes: one eigenvalue is zero",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-rank-b0",
+          "text": "G 是诊断点上浓度梯度构成的二乘二 Gram 矩阵，N 是点数。在这个常系数问题中，两个正特征值表示两个独立方向都包含信息。",
+          "textEn": "G is the two-by-two Gram matrix of concentration gradients across our diagnostic points, and N counts those points. Two positive eigenvalues indicate information in two independent directions for this constant-coefficient problem.",
+          "focus": 0,
+          "scene": {
+            "formula": "G=\\frac1N\\sum_{j=1}^{N}\\nabla c_j\\nabla c_j^{\\mathsf T}",
+            "formulaEn": "G=\\frac1N\\sum_{j=1}^{N}\\nabla c_j\\nabla c_j^{\\mathsf T}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hfm-rank-b1",
+          "text": "条纹矩阵有一个零特征值，因为所有 y 梯度都为零。这是简化模型族内的诊断，不是说任意一般流场都能由单个示踪剂唯一恢复。",
+          "textEn": "The stripe matrix has a zero eigenvalue because every y gradient vanishes. This is a diagnostic inside our reduced family, not a theorem that any general flow is uniquely recoverable from a single tracer.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-validation",
+      "title": "浓度、速度和方程残差分别检查",
+      "titleEn": "Check concentration, velocity and equation residuals separately",
+      "eyebrow": "论文 15 / 19",
+      "eyebrowEn": "PAPER 15 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "浓度、速度和方程残差分别检查"
+      ],
+      "bulletsEn": [
+        "Check concentration, velocity and equation residuals separately"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "观测拟合与独立浓度场误差",
+            "labelEn": "Observation fit and independent field error",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "隐藏速度与未训练位置的物理残差",
+            "labelEn": "Hidden velocity and held-out physics residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-validation-b0",
+          "text": "在独立时空点上评估学习浓度，并把速度与只用于验证的合成参考比较。另在一千个未训练位置检查输运残差。",
+          "textEn": "We evaluate the learned concentration on independent space-time points and compare velocity against the synthetic reference used only for validation. We also check the transport residual at one thousand held-out points.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hfm-validation-b1",
+          "text": "这些检查回答不同问题。小残差可能伴随无法辨识的速度，良好浓度拟合也不能证明隐藏物理量正确。",
+          "textEn": "These tests answer different questions. A small residual can accompany an unidentifiable velocity, and a good concentration fit does not prove that hidden physical quantities are correct.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-limits",
+      "title": "保留隐藏输运机制，不冒充完整流场重建",
+      "titleEn": "Retain hidden transport without claiming full flow reconstruction",
+      "eyebrow": "论文 15 / 20",
+      "eyebrowEn": "PAPER 15 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "保留隐藏输运机制，不冒充完整流场重建"
+      ],
+      "bulletsEn": [
+        "Retain hidden transport without claiming full flow reconstruction"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本实验：两个常速度与神经浓度场",
+            "labelEn": "Here: two constant velocities and a neural tracer",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "原论文：更一般的隐藏速度与压力场",
+            "labelEn": "Paper: more general hidden velocity and pressure",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-limits-b0",
+          "text": "常速度与常压力通过构造满足无外力流体方程。实验学习浓度和两个系数，没有学习空间速度场、压力梯度或血管流动。",
+          "textEn": "Our constant velocities and constant pressure satisfy the unforced fluid equations by construction. The experiment learns concentration and two coefficients; it does not learn a spatial velocity field, pressure gradients or vascular flow.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hfm-limits-b1",
+          "text": "原论文处理丰富得多的流动。这个小示例旨在可复现 CPU 预算内，揭示逆问题机制与信息缺失的失败情形。",
+          "textEn": "The original paper treats substantially richer flows. Our compact example is designed to expose the inverse mechanism and its missing-information failure case within a reproducible CPU budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-exercise",
+      "title": "如果浓度处处相同，还能看见流动吗？",
+      "titleEn": "If concentration is uniform, can it reveal the flow?",
+      "eyebrow": "论文 15 / 21",
+      "eyebrowEn": "PAPER 15 / 21",
+      "visual": "steps",
+      "formula": "\\nabla c=0\\quad\\Longrightarrow\\quad\\boldsymbol u\\!\\cdot\\!\\nabla c=0",
+      "formulaEn": "\\nabla c=0\\quad\\Longrightarrow\\quad\\boldsymbol u\\!\\cdot\\!\\nabla c=0",
+      "bullets": [
+        "如果浓度处处相同，还能看见流动吗？"
+      ],
+      "bulletsEn": [
+        "If concentration is uniform, can it reveal the flow?"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "均匀浓度：没有可追踪的图案",
+            "labelEn": "Uniform concentration: no pattern to track",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "增加不同方向的示踪结构或独立测量",
+            "labelEn": "Add tracer structure or independent measurements",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-exercise-b0",
+          "text": "停一下，预测当浓度处处相同时会怎样。两个空间梯度都为零，两个速度分量都不再出现在输运观测中。",
+          "textEn": "Pause and predict what happens if the tracer concentration is constant everywhere. Both spatial gradients vanish, so neither velocity component appears in its transport observation.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\nabla c=0\\quad\\Longrightarrow\\quad\\boldsymbol u\\!\\cdot\\!\\nabla c=0",
+            "formulaEn": "\\nabla c=0\\quad\\Longrightarrow\\quad\\boldsymbol u\\!\\cdot\\!\\nabla c=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hfm-exercise-b1",
+          "text": "更好的优化无法制造缺失信息。应设计有信息的示踪图案，或获取独立测量，再先检查可辨识性，最后相信隐藏流动估计。",
+          "textEn": "Better optimisation cannot manufacture the missing information. Design informative tracer patterns or obtain independent measurements, then test identifiability before trusting a hidden-flow estimate.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hfm-next",
+      "title": "最后一篇：从识别物理，走向设计物理",
+      "titleEn": "Finally, move from identifying physics to designing it",
+      "eyebrow": "论文 15 / 22",
+      "eyebrowEn": "PAPER 15 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "最后一篇：从识别物理，走向设计物理"
+      ],
+      "bulletsEn": [
+        "Finally, move from identifying physics to designing it"
+      ],
+      "sourceIds": [
+        "raissi2020hfm"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：由观测推断未知流动",
+            "labelEn": "This paper: infer hidden flow from observations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下篇：改变材料，让目标性能改善",
+            "labelEn": "Next: change material to improve a physical objective",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hfm-next-b0",
+          "text": "我们已经问过物理系统在做什么，以及观测能揭示什么。逆设计改变了问题：应该选择哪种允许的材料安排，才能达到期望性能？",
+          "textEn": "We have asked what a physical system is doing and what observations can reveal. Inverse design changes the question: which admissible material arrangement should we choose to achieve a desired performance?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "hfm-next-b1",
+          "text": "最后一篇介绍硬约束与增广拉格朗日。小型热设计实验将说明，即使神经网络目标值很漂亮，也必须经过独立物理解验证。",
+          "textEn": "The final paper introduces hard constraints and augmented Lagrangians. A small thermal design experiment will show why an attractive neural objective must still be verified by an independent physical solve.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

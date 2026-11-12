@@ -1,16 +1,19 @@
-import {drawFbp} from './fbp-demo.mjs?v=presence2';
-import {drawFourier} from './fourier-demo.mjs?v=presence2';
-import {reserveAxisGutter} from './plot-layout.mjs?v=presence2';
-import {drawNtk} from './ntk-demo.mjs?v=presence2';
-import {drawBoundary} from './boundary-demo.mjs?v=presence2';
-import {drawVpinn} from './vpinn-demo.mjs?v=presence2';
-import {drawCpinn} from './cpinn-demo.mjs?v=presence2';
-import {drawSampling} from './sampling-demo.mjs?v=presence2';
-import {drawGPinn} from './gpinn-demo.mjs?v=presence2';
-import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=presence2';
-import {drawCausal,causalKinds} from './causal-demo.mjs?v=presence2';
-import {drawTransport,transportKinds} from './transport-demo.mjs?v=presence2';
-import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=presence2';
+import{drawBpinn}from'./bpinn-demo.mjs?v=series16';
+import{drawHpinn}from'./hpinn-demo.mjs?v=series16';
+import {drawHfm} from './hfm-demo.mjs?v=series16';
+import {drawFbp} from './fbp-demo.mjs?v=series16';
+import {drawFourier} from './fourier-demo.mjs?v=series16';
+import {reserveAxisGutter} from './plot-layout.mjs?v=series16';
+import {drawNtk} from './ntk-demo.mjs?v=series16';
+import {drawBoundary} from './boundary-demo.mjs?v=series16';
+import {drawVpinn} from './vpinn-demo.mjs?v=series16';
+import {drawCpinn} from './cpinn-demo.mjs?v=series16';
+import {drawSampling} from './sampling-demo.mjs?v=series16';
+import {drawGPinn} from './gpinn-demo.mjs?v=series16';
+import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=series16';
+import {drawCausal,causalKinds} from './causal-demo.mjs?v=series16';
+import {drawTransport,transportKinds} from './transport-demo.mjs?v=series16';
+import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=series16';
 import {mathHtml} from './math.mjs';
 import {sentences} from './player.mjs';
 const traces=new Map(),traceLoads=new Map();
@@ -41,6 +44,9 @@ export function drawPaperDiagram(host,trace,progress,en){draw(host,progress,trac
 function draw(host,progress,providedTrace,providedLanguage){
  const trace=providedTrace||traces.get(host.dataset.paperTrace||'paper01');if(!trace||paperDemoMeta[host.dataset.paperDemo]?.code)return;
  const kind=host.dataset.paperDemo,en=providedLanguage??(document.querySelector('#slide')?.lang==='en'),svg=host.querySelector('svg');
+ if(paperDemoMeta[kind]?.renderer==='hpinn'){drawHpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='bpinn'){drawBpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='hfm'){drawHfm(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='fbp'){drawFbp(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='fourier'){drawFourier(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='ntk'){drawNtk(host,trace,progress,en);reserveAxisGutter(svg);return;}

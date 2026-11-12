@@ -77,6 +77,24 @@
       "number": 13,
       "courseRoot": "courses/pinns-papers/13-moseley-2021-fbpinns",
       "published": true
+    },
+    {
+      "id": "yang2020bpinns",
+      "number": 14,
+      "courseRoot": "courses/pinns-papers/14-yang-2020-bpinns",
+      "published": true
+    },
+    {
+      "id": "raissi2020hfm",
+      "number": 15,
+      "courseRoot": "courses/pinns-papers/15-raissi-2020-hfm",
+      "published": true
+    },
+    {
+      "id": "lu2021hpinns",
+      "number": 16,
+      "courseRoot": "courses/pinns-papers/16-lu-2021-hpinns",
+      "published": true
     }
   ]
 }

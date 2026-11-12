@@ -1,0 +1,2953 @@
+{
+  "id": "139afec2-2021-4016-8016-000000000016",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-16",
+  "chapterIndex": 0,
+  "title": "论文16：硬约束 PINNs 与逆设计",
+  "titleEn": "Paper16: Hard constraints and physics-informed inverse design",
+  "summary": "用受限材料热设计解释硬约束、固定罚项与增广拉格朗日，并用独立物理解验证九次 CPU 实验。",
+  "summaryEn": "Explain hard constraints,penalties and augmented Lagrangians through nine CPU thermal designs with independent physical verification.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "lu2021hpinns",
+      "name": "Lu et al. (2021), Physics-informed neural networks with hard constraints for inverse design",
+      "url": "https://arxiv.org/html/2102.04626v1",
+      "text": "Primary paper on hard constraints and penalty/augmented-Lagrangian methods for inverse design, including holography and Stokes topology examples. The thermal teaching adaptation retains these constraint ideas but does not reproduce those benchmarks."
+    },
+    {
+      "id": "hpinn-local",
+      "name": "Nine CPU thermal designs with independent physical verification",
+      "url": "/courses/pinns-papers/16-lu-2021-hpinns/trace.json",
+      "text": "Two-parameter symmetric conductivity design, hard zero endpoints, bounded material, weak/strong/augmented controls. Independent finite-volume verification and analytic flux checks; all three seeds retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理目标与硬约束",
+      "titleEn": "Physical objective and hard constraints"
+    },
+    {
+      "slide": 8,
+      "title": "约束策略与真实实验",
+      "titleEn": "Constraint policies and actual experiments"
+    },
+    {
+      "slide": 17,
+      "title": "独立验证与系列收束",
+      "titleEn": "Independent verification and series conclusions"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文16：硬约束 PINNs 与逆设计",
+      "titleEn": "Paper16: Hard constraints and physics-informed inverse design",
+      "eyebrow": "PINNs 论文 16 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 16 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用受限材料热设计解释硬约束、固定罚项与增广拉格朗日，并用独立物理解验证九次 CPU 实验。"
+      ],
+      "bulletsEn": [
+        "Explain hard constraints,penalties and augmented Lagrangians through nine CPU thermal designs with independent physical verification."
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理目标与硬约束",
+            "labelEn": "Physical objective and hard constraints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "约束策略与真实实验",
+            "labelEn": "Constraint policies and actual experiments",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "独立验证与系列收束",
+            "labelEn": "Independent verification and series conclusions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先定义受热杆设计问题，区分精确构造与训练约束。再通过 CPU 检查点比较罚项与增广拉格朗日。最后用独立物理验证候选设计，并串联十六篇系列。",
+          "textEn": "First define a heated-rod design problem and distinguish exact constructions from trained constraints. Then compare penalties and augmented Lagrangians through saved CPU experiments. Finally verify every design with independent physics and connect the sixteen-paper series.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hpinn-bridge",
+      "title": "从推断未知系统，转向选择更好的系统",
+      "titleEn": "From inferring a system to choosing a better one",
+      "eyebrow": "论文 16 / 2",
+      "eyebrowEn": "PAPER 16 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从推断未知系统，转向选择更好的系统"
+      ],
+      "bulletsEn": [
+        "From inferring a system to choosing a better one"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：观测能识别什么？",
+            "labelEn": "Previously: what can observations identify?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：怎样设计材料改善性能？",
+            "labelEn": "Now: how can material design improve performance?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-bridge-b0",
+          "text": "隐藏流体力学问系统在做什么，以及观测能确定什么。逆设计则问，我们应该建造哪种允许的系统。",
+          "textEn": "Hidden fluid mechanics asked what a system is doing and what observations can identify. Inverse design instead asks which admissible system we should build.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-bridge-b1",
+          "text": "最后一篇研究硬约束与约束优化。小型受热杆会揭示一个很有价值的陷阱：神经目标可以极好看，预测物理却是错的。",
+          "textEn": "The final paper studies hard constraints and constrained optimisation. Our small heated rod will expose a particularly useful trap: a neural objective can look excellent while its predicted physics is wrong.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-physical",
+      "title": "把有限材料放到合适的位置，降低温度",
+      "titleEn": "Place limited material to reduce temperature",
+      "eyebrow": "论文 16 / 3",
+      "eyebrowEn": "PAPER 16 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把有限材料放到合适的位置，降低温度"
+      ],
+      "bulletsEn": [
+        "Place limited material to reduce temperature"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hpinn-physical-b0",
+          "text": "均匀热源加热单位长度的杆，两端温度固定为零。材料比例 ρ 改变局部导热率，因此重新分配材料，会改变热量到达冷端的效率。",
+          "textEn": "A uniform source heats this unit-length rod while both endpoints are held at zero temperature. Material fraction rho changes the local conductivity, so rearranging material changes how effectively heat reaches the cold ends.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hpinn-physical-b1",
+          "text": "箭头表示稳态设计问题中的输入热量，不是瞬态热模拟。我们希望在固定高导热材料用量下，降低平均温度。",
+          "textEn": "The arrows illustrate supplied heat in a steady design problem; this is not a transient heat simulation. We want a small average temperature using a fixed amount of the more conductive material.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hpinn-physical",
+      "paperTrace": "paper16",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-pde",
+      "title": "设计必须对应同一个物理平衡",
+      "titleEn": "Every candidate design must satisfy the same physical balance",
+      "eyebrow": "论文 16 / 4",
+      "eyebrowEn": "PAPER 16 / 4",
+      "visual": "steps",
+      "formula": "-\\frac{d}{dx}\\!\\left(k(\\rho)u_x\\right)=1,\\quad u(0)=u(1)=0",
+      "formulaEn": "-\\frac{d}{dx}\\!\\left(k(\\rho)u_x\\right)=1,\\quad u(0)=u(1)=0",
+      "bullets": [
+        "设计必须对应同一个物理平衡"
+      ],
+      "bulletsEn": [
+        "Every candidate design must satisfy the same physical balance"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hpinn-pde-b0",
+          "text": "x 是位置，u 是温度，k 是由 ρ 决定的导热率。右边是已知均匀热源，下标 x 表示空间导数。",
+          "textEn": "X is position, u is temperature, and k is conductivity determined by rho. The right-hand side is the known uniform heat source; the subscript x denotes a spatial derivative.",
+          "focus": 0,
+          "scene": {
+            "formula": "-\\frac{d}{dx}\\!\\left(k(\\rho)u_x\\right)=1,\\quad u(0)=u(1)=0",
+            "formulaEn": "-\\frac{d}{dx}\\!\\left(k(\\rho)u_x\\right)=1,\\quad u(0)=u(1)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-pde-b1",
+          "text": "改变 k 就会改变物理温度解。必须对完整通量 k 乘 u x 求导，包含导热率的空间变化，不能把 k 当成常数。",
+          "textEn": "Changing k changes the physical temperature solution. We must differentiate the entire flux k times u x, including the spatial variation of conductivity, rather than treating k as a constant.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "hpinn-physical",
+      "paperTrace": "paper16",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-material",
+      "title": "材料有上下界，用量也有限",
+      "titleEn": "Material is bounded and its total amount is limited",
+      "eyebrow": "论文 16 / 5",
+      "eyebrowEn": "PAPER 16 / 5",
+      "visual": "steps",
+      "formula": "k=0.2+1.8\\rho,\\quad0<\\rho<1,\\quad\\int_0^1\\rho\\,dx=0.4",
+      "formulaEn": "k=0.2+1.8\\rho,\\quad0<\\rho<1,\\quad\\int_0^1\\rho\\,dx=0.4",
+      "bullets": [
+        "材料有上下界，用量也有限"
+      ],
+      "bulletsEn": [
+        "Material is bounded and its total amount is limited"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "局部：材料比例限制导热率",
+            "labelEn": "Local: material fraction bounds conductivity",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "整体：平均材料比例为 0.4",
+            "labelEn": "Global: average material fraction is0.4",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-material-b0",
+          "text": "ρ 是高导热材料的比例。线性混合规律把导热率限制在所选单位中的零点二到二之间。",
+          "textEn": "Rho is the fraction of the more conductive material. The linear mixing law places conductivity between zero point two and two in the selected units.",
+          "focus": 0,
+          "scene": {
+            "formula": "k=0.2+1.8\\rho,\\quad0<\\rho<1,\\quad\\int_0^1\\rho\\,dx=0.4",
+            "formulaEn": "k=0.2+1.8\\rho,\\quad0<\\rho<1,\\quad\\int_0^1\\rho\\,dx=0.4",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-material-b1",
+          "text": "积分把总材料预算固定为零点四。没有用量限制，整根杆全部使用最好导体，就会让这个目标变得平凡。",
+          "textEn": "The integral fixes the total material budget at zero point four. Without a budget, filling the entire rod with the best conductor would trivialise this particular objective.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-objective-definition",
+      "title": "目标是平均温度，不是神经网络自己报的分数",
+      "titleEn": "The objective is physical mean temperature",
+      "eyebrow": "论文 16 / 6",
+      "eyebrowEn": "PAPER 16 / 6",
+      "visual": "steps",
+      "formula": "J(\\rho)=\\int_0^1u_\\rho(x)\\,dx",
+      "formulaEn": "J(\\rho)=\\int_0^1u_\\rho(x)\\,dx",
+      "bullets": [
+        "目标是平均温度，不是神经网络自己报的分数"
+      ],
+      "bulletsEn": [
+        "The objective is physical mean temperature"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "候选材料 ρ 决定物理温度 u",
+            "labelEn": "Candidate material determines physical temperature",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "对物理解积分，得到设计目标 J",
+            "labelEn": "Integrate the physical solution to obtain J",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-objective-definition-b0",
+          "text": "J 表示设计目标，下标 ρ 提醒我们，温度必须是该材料对应的方程解。在均匀热源下，这也是热柔度。",
+          "textEn": "J denotes the design objective, and the subscript rho reminds us that temperature must solve the equation for that material. With a uniform source, this is also thermal compliance.",
+          "focus": 0,
+          "scene": {
+            "formula": "J(\\rho)=\\int_0^1u_\\rho(x)\\,dx",
+            "formulaEn": "J(\\rho)=\\int_0^1u_\\rho(x)\\,dx",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "hpinn-objective-definition-b1",
+          "text": "只有准确代表该物理解，神经场才能估计 J。单纯降低网络输出，不能证明设计后的杆确实更好。",
+          "textEn": "A neural field can estimate J only if it accurately represents that physical solution. Lowering the network output alone does not establish that the designed rod really performs better.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-hard",
+      "title": "硬约束通过构造成立，而非等待罚项变小",
+      "titleEn": "Hard constraints hold by construction",
+      "eyebrow": "论文 16 / 7",
+      "eyebrowEn": "PAPER 16 / 7",
+      "visual": "steps",
+      "formula": "u_\\theta=x(1-x)\\operatorname{softplus}(N_\\theta(x))",
+      "formulaEn": "u_\\theta=x(1-x)\\operatorname{softplus}(N_\\theta(x))",
+      "bullets": [
+        "硬约束通过构造成立，而非等待罚项变小"
+      ],
+      "bulletsEn": [
+        "Hard constraints hold by construction"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "端点因子：两端温度严格为零",
+            "labelEn": "Endpoint factor: exact zero endpoint values",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "正值映射：内部温度非负",
+            "labelEn": "Positive map: nonnegative interior temperature",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-hard-b0",
+          "text": "N θ 是待训练网络，θ 收集它的权重与偏置。乘以 x 乘一减 x，使两端值严格为零。",
+          "textEn": "N theta is a trainable neural network and theta collects its weights and biases. Multiplication by x times one minus x enforces both endpoint values exactly.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta=x(1-x)\\operatorname{softplus}(N_\\theta(x))",
+            "formulaEn": "u_\\theta=x(1-x)\\operatorname{softplus}(N_\\theta(x))",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-hard-b1",
+          "text": "softplus 使预测内部温度非负。这些是所选表示中的硬约束，但不会强制内部微分方程成立。",
+          "textEn": "Softplus keeps the predicted interior temperature nonnegative. These are hard constraints in this chosen representation; they do not force the differential equation to hold inside the rod.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-family",
+      "title": "只用两个设计变量，保持 CPU 实验小而可查",
+      "titleEn": "Use two design variables for a small auditable experiment",
+      "eyebrow": "论文 16 / 8",
+      "eyebrowEn": "PAPER 16 / 8",
+      "visual": "steps",
+      "formula": "\\rho=\\sigma(d_0+6\\tanh(d_1)\\cos(2\\pi x))",
+      "formulaEn": "\\rho=\\sigma(d_0+6\\tanh(d_1)\\cos(2\\pi x))",
+      "bullets": [
+        "只用两个设计变量，保持 CPU 实验小而可查"
+      ],
+      "bulletsEn": [
+        "Use two design variables for a small auditable experiment"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "d₀：调节总体材料水平",
+            "labelEn": "d₀: adjust overall material level",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "d₁：在中心与端部之间分配材料",
+            "labelEn": "d₁: redistribute between centre and ends",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-family-b0",
+          "text": "σ 是逻辑函数，d 零控制总体材料量，d 一控制对称空间再分配。双曲正切把余弦系数限制在有界范围内。",
+          "textEn": "Sigma is the logistic function, d zero controls overall material amount, and d one controls a symmetric spatial redistribution. Tanh limits the cosine coefficient to a bounded range.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\rho=\\sigma(d_0+6\\tanh(d_1)\\cos(2\\pi x))",
+            "formulaEn": "\\rho=\\sigma(d_0+6\\tanh(d_1)\\cos(2\\pi x))",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-family-b1",
+          "text": "这是受限的双参数族，不是任意拓扑优化。加上宽度二十四的温度网络，模型共有七十五个待训练参数。",
+          "textEn": "This is a restricted two-parameter family, not arbitrary topology optimisation. Together with a width-twenty-four temperature network, the model has seventy-five trainable parameters.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-residual",
+      "title": "物理误差和预算误差分别记账",
+      "titleEn": "Track physics and budget errors separately",
+      "eyebrow": "论文 16 / 9",
+      "eyebrowEn": "PAPER 16 / 9",
+      "visual": "steps",
+      "formula": "r_\\theta=-(k u_{\\theta,x})_x-1,\\quad g=\\langle\\rho\\rangle-0.4",
+      "formulaEn": "r_\\theta=-(k u_{\\theta,x})_x-1,\\quad g=\\langle\\rho\\rangle-0.4",
+      "bullets": [
+        "物理误差和预算误差分别记账"
+      ],
+      "bulletsEn": [
+        "Track physics and budget errors separately"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "r：每个位置的方程残差",
+            "labelEn": "r: equation residual at each location",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "g：整体材料预算偏差",
+            "labelEn": "g: total material-budget deviation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-residual-b0",
+          "text": "r θ 测量配置点上的微分方程违背程度。g 测量求积平均材料比例相对要求用量的偏差。",
+          "textEn": "R theta measures violation of the differential equation at the collocation points. G measures the deviation of the quadrature-averaged density from the required material amount.",
+          "focus": 0,
+          "scene": {
+            "formula": "r_\\theta=-(k u_{\\theta,x})_x-1,\\quad g=\\langle\\rho\\rangle-0.4",
+            "formulaEn": "r_\\theta=-(k u_{\\theta,x})_x-1,\\quad g=\\langle\\rho\\rangle-0.4",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-residual-b1",
+          "text": "小 g 只说明这些求积点上的预算检查通过，不代表物理残差小，也不代表神经温度准确。",
+          "textEn": "A small g certifies only the budget check at those quadrature points. It does not establish a small physics residual or an accurate neural temperature.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-penalty",
+      "title": "固定罚项需要权衡目标与约束",
+      "titleEn": "Fixed penalties trade off the objective and constraints",
+      "eyebrow": "论文 16 / 10",
+      "eyebrowEn": "PAPER 16 / 10",
+      "visual": "steps",
+      "formula": "L=J_\\theta+\\beta\\langle r_\\theta^2\\rangle+\\gamma g^2",
+      "formulaEn": "L=J_\\theta+\\beta\\langle r_\\theta^2\\rangle+\\gamma g^2",
+      "bullets": [
+        "固定罚项需要权衡目标与约束"
+      ],
+      "bulletsEn": [
+        "Fixed penalties trade off the objective and constraints"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "弱惩罚：β=0.001，γ=10",
+            "labelEn": "Weak penalty: β=0.001,γ=10",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "强惩罚：β=100，γ=100",
+            "labelEn": "Strong penalty: β=100,γ=100",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-penalty-b0",
+          "text": "β 与 γ 是物理和预算违背的固定权重。在相同训练预算下，比较弱物理惩罚与强得多的惩罚。",
+          "textEn": "Beta and gamma are fixed weights on physics and budget violations. We compare a weak physics penalty with a much stronger penalty under the same training budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "L=J_\\theta+\\beta\\langle r_\\theta^2\\rangle+\\gamma g^2",
+            "formulaEn": "L=J_\\theta+\\beta\\langle r_\\theta^2\\rangle+\\gamma g^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-penalty-b1",
+          "text": "弱惩罚模型可以容忍错误方程，同时降低自己报告的温度。强惩罚可能改善可行性，也会改变优化地形，使设计进展有限。",
+          "textEn": "The weak model can reduce its reported temperature while tolerating a wrong equation. A strong penalty may improve feasibility but also change the optimisation landscape and leave little progress on design.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-augmented",
+      "title": "增广拉格朗日记住持续存在的约束偏差",
+      "titleEn": "An augmented Lagrangian remembers persistent violations",
+      "eyebrow": "论文 16 / 11",
+      "eyebrowEn": "PAPER 16 / 11",
+      "visual": "steps",
+      "formula": "L_A=J_\\theta+\\langle\\lambda r\\rangle+\\frac\\mu2\\langle r^2\\rangle+\\lambda_V g+\\frac\\mu2g^2",
+      "formulaEn": "L_A=J_\\theta+\\langle\\lambda r\\rangle+\\frac\\mu2\\langle r^2\\rangle+\\lambda_V g+\\frac\\mu2g^2",
+      "bullets": [
+        "增广拉格朗日记住持续存在的约束偏差"
+      ],
+      "bulletsEn": [
+        "An augmented Lagrangian remembers persistent violations"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "内层：更新网络和材料参数",
+            "labelEn": "Inner updates: network and material parameters",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "外层：更新方程与预算乘子",
+            "labelEn": "Outer updates: physics and budget multipliers",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-augmented-b0",
+          "text": "λ 是每个残差点的乘子，λ V 是预算乘子，μ 是正惩罚参数。线性乘子项累积约束违背的信息。",
+          "textEn": "Lambda denotes one multiplier per residual point, lambda V is the budget multiplier, and mu is the positive penalty parameter. The linear multiplier terms accumulate information about constraint violations.",
+          "focus": 0,
+          "scene": {
+            "formula": "L_A=J_\\theta+\\langle\\lambda r\\rangle+\\frac\\mu2\\langle r^2\\rangle+\\lambda_V g+\\frac\\mu2g^2",
+            "formulaEn": "L_A=J_\\theta+\\langle\\lambda r\\rangle+\\frac\\mu2\\langle r^2\\rangle+\\lambda_V g+\\frac\\mu2g^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-augmented-b1",
+          "text": "教学循环取 μ 为十，每两百五十个参数更新步更新一次乘子。这是小型联合原变量更新实现，不是原论文完整基准优化器。",
+          "textEn": "Our teaching loop uses mu equal to ten and updates multipliers every two hundred and fifty parameter steps. This is a small joint primal-update adaptation, not the original paper’s full benchmark optimiser.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-update",
+      "title": "乘子更新是反馈，不是结果保证",
+      "titleEn": "Multiplier updates provide feedback, not a guarantee",
+      "eyebrow": "论文 16 / 12",
+      "eyebrowEn": "PAPER 16 / 12",
+      "visual": "steps",
+      "formula": "\\lambda\\leftarrow\\lambda+\\mu r,\\quad\\lambda_V\\leftarrow\\lambda_V+\\mu g",
+      "formulaEn": "\\lambda\\leftarrow\\lambda+\\mu r,\\quad\\lambda_V\\leftarrow\\lambda_V+\\mu g",
+      "bullets": [
+        "乘子更新是反馈，不是结果保证"
+      ],
+      "bulletsEn": [
+        "Multiplier updates provide feedback, not a guarantee"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "持续残差改变下一轮的优化方向",
+            "labelEn": "Persistent residual changes later optimisation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "非凸网络仍会受初始化与预算影响",
+            "labelEn": "Nonconvex networks still depend on starts and budget",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-update-b0",
+          "text": "每个外层间隔之后，持续为正的残差增大对应乘子，改变下一轮优化目标。预算乘子也采用相同的带符号反馈。",
+          "textEn": "After each outer interval, a persistent positive residual increases its multiplier, changing the next optimisation objective. The budget multiplier follows the same signed-feedback idea.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\lambda\\leftarrow\\lambda+\\mu r,\\quad\\lambda_V\\leftarrow\\lambda_V+\\mu g",
+            "formulaEn": "\\lambda\\leftarrow\\lambda+\\mu r,\\quad\\lambda_V\\leftarrow\\lambda_V+\\mu g",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-update-b1",
+          "text": "神经参数和设计参数使问题非凸。有限次更新与乘子反馈，不保证全局最优，也不保证完美可行。",
+          "textEn": "The neural and design parameters make this problem nonconvex. Finite updates and multiplier feedback do not guarantee a globally optimal or perfectly feasible result.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-code",
+      "title": "完整通量求导，然后联合更新材料和温度",
+      "titleEn": "Differentiate the full flux and update material and temperature",
+      "eyebrow": "论文 16 / 13",
+      "eyebrowEn": "PAPER 16 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "完整通量求导，然后联合更新材料和温度"
+      ],
+      "bulletsEn": [
+        "Differentiate the full flux and update material and temperature"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hpinn-code-b0",
+          "text": "代码示意把材料依赖保留在通量自动求导内部。温度网络与设计参数都从同一个目标接收梯度。",
+          "textEn": "The code sketch keeps the material dependence inside automatic differentiation of the flux. Temperature-network and design parameters receive gradients from the same objective.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-code-b1",
+          "text": "下载实现还包含这里省略的求积、惩罚策略与乘子更新。浏览器回放保存检查点，不会启动昂贵优化。",
+          "textEn": "The downloaded implementation includes quadrature, penalty policies and multiplier updates omitted from this short sketch. The browser replays stored checkpoints and never starts an expensive optimisation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hpinn-code",
+      "paperTrace": "paper16",
+      "demoCode": [
+        "u = x*(1-x)*softplus(net(x))",
+        "rho = sigmoid(d0 + 6*tanh(d1)*cos(2*pi*x))",
+        "k = 0.2 + 1.8*rho",
+        "r = -grad(k*grad(u,x),x) - 1",
+        "loss.backward(); optimiser.step()"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-protocol",
+      "title": "九次相同预算运行，全部保留",
+      "titleEn": "Retain all nine equal-budget runs",
+      "eyebrow": "论文 16 / 14",
+      "eyebrowEn": "PAPER 16 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "九次相同预算运行，全部保留"
+      ],
+      "bulletsEn": [
+        "Retain all nine equal-budget runs"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "三种约束策略，各用三个随机起点",
+            "labelEn": "Three constraint policies,three starting identifiers",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "3000 步、单线程 CPU、75 参数",
+            "labelEn": "3000 updates,one CPU thread,75 parameters",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-protocol-b0",
+          "text": "每种策略使用起点十一、二十二与三十三，三千步更新、九十六个物理点和一百二十八个求积点。每次都从材料比例零点四的均匀设计开始。",
+          "textEn": "Each policy uses starting identifiers eleven, twenty-two and thirty-three, with three thousand updates, ninety-six physics points and one hundred and twenty-eight quadrature points. Every run begins from uniform material fraction zero point four.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-protocol-b1",
+          "text": "所有运行使用六十四位浮点与一个 CPU 线程，均在九十秒上限内完成。即使最终设计不出色，也保留检查点。",
+          "textEn": "All runs use sixty-four-bit arithmetic on one CPU thread and finish within the ninety-second cap. We retain final checkpoints even when the resulting design is unimpressive.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-training",
+      "title": "弱惩罚下，神经场与真实物理场分离",
+      "titleEn": "Under a weak penalty, neural and physical fields separate",
+      "eyebrow": "论文 16 / 15",
+      "eyebrowEn": "PAPER 16 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "弱惩罚下，神经场与真实物理场分离"
+      ],
+      "bulletsEn": [
+        "Under a weak penalty, neural and physical fields separate"
+      ],
+      "sourceIds": [
+        "lu2021hpinns",
+        "hpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hpinn-training-b0",
+          "text": "金色显示弱惩罚运行中实际学习的温度，蓝色虚线是对同一材料设计独立求得的物理温度。两者端点值相同。",
+          "textEn": "Gold shows the actual learned temperature from the weak-penalty run, while dashed blue is an independent physical solve for that very same material design. Both fields share the same endpoint values.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-training-b1",
+          "text": "训练把神经场压到接近零时，独立物理温度仍然为正。因此，精确边界值无法挽救错误的内部方程。",
+          "textEn": "As training lowers the neural field towards zero, the independent physical temperature remains positive. Exact boundary values therefore do not rescue an inaccurate interior equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hpinn-training",
+      "paperTrace": "paper16",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-objective",
+      "title": "目标曲线很漂亮，仍可能给出错误判断",
+      "titleEn": "An attractive objective curve can still mislead",
+      "eyebrow": "论文 16 / 16",
+      "eyebrowEn": "PAPER 16 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "目标曲线很漂亮，仍可能给出错误判断"
+      ],
+      "bulletsEn": [
+        "An attractive objective curve can still mislead"
+      ],
+      "sourceIds": [
+        "lu2021hpinns",
+        "hpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hpinn-objective-b0",
+          "text": "现在比较同一次运行的两条目标历史。金色积分神经温度，蓝色积分每个保存设计对应的独立物理温度。",
+          "textEn": "Now compare the two objective histories from that same run. Gold integrates the neural temperature; blue integrates the independently solved temperature for each saved design.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-objective-b1",
+          "text": "接近零的金色数值不符合物理。但是候选材料本身仍可能改善验证目标，因此必须区分错误神经场与可能有用的设计。",
+          "textEn": "The near-zero gold value is physically false. Yet the candidate material itself can still improve the verified objective, so we must distinguish a bad neural field from a potentially useful design.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hpinn-objective",
+      "paperTrace": "paper16",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-density",
+      "title": "材料向哪里移动，要看实际保存的设计",
+      "titleEn": "Inspect where the saved material actually moves",
+      "eyebrow": "论文 16 / 17",
+      "eyebrowEn": "PAPER 16 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "材料向哪里移动，要看实际保存的设计"
+      ],
+      "bulletsEn": [
+        "Inspect where the saved material actually moves"
+      ],
+      "sourceIds": [
+        "lu2021hpinns",
+        "hpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hpinn-density-b0",
+          "text": "这段回放跟随起点十一的增广运行材料密度。颜色变化来自真实保存密度，不是手绘的最优结论。",
+          "textEn": "This replay follows the material density from the augmented run with starting identifier eleven. The colour changes show actual stored density values, not a hand-drawn claim about the optimum.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-density-b1",
+          "text": "对于这个对称热源和冷端配置，把导热能力向端部移动可以改善目标。有限设计族与局部优化器仍限制探索到的安排。",
+          "textEn": "For this symmetric source and cold-end configuration, moving conductivity towards the ends can improve the objective. The finite design family and local optimiser still limit which arrangements are explored.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hpinn-density",
+      "paperTrace": "paper16",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-verification",
+      "title": "用独立有限体积解复查每个候选设计",
+      "titleEn": "Verify each candidate with an independent finite-volume solve",
+      "eyebrow": "论文 16 / 18",
+      "eyebrowEn": "PAPER 16 / 18",
+      "visual": "steps",
+      "formula": "q=\\tfrac12-x,\\quad J=\\int_0^1\\frac{(\\tfrac12-x)^2}{k(x)}\\,dx",
+      "formulaEn": "q=\\tfrac12-x,\\quad J=\\int_0^1\\frac{(\\tfrac12-x)^2}{k(x)}\\,dx",
+      "bullets": [
+        "用独立有限体积解复查每个候选设计"
+      ],
+      "bulletsEn": [
+        "Verify each candidate with an independent finite-volume solve"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "独立离散求解：257 个节点",
+            "labelEn": "Independent discrete solve:257 nodes",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "对称通量公式：另一条交叉检查",
+            "labelEn": "Symmetric flux identity: another cross-check",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-verification-b0",
+          "text": "对于对称导热率与这个单位热源，通量 k u x 等于二分之一减 x。分部积分给出显示的独立目标恒等式。",
+          "textEn": "For symmetric conductivity and this unit source, the flux k u x equals one half minus x. Integration by parts gives the displayed independent objective identity.",
+          "focus": 0,
+          "scene": {
+            "formula": "q=\\tfrac12-x,\\quad J=\\int_0^1\\frac{(\\tfrac12-x)^2}{k(x)}\\,dx",
+            "formulaEn": "q=\\tfrac12-x,\\quad J=\\int_0^1\\frac{(\\tfrac12-x)^2}{k(x)}\\,dx",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "hpinn-verification-b1",
+          "text": "把有限体积解与该恒等式及均匀材料精确解交叉检查。这些求解用于验证保存设计，没有暗中放入神经训练循环。",
+          "textEn": "We cross-check finite-volume solutions against that identity and the exact uniform-material solution. These solves validate saved designs; they are not secretly inserted into the neural training loop.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-comparison",
+      "title": "约束方法没有在每个起点都赢",
+      "titleEn": "No constraint policy wins at every starting point",
+      "eyebrow": "论文 16 / 19",
+      "eyebrowEn": "PAPER 16 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "约束方法没有在每个起点都赢"
+      ],
+      "bulletsEn": [
+        "No constraint policy wins at every starting point"
+      ],
+      "sourceIds": [
+        "lu2021hpinns",
+        "hpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "hpinn-comparison-b0",
+          "text": "每组展示全部三个最终设计的独立验证物理目标。虚线表示均匀材料，数值越低越好。",
+          "textEn": "Each group shows the independently verified physical objectives from all three final designs. The dashed line marks uniform material, and a lower value is better.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-comparison-b1",
+          "text": "这里强惩罚停留在接近均匀设计的位置。增广运行既有明显改善，也有近乎均匀的结果，所以某个成功种子不能证明可靠全局优化。",
+          "textEn": "The strong penalty stays close to uniform design here. Augmented runs include both useful improvement and a nearly uniform outcome, so one successful seed does not establish reliable global optimisation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "hpinn-comparison",
+      "paperTrace": "paper16",
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-reference",
+      "title": "受限设计族搜索提供参考，不是全局最优证明",
+      "titleEn": "A restricted-family sweep is a reference, not a global proof",
+      "eyebrow": "论文 16 / 20",
+      "eyebrowEn": "PAPER 16 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "受限设计族搜索提供参考，不是全局最优证明"
+      ],
+      "bulletsEn": [
+        "A restricted-family sweep is a reference, not a global proof"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "121 个空间系数，逐个调整材料预算",
+            "labelEn": "121 spatial coefficients with matched material budget",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "独立物理解计算目标，再与学习结果比较",
+            "labelEn": "Independent physical objectives compared with learned designs",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-reference-b0",
+          "text": "在允许设计族中扫描一百二十一个余弦系数。每个系数都用二分法调节偏置，满足材料预算，再进行更细独立物理求解。",
+          "textEn": "We sweep one hundred and twenty-one cosine coefficients across the allowed design family. For each, bisection adjusts the offset to satisfy the material budget, followed by a finer independent physical solve.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-reference-b1",
+          "text": "这给出对称模型族内的实用数值参考。不证明所有材料分布中的全局最优，也不复现原始拓扑设计基准。",
+          "textEn": "This gives a useful numerical reference inside our symmetric family. It does not prove a global optimum over all possible material distributions or reproduce the original topology-design benchmarks.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-limits",
+      "title": "硬约束、可行性、最优性是三个问题",
+      "titleEn": "Hard constraints, feasibility and optimality are separate questions",
+      "eyebrow": "论文 16 / 21",
+      "eyebrowEn": "PAPER 16 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "硬约束、可行性、最优性是三个问题"
+      ],
+      "bulletsEn": [
+        "Hard constraints, feasibility and optimality are separate questions"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "硬构造：端点、正值与材料界限",
+            "labelEn": "Hard construction: endpoints,positivity,material bounds",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "独立检查：方程、预算与物理目标",
+            "labelEn": "Independent checks: equation,budget,physical objective",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-limits-b0",
+          "text": "端点、正值和材料界限通过构造成立。物理与用量仍是训练约束，必须独立评估残差。",
+          "textEn": "Our endpoint, positivity and material-bound constraints hold by construction. Physics and volume are still trained constraints, and their residuals must be evaluated independently.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-limits-b1",
+          "text": "即使设计可行，也不一定最优。这个七十五参数的杆讲解机制与验证方法，不是光学全息图、Stokes 流拓扑设计，也不是一般收敛保证。",
+          "textEn": "Even a feasible design need not be optimal. This seventy-five-parameter rod teaches the mechanism and verification discipline; it is not an optical hologram, a Stokes-flow topology design or a general convergence guarantee.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-exercise",
+      "title": "目标接近零，端点准确，可以相信了吗？",
+      "titleEn": "Near-zero objective and exact endpoints: should we trust it?",
+      "eyebrow": "论文 16 / 22",
+      "eyebrowEn": "PAPER 16 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "目标接近零，端点准确，可以相信了吗？"
+      ],
+      "bulletsEn": [
+        "Near-zero objective and exact endpoints: should we trust it?"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "先检查同一材料的独立物理解",
+            "labelEn": "First solve independent physics for the same material",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "再检查预算、残差与多个起点",
+            "labelEn": "Then check budget,residuals and multiple starts",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-exercise-b0",
+          "text": "假设网络报告平均温度几乎为零，而且端点准确。你会立即接受材料设计，还是先问内部温度是否满足受热杆方程？",
+          "textEn": "Suppose a network reports almost zero average temperature and exact endpoint values. Would you accept the material design immediately, or first ask whether its interior temperature solves the heated-rod equation?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "hpinn-exercise-b1",
+          "text": "对同一候选做独立求解，检查材料用量，再比较物理目标。错误神经分数不自动表示候选设计差，却确实使该分数失去依据。",
+          "textEn": "Solve the same candidate independently, verify its material amount and compare physical objectives. A wrong neural score does not automatically mean the candidate design is bad, but it does invalidate the claimed score.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "hpinn-next",
+      "title": "系列收束：从物理直觉走向可验证的结论",
+      "titleEn": "Close the series with physically verifiable conclusions",
+      "eyebrow": "论文 16 / 23",
+      "eyebrowEn": "PAPER 16 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "系列收束：从物理直觉走向可验证的结论"
+      ],
+      "bulletsEn": [
+        "Close the series with physically verifiable conclusions"
+      ],
+      "sourceIds": [
+        "lu2021hpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "建模、表示、优化、信息与约束",
+            "labelEn": "Modelling,representation,optimisation,information,constraints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "保存全部对照，独立检查物理结论",
+            "labelEn": "Retain every control and independently verify claims",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "hpinn-next-b0",
+          "text": "十六篇论文从正反问题走过优化、采样、边界、表示、不确定性、隐藏流动与设计。这些方法针对不同瓶颈，不构成通用排名。",
+          "textEn": "Across sixteen papers, we moved from forward and inverse equations through optimisation, sampling, boundaries, representations, uncertainty, hidden flow and design. These methods solve different bottlenecks rather than forming a universal ranking.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "hpinn-next-b1",
+          "text": "面对自己的问题，先说明未知量、辨认已有信息，再选择一个可证伪的小实验。保留失败对照，独立验证物理结论，最后才决定是否值得扩大计算。",
+          "textEn": "For your own problem, state the unknowns, identify the available information and choose a small falsifiable experiment. Keep unsuccessful controls, verify the physical claim independently, and only then decide whether a larger computation is justified.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

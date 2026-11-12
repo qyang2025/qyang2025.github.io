@@ -305,9 +305,48 @@
           "ready": 96
         }
       }
+    ],
+    "yang2020bpinns": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 94,
+          "ready": 94
+        },
+        "zh": {
+          "total": 87,
+          "ready": 87
+        }
+      }
+    ],
+    "raissi2020hfm": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 93,
+          "ready": 93
+        },
+        "zh": {
+          "total": 88,
+          "ready": 88
+        }
+      }
+    ],
+    "lu2021hpinns": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 97,
+          "ready": 97
+        },
+        "zh": {
+          "total": 90,
+          "ready": 90
+        }
+      }
     ]
   },
-  "clips": 4025,
+  "clips": 4574,
   "features": [
     "progressive-reveal",
     "physical-animation",

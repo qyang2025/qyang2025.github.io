@@ -1,0 +1,42 @@
+{
+  "id": "lu2021hpinns",
+  "paper": {
+    "number": 16,
+    "shortTitle": "Lu2021 · hPINNs inverse design",
+    "title": "Lu et al. (2021), Physics-informed neural networks with hard constraints for inverse design",
+    "url": "https://arxiv.org/html/2102.04626v1",
+    "year": 2021,
+    "scope": "Two-parameter symmetric thermal design adaptation of hard constraints and augmented Lagrangians. Not original holography/Stokes topology benchmarks; finite-volume solves are independent validation, not the training loop."
+  },
+  "title": "Paper16: Hard constraints and physics-informed inverse design",
+  "titleZh": "论文16：硬约束 PINNs 与逆设计",
+  "totalMinutes": 50,
+  "download": "paper-16.zip",
+  "modules": [
+    {
+      "id": "139afec2-2021-4016-8016-000000000016",
+      "index": 0,
+      "title": "论文16：硬约束 PINNs 与逆设计",
+      "titleEn": "Paper16: Hard constraints and physics-informed inverse design",
+      "file": "1.json",
+      "pages": 23,
+      "sentenceCount": 97,
+      "plannedMinutes": 50
+    }
+  ],
+  "sources": [
+    {
+      "id": "lu2021hpinns",
+      "name": "Lu et al. (2021), Physics-informed neural networks with hard constraints for inverse design",
+      "url": "https://arxiv.org/html/2102.04626v1",
+      "text": "Primary paper on hard constraints and penalty/augmented-Lagrangian methods for inverse design, including holography and Stokes topology examples. The thermal teaching adaptation retains these constraint ideas but does not reproduce those benchmarks."
+    },
+    {
+      "id": "hpinn-local",
+      "name": "Nine CPU thermal designs with independent physical verification",
+      "url": "/courses/pinns-papers/16-lu-2021-hpinns/trace.json",
+      "text": "Two-parameter symmetric conductivity design, hard zero endpoints, bounded material, weak/strong/augmented controls. Independent finite-volume verification and analytic flux checks; all three seeds retained."
+    }
+  ],
+  "downloadSha256": "f753b621500c00d12b897c4e84f85779c31416e4a82793a7aa532cdd0fc402e6"
+}

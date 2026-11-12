@@ -1,0 +1,13 @@
+{
+  "paper": "14",
+  "checks": [
+    {
+      "slideId": "bpinn-exercise",
+      "questionEn": "Do more posterior draws narrow physical uncertainty?",
+      "questionZh": "更多后验采样会缩小物理不确定性吗？",
+      "answerEn": "Not necessarily. More well-explored Markov-chain draws reduce Monte Carlo error in estimating a fixed posterior,not the uncertainty of the posterior itself. A new informative observation can change that posterior. Neither action automatically corrects an inadequate likelihood,wrong equation or unidentifiable direction. Inspect observable and weight diagnostics; zero divergences alone is not a convergence certificate.",
+      "answerZh": "不一定。更多充分探索的马尔可夫链样本降低固定后验估计中的蒙特卡洛误差，不直接缩小后验本身的不确定性。新的有效观测可以改变后验。两者都不能自动修正不足的似然、错误方程或不可辨识方向。应检查可观测量与权重诊断，零发散本身不是收敛证书。",
+      "equation": "p(q\\mid y)\\ne p(q\\mid y,y_{\\rm new})"
+    }
+  ]
+}

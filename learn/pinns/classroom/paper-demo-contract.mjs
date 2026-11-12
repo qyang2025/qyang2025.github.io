@@ -10,6 +10,9 @@ export const paperTraceFiles=Object.freeze({
  paper08:'./courses/pinns-papers/08-jagtap-2020-cpinn/trace.json',
  paper09:'./courses/pinns-papers/09-kharazmi-2019-vpinn/trace.json',
  paper10:'./courses/pinns-papers/10-sukumar-2021-boundaries/trace.json',
+ paper16:'./courses/pinns-papers/16-lu-2021-hpinns/trace.json',
+ paper14:'./courses/pinns-papers/14-yang-2020-bpinns/trace.json',
+ paper15:'./courses/pinns-papers/15-raissi-2020-hfm/trace.json',
  paper13:'./courses/pinns-papers/13-moseley-2021-fbpinns/trace.json',
  paper12:'./courses/pinns-papers/12-wang-2020-fourier/trace.json',
  paper11:'./courses/pinns-papers/11-wang-2020-ntk/trace.json'
@@ -30,4 +33,7 @@ register(['ntk-physical','ntk-kernel','ntk-spectrum'],{renderer:'ntk'});register
 register(['ntk-drift'],{renderer:'ntk',replay:true});
 register(['fourier-physical','fourier-features','fourier-kernel'],{renderer:'fourier'});register(['fourier-code'],{code:true,customCode:true});register(['fourier-training','fourier-modes','fourier-error'],{nodes:2,replay:true,renderer:'fourier'});
 register(['fbp-physical','fbp-windows','fbp-parts'],{renderer:'fbp'});register(['fbp-code'],{code:true,customCode:true});register(['fbp-training','fbp-error'],{nodes:2,replay:true,renderer:'fbp'});
+register(['hfm-physical','hfm-stripes'],{renderer:'hfm'});register(['hfm-code'],{code:true,customCode:true});register(['hfm-training','hfm-velocity'],{nodes:2,replay:true,renderer:'hfm'});
+register(['hpinn-physical','hpinn-density'],{renderer:'hpinn'});register(['hpinn-code'],{code:true,customCode:true});register(['hpinn-training','hpinn-objective','hpinn-comparison'],{nodes:2,replay:true,renderer:'hpinn'});
+register(['bpinn-physical','bpinn-high'],{renderer:'bpinn'});register(['bpinn-code'],{code:true,customCode:true});register(['bpinn-sampling','bpinn-k'],{nodes:2,replay:true,renderer:'bpinn'});
 export const paperDemoMeta=Object.freeze(entries);

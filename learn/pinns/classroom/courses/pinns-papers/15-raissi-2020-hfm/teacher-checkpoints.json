@@ -1,0 +1,13 @@
+{
+  "paper": "15",
+  "checks": [
+    {
+      "slideId": "hfm-exercise",
+      "questionEn": "Can uniform concentration identify either constant velocity?",
+      "questionZh": "均匀浓度能确定任一常速度吗？",
+      "answerEn": "No. With both concentration gradients zero, the advection term vanishes for every velocity. The transport observation cannot distinguish any two constant velocities. A small concentration error or residual therefore cannot certify velocity accuracy. Add spatially informative tracer structure or independent measurements; repeated optimisation cannot supply missing information.",
+      "answerZh": "不能。两个浓度梯度都为零时，对所有速度，平流项均为零。输运观测无法区分任意两个常速度，因此浓度误差或残差很小也不能证明速度准确。需要有空间结构的示踪剂或独立测量；重复优化无法提供缺失的信息。",
+      "equation": "\\nabla c=0\\Rightarrow\\boldsymbol u\\cdot\\nabla c=0"
+    }
+  ]
+}
