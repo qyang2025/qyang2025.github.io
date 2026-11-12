@@ -1,21 +1,22 @@
-import{drawSa}from'./sa-demo.mjs?v=paper18a';
-import{drawXpinn}from'./xpinn-demo.mjs?v=paper18a';
-import{drawBpinn}from'./bpinn-demo.mjs?v=paper18a';
-import{drawHpinn}from'./hpinn-demo.mjs?v=paper18a';
-import {drawHfm} from './hfm-demo.mjs?v=paper18a';
-import {drawFbp} from './fbp-demo.mjs?v=paper18a';
-import {drawFourier} from './fourier-demo.mjs?v=paper18a';
-import {reserveAxisGutter} from './plot-layout.mjs?v=paper18a';
-import {drawNtk} from './ntk-demo.mjs?v=paper18a';
-import {drawBoundary} from './boundary-demo.mjs?v=paper18a';
-import {drawVpinn} from './vpinn-demo.mjs?v=paper18a';
-import {drawCpinn} from './cpinn-demo.mjs?v=paper18a';
-import {drawSampling} from './sampling-demo.mjs?v=paper18a';
-import {drawGPinn} from './gpinn-demo.mjs?v=paper18a';
-import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper18a';
-import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper18a';
-import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper18a';
-import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper18a';
+import{drawOperator}from'./operator-demo.mjs?v=paper20a';
+import{drawSa}from'./sa-demo.mjs?v=paper20a';
+import{drawXpinn}from'./xpinn-demo.mjs?v=paper20a';
+import{drawBpinn}from'./bpinn-demo.mjs?v=paper20a';
+import{drawHpinn}from'./hpinn-demo.mjs?v=paper20a';
+import {drawHfm} from './hfm-demo.mjs?v=paper20a';
+import {drawFbp} from './fbp-demo.mjs?v=paper20a';
+import {drawFourier} from './fourier-demo.mjs?v=paper20a';
+import {reserveAxisGutter} from './plot-layout.mjs?v=paper20a';
+import {drawNtk} from './ntk-demo.mjs?v=paper20a';
+import {drawBoundary} from './boundary-demo.mjs?v=paper20a';
+import {drawVpinn} from './vpinn-demo.mjs?v=paper20a';
+import {drawCpinn} from './cpinn-demo.mjs?v=paper20a';
+import {drawSampling} from './sampling-demo.mjs?v=paper20a';
+import {drawGPinn} from './gpinn-demo.mjs?v=paper20a';
+import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper20a';
+import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper20a';
+import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper20a';
+import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper20a';
 import {mathHtml} from './math.mjs';
 import {sentences} from './player.mjs';
 const traces=new Map(),traceLoads=new Map();
@@ -50,6 +51,7 @@ function draw(host,progress,providedTrace,providedLanguage){
  if(paperDemoMeta[kind]?.renderer==='bpinn'){drawBpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='xpinn'){drawXpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='sa'){drawSa(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='operator'){drawOperator(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='hfm'){drawHfm(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='fbp'){drawFbp(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='fourier'){drawFourier(host,trace,progress,en);reserveAxisGutter(svg);return;}

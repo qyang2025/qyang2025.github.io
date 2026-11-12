@@ -16,3 +16,5 @@
 .classroom-fitted #slide[data-key*="xpinn-"] .scene-content:not(.paper-scene) .formula-box{width:fit-content;max-width:100%;align-self:center;padding-inline:12px}
 
 .classroom-fitted #slide[data-key*="sa-"] .scene-content:not(.paper-scene) .formula-box{width:fit-content;max-width:100%;align-self:center;padding-inline:12px}
+
+.classroom-fitted #slide[data-key*="operator-"] .scene-content:not(.paper-scene) .formula-box,.classroom-fitted #slide[data-key*="piop-"] .scene-content:not(.paper-scene) .formula-box{width:fit-content;max-width:100%;align-self:center;padding-inline:12px}

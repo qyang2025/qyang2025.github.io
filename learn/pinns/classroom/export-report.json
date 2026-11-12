@@ -370,9 +370,22 @@
           "ready": 105
         }
       }
+    ],
+    "lu2019deeponet": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 118,
+          "ready": 118
+        },
+        "zh": {
+          "total": 111,
+          "ready": 111
+        }
+      }
     ]
   },
-  "clips": 5036,
+  "clips": 5263,
   "features": [
     "progressive-reveal",
     "physical-animation",

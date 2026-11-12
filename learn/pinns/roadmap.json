@@ -175,11 +175,12 @@
     },
     {
       "number": "19",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Lu et al.,DeepONet",
       "source": "https://arxiv.org/abs/1910.03193",
       "topic": "From solving one PDE to learning a solution operator",
-      "scope": "Planned compact CPU teaching adaptation;actual budget,controls and independent validation must pass before publication."
+      "scope": "Supervised teaching adaptation:fixed three-sine forcing family maps to zero-endpoint Poisson temperature.24training functions x12label locations;9input sensors;unstacked rank8 DeepONet,linear-branch engineering prior,and concatenation baseline. Hard boundary factors are added. Not original GRF or broad nonlinear-operator benchmarks;no universal extrapolation claim.",
+      "classroom": "classroom/?paper=lu2019deeponet&language=en"
     },
     {
       "number": "20",

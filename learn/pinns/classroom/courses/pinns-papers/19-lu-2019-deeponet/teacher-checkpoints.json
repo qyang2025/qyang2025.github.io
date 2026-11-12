@@ -1,0 +1,13 @@
+{
+  "paper": "19",
+  "checks": [
+    {
+      "slideId": "operator-exercise",
+      "questionEn": "Can exact input linearity recover a never-seen frequency response?",
+      "questionZh": "输入上的严格线性能恢复未见频率的响应吗？",
+      "answerEn": "No. Linearity constrains sums and scaling of responses, but training on the first three source modes does not determine the response to an independent fourth mode. Nine sensors distinguish that fourth mode; the observed failure is missing training coverage. A separate sin(18 pi x) construction vanishes at all nine midpoint sensors and proves a genuine information ambiguity outside the restricted three-mode family. Inspect unseen-input fields and shifted PDE residuals rather than treating a structural identity as an accuracy certificate.",
+      "answerZh": "不能。线性限制响应的叠加与缩放，但前三个模式的训练并不确定第四个独立模式的响应。九个传感器能够分辨第四模式，因此该失败属于缺少训练覆盖。另一个 sin(18πx) 构造在全部中点传感器上为零，证明受限训练族之外还存在真正的信息歧义。需要检查新输入的场与偏移位置物理残差，不能把结构恒等式当成精度证书。",
+      "equation": "G(af+bg)=aG(f)+bG(g)"
+    }
+  ]
+}

@@ -107,6 +107,12 @@
       "number": 18,
       "courseRoot": "courses/pinns-papers/18-mcclenny-2020-sa-pinns",
       "published": true
+    },
+    {
+      "id": "lu2019deeponet",
+      "number": 19,
+      "courseRoot": "courses/pinns-papers/19-lu-2019-deeponet",
+      "published": true
     }
   ]
 }

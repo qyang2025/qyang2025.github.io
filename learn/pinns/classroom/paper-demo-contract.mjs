@@ -10,6 +10,8 @@ export const paperTraceFiles=Object.freeze({
  paper08:'./courses/pinns-papers/08-jagtap-2020-cpinn/trace.json',
  paper09:'./courses/pinns-papers/09-kharazmi-2019-vpinn/trace.json',
  paper10:'./courses/pinns-papers/10-sukumar-2021-boundaries/trace.json',
+ paper19:'./courses/pinns-papers/19-lu-2019-deeponet/trace.json',
+ paper20:'./courses/pinns-papers/20-wang-2021-pi-deeponet/trace.json',
  paper18:'./courses/pinns-papers/18-mcclenny-2020-sa-pinns/trace.json',
  paper17:'./courses/pinns-papers/17-jagtap-2020-xpinns/trace.json',
  paper16:'./courses/pinns-papers/16-lu-2021-hpinns/trace.json',
@@ -40,4 +42,5 @@ register(['hpinn-physical','hpinn-density'],{renderer:'hpinn'});register(['hpinn
 register(['bpinn-physical','bpinn-high'],{renderer:'bpinn'});register(['bpinn-code'],{code:true,customCode:true});register(['bpinn-sampling','bpinn-k'],{nodes:2,replay:true,renderer:'bpinn'});
 register(['xpinn-physical','xpinn-slabs','xpinn-interface'],{renderer:'xpinn'});register(['xpinn-code'],{code:true,customCode:true});register(['xpinn-training','xpinn-error'],{nodes:2,replay:true,renderer:'xpinn'});
 register(['sa-physical'],{renderer:'sa'});register(['sa-code'],{code:true,customCode:true});register(['sa-weights','sa-training','sa-loss','sa-error'],{nodes:2,replay:true,renderer:'sa'});
+register(['operator-physical','operator-alias','piop-physical'],{renderer:'operator'});register(['operator-code','piop-code'],{code:true,customCode:true});register(['operator-training','operator-error','operator-extrapolate','operator-linearity','operator-frequency','piop-training','piop-error','piop-extrapolate','piop-residual'],{nodes:2,replay:true,renderer:'operator'});
 export const paperDemoMeta=Object.freeze(entries);

@@ -6,5 +6,5 @@ export function reserveAxisGutter(svg){
  const path=[...svg.querySelectorAll('path')].map(p=>p.getAttribute('d')||'').find(d=>/^M\s*[\d.]+[ ,]+[\d.]+\s*V/.test(d));
  const axisX=path?Number(path.match(/^M\s*([\d.]+)/)[1]):70;
  svg.setAttribute('viewBox','-28 -28 668 288');
- for(const label of labels){label.setAttribute('x',String(axisX-76));label.setAttribute('y','-18');label.setAttribute('width','64');label.setAttribute('style','text-align:right;overflow:visible');}
+ for(const label of labels){if(label.getAttribute('data-axis-fixed')==='true')continue;label.setAttribute('x',String(axisX-76));label.setAttribute('y','-18');label.setAttribute('width','64');label.setAttribute('style','text-align:right;overflow:visible');}
 }

@@ -1,0 +1,3401 @@
+{
+  "id": "139afec2-2019-4019-8019-000000000019",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-19",
+  "chapterIndex": 0,
+  "title": "论文19：DeepONet 与函数到场的算子学习",
+  "titleEn": "Paper19: DeepONet and function-to-field operator learning",
+  "summary": "从热源到温度映射解释分支与主干、监督算子训练及泛化边界，保留新频率和传感歧义反例。",
+  "summaryEn": "Explain branch/trunk operator learning from source functions to temperature fields,with supervised CPU controls,unseen frequencies and sensor ambiguity.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "lu2019deeponet",
+      "name": "Lu,Jin & Karniadakis (2019 preprint),DeepONet:Learning nonlinear operators",
+      "url": "https://arxiv.org/abs/1910.03193",
+      "text": "Primary unstacked branch/trunk architecture and operator-approximation motivation. The theorem concerns representational approximation,not guaranteed optimisation or arbitrary extrapolation. Our finite three-sine Poisson family,hard-boundary wrapper and linear-branch control are teaching adaptations."
+    },
+    {
+      "id": "operator-local",
+      "name": "Nine supervised CPU operator controls and independent diagnostics",
+      "url": "/courses/pinns-papers/19-lu-2019-deeponet/trace.json",
+      "text": "24training functions x12query labels,9fixed forcing sensors,16held-out input functions,8amplitude-extrapolation cases and a new fourth-frequency case.465-parameter nonlinear DeepONet,240-parameter linear-branch control and481-parameter concatenation baseline;all final runs retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理映射与函数编码",
+      "titleEn": "Physical map and function encoding"
+    },
+    {
+      "slide": 7,
+      "title": "架构与监督训练",
+      "titleEn": "Architecture and supervised training"
+    },
+    {
+      "slide": 14,
+      "title": "泛化、结构与信息极限",
+      "titleEn": "Generalisation,structure and information limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文19：DeepONet 与函数到场的算子学习",
+      "titleEn": "Paper19: DeepONet and function-to-field operator learning",
+      "eyebrow": "PINNs 论文 19 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 19 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从热源到温度映射解释分支与主干、监督算子训练及泛化边界，保留新频率和传感歧义反例。"
+      ],
+      "bulletsEn": [
+        "Explain branch/trunk operator learning from source functions to temperature fields,with supervised CPU controls,unseen frequencies and sensor ambiguity."
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理映射与函数编码",
+            "labelEn": "Physical map and function encoding",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "架构与监督训练",
+            "labelEn": "Architecture and supervised training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "泛化、结构与信息极限",
+            "labelEn": "Generalisation,structure and information limits",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先把变化热源与解算子、有限函数族连接。再解释分支、主干、特征乘积以及跨函数监督训练。最后比较未训练输入、结构线性、外推、传感歧义与物理残差，再衔接物理信息方法。",
+          "textEn": "First connect varying heat sources with a solution operator and a finite function family. Then explain branch,trunk,feature products and supervised training across functions. Finally compare held-out inputs,structural linearity,extrapolation,sensor ambiguity and physical residuals before adding physics.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "operator-bridge",
+      "title": "不再只学习一个场，而是学习函数之间的映射",
+      "titleEn": "Learn a map between functions, instead of only one field",
+      "eyebrow": "论文 19 / 2",
+      "eyebrowEn": "PAPER 19 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "不再只学习一个场，而是学习函数之间的映射"
+      ],
+      "bulletsEn": [
+        "Learn a map between functions, instead of only one field"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：改善一个问题的训练",
+            "labelEn": "Previously: improve training for one problem",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：给定新热源，直接预测新温度场",
+            "labelEn": "Now: predict a new field for a new source",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-bridge-b0",
+          "text": "注意力这一讲，仍然为一个选定边值问题训练。如果热源变了，是否必须重新优化网络？",
+          "textEn": "The attention lesson still trained for one chosen boundary-value problem. If its source changes, do we have to optimise a new network again?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "operator-bridge-b1",
+          "text": "DeepONet 学习函数到函数的映射。我们采用一个极小热源族，再测试新输入，而不重新训练。",
+          "textEn": "DeepONet learns a function-to-function map. We will use a tiny family of heat sources, then test new inputs without retraining.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-physical",
+      "title": "改变热源，会得到另一条稳态温度曲线",
+      "titleEn": "A changed source produces a different steady temperature field",
+      "eyebrow": "论文 19 / 3",
+      "eyebrowEn": "PAPER 19 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "改变热源，会得到另一条稳态温度曲线"
+      ],
+      "bulletsEn": [
+        "A changed source produces a different steady temperature field"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-physical-b0",
+          "text": "上方曲线是带正负号的热源 f，正负表示相对参考的加热与冷却。下方是相应温度 u。",
+          "textEn": "The upper curve is a signed heat source f. Positive and negative values mean heating and cooling relative to a reference. The lower curve is the resulting temperature u.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-physical-b1",
+          "text": "这里改变热源，并重新计算精确稳态场。这是参数扫描，不是瞬态加热；两条纵轴分别缩放。",
+          "textEn": "We change the source and recompute its exact steady field. This is a parameter sweep, not transient heating. The two vertical axes use separate scales.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "operator-physical",
+      "paperTrace": "paper19",
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-poisson",
+      "title": "固定物理规律，只改变输入函数",
+      "titleEn": "Keep the physics fixed and vary the input function",
+      "eyebrow": "论文 19 / 4",
+      "eyebrowEn": "PAPER 19 / 4",
+      "visual": "steps",
+      "formula": "-u_{xx}=f,\\quad u(0)=u(1)=0",
+      "formulaEn": "-u_{xx}=f,\\quad u(0)=u(1)=0",
+      "bullets": [
+        "固定物理规律，只改变输入函数"
+      ],
+      "bulletsEn": [
+        "Keep the physics fixed and vary the input function"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-poisson-b0",
+          "text": "x 是单位杆上的位置，下标 x x 表示空间二阶导数。导热率缩放为一，两端温度固定为零。",
+          "textEn": "X is position on the unit rod, and the subscript x x means a second spatial derivative. Conductivity is scaled to one, and both endpoints are held at zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "-u_{xx}=f,\\quad u(0)=u(1)=0",
+            "formulaEn": "-u_{xx}=f,\\quad u(0)=u(1)=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-poisson-b1",
+          "text": "解算子 G 把整个热源函数 f 映射为整个温度场 u。G 作用于 f 后在 x 处取值，就是查询输出场的一个位置。",
+          "textEn": "The solution operator G maps the whole source function f to the whole temperature field u. G of f at x means evaluating that output field at one query location.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "operator-physical",
+      "paperTrace": "paper19",
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-family",
+      "title": "先限制在三个正弦模式组成的小型函数族",
+      "titleEn": "Begin with a small family of three sine modes",
+      "eyebrow": "论文 19 / 5",
+      "eyebrowEn": "PAPER 19 / 5",
+      "visual": "steps",
+      "formula": "f(x)=\\sum_{m=1}^{3}a_m\\sin(m\\pi x)",
+      "formulaEn": "f(x)=\\sum_{m=1}^{3}a_m\\sin(m\\pi x)",
+      "bullets": [
+        "先限制在三个正弦模式组成的小型函数族"
+      ],
+      "bulletsEn": [
+        "Begin with a small family of three sine modes"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "aₘ：改变热源形状的三个系数",
+            "labelEn": "aₘ: three coefficients that vary the source shape",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "网络实际看到的是传感器值",
+            "labelEn": "The network receives sensor values",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-family-b0",
+          "text": "m 编号三个空间正弦模式，a m 是第 m 个模式振幅。训练系数从负一到一之间抽取。",
+          "textEn": "M indexes the three spatial sine modes, and a m is the amplitude of mode m. Training coefficients are drawn between minus one and one.",
+          "focus": 0,
+          "scene": {
+            "formula": "f(x)=\\sum_{m=1}^{3}a_m\\sin(m\\pi x)",
+            "formulaEn": "f(x)=\\sum_{m=1}^{3}a_m\\sin(m\\pi x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-family-b1",
+          "text": "这定义了小型数据集，不是给网络加入傅里叶特征层。分支接收的是采样热源值，不会额外获得三个系数。",
+          "textEn": "This defines our compact dataset, not Fourier-feature layers inside the network. The branch receives sampled source values, not the three coefficients as privileged input.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-reference",
+      "title": "二阶导数给出一个便宜而精确的验证参考",
+      "titleEn": "Second derivatives give a cheap exact validation reference",
+      "eyebrow": "论文 19 / 6",
+      "eyebrowEn": "PAPER 19 / 6",
+      "visual": "steps",
+      "formula": "u^*(x)=\\sum_{m=1}^{3}\\frac{a_m}{(m\\pi)^2}\\sin(m\\pi x)",
+      "formulaEn": "u^*(x)=\\sum_{m=1}^{3}\\frac{a_m}{(m\\pi)^2}\\sin(m\\pi x)",
+      "bullets": [
+        "二阶导数给出一个便宜而精确的验证参考"
+      ],
+      "bulletsEn": [
+        "Second derivatives give a cheap exact validation reference"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "热源模式 aₘ",
+            "labelEn": "Source mode aₘ",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "温度模式被 (mπ)² 缩小",
+            "labelEn": "Temperature mode is divided by(mπ)²",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-reference-b0",
+          "text": "正弦模式求两阶导数，会乘上负的 m π 平方。因此显示的分母，使负 u x x 等于热源。星号表示精确参考。",
+          "textEn": "Differentiate a sine mode twice: it picks up minus m pi squared. The displayed denominator therefore makes negative u x x equal the source. The star marks the exact reference.",
+          "focus": 0,
+          "scene": {
+            "formula": "u^*(x)=\\sum_{m=1}^{3}\\frac{a_m}{(m\\pi)^2}\\sin(m\\pi x)",
+            "formulaEn": "u^*(x)=\\sum_{m=1}^{3}\\frac{a_m}{(m\\pi)^2}\\sin(m\\pi x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "operator-reference-b1",
+          "text": "在这个问题中，更高频热源产生更小的温度振幅。解析场可以提供便宜的监督标签与独立测试，不需要大规模模拟。",
+          "textEn": "Higher-frequency source patterns produce smaller temperature amplitudes in this problem. Analytic fields provide cheap supervised labels and independent tests; we do not need a large simulation campaign.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-sensors",
+      "title": "函数输入，被编码为九个固定传感器值",
+      "titleEn": "Encode each input function with nine fixed sensors",
+      "eyebrow": "论文 19 / 7",
+      "eyebrowEn": "PAPER 19 / 7",
+      "visual": "steps",
+      "formula": "\\boldsymbol f=[f(x_1),\\ldots,f(x_9)]",
+      "formulaEn": "\\boldsymbol f=[f(x_1),\\ldots,f(x_9)]",
+      "bullets": [
+        "函数输入，被编码为九个固定传感器值"
+      ],
+      "bulletsEn": [
+        "Encode each input function with nine fixed sensors"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "同一组传感位置用于全部热源",
+            "labelEn": "Use the same sensor locations for every source",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不同热源形成不同的九维输入",
+            "labelEn": "Different sources give different nine-dimensional inputs",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-sensors-b0",
+          "text": "粗体 f 是九个热源读数构成的向量。传感器固定在杆上的中点位置，对每个输入函数都相同。",
+          "textEn": "Bold f is the vector of nine source readings. The sensor locations are fixed midpoint positions along the rod, and remain the same for every input function.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\boldsymbol f=[f(x_1),\\ldots,f(x_9)]",
+            "formulaEn": "\\boldsymbol f=[f(x_1),\\ldots,f(x_9)]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-sensors-b1",
+          "text": "不要把新函数与新查询位置混为一谈。改变热源会改变整组输入向量；改变查询，只是在同一输出场上换个位置。",
+          "textEn": "Do not confuse a new function with a new query position. Changing the source changes this whole input vector; changing the query asks for another point of its output field.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-branch",
+      "title": "分支网络编码“这是哪一个输入函数”",
+      "titleEn": "The branch encodes which input function we have",
+      "eyebrow": "论文 19 / 8",
+      "eyebrowEn": "PAPER 19 / 8",
+      "visual": "steps",
+      "formula": "\\boldsymbol b=B_\\theta(\\boldsymbol f)",
+      "formulaEn": "\\boldsymbol b=B_\\theta(\\boldsymbol f)",
+      "bullets": [
+        "分支网络编码“这是哪一个输入函数”"
+      ],
+      "bulletsEn": [
+        "The branch encodes which input function we have"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "九个热源读数",
+            "labelEn": "Nine source readings",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "八个学习的分支系数 b",
+            "labelEn": "Eight learned branch coefficients b",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-branch-b0",
+          "text": "B θ 是分支网络，θ 收集待训练权重和偏置。它把传感向量映射为八个学习系数 b。",
+          "textEn": "B theta is the branch network, and theta collects trainable weights and biases. It maps the sensor vector to eight learned coefficients, b.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\boldsymbol b=B_\\theta(\\boldsymbol f)",
+            "formulaEn": "\\boldsymbol b=B_\\theta(\\boldsymbol f)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-branch-b1",
+          "text": "这些系数是潜在特征，不被强制等于三个物理正弦振幅。没有检查之前，不应直接赋予那种解释。",
+          "textEn": "Those coefficients are latent features. They are not forced to equal the three physical sine amplitudes, and should not be assigned that interpretation without checking.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-trunk",
+      "title": "主干网络编码“要查询哪个位置”",
+      "titleEn": "The trunk encodes where we want to query",
+      "eyebrow": "论文 19 / 9",
+      "eyebrowEn": "PAPER 19 / 9",
+      "visual": "steps",
+      "formula": "\\boldsymbol t=T_\\theta(x)",
+      "formulaEn": "\\boldsymbol t=T_\\theta(x)",
+      "bullets": [
+        "主干网络编码“要查询哪个位置”"
+      ],
+      "bulletsEn": [
+        "The trunk encodes where we want to query"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "查询位置 x",
+            "labelEn": "Query position x",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "八个学习的空间特征 t",
+            "labelEn": "Eight learned spatial features t",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-trunk-b0",
+          "text": "T θ 是主干网络，把查询位置变成八个空间特征 t。它们不依赖本次提供的是哪一个热源。",
+          "textEn": "T theta is the trunk network. It turns the query location into eight spatial features, t. These features do not depend on which source was supplied.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\boldsymbol t=T_\\theta(x)",
+            "formulaEn": "\\boldsymbol t=T_\\theta(x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-trunk-b1",
+          "text": "依赖热源的分支系数将与这些空间特征组合。这把函数条件信息与输出位置查询分开。",
+          "textEn": "The source-dependent branch coefficients will combine with those spatial features. This separates conditioning on a function from evaluating an output location.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-product",
+      "title": "对应特征相乘，再求和",
+      "titleEn": "Multiply corresponding features, then sum them",
+      "eyebrow": "论文 19 / 10",
+      "eyebrowEn": "PAPER 19 / 10",
+      "visual": "steps",
+      "formula": "h_\\theta(f,x)=\\sum_{k=1}^{8}b_k t_k(x)+b_0",
+      "formulaEn": "h_\\theta(f,x)=\\sum_{k=1}^{8}b_k t_k(x)+b_0",
+      "bullets": [
+        "对应特征相乘，再求和"
+      ],
+      "bulletsEn": [
+        "Multiply corresponding features, then sum them"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "同编号特征乘积 bₖtₖ",
+            "labelEn": "Matched feature products bₖtₖ",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "相加并加入共享偏置 b₀",
+            "labelEn": "Sum and add the shared bias b₀",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-product-b0",
+          "text": "k 编号对应的潜在特征，b 零是学习的共享标量偏置。h θ 表示分支与主干的原始组合。",
+          "textEn": "K indexes matching latent features, and b zero is a learned shared scalar bias. H theta names this raw branch–trunk combination.",
+          "focus": 0,
+          "scene": {
+            "formula": "h_\\theta(f,x)=\\sum_{k=1}^{8}b_k t_k(x)+b_0",
+            "formulaEn": "h_\\theta(f,x)=\\sum_{k=1}^{8}b_k t_k(x)+b_0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-product-b1",
+          "text": "点积让一个编码热源调节整个空间场。下一步，对这个原始输出施加所有对照共用的边界因子。",
+          "textEn": "The dot product lets one encoded source modulate an entire spatial field. In the next step, we wrap this raw output with the same boundary factor used by every control.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "none",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-boundary",
+      "title": "共同的硬边界，是本实验额外加入的构造",
+      "titleEn": "The common hard boundary is an added teaching construction",
+      "eyebrow": "论文 19 / 11",
+      "eyebrowEn": "PAPER 19 / 11",
+      "visual": "steps",
+      "formula": "u_\\theta(f,x)=x(1-x)h_\\theta(f,x)",
+      "formulaEn": "u_\\theta(f,x)=x(1-x)h_\\theta(f,x)",
+      "bullets": [
+        "共同的硬边界，是本实验额外加入的构造"
+      ],
+      "bulletsEn": [
+        "The common hard boundary is an added teaching construction"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "两端严格为零",
+            "labelEn": "Exact zero endpoints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "内部精度仍要由数据与验证检查",
+            "labelEn": "Interior accuracy still needs data and validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-boundary-b0",
+          "text": "乘以 x 乘一减 x，使两端预测严格为零。DeepONet、线性分支与拼接对照，都共用这个额外包装。",
+          "textEn": "Multiplication by x times one minus x makes both endpoint predictions exactly zero. This extra wrapper is shared by our DeepONet, linear-branch and concatenation controls.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta(f,x)=x(1-x)h_\\theta(f,x)",
+            "formulaEn": "u_\\theta(f,x)=x(1-x)h_\\theta(f,x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-boundary-b1",
+          "text": "这是工程适配，不表示原架构天然满足任意边界条件。它也没有强制内部 Poisson 方程成立。",
+          "textEn": "It is an engineering adaptation, not a claim that the original architecture inherently satisfies every boundary condition. It also does not enforce the interior Poisson equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-data",
+      "title": "按输入函数划分数据，而不是只随机拆分位置",
+      "titleEn": "Split by input function, instead of only splitting query points",
+      "eyebrow": "论文 19 / 12",
+      "eyebrowEn": "PAPER 19 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "按输入函数划分数据，而不是只随机拆分位置"
+      ],
+      "bulletsEn": [
+        "Split by input function, instead of only splitting query points"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "训练：24个函数 × 12个输出位置",
+            "labelEn": "Train: 24 functions ×12 output locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "测试：16个没有训练过的输入函数",
+            "labelEn": "Test: 16 input functions never used for training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-data-b0",
+          "text": "训练使用二十四个热源函数，每个提供十二个温度标签，总计二百八十八对输出观测。",
+          "textEn": "We train on twenty-four source functions, with twelve temperature labels for each. That gives two hundred and eighty-eight paired output observations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-data-b1",
+          "text": "主要测试使用十六个不同热源，并在密集空间网格上评估。只拆分同一函数的查询点，回答的是比新热源泛化更容易的问题。",
+          "textEn": "The main test uses sixteen different source functions on a dense spatial grid. Splitting only query points of the same functions would answer an easier question than generalisation to a new source.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-code",
+      "title": "一次分支编码，组合多个查询位置",
+      "titleEn": "Encode the branch once and combine many query locations",
+      "eyebrow": "论文 19 / 13",
+      "eyebrowEn": "PAPER 19 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "一次分支编码，组合多个查询位置"
+      ],
+      "bulletsEn": [
+        "Encode the branch once and combine many query locations"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-code-b0",
+          "text": "B 的行对应输入函数，T 的行对应查询位置。矩阵乘积同时评估每个函数与位置的组合。",
+          "textEn": "The rows of B correspond to input functions, and the rows of T correspond to query locations. Their matrix product evaluates every function–position pair.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-code-b1",
+          "text": "这样可以避免为每个位置重复计算分支。但这里仍然是监督训练：损失包含温度标签，没有微分方程残差。",
+          "textEn": "This factorisation avoids repeating branch evaluation for each location. It is still supervised training here: the loss contains temperature labels, and no differential-equation residual.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "operator-code",
+      "paperTrace": "paper19",
+      "demoCode": [
+        "B = branch(source_sensor_values)  # functions ×8",
+        "T = trunk(query_positions)       # positions ×8",
+        "raw = B @ T.T + shared_bias",
+        "u = raw * (x*(1-x))[None,:]",
+        "loss = mean(((u - labels)/scale)**2)"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-controls",
+      "title": "比较结构，但不要把不同容量假装成完全相同",
+      "titleEn": "Compare structures without pretending their capacities are identical",
+      "eyebrow": "论文 19 / 14",
+      "eyebrowEn": "PAPER 19 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "比较结构，但不要把不同容量假装成完全相同"
+      ],
+      "bulletsEn": [
+        "Compare structures without pretending their capacities are identical"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "DeepONet465参数，拼接网络481参数",
+            "labelEn": "DeepONet 465 parameters; concatenation 481",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "线性分支240参数，加入问题特定先验",
+            "labelEn": "Linear branch 240 parameters with a problem-specific prior",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-controls-b0",
+          "text": "比较非线性分支的非堆叠 DeepONet、拼接网络和线性分支变体。它们看到相同标签，都使用两千四百步。",
+          "textEn": "We compare an unstacked nonlinear-branch DeepONet with a concatenation network and a linear-branch variant. All see the same labels and use two thousand four hundred updates.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-controls-b1",
+          "text": "参数数目不同，相同种子编号也不意味着不同架构的初始函数相同。这些对照提供信息，不构成完全隔离的架构排名。",
+          "textEn": "Parameter counts differ, and a shared seed number does not mean identical initial functions across architectures. These are informative controls, not a perfectly isolated architecture ranking.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-training",
+      "title": "新热源的预测，在训练中如何变化？",
+      "titleEn": "How does the prediction for a new source change during training?",
+      "eyebrow": "论文 19 / 15",
+      "eyebrowEn": "PAPER 19 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "新热源的预测，在训练中如何变化？"
+      ],
+      "bulletsEn": [
+        "How does the prediction for a new source change during training?"
+      ],
+      "sourceIds": [
+        "lu2019deeponet",
+        "operator-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-training-b0",
+          "text": "显示的曲线对应一个没有用于更新权重的热源。虚线是它的精确温度。现在观察保存的训练检查点。",
+          "textEn": "The displayed curve belongs to one held-out source, never used to update the weights. The dashed curve is its exact temperature. Now watch the saved training checkpoints.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-training-b1",
+          "text": "下方数值把十六个测试函数合并计算相对误差。它不是这一条曲线的误差，也不是十六个百分比误差的简单平均。保留全部最终检查点。",
+          "textEn": "The numerical error below pools all sixteen test functions. It is not just the error of this one curve, and not an average of sixteen percentage errors. All final checkpoints are retained.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "operator-training",
+      "paperTrace": "paper19",
+      "introduceAtStart": true,
+      "replayStartSentence": 2
+    },
+    {
+      "id": "operator-error",
+      "title": "在同一函数族内，检查没有训练过的输入",
+      "titleEn": "Test unseen inputs within the same function family",
+      "eyebrow": "论文 19 / 16",
+      "eyebrowEn": "PAPER 19 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "在同一函数族内，检查没有训练过的输入"
+      ],
+      "bulletsEn": [
+        "Test unseen inputs within the same function family"
+      ],
+      "sourceIds": [
+        "lu2019deeponet",
+        "operator-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-error-b0",
+          "text": "每组保留新三模态热源上全部三个最终误差。颜色区分架构，小的水平偏移区分起点编号。",
+          "textEn": "Each group contains all three final errors on new three-mode source functions. The colours distinguish architectures, while the small horizontal offsets distinguish starting identifiers.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-error-b1",
+          "text": "线性分支先验在这个确实线性的问题上表现较好。非线性 DeepONet 也能迁移到新热源，但有限 CPU 训练仍有明显误差。不声称达到原论文基准精度。",
+          "textEn": "The linear-branch prior performs well in this genuinely linear problem. The nonlinear DeepONet also transfers to new sources, but finite CPU training leaves measurable error. We do not claim the original paper’s benchmark accuracy.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "operator-error",
+      "paperTrace": "paper19",
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-linearity-prior",
+      "title": "给线性问题加入线性结构，会保证什么？",
+      "titleEn": "What does a linear branch guarantee for a linear problem?",
+      "eyebrow": "论文 19 / 17",
+      "eyebrowEn": "PAPER 19 / 17",
+      "visual": "steps",
+      "formula": "B(\\boldsymbol f)=W\\boldsymbol f,\\quad b_0=0",
+      "formulaEn": "B(\\boldsymbol f)=W\\boldsymbol f,\\quad b_0=0",
+      "bullets": [
+        "给线性问题加入线性结构，会保证什么？"
+      ],
+      "bulletsEn": [
+        "What does a linear branch guarantee for a linear problem?"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "输入函数上保持线性",
+            "labelEn": "Remain linear in the input function",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不强迫空间特征等于精确物理解",
+            "labelEn": "Spatial features are still learned approximations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-linearity-prior-b0",
+          "text": "W 是没有分支偏置的学习矩阵，同时移除共享输出偏置。主干仍可对 x 非线性，但最终场对传感向量严格线性。",
+          "textEn": "W is a learned matrix with no branch bias, and we remove the shared output bias. The trunk can remain nonlinear in x. The resulting field is exactly linear in the sensor vector.",
+          "focus": 0,
+          "scene": {
+            "formula": "B(\\boldsymbol f)=W\\boldsymbol f,\\quad b_0=0",
+            "formulaEn": "B(\\boldsymbol f)=W\\boldsymbol f,\\quad b_0=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-linearity-prior-b1",
+          "text": "这个构造保证零输入得到零输出，并保持中点叠加。它不保证 Poisson 逆算子准确，是问题特定对照，不是通用 DeepONet 配方。",
+          "textEn": "This construction guarantees a zero output for a zero input and preserves midpoint superposition. It does not guarantee an accurate Poisson inverse, and is a problem-specific control rather than a universal DeepONet prescription.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-linearity",
+      "title": "结构恒等式与预测精度是两个问题",
+      "titleEn": "Structural identities and predictive accuracy are separate questions",
+      "eyebrow": "论文 19 / 18",
+      "eyebrowEn": "PAPER 19 / 18",
+      "visual": "steps",
+      "formula": "G\\!\\left(\\frac{f+g}{2}\\right)=\\frac{G(f)+G(g)}2",
+      "formulaEn": "G\\!\\left(\\frac{f+g}{2}\\right)=\\frac{G(f)+G(g)}2",
+      "bullets": [
+        "结构恒等式与预测精度是两个问题"
+      ],
+      "bulletsEn": [
+        "Structural identities and predictive accuracy are separate questions"
+      ],
+      "sourceIds": [
+        "lu2019deeponet",
+        "operator-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-linearity-b0",
+          "text": "这里 g 是另一个热源函数。图中测量偏离中点恒等式的程度；线性分支满足它，误差接近浮点舍入。",
+          "textEn": "Here g is a second source function. The plot measures deviation from this midpoint identity. The linear branch satisfies it up to floating-point roundoff.",
+          "focus": 0,
+          "scene": {
+            "formula": "G\\!\\left(\\frac{f+g}{2}\\right)=\\frac{G(f)+G(g)}2",
+            "formulaEn": "G\\!\\left(\\frac{f+g}{2}\\right)=\\frac{G(f)+G(g)}2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-linearity-b1",
+          "text": "其他模型没有被构造成严格满足它。但即使线性完全准确，也不能自动知道未受训练约束的新输入方向应有什么响应。",
+          "textEn": "The other models are not constructed to obey it exactly. Even exact linearity does not reveal the correct response in a new input direction that training never constrained.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "operator-linearity",
+      "paperTrace": "paper19",
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-extrapolate",
+      "title": "新振幅与新频率，是不同的外推检查",
+      "titleEn": "New amplitudes and new frequencies are different extrapolation tests",
+      "eyebrow": "论文 19 / 19",
+      "eyebrowEn": "PAPER 19 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "新振幅与新频率，是不同的外推检查"
+      ],
+      "bulletsEn": [
+        "New amplitudes and new frequencies are different extrapolation tests"
+      ],
+      "sourceIds": [
+        "lu2019deeponet",
+        "operator-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-extrapolate-b0",
+          "text": "圆点使用超出训练范围的更大热源系数。方块使用纯粹的第四正弦模式，它从未出现在三模态训练族中。",
+          "textEn": "Circles use larger source coefficients outside the training range. Squares use a pure fourth sine mode, which never appeared in the three-mode training family.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-extrapolate-b1",
+          "text": "这些测试可能严重失败，严格线性架构也不例外。相对误差使用各自参考范数；第四模式温度较小，因此还要查看真实曲线。",
+          "textEn": "These tests can fail badly, including for the exactly linear architecture. Relative errors use each test’s own reference norm; the fourth-mode temperature is small, so inspect the actual curves as well.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "operator-extrapolate",
+      "paperTrace": "paper19",
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-frequency",
+      "title": "直接看未见频率的温度预测",
+      "titleEn": "Inspect the actual prediction for the unseen frequency",
+      "eyebrow": "论文 19 / 20",
+      "eyebrowEn": "PAPER 19 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "直接看未见频率的温度预测"
+      ],
+      "bulletsEn": [
+        "Inspect the actual prediction for the unseen frequency"
+      ],
+      "sourceIds": [
+        "lu2019deeponet",
+        "operator-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-frequency-b0",
+          "text": "粉色虚线是第四模式的精确温度。其他曲线是起点十一的最终预测，没有为这个热源重新训练。",
+          "textEn": "The pink dashed curve is the exact fourth-mode temperature. The other curves are final predictions from starting identifier eleven. No model was retrained for this source.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-frequency-b1",
+          "text": "九个传感器可以辨认第四模式，但训练族没有教过它的响应。这属于缺少训练覆盖，与下一页的传感歧义不同。",
+          "textEn": "Nine sensors can resolve this fourth mode, but the training family never taught its response. This is missing training coverage, which is different from the sensor ambiguity on the next page.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "operator-frequency",
+      "paperTrace": "paper19",
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-alias",
+      "title": "有限传感器还可能根本分不清两个函数",
+      "titleEn": "Finite sensors can also make two functions indistinguishable",
+      "eyebrow": "论文 19 / 21",
+      "eyebrowEn": "PAPER 19 / 21",
+      "visual": "steps",
+      "formula": "f(x)=\\sin(18\\pi x),\\quad f(x_j)=0,\\quad x_j=(j+\\tfrac12)/9",
+      "formulaEn": "f(x)=\\sin(18\\pi x),\\quad f(x_j)=0,\\quad x_j=(j+\\tfrac12)/9",
+      "bullets": [
+        "有限传感器还可能根本分不清两个函数"
+      ],
+      "bulletsEn": [
+        "Finite sensors can also make two functions indistinguishable"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "operator-alias-b0",
+          "text": "这里 j 从零编号到八。每个传感器都落在振荡热源的零点上，零热源也给出同样的九个读数。",
+          "textEn": "J runs from zero through eight in this indexing convention. Every sensor lands on a zero of this oscillating source. The zero source gives the same nine readings.",
+          "focus": 0,
+          "scene": {
+            "formula": "f(x)=\\sin(18\\pi x),\\quad f(x_j)=0,\\quad x_j=(j+\\tfrac12)/9",
+            "formulaEn": "f(x)=\\sin(18\\pi x),\\quad f(x_j)=0,\\quad x_j=(j+\\tfrac12)/9",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-alias-b1",
+          "text": "但两个热源的精确温度场不同。只接收这些读数的确定性网络无法区分它们。这是受限训练族之外的解析信息极限。",
+          "textEn": "Yet the two sources have different exact temperature fields. No deterministic network receiving only those readings can distinguish them. This is an analytic information limit outside our restricted training family.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "operator-alias",
+      "paperTrace": "paper19",
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-theorem",
+      "title": "通用逼近定理，不等于这次训练与外推都成功",
+      "titleEn": "Universal approximation is not a training or extrapolation certificate",
+      "eyebrow": "论文 19 / 22",
+      "eyebrowEn": "PAPER 19 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "通用逼近定理，不等于这次训练与外推都成功"
+      ],
+      "bulletsEn": [
+        "Universal approximation is not a training or extrapolation certificate"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "表达能力：足够容量和合适函数集合",
+            "labelEn": "Representation: sufficient capacity and suitable function sets",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "实践：数据覆盖、优化与传感信息",
+            "labelEn": "Practice: data coverage, optimisation, sensor information",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-theorem-b0",
+          "text": "论文的算子定理为分支—主干结构提供动机。它讨论假设下的逼近能力，不是对这个小训练网络的保证。",
+          "textEn": "The paper’s operator theorem motivates the branch–trunk structure. It concerns approximation capacity under its assumptions, not a guarantee for this tiny trained network.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-theorem-b1",
+          "text": "有限传感器、受限函数覆盖和不完美优化，仍然构成实际限制。通用逼近陈述不保证九个读数能够识别任意函数。",
+          "textEn": "Finite sensors, limited function coverage and imperfect optimisation remain practical limitations. A universal-approximation statement does not promise arbitrary functions will be identified from nine readings.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-physics-check",
+      "title": "拟合温度标签之后，还可以检查物理残差",
+      "titleEn": "After fitting temperature labels, check the physical residual too",
+      "eyebrow": "论文 19 / 23",
+      "eyebrowEn": "PAPER 19 / 23",
+      "visual": "steps",
+      "formula": "r(f,x)=-\\partial_{xx}u_\\theta(f,x)-f(x)",
+      "formulaEn": "r(f,x)=-\\partial_{xx}u_\\theta(f,x)-f(x)",
+      "bullets": [
+        "拟合温度标签之后，还可以检查物理残差"
+      ],
+      "bulletsEn": [
+        "After fitting temperature labels, check the physical residual too"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "监督目标：匹配已有温度标签",
+            "labelEn": "Supervised objective: match supplied temperature labels",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "独立诊断：新函数、新位置上的方程",
+            "labelEn": "Independent diagnostic: equation at new functions and positions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-physics-check-b0",
+          "text": "r 是预测算子输出的 Poisson 残差。对未训练热源，在一百九十七个偏移位置计算它。",
+          "textEn": "R is the Poisson residual of the predicted operator output. We compute it at one hundred and ninety-seven shifted locations for held-out source functions.",
+          "focus": 0,
+          "scene": {
+            "formula": "r(f,x)=-\\partial_{xx}u_\\theta(f,x)-f(x)",
+            "formulaEn": "r(f,x)=-\\partial_{xx}u_\\theta(f,x)-f(x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-physics-check-b1",
+          "text": "这些残差没有进入监督训练目标。小标签误差不会强迫导数正确，这正是下一篇加入物理的直接动机。",
+          "textEn": "These residuals were not in the supervised training objective. Small label error does not force correct derivatives, which gives a direct reason to add physics in the next paper.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-limits",
+      "title": "这是有限三模态函数族，不是任意算子基准",
+      "titleEn": "This is a finite three-mode family, not an arbitrary-operator benchmark",
+      "eyebrow": "论文 19 / 24",
+      "eyebrowEn": "PAPER 19 / 24",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这是有限三模态函数族，不是任意算子基准"
+      ],
+      "bulletsEn": [
+        "This is a finite three-mode family, not an arbitrary-operator benchmark"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "固定几何、方程与边界",
+            "labelEn": "Fixed geometry, equation and boundary conditions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "只改变受限输入热源函数",
+            "labelEn": "Vary only the restricted source function",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-limits-b0",
+          "text": "数据集使用已知解析线性算子和小型三模态热源族。实验用便宜标签讲解条件信息、潜在特征乘积和泛化检查。",
+          "textEn": "Our dataset uses a known analytic linear operator and a small three-mode source family. The experiment teaches conditioning, latent products and generalisation checks with cheap labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-limits-b1",
+          "text": "没有复现原文高斯随机场研究或广泛非线性算子基准。硬边界因子与线性分支对照是明确说明的适配，并保留全部失败最终结果。",
+          "textEn": "It does not reproduce the paper’s Gaussian-random-field studies or broad nonlinear-operator benchmarks. Hard boundary factors and the linear-branch control are disclosed adaptations, and every failed final outcome is retained.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-exercise",
+      "title": "九个读数都是零，就能断定热源为零吗？",
+      "titleEn": "Do nine zero readings prove that the source is zero?",
+      "eyebrow": "论文 19 / 25",
+      "eyebrowEn": "PAPER 19 / 25",
+      "visual": "steps",
+      "formula": "\\sin(18\\pi x_j)=0\\;\\not\\Rightarrow\\;\\sin(18\\pi x)=0\\;\\forall x",
+      "formulaEn": "\\sin(18\\pi x_j)=0\\;\\not\\Rightarrow\\;\\sin(18\\pi x)=0\\;\\forall x",
+      "bullets": [
+        "九个读数都是零，就能断定热源为零吗？"
+      ],
+      "bulletsEn": [
+        "Do nine zero readings prove that the source is zero?"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "三模态族内：传感矩阵满列秩",
+            "labelEn": "Within three modes: the sensor matrix has full column rank",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "任意函数中：仍可能存在不可见振荡",
+            "labelEn": "Across arbitrary functions: invisible oscillations remain",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-exercise-b0",
+          "text": "在三模态族内，九传感器矩阵具有满列秩。因此在这个族里，九个零读数确实确定零系数。",
+          "textEn": "Within our three-mode family, the nine-sensor matrix has full column rank. There, nine zero readings do identify zero coefficients.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\sin(18\\pi x_j)=0\\;\\not\\Rightarrow\\;\\sin(18\\pi x)=0\\;\\forall x",
+            "formulaEn": "\\sin(18\\pi x_j)=0\\;\\not\\Rightarrow\\;\\sin(18\\pi x)=0\\;\\forall x",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "operator-exercise-b1",
+          "text": "但超出这个函数族，第十八模式反例就推翻结论。在声称传感值识别物理输入之前，必须说明允许的函数类别。",
+          "textEn": "Outside that family, the eighteenth-mode example defeats the conclusion. Always state the admissible function class before claiming that sensor values identify a physical input.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "operator-next",
+      "title": "下一篇：把方程也放进算子训练",
+      "titleEn": "Next: put the equation into operator training",
+      "eyebrow": "论文 19 / 26",
+      "eyebrowEn": "PAPER 19 / 26",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一篇：把方程也放进算子训练"
+      ],
+      "bulletsEn": [
+        "Next: put the equation into operator training"
+      ],
+      "sourceIds": [
+        "lu2019deeponet"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：用成对输出标签学习映射",
+            "labelEn": "Here: learn the map from paired output labels",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下篇：对多个输入函数施加物理残差",
+            "labelEn": "Next: enforce physics for multiple input functions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "operator-next-b0",
+          "text": "我们已从成对样例学习热源到温度映射。但获取大量输出场可能昂贵，良好数据拟合也未必遵守方程。",
+          "textEn": "We have learned a source-to-temperature map from paired examples. But obtaining many output fields may be expensive, and a good data fit need not obey the equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "operator-next-b1",
+          "text": "物理信息 DeepONets 为每个训练输入函数加入残差损失。下一篇固定架构，比较稀疏标签、纯物理以及两者结合。",
+          "textEn": "Physics-informed DeepONets add a residual loss for each training input function. We will compare sparse labels, pure physics and their combination while keeping the architecture fixed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

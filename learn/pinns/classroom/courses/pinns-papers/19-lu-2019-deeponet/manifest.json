@@ -1,0 +1,42 @@
+{
+  "id": "lu2019deeponet",
+  "paper": {
+    "number": 19,
+    "shortTitle": "Lu2019 · DeepONet",
+    "title": "Lu,Jin & Karniadakis (2019 preprint),DeepONet:Learning nonlinear operators",
+    "url": "https://arxiv.org/abs/1910.03193",
+    "year": 2019,
+    "scope": "Supervised teaching adaptation:fixed three-sine forcing family maps to zero-endpoint Poisson temperature.24training functions x12label locations;9input sensors;unstacked rank8 DeepONet,linear-branch engineering prior,and concatenation baseline. Hard boundary factors are added. Not original GRF or broad nonlinear-operator benchmarks;no universal extrapolation claim."
+  },
+  "title": "Paper19: DeepONet and function-to-field operator learning",
+  "titleZh": "论文19：DeepONet 与函数到场的算子学习",
+  "totalMinutes": 50,
+  "download": "paper-19.zip",
+  "modules": [
+    {
+      "id": "139afec2-2019-4019-8019-000000000019",
+      "index": 0,
+      "title": "论文19：DeepONet 与函数到场的算子学习",
+      "titleEn": "Paper19: DeepONet and function-to-field operator learning",
+      "file": "1.json",
+      "pages": 26,
+      "sentenceCount": 118,
+      "plannedMinutes": 50
+    }
+  ],
+  "sources": [
+    {
+      "id": "lu2019deeponet",
+      "name": "Lu,Jin & Karniadakis (2019 preprint),DeepONet:Learning nonlinear operators",
+      "url": "https://arxiv.org/abs/1910.03193",
+      "text": "Primary unstacked branch/trunk architecture and operator-approximation motivation. The theorem concerns representational approximation,not guaranteed optimisation or arbitrary extrapolation. Our finite three-sine Poisson family,hard-boundary wrapper and linear-branch control are teaching adaptations."
+    },
+    {
+      "id": "operator-local",
+      "name": "Nine supervised CPU operator controls and independent diagnostics",
+      "url": "/courses/pinns-papers/19-lu-2019-deeponet/trace.json",
+      "text": "24training functions x12query labels,9fixed forcing sensors,16held-out input functions,8amplitude-extrapolation cases and a new fourth-frequency case.465-parameter nonlinear DeepONet,240-parameter linear-branch control and481-parameter concatenation baseline;all final runs retained."
+    }
+  ],
+  "downloadSha256": "42772df600a8d4e9bfcb4fef483d0224b870288e0e155ab91190b78ba53fb6e9"
+}
