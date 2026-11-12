@@ -95,6 +95,12 @@
       "number": 16,
       "courseRoot": "courses/pinns-papers/16-lu-2021-hpinns",
       "published": true
+    },
+    {
+      "id": "jagtap2020xpinns",
+      "number": 17,
+      "courseRoot": "courses/pinns-papers/17-jagtap-2020-xpinns",
+      "published": true
     }
   ]
 }

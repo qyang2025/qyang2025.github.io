@@ -163,8 +163,41 @@
       "topic": "PDE-constrained inverse design",
       "scope": "Two-parameter symmetric thermal design adaptation of hard constraints and augmented Lagrangians. Not original holography/Stokes topology benchmarks; finite-volume solves are independent validation, not the training loop.",
       "classroom": "classroom/?paper=lu2021hpinns&language=en"
+    },
+    {
+      "number": "18",
+      "status": "Planned",
+      "paper": "McClenny & Braga-Neto,Self-Adaptive PINNs",
+      "source": "https://arxiv.org/abs/2009.04544",
+      "topic": "Trainable pointwise weights and soft attention",
+      "scope": "Planned compact CPU teaching adaptation;actual budget,controls and independent validation must pass before publication."
+    },
+    {
+      "number": "19",
+      "status": "Planned",
+      "paper": "Lu et al.,DeepONet",
+      "source": "https://arxiv.org/abs/1910.03193",
+      "topic": "From solving one PDE to learning a solution operator",
+      "scope": "Planned compact CPU teaching adaptation;actual budget,controls and independent validation must pass before publication."
+    },
+    {
+      "number": "20",
+      "status": "Planned",
+      "paper": "Wang,Wang & Perdikaris,Physics-informed DeepONets",
+      "source": "https://arxiv.org/abs/2103.10974",
+      "topic": "Physics-constrained operator learning",
+      "scope": "Planned compact CPU teaching adaptation;actual budget,controls and independent validation must pass before publication."
+    },
+    {
+      "number": "17",
+      "paper": "Jagtap & Karniadakis (2020), Extended Physics-Informed Neural Networks",
+      "source": "https://www.global-sci.com/cicp/article/view/6911",
+      "topic": "Paper17: XPINNs and time-slab interfaces",
+      "status": "Implemented",
+      "classroom": "classroom/?paper=jagtap2020xpinns&language=en",
+      "scope": "Two time-slab heat-equation teaching adaptation of XPINN average-solution and residual-continuity losses. Exact spatial endpoints and first-slab initial profile; all subnetworks jointly updated on one CPU thread. Not original irregular multidimensional benchmarks or parallel speedup reproduction."
     }
   ],
-  "targetPaperCount": 16,
+  "targetPaperCount": 20,
   "selectionPolicy": "Editorial teaching route,not an exhaustive survey or citation ranking;core mechanisms plus representative applications,each with CPU-budget validation and explicit benchmark departures."
 }

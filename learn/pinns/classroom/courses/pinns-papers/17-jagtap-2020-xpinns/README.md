@@ -1,0 +1,3 @@
+# XPINN time-slab teaching adaptation
+
+Run `python time_slab_cpu.py`,then `python verify_experiment.py`. The two time slabs solve one homogeneous rod,not two materials. Hard spatial endpoints and first-slab initial data do not specify the later slab without interface coupling. Average-solution and residual-continuity losses are differentiated jointly. One CPU thread;no parallel speedup claim. Global193 parameters versus decomposed194. All12 final runs retained. Replay errors use5 displayed times;final comparison uses an independent201x101space-time grid. No interior/exact-interface temperature labels. Original paper uses richer decompositions and algorithms;see guide.html for scope.

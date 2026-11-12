@@ -344,9 +344,22 @@
           "ready": 107
         }
       }
+    ],
+    "jagtap2020xpinns": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 113,
+          "ready": 113
+        },
+        "zh": {
+          "total": 100,
+          "ready": 100
+        }
+      }
     ]
   },
-  "clips": 4605,
+  "clips": 4818,
   "features": [
     "progressive-reveal",
     "physical-animation",

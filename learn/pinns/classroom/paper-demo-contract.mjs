@@ -10,6 +10,7 @@ export const paperTraceFiles=Object.freeze({
  paper08:'./courses/pinns-papers/08-jagtap-2020-cpinn/trace.json',
  paper09:'./courses/pinns-papers/09-kharazmi-2019-vpinn/trace.json',
  paper10:'./courses/pinns-papers/10-sukumar-2021-boundaries/trace.json',
+ paper17:'./courses/pinns-papers/17-jagtap-2020-xpinns/trace.json',
  paper16:'./courses/pinns-papers/16-lu-2021-hpinns/trace.json',
  paper14:'./courses/pinns-papers/14-yang-2020-bpinns/trace.json',
  paper15:'./courses/pinns-papers/15-raissi-2020-hfm/trace.json',
@@ -36,4 +37,5 @@ register(['fbp-physical','fbp-windows','fbp-parts'],{renderer:'fbp'});register([
 register(['hfm-physical','hfm-stripes'],{renderer:'hfm'});register(['hfm-code'],{code:true,customCode:true});register(['hfm-training','hfm-velocity'],{nodes:2,replay:true,renderer:'hfm'});
 register(['hpinn-physical','hpinn-density'],{renderer:'hpinn'});register(['hpinn-code'],{code:true,customCode:true});register(['hpinn-training','hpinn-objective','hpinn-comparison'],{nodes:2,replay:true,renderer:'hpinn'});
 register(['bpinn-physical','bpinn-high'],{renderer:'bpinn'});register(['bpinn-code'],{code:true,customCode:true});register(['bpinn-sampling','bpinn-k'],{nodes:2,replay:true,renderer:'bpinn'});
+register(['xpinn-physical','xpinn-slabs','xpinn-interface'],{renderer:'xpinn'});register(['xpinn-code'],{code:true,customCode:true});register(['xpinn-training','xpinn-error'],{nodes:2,replay:true,renderer:'xpinn'});
 export const paperDemoMeta=Object.freeze(entries);

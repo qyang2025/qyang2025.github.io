@@ -1,0 +1,2997 @@
+{
+  "id": "139afec2-2020-4017-8017-000000000017",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-17",
+  "chapterIndex": 0,
+  "title": "论文17：XPINNs 与时间分区接口",
+  "titleEn": "Paper17: XPINNs and time-slab interfaces",
+  "summary": "用冷却杆解释时间分区、平均解值与残差匹配，回放十二次 CPU 对照并检查缺失状态信息。",
+  "summaryEn": "Explain time-slab decomposition,average-solution and residual matching through twelve CPU controls on a cooling rod.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "jagtap2020xpinns",
+      "name": "Jagtap & Karniadakis (2020), Extended Physics-Informed Neural Networks",
+      "url": "https://www.global-sci.com/cicp/article/view/6911",
+      "text": "Primary paper: generalized space-time decomposition with average-solution and PDE-residual continuity at interfaces; additional interface conditions depend on the equation and interface orientation. Our example uses two time slabs and joint CPU updates,not original irregular-domain or parallel benchmarks."
+    },
+    {
+      "id": "xpinn-author-code",
+      "name": "Original author repository and full paper",
+      "url": "https://github.com/AmeyaJagtap/XPINNs",
+      "text": "Primary author repository. Equations3.4 and the following interface discussion distinguish average-solution continuity,residual matching and optional extra conditions."
+    },
+    {
+      "id": "xpinn-local",
+      "name": "Twelve time-slab CPU controls with independent checks",
+      "url": "/courses/pinns-papers/17-jagtap-2020-xpinns/trace.json",
+      "text": "Known heat diffusivity.1; exact endpoint values and initial profile. Global193 parameters versus decomposed194; paired uncoupled,value-only and XPINN controls. All three seeds,final checkpoints,field errors and held-out residuals retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与时间分区",
+      "titleEn": "Physics and time decomposition"
+    },
+    {
+      "slide": 6,
+      "title": "接口条件与实现",
+      "titleEn": "Interface conditions and implementation"
+    },
+    {
+      "slide": 13,
+      "title": "真实回放与验证",
+      "titleEn": "Actual replay and validation"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文17：XPINNs 与时间分区接口",
+      "titleEn": "Paper17: XPINNs and time-slab interfaces",
+      "eyebrow": "PINNs 论文 17 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 17 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用冷却杆解释时间分区、平均解值与残差匹配，回放十二次 CPU 对照并检查缺失状态信息。"
+      ],
+      "bulletsEn": [
+        "Explain time-slab decomposition,average-solution and residual matching through twelve CPU controls on a cooling rod."
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理与时间分区",
+            "labelEn": "Physics and time decomposition",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "接口条件与实现",
+            "labelEn": "Interface conditions and implementation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "真实回放与验证",
+            "labelEn": "Actual replay and validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先观察冷却杆，把时间区域分给两个网络。再连接平均解值与残差接口损失，并给出只匹配残差不足的反例。最后回放全部 CPU 对照，验证交接，再引出逐点自适应权重。",
+          "textEn": "First watch a cooling rod and split its time domain between two networks. Then connect average-solution and residual interface losses,including a counterexample to residual matching alone. Finally replay every CPU control,verify the handover and motivate adaptive pointwise weights.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "xpinn-bridge",
+      "title": "从设计一根杆，走向分段追踪它的演化",
+      "titleEn": "From designing a rod to following its evolution in pieces",
+      "eyebrow": "论文 17 / 2",
+      "eyebrowEn": "PAPER 17 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从设计一根杆，走向分段追踪它的演化"
+      ],
+      "bulletsEn": [
+        "From designing a rod to following its evolution in pieces"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：设计材料并独立验证",
+            "labelEn": "Previously: design material and verify the physics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：把时间分区，检查信息如何交接",
+            "labelEn": "Now: split time and check the handover",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-bridge-b0",
+          "text": "设计这一讲检查神经场是否描述了真实物理。现在换一个相关问题：如果同一演化系统的不同部分由多个网络描述，会怎样？",
+          "textEn": "The design lesson checked whether a neural field described the actual physical system. Now ask a related question: what happens when several networks describe different parts of one evolving system?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "xpinn-bridge-b1",
+          "text": "XPINNs 允许在空间和时间上分区。我们采用两个时间区间，仔细检查交接接口，并让整个实验保持在小型 CPU 预算内。",
+          "textEn": "XPINNs allow decomposition in space and time. We will use two time intervals and inspect the interface, keeping the entire experiment small enough for a CPU.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-physical",
+      "title": "先看同一根杆如何冷却",
+      "titleEn": "First watch the same rod cool",
+      "eyebrow": "论文 17 / 3",
+      "eyebrowEn": "PAPER 17 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先看同一根杆如何冷却"
+      ],
+      "bulletsEn": [
+        "First watch the same rod cool"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "xpinn-physical-b0",
+          "text": "这根杆最初有一个平滑的温度峰。u 是温度，x 是位置，t 是时间。两端温度保持为零。",
+          "textEn": "This rod starts with a smooth warm hump. U is temperature, x is position, and t is time. Both ends stay at zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-physical-b1",
+          "text": "看热量从冷端离开。这条曲线来自热方程的精确解，是物理参考，不是训练预测。",
+          "textEn": "Watch heat leave through the cold ends. The curve comes from the exact heat-equation solution. It is a physical reference, not a trained prediction.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "xpinn-physical",
+      "paperTrace": "paper17",
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-pde",
+      "title": "分区前后，物理方程都没有改变",
+      "titleEn": "The physics stays the same across the partition",
+      "eyebrow": "论文 17 / 4",
+      "eyebrowEn": "PAPER 17 / 4",
+      "visual": "steps",
+      "formula": "u_t=\\alpha u_{xx},\\quad\\alpha=0.1",
+      "formulaEn": "u_t=\\alpha u_{xx},\\quad\\alpha=0.1",
+      "bullets": [
+        "分区前后，物理方程都没有改变"
+      ],
+      "bulletsEn": [
+        "The physics stays the same across the partition"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "xpinn-pde-b0",
+          "text": "α 是已知扩散率，这里为零点一。下标 t 与 x x 分别表示时间导数与空间二阶导数。",
+          "textEn": "Alpha is the known diffusivity, here zero point one. Subscripts t and x x mean a time derivative and a second spatial derivative.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_t=\\alpha u_{xx},\\quad\\alpha=0.1",
+            "formulaEn": "u_t=\\alpha u_{xx},\\quad\\alpha=0.1",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "xpinn-pde-b1",
+          "text": "初始形状是 sin πx，精确振幅按指数衰减。完整解析解只用于验证，训练没有内部温度标签。",
+          "textEn": "The initial profile is sine pi x. Its exact amplitude decays exponentially, and we reserve that full solution for validation. We do not train on interior temperature labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "xpinn-physical",
+      "paperTrace": "paper17",
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-slabs",
+      "title": "切的是模型的时间区域，不是材料",
+      "titleEn": "Split the model in time,not the material",
+      "eyebrow": "论文 17 / 5",
+      "eyebrowEn": "PAPER 17 / 5",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "切的是模型的时间区域，不是材料"
+      ],
+      "bulletsEn": [
+        "Split the model in time,not the material"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "xpinn-slabs-b0",
+          "text": "下方时间片覆盖零到二分之一，上方覆盖二分之一到一。每片分配一个独立网络。",
+          "textEn": "The lower slab covers time zero to one half. The upper slab covers one half to one. Each gets its own network.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-slabs-b1",
+          "text": "粉线表示物理时间。分界线那里，材料真的有接缝吗？没有，接口只是我们组织计算的方式。",
+          "textEn": "The pink line marks physical time. Is there a real material seam at the dividing line? No; the interface is how we organise the computation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "xpinn-slabs",
+      "paperTrace": "paper17",
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-subnets",
+      "title": "两个网络，需要一次可靠的温度交接",
+      "titleEn": "Two networks need a reliable temperature handover",
+      "eyebrow": "论文 17 / 6",
+      "eyebrowEn": "PAPER 17 / 6",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "两个网络，需要一次可靠的温度交接"
+      ],
+      "bulletsEn": [
+        "Two networks need a reliable temperature handover"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "前半段：有给定初始温度",
+            "labelEn": "Earlier interval: supplied initial temperature",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "后半段：通过接口接收初始状态",
+            "labelEn": "Later interval: receives its state through the interface",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-subnets-b0",
+          "text": "第一个网络接收零时刻给定的初始形状。第二个网络不会得到接口处的精确解标签。",
+          "textEn": "The first network receives the given initial profile at time zero. The second network does not receive the exact solution at the interface.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-subnets-b1",
+          "text": "那它的起始温度从哪里来？必须通过耦合两个预测来传递。缺少这条联系，后半段方程就缺少初始信息。",
+          "textEn": "So where does its starting temperature come from? It must be transmitted by coupling the two predictions. Without that link, the later equation has missing initial information.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-ansatz",
+      "title": "硬边界不替代时间接口",
+      "titleEn": "Hard spatial boundaries do not replace the time interface",
+      "eyebrow": "论文 17 / 7",
+      "eyebrowEn": "PAPER 17 / 7",
+      "visual": "steps",
+      "formula": "u_1=u_0+t x(1-x)N_1,\\quad u_2=x(1-x)N_2",
+      "formulaEn": "u_1=u_0+t x(1-x)N_1,\\quad u_2=x(1-x)N_2",
+      "bullets": [
+        "硬边界不替代时间接口"
+      ],
+      "bulletsEn": [
+        "Hard spatial boundaries do not replace the time interface"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "u₀：已知 sin πx；N₁、N₂：待训练网络",
+            "labelEn": "u₀: known sin πx;N₁, N₂: trainable networks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "空间端点准确，接口温度仍需传递",
+            "labelEn": "Exact spatial endpoints;interface state still needed",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-ansatz-b0",
+          "text": "u 零是给定初始形状，N 一和 N 二是独立待训练网络。两者空间端点准确，第一个还精确满足初始形状。",
+          "textEn": "U zero is the supplied initial profile, and N one and N two are separate trainable networks. Both fields have exact spatial endpoints. The first also has the exact initial profile.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_1=u_0+t x(1-x)N_1,\\quad u_2=x(1-x)N_2",
+            "formulaEn": "u_1=u_0+t x(1-x)N_1,\\quad u_2=x(1-x)N_2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "xpinn-ansatz-b1",
+          "text": "但这个构造没有强迫第二个场在二分之一时刻等于第一个场。和上篇一样，硬约束只保证我们实际写入构造的条件。",
+          "textEn": "But nothing here forces the second field to equal the first at time one half. This is the same lesson as before: a hard constraint guarantees only what we actually construct.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-average",
+      "title": "先让接口两侧同意一个共同值",
+      "titleEn": "First make the two interface traces agree",
+      "eyebrow": "论文 17 / 8",
+      "eyebrowEn": "PAPER 17 / 8",
+      "visual": "steps",
+      "formula": "\\bar u=\\frac{u_1+u_2}{2}",
+      "formulaEn": "\\bar u=\\frac{u_1+u_2}{2}",
+      "bullets": [
+        "先让接口两侧同意一个共同值"
+      ],
+      "bulletsEn": [
+        "First make the two interface traces agree"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "前半段给出 u₁，后半段给出 u₂",
+            "labelEn": "Earlier network gives u₁;later network gives u₂",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "两边都靠近平均值 ū",
+            "labelEn": "Both approach the shared average ū",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-average-b0",
+          "text": "同一个接口位置，有两个温度预测。u 上横线是两者平均值，不是新增测量，也不是精确温度。",
+          "textEn": "At the same interface location, we have two temperature predictions. U bar is their average, not an extra measurement and not the exact temperature.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\bar u=\\frac{u_1+u_2}{2}",
+            "formulaEn": "\\bar u=\\frac{u_1+u_2}{2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "xpinn-average-b1",
+          "text": "两个预测都因偏离平均值而受罚。平均值随网络一起变化，因此耦合能够传递信息，却没有提供精确接口标签。",
+          "textEn": "Each prediction is penalised for differing from that average. The average moves with the networks, so the coupling transmits information without supplying an exact interface label.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-average-loss",
+      "title": "平均值惩罚为什么能缩小跳变？",
+      "titleEn": "Why does the average penalty reduce a jump?",
+      "eyebrow": "论文 17 / 9",
+      "eyebrowEn": "PAPER 17 / 9",
+      "visual": "steps",
+      "formula": "(u_1-\\bar u)^2+(u_2-\\bar u)^2=\\tfrac12(u_1-u_2)^2",
+      "formulaEn": "(u_1-\\bar u)^2+(u_2-\\bar u)^2=\\tfrac12(u_1-u_2)^2",
+      "bullets": [
+        "平均值惩罚为什么能缩小跳变？"
+      ],
+      "bulletsEn": [
+        "Why does the average penalty reduce a jump?"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "平均值两侧的偏差",
+            "labelEn": "Deviations from the shared average",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "等价于温度跳变平方的一半",
+            "labelEn": "Half the squared temperature jump",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-average-loss-b0",
+          "text": "把平均值代入两项。两边偏差大小相同、符号相反，平方相加就是跳变平方的一半。",
+          "textEn": "Substitute the average into both terms. The two deviations are equal in magnitude and opposite in sign. Their squares add to half the squared jump.",
+          "focus": 0,
+          "scene": {
+            "formula": "(u_1-\\bar u)^2+(u_2-\\bar u)^2=\\tfrac12(u_1-u_2)^2",
+            "formulaEn": "(u_1-\\bar u)^2+(u_2-\\bar u)^2=\\tfrac12(u_1-u_2)^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "xpinn-average-loss-b1",
+          "text": "这个恒等式也明确了损失尺度。实现对共同平均值求导，并联合更新两个网络，不声称实现了邻居梯度分离的并行算法。",
+          "textEn": "This identity also fixes the loss scaling. Our implementation differentiates through the shared average and updates both networks jointly; it does not claim a detached-neighbour parallel algorithm.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-residual",
+      "title": "再比较两侧的方程残差",
+      "titleEn": "Then compare the equation residuals on both sides",
+      "eyebrow": "论文 17 / 10",
+      "eyebrowEn": "PAPER 17 / 10",
+      "visual": "steps",
+      "formula": "r_q=u_{q,t}-\\alpha u_{q,xx},\\quad L_R=\\langle(r_1-r_2)^2\\rangle_I",
+      "formulaEn": "r_q=u_{q,t}-\\alpha u_{q,xx},\\quad L_R=\\langle(r_1-r_2)^2\\rangle_I",
+      "bullets": [
+        "再比较两侧的方程残差"
+      ],
+      "bulletsEn": [
+        "Then compare the equation residuals on both sides"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "q：子网络编号；I：时间接口",
+            "labelEn": "q: subnetwork index;I: the time interface",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "残差匹配与解值匹配是两件事",
+            "labelEn": "Residual matching and value matching are distinct",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-residual-b0",
+          "text": "r q 是第 q 个网络的热方程残差。尖括号表示在采样接口位置上求平均，L R 惩罚两侧残差差值。",
+          "textEn": "R q is the heat-equation residual from network q. The angle brackets average over sampled interface positions. L R penalises the difference between the two residuals.",
+          "focus": 0,
+          "scene": {
+            "formula": "r_q=u_{q,t}-\\alpha u_{q,xx},\\quad L_R=\\langle(r_1-r_2)^2\\rangle_I",
+            "formulaEn": "r_q=u_{q,t}-\\alpha u_{q,xx},\\quad L_R=\\langle(r_1-r_2)^2\\rangle_I",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "xpinn-residual-b1",
+          "text": "残差相同，不等于温度相同。XPINNs 组合这些接口思路；额外项是否改善这个小优化问题，需要实际测量。",
+          "textEn": "Matching residuals is different from matching temperatures. XPINNs combine these interface ideas; whether the extra term helps this tiny optimisation is something we must measure.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-zero",
+      "title": "两个残差都为零，温度仍可能不相同",
+      "titleEn": "Two zero residuals can still hide different temperatures",
+      "eyebrow": "论文 17 / 11",
+      "eyebrowEn": "PAPER 17 / 11",
+      "visual": "steps",
+      "formula": "u_1=\\sin(\\pi x)e^{-0.1\\pi^2t},\\quad u_2=0",
+      "formulaEn": "u_1=\\sin(\\pi x)e^{-0.1\\pi^2t},\\quad u_2=0",
+      "bullets": [
+        "两个残差都为零，温度仍可能不相同"
+      ],
+      "bulletsEn": [
+        "Two zero residuals can still hide different temperatures"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "两者都满足内部热方程",
+            "labelEn": "Both satisfy the interior heat equation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "但在 t=0.5 处无法正确交接",
+            "labelEn": "They fail to hand over the state at t=0.5",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-zero-b0",
+          "text": "看这个解析反例。真实冷却场与恒为零的场，都满足齐次热方程。",
+          "textEn": "Consider this analytic counterexample. The true cooling field and the identically zero field both satisfy the homogeneous heat equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_1=\\sin(\\pi x)e^{-0.1\\pi^2t},\\quad u_2=0",
+            "formulaEn": "u_1=\\sin(\\pi x)e^{-0.1\\pi^2t},\\quad u_2=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "xpinn-zero-b1",
+          "text": "因此两者残差差值为零，接口温度却不同。只匹配残差，无法制造缺失的初始状态。",
+          "textEn": "Their residual difference is therefore zero. Yet their temperatures disagree at the interface. Residual continuity alone cannot manufacture the missing initial state.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-coordinates",
+      "title": "局部时间坐标也必须正确求导",
+      "titleEn": "Differentiate local time coordinates correctly",
+      "eyebrow": "论文 17 / 12",
+      "eyebrowEn": "PAPER 17 / 12",
+      "visual": "steps",
+      "formula": "z_{t,1}=4t-1,\\quad z_{t,2}=4t-3",
+      "formulaEn": "z_{t,1}=4t-1,\\quad z_{t,2}=4t-3",
+      "bullets": [
+        "局部时间坐标也必须正确求导"
+      ],
+      "bulletsEn": [
+        "Differentiate local time coordinates correctly"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "各自半段时间映射到 −1 至 1",
+            "labelEn": "Map each half-interval into −1 to1",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "自动微分仍然对物理 t 求导",
+            "labelEn": "Differentiate with respect to physical t",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-coordinates-b0",
+          "text": "每个半区间都缩放到自己的负一到一时间坐标。因子四来自长度为二分之一的时间片。",
+          "textEn": "Each half-interval is rescaled into its own minus-one-to-one time coordinate. The factor four comes from the half-unit interval length.",
+          "focus": 0,
+          "scene": {
+            "formula": "z_{t,1}=4t-1,\\quad z_{t,2}=4t-3",
+            "formulaEn": "z_{t,1}=4t-1,\\quad z_{t,2}=4t-3",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "xpinn-coordinates-b1",
+          "text": "残差仍然对物理 x 与 t 求导。自动微分把坐标因子带过网络；漏掉它们，就改变了方程。",
+          "textEn": "Our residual differentiates with respect to physical x and t. Automatic differentiation carries the coordinate factors through the network. Dropping them would change the equation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-code",
+      "title": "接口损失直接连接两个可微网络",
+      "titleEn": "Interface losses connect the two differentiable networks",
+      "eyebrow": "论文 17 / 13",
+      "eyebrowEn": "PAPER 17 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "接口损失直接连接两个可微网络"
+      ],
+      "bulletsEn": [
+        "Interface losses connect the two differentiable networks"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "xpinn-code-b0",
+          "text": "在同一批接口位置评估两个网络。共同值依赖两边预测，两边都从耦合损失接收梯度。",
+          "textEn": "Evaluate both networks at the same interface positions. The shared value depends on both predictions, and both receive gradients from the coupling loss.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-code-b1",
+          "text": "最后的残差匹配项只出现在 XPINN 对照中。仅解值对照删去这一项，不耦合对照则删去全部接口项。",
+          "textEn": "The final residual-matching term is present only in the XPINN control. The value-only control omits it, and the uncoupled control omits both interface terms.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "xpinn-code",
+      "paperTrace": "paper17",
+      "demoCode": [
+        "u1, r1 = early_net(interface)",
+        "u2, r2 = late_net(interface)",
+        "shared = 0.5*(u1 + u2)",
+        "value_loss = mse(u1,shared) + mse(u2,shared)",
+        "loss = pde_loss + 50*value_loss + mse(r1,r2)"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-protocol",
+      "title": "四种设置，三个起点，预算相同",
+      "titleEn": "Four settings,three starts and the same update budget",
+      "eyebrow": "论文 17 / 14",
+      "eyebrowEn": "PAPER 17 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "四种设置，三个起点，预算相同"
+      ],
+      "bulletsEn": [
+        "Four settings,three starts and the same update budget"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "全局、无耦合、解值、XPINN",
+            "labelEn": "Global, no coupling, value, XPINN",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "96 个物理点，16 个接口点，2000 步",
+            "labelEn": "96 physics points, 16 interface points, 2000 updates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-protocol-b0",
+          "text": "每种设置都使用两千步 Adam 更新与相同的九十六个内部点。分区对照还共享十六个接口位置。随机起点编号为十一、二十二与三十三。",
+          "textEn": "Every setting uses two thousand Adam updates and the same ninety-six interior points. The decomposed controls also share sixteen interface positions. There are three random starting identifiers: eleven, twenty-two and thirty-three.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "xpinn-protocol-b1",
+          "text": "全局网络有一百九十三个参数，两个小网络合计一百九十四个。这是近似匹配容量，不是完全相同架构，也不是并行耗时基准。",
+          "textEn": "The global network has one hundred and ninety-three parameters; the two smaller networks have one hundred and ninety-four combined. This is approximately matched capacity, not an exactly identical architecture or a parallel timing benchmark.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-training",
+      "title": "看后半段预测如何接上物理演化",
+      "titleEn": "Watch the later prediction connect to the evolving physics",
+      "eyebrow": "论文 17 / 15",
+      "eyebrowEn": "PAPER 17 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "看后半段预测如何接上物理演化"
+      ],
+      "bulletsEn": [
+        "Watch the later prediction connect to the evolving physics"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns",
+        "xpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "xpinn-training-b0",
+          "text": "这里看后半段，在零点七五时刻。虚线是独立精确参考。现在观察保存的训练检查点。",
+          "textEn": "We are looking at the later interval, at time zero point seven five. The dashed curve is the independent exact reference. Now watch the saved training checkpoints.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-training-b1",
+          "text": "紫色没有耦合，大幅漏掉从前半段继承的温暖状态。连接后的模型保留了这些信息。这里是真实 CPU 场的回放，不是在浏览器里模拟训练。",
+          "textEn": "Purple has no coupling, and largely misses the warm state inherited from the earlier interval. The linked models retain that information. These are actual saved CPU fields, not a browser simulation of training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "xpinn-training",
+      "paperTrace": "paper17",
+      "introduceAtStart": true,
+      "replayStartSentence": 2
+    },
+    {
+      "id": "xpinn-interface",
+      "title": "把接口前后的两条温度曲线放在一起",
+      "titleEn": "Compare the two temperature traces at the handover",
+      "eyebrow": "论文 17 / 16",
+      "eyebrowEn": "PAPER 17 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把接口前后的两条温度曲线放在一起"
+      ],
+      "bulletsEn": [
+        "Compare the two temperature traces at the handover"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns",
+        "xpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "xpinn-interface-b0",
+          "text": "实线是接口处前半段网络，虚线是同一时刻的后半段网络。紫色不耦合，金色使用 XPINN 接口项。",
+          "textEn": "Solid lines are the earlier network at the interface; dashed lines are the later network at that same time. Purple is uncoupled, and gold uses the XPINN terms.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-interface-b1",
+          "text": "看紫色的分离。跳变来自模型交接，不是物理杆。较小的金色间隙展示了耦合如何连接预测，但有限惩罚不会让间隙严格为零。",
+          "textEn": "Look at the purple separation. That jump belongs to the model handover, not to the physical rod. The much smaller gold gap shows how coupling connects the predictions, without pretending that a finite penalty makes the gap exactly zero.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "xpinn-interface",
+      "paperTrace": "paper17",
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-error",
+      "title": "所有起点都保留，别只挑最好的一条",
+      "titleEn": "Keep every start rather than selecting the best curve",
+      "eyebrow": "论文 17 / 17",
+      "eyebrowEn": "PAPER 17 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "所有起点都保留，别只挑最好的一条"
+      ],
+      "bulletsEn": [
+        "Keep every start rather than selecting the best curve"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns",
+        "xpinn-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "xpinn-error-b0",
+          "text": "每组在对数轴上保留全部三个最终场误差。在独立的二百零一乘一百零一时空网格上比较场，不只是接口数值。",
+          "textEn": "Each group contains all three final field errors on a logarithmic scale. We compare fields on an independent two-hundred-and-one by one-hundred-and-one space-time grid, not just the interface values.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-error-b1",
+          "text": "耦合大幅改善不耦合对照。但残差匹配没有改善每一次仅解值运行，这里的全局基线还更准确。分区是一种有用机制，不是普遍排名优势。",
+          "textEn": "Coupling greatly improves the uncoupled controls. Residual matching does not improve every value-only run, and the global baseline is more accurate here. Decomposition is a useful mechanism, not a universal ranking advantage.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "xpinn-error",
+      "paperTrace": "paper17",
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-diagnostics",
+      "title": "跳变小、残差小、场准确，要分别验证",
+      "titleEn": "Check jumps,residuals and field accuracy separately",
+      "eyebrow": "论文 17 / 18",
+      "eyebrowEn": "PAPER 17 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "跳变小、残差小、场准确，要分别验证"
+      ],
+      "bulletsEn": [
+        "Check jumps,residuals and field accuracy separately"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "接口：温度跳变与残差跳变",
+            "labelEn": "Interface: temperature and residual jumps",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "内部：独立场误差与偏移残差点",
+            "labelEn": "Interior: independent field error and held-out residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-diagnostics-b0",
+          "text": "小接口跳变检查网络之间是否一致，小残差检查评估点上的微分方程。任何一个单独指标都不等于完整温度误差。",
+          "textEn": "A small interface jump checks agreement between networks. A small residual checks a differential equation at the evaluation points. Neither alone gives the full temperature error.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-diagnostics-b1",
+          "text": "我们保留全部指标，并在七百七十八个未训练位置检查残差。保存的初始与最终参数，让独立验证脚本能够重新计算报告的场。",
+          "textEn": "We retain all those quantities and evaluate residuals at seven hundred and seventy-eight held-out positions. The saved initial and final parameters let the independent verification script recompute the reported fields.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-orientation",
+      "title": "时间接口不等于空间材料接口",
+      "titleEn": "A time interface is different from a spatial material interface",
+      "eyebrow": "论文 17 / 19",
+      "eyebrowEn": "PAPER 17 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "时间接口不等于空间材料接口"
+      ],
+      "bulletsEn": [
+        "A time interface is different from a spatial material interface"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "时间接口：传递下一段的状态",
+            "labelEn": "Time interface: transmit the state to the next interval",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "空间接口：可能还需要物理通量条件",
+            "labelEn": "Spatial interface: may also need physical flux conditions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-orientation-b0",
+          "text": "这里的接口切开时间。匹配温度迹线，为后半段热问题提供起始状态，没有引入新材料边界。",
+          "textEn": "Here the interface cuts time. Matching the temperature trace supplies the later heat problem with its starting state. We did not introduce a new material boundary.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-orientation-b1",
+          "text": "空间划分可能还需要额外条件，例如热通量连续。原论文允许增加接口条件；残差匹配不能替代对物理问题所需条件的判断。",
+          "textEn": "A spatial split can require additional conditions, such as heat-flux continuity. The original paper allows extra interface conditions; residual matching alone is not a substitute for deciding what the physical problem requires.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-limits",
+      "title": "这个实验检验交接机制，不检验大规模并行",
+      "titleEn": "This experiment tests the handover mechanism,not large-scale parallelism",
+      "eyebrow": "论文 17 / 20",
+      "eyebrowEn": "PAPER 17 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这个实验检验交接机制，不检验大规模并行"
+      ],
+      "bulletsEn": [
+        "This experiment tests the handover mechanism,not large-scale parallelism"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留：独立网络、局部坐标与接口损失",
+            "labelEn": "Retained: separate networks, local coordinates, interface losses",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "未复现：复杂几何、并行调度和大型基准",
+            "labelEn": "Not reproduced: complex geometry, parallel schedules, large benchmarks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-limits-b0",
+          "text": "这里采用两个时间片、一维扩散与共同联合优化器。所有运行使用一个 CPU 线程，并在规定上限内完成。",
+          "textEn": "We use two time slabs, one-dimensional diffusion and a common joint optimiser. All runs use one CPU thread and finish within the stated cap.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "xpinn-limits-b1",
+          "text": "原框架允许更丰富的时空分区，以及不同区域采用不同网络。这个小示例不证明扩展性、并行加速，也不保证比全局模型更准确。",
+          "textEn": "The original framework allows richer space-time partitions and different networks in different regions. This small example does not establish its scalability, parallel speedup or a guarantee of better accuracy than a global model.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-exercise",
+      "title": "如果只匹配残差，后半段能选零温度吗？",
+      "titleEn": "With only residual matching,can the later field be zero?",
+      "eyebrow": "论文 17 / 21",
+      "eyebrowEn": "PAPER 17 / 21",
+      "visual": "steps",
+      "formula": "r_1=r_2=0\\;\\not\\Rightarrow\\;u_1=u_2",
+      "formulaEn": "r_1=r_2=0\\;\\not\\Rightarrow\\;u_1=u_2",
+      "bullets": [
+        "如果只匹配残差，后半段能选零温度吗？"
+      ],
+      "bulletsEn": [
+        "With only residual matching,can the later field be zero?"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "先判断：零场是否满足内部方程？",
+            "labelEn": "First: does the zero field satisfy the interior equation?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "再判断：它是否接收了正确的接口状态？",
+            "labelEn": "Then: did it receive the correct interface state?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-exercise-b0",
+          "text": "停一下，用刚才的解析反例来判断。零场满足后半段齐次热方程，正确冷却场也满足。",
+          "textEn": "Pause and use our analytic counterexample. The zero field satisfies the later homogeneous heat equation, as does the correctly cooling field.",
+          "focus": 0,
+          "scene": {
+            "formula": "r_1=r_2=0\\;\\not\\Rightarrow\\;u_1=u_2",
+            "formulaEn": "r_1=r_2=0\\;\\not\\Rightarrow\\;u_1=u_2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "xpinn-exercise-b1",
+          "text": "两者残差可以完全匹配，接口温度却不同。需要补上缺失状态信息，再检查完整场。更多优化不能替代缺少的约束。",
+          "textEn": "Their residuals can match perfectly while their interface temperatures disagree. Add the missing state information, then check the entire field. More optimisation cannot replace an absent constraint.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "xpinn-next",
+      "title": "下一篇：让难学的位置获得更强的训练注意力",
+      "titleEn": "Next:give difficult locations more training attention",
+      "eyebrow": "论文 17 / 22",
+      "eyebrowEn": "PAPER 17 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一篇：让难学的位置获得更强的训练注意力"
+      ],
+      "bulletsEn": [
+        "Next:give difficult locations more training attention"
+      ],
+      "sourceIds": [
+        "jagtap2020xpinns"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：决定哪些子模型需要连接",
+            "labelEn": "Here: decide which submodels must connect",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下篇：逐点自适应权重与软注意力",
+            "labelEn": "Next: pointwise adaptive weights and soft attention",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "xpinn-next-b0",
+          "text": "接口例子使用固定损失权重，包括选定的解值耦合系数。但训练中，不同位置的难度可能不同。每个点是否应该一直获得相同强调？",
+          "textEn": "The interface example used fixed loss weights, including a chosen value-coupling coefficient. But different locations may remain difficult during training. Should every point always receive the same emphasis?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "xpinn-next-b1",
+          "text": "下一篇介绍具有可训练逐点权重的自适应 PINNs。我们将区分改变点的权重与移动点的位置，并在小型 CPU 问题上检验相应的极小极大优化。",
+          "textEn": "The next paper introduces self-adaptive PINNs with trainable pointwise weights. We will distinguish changing a point’s weight from moving the point, and test the resulting min-max optimisation on a small CPU problem.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

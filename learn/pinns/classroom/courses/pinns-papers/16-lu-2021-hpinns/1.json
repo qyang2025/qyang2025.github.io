@@ -238,8 +238,8 @@
         },
         {
           "id": "hpinn-bridge-b1",
-          "text": "最后一篇研究硬约束与约束优化。小型受热杆会揭示一个很有价值的陷阱：神经目标可以极好看，预测物理却是错的。",
-          "textEn": "The final paper studies hard constraints and constrained optimisation. Our small heated rod will expose a particularly useful trap: a neural objective can look excellent while its predicted physics is wrong.",
+          "text": "这一篇研究硬约束与约束优化。小型受热杆会揭示一个很有价值的陷阱：神经目标可以极好看，预测物理却是错的。",
+          "textEn": "This paper studies hard constraints and constrained optimisation. Our small heated rod will expose a particularly useful trap: a neural objective can look excellent while its predicted physics is wrong.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -2976,18 +2976,18 @@
     },
     {
       "id": "hpinn-next",
-      "title": "系列收束：从物理直觉走向可验证的结论",
-      "titleEn": "Close the series with physically verifiable conclusions",
+      "title": "下一篇：把演化问题交给多个网络",
+      "titleEn": "Next: hand an evolving problem to several networks",
       "eyebrow": "论文 16 / 23",
       "eyebrowEn": "PAPER 16 / 23",
       "visual": "steps",
       "formula": "",
       "formulaEn": "",
       "bullets": [
-        "系列收束：从物理直觉走向可验证的结论"
+        "下一篇：把演化问题交给多个网络"
       ],
       "bulletsEn": [
-        "Close the series with physically verifiable conclusions"
+        "Next:hand an evolving problem to several networks"
       ],
       "sourceIds": [
         "lu2021hpinns"
@@ -2996,16 +2996,16 @@
         "kind": "flow",
         "nodes": [
           {
-            "label": "建模、表示、优化、信息与约束",
-            "labelEn": "Modelling,representation,optimisation,information,constraints",
+            "label": "十六篇核心：从求解到识别与设计",
+            "labelEn": "Sixteen core papers:solving,inference and design",
             "detail": "",
             "detailEn": "",
             "icon": "gear",
             "revealAt": 0
           },
           {
-            "label": "保存全部对照，独立检查物理结论",
-            "labelEn": "Retain every control and independently verify claims",
+            "label": "进阶扩展：XPINNs 与时空分区",
+            "labelEn": "Advanced extension:XPINNs and space-time decomposition",
             "detail": "",
             "detailEn": "",
             "icon": "target",
@@ -3022,8 +3022,8 @@
       "beats": [
         {
           "id": "hpinn-next-b0",
-          "text": "十六篇论文从正反问题走过优化、采样、边界、表示、不确定性、隐藏流动与设计。这些方法针对不同瓶颈，不构成通用排名。",
-          "textEn": "Across sixteen papers, we moved from forward and inverse equations through optimisation, sampling, boundaries, representations, uncertainty, hidden flow and design. These methods solve different bottlenecks rather than forming a universal ranking.",
+          "text": "前十六篇把建模、优化、信息与约束连接起来。这些方法针对不同瓶颈，不是通用的方法排名。",
+          "textEn": "The first sixteen papers connected modelling,optimisation,information and constraints. They address different bottlenecks,not a universal ranking of methods.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -3063,8 +3063,8 @@
         },
         {
           "id": "hpinn-next-b1",
-          "text": "面对自己的问题，先说明未知量、辨认已有信息，再选择一个可证伪的小实验。保留失败对照，独立验证物理结论，最后才决定是否值得扩大计算。",
-          "textEn": "For your own problem, state the unknowns, identify the available information and choose a small falsifiable experiment. Keep unsuccessful controls, verify the physical claim independently, and only then decide whether a larger computation is justified.",
+          "text": "现在，把讨论扩展到由多个网络描述的演化系统。下一篇是 XPINNs：把冷却杆按时间分区，检查物理状态如何穿过接口。",
+          "textEn": "Now extend the discussion to an evolving system described by several networks. The next paper is XPINNs:we will split a cooling rod in time and check how the physical state crosses the interface.",
           "focus": 0,
           "scene": {
             "formula": "",

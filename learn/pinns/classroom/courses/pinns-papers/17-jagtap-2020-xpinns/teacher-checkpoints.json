@@ -1,0 +1,13 @@
+{
+  "paper": "17",
+  "checks": [
+    {
+      "slideId": "xpinn-exercise",
+      "questionEn": "Can matching two zero residuals supply the missing temperature state?",
+      "questionZh": "匹配两个零残差，能提供缺失的温度状态吗？",
+      "answerEn": "No. The exact cooling solution and the identically zero field both solve the homogeneous heat equation and satisfy zero spatial endpoints. Their residuals and residual difference vanish,yet they disagree at the time interface. The later initial-value problem still needs its starting temperature trace. Value coupling provides that missing link without inserting exact interface labels. Finite sampled penalties must still be checked across the field;residual matching is not a general substitute for physical interface conditions.",
+      "answerZh": "不能。精确冷却解与恒零场都满足齐次热方程和零空间端点。两者残差及残差差值都为零，但在时间接口上不一致。后半段初值问题仍需要起始温度迹线。解值耦合提供这条缺失联系，不必插入精确接口标签。有限采样惩罚仍要在完整场上验证，残差匹配也不能普遍替代物理接口条件。",
+      "equation": "r_1=r_2=0\\not\\Rightarrow u_1=u_2"
+    }
+  ]
+}

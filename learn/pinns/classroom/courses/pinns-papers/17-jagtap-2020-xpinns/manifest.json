@@ -1,0 +1,48 @@
+{
+  "id": "jagtap2020xpinns",
+  "paper": {
+    "number": 17,
+    "shortTitle": "Jagtap2020 · XPINNs",
+    "title": "Jagtap & Karniadakis (2020), Extended Physics-Informed Neural Networks",
+    "url": "https://www.global-sci.com/cicp/article/view/6911",
+    "year": 2020,
+    "scope": "Two time-slab heat-equation teaching adaptation of XPINN average-solution and residual-continuity losses. Exact spatial endpoints and first-slab initial profile; all subnetworks jointly updated on one CPU thread. Not original irregular multidimensional benchmarks or parallel speedup reproduction."
+  },
+  "title": "Paper17: XPINNs and time-slab interfaces",
+  "titleZh": "论文17：XPINNs 与时间分区接口",
+  "totalMinutes": 45,
+  "download": "paper-17.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4017-8017-000000000017",
+      "index": 0,
+      "title": "论文17：XPINNs 与时间分区接口",
+      "titleEn": "Paper17: XPINNs and time-slab interfaces",
+      "file": "1.json",
+      "pages": 22,
+      "sentenceCount": 113,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "jagtap2020xpinns",
+      "name": "Jagtap & Karniadakis (2020), Extended Physics-Informed Neural Networks",
+      "url": "https://www.global-sci.com/cicp/article/view/6911",
+      "text": "Primary paper: generalized space-time decomposition with average-solution and PDE-residual continuity at interfaces; additional interface conditions depend on the equation and interface orientation. Our example uses two time slabs and joint CPU updates,not original irregular-domain or parallel benchmarks."
+    },
+    {
+      "id": "xpinn-author-code",
+      "name": "Original author repository and full paper",
+      "url": "https://github.com/AmeyaJagtap/XPINNs",
+      "text": "Primary author repository. Equations3.4 and the following interface discussion distinguish average-solution continuity,residual matching and optional extra conditions."
+    },
+    {
+      "id": "xpinn-local",
+      "name": "Twelve time-slab CPU controls with independent checks",
+      "url": "/courses/pinns-papers/17-jagtap-2020-xpinns/trace.json",
+      "text": "Known heat diffusivity.1; exact endpoint values and initial profile. Global193 parameters versus decomposed194; paired uncoupled,value-only and XPINN controls. All three seeds,final checkpoints,field errors and held-out residuals retained."
+    }
+  ],
+  "downloadSha256": "e5f965c95d2ce6921e98099be920fabe48f4cff97481cc3783ed2dc69f7cebe0"
+}
