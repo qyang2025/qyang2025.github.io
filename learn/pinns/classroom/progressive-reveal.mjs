@@ -13,7 +13,7 @@ export function revealState(slide,beat,sentence,language='zh',{freshBeat=false}=
 export function applyProgressiveReveal(host,slide,position,language){
  const inline=!!host.querySelector('[data-python-demo]');
  const state=revealState(slide,position.beat,position.sentence,language,{freshBeat:inline});
- const show=(element,visible)=>{const pending=element.classList.contains('reveal-pending');element.classList.toggle('reveal-pending',!visible);element.setAttribute('aria-hidden',String(!visible));if(pending&&visible)element.classList.add('reveal-enter');};
+ const show=(element,visible)=>{element.hidden=false;const pending=element.classList.contains('reveal-pending');element.classList.toggle('reveal-pending',!visible);element.setAttribute('aria-hidden',String(!visible));if(pending&&visible)element.classList.add('reveal-enter');};
  host.querySelectorAll('[data-diagram-node]').forEach(e=>show(e,state.nodes.has(Number(e.dataset.diagramNode))));
  host.querySelectorAll('[data-formula-step]').forEach(e=>show(e,state.formulas.has(Number(e.dataset.formulaStep))));
  host.querySelectorAll('.schematic-link').forEach(e=>{const i=Number(e.dataset.diagramLink);const tree=slide.schematic?.kind==='tree';show(e,state.nodes.has(tree?0:i)&&state.nodes.has(i+1));});

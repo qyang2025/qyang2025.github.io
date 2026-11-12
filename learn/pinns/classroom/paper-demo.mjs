@@ -1,15 +1,16 @@
-import {drawFourier} from './fourier-demo.mjs?v=paper12a';
-import {reserveAxisGutter} from './plot-layout.mjs?v=paper12a';
-import {drawNtk} from './ntk-demo.mjs?v=paper12a';
-import {drawBoundary} from './boundary-demo.mjs?v=paper12a';
-import {drawVpinn} from './vpinn-demo.mjs?v=paper12a';
-import {drawCpinn} from './cpinn-demo.mjs?v=paper12a';
-import {drawSampling} from './sampling-demo.mjs?v=paper12a';
-import {drawGPinn} from './gpinn-demo.mjs?v=paper12a';
-import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper12a';
-import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper12a';
-import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper12a';
-import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper12a';
+import {drawFbp} from './fbp-demo.mjs?v=paper13c';
+import {drawFourier} from './fourier-demo.mjs?v=paper13c';
+import {reserveAxisGutter} from './plot-layout.mjs?v=paper13c';
+import {drawNtk} from './ntk-demo.mjs?v=paper13c';
+import {drawBoundary} from './boundary-demo.mjs?v=paper13c';
+import {drawVpinn} from './vpinn-demo.mjs?v=paper13c';
+import {drawCpinn} from './cpinn-demo.mjs?v=paper13c';
+import {drawSampling} from './sampling-demo.mjs?v=paper13c';
+import {drawGPinn} from './gpinn-demo.mjs?v=paper13c';
+import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper13c';
+import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper13c';
+import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper13c';
+import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper13c';
 import {mathHtml} from './math.mjs';
 import {sentences} from './player.mjs';
 const traces=new Map(),traceLoads=new Map();
@@ -19,7 +20,7 @@ function loadTrace(key){
 }
 export function paperProgress(slide,position,activity={},language='en'){
  const counts=slide.beats.map(b=>sentences(language==='en'?b.textEn:b.text,language).length);
- if(paperDemoMeta[slide.paperDemo]?.replay){const fraction=activity.reason==='ended'?1:activity.duration>0?Math.min(1,activity.audioTime/activity.duration):0;return position.beat>0?1:Math.max(0,Math.min(1,(position.sentence-1+fraction)/Math.max(1,counts[0]-1)));}
+ if(paperDemoMeta[slide.paperDemo]?.replay){const start=slide.replayStartSentence??1;const fraction=activity.reason==='ended'?1:activity.duration>0?Math.min(1,activity.audioTime/activity.duration):0;return position.beat>0?1:Math.max(0,Math.min(1,(position.sentence-start+fraction)/Math.max(1,counts[0]-start)));}
  const prior=counts.slice(0,position.beat).reduce((a,b)=>a+b,0),fraction=activity.reason==='ended'?1:activity.duration>0?Math.min(1,activity.audioTime/activity.duration):0;
  return Math.max(0,Math.min(1,(prior+position.sentence+fraction)/counts.reduce((a,b)=>a+b,0)));
 }
@@ -40,6 +41,7 @@ export function drawPaperDiagram(host,trace,progress,en){draw(host,progress,trac
 function draw(host,progress,providedTrace,providedLanguage){
  const trace=providedTrace||traces.get(host.dataset.paperTrace||'paper01');if(!trace||paperDemoMeta[host.dataset.paperDemo]?.code)return;
  const kind=host.dataset.paperDemo,en=providedLanguage??(document.querySelector('#slide')?.lang==='en'),svg=host.querySelector('svg');
+ if(paperDemoMeta[kind]?.renderer==='fbp'){drawFbp(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='fourier'){drawFourier(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='ntk'){drawNtk(host,trace,progress,en);reserveAxisGutter(svg);return;}
  if(paperDemoMeta[kind]?.renderer==='boundary'){drawBoundary(host,trace,progress,en);reserveAxisGutter(svg);return;}

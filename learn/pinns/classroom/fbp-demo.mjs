@@ -1,0 +1,18 @@
+import{mathHtml}from'./math.mjs';import{drawFourier}from'./fourier-demo.mjs?v=paper13c';
+const kinds=['global','raw','local','narrow'],colors=['#cbd7de','#79d4ef','#ffe071','#c7b4ff'];
+export function fbpFrame(t,k,p,seed=11){const a=t.runs[`${k}-${seed}`].frames;return a[Math.floor(Math.max(0,Math.min(1,p))*(a.length-1))];}
+export function fbpWindow(z){return Math.max(0,1-z*z)**3;}
+export function drawFbp(host,t,p,en){const svg=host.querySelector('svg'),out=host.querySelector('output'),kind=host.dataset.paperDemo;if(!svg)return;if(kind==='fbp-physical'){drawFourier({dataset:{paperDemo:'fourier-physical'},querySelector:s=>host.querySelector(s)},t,p,en);return;}
+ const tx=(x,y,s,a='middle')=>`<text x="${x}" y="${y}" text-anchor="${a}">${s}</text>`,mx=(s,x,y,w=65)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="${w}" height="36"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`,px=x=>70+470*x,line=(xs,ys,py,c,d=false)=>`<polyline points="${xs.map((x,i)=>`${px(x)},${py(ys[i])}`).join(' ')}" fill="none" stroke="${c}" stroke-width="3"${d?' stroke-dasharray="7 5"':''}/>`;
+ const axes=(label='u')=>`<path d="M70 40V190H555" fill="none" stroke="#d4dce2" stroke-width="2.8"/>`+mx(label,15,22)+mx('x',555,179,80)+tx(70,216,'0')+tx(540,216,'1'),legend=()=>kinds.map((k,i)=>`<path d="M${58+i*140} 242h19" stroke="${colors[i]}" stroke-width="3"/>`+tx(83+i*140,249,(en?['Global','Raw','Local','Thin']:['全局','原坐标','局部','窄窗'])[i],'start')).join('');
+ if(kind==='fbp-windows'){
+  const py=v=>190-135*v;svg.innerHTML=axes('w_i')+t.centres.map((c,i)=>line(t.x,t.x.map(x=>fbpWindow((x-c)/.35)),py,colors[i])).join('')+tx(58,57,'1','end')+tx(320,25,en?'Overlapping compact windows · radius0.35':'重叠紧支撑窗口 · 半径0.35')+tx(320,249,en?'Outside support: value and first2 derivatives vanish':'支撑外：函数值与前两阶导数均为零');return;
+ }
+ if(kind==='fbp-parts'){
+  const f=t.runs['local-11'].frames.at(-1),all=f.parts.flat(),lo=Math.min(-1.2,...all,...f.curve),hi=Math.max(1.2,...all,...f.curve),py=v=>190-140*(v-lo)/(hi-lo);svg.innerHTML=axes()+f.parts.map((a,i)=>line(t.x,a,py,colors[i])).join('')+line(t.x,f.curve,py,'#ff9eb2',true)+tx(320,25,en?'Final local contributions · seed11':'最终局部贡献 · 种子11')+tx(320,249,en?'Four colours: parts · dashed pink: their sum':'四色：局部贡献 · 粉色虚线：求和');return;
+ }
+ if(kind==='fbp-training'){
+  const frames=kinds.map(k=>fbpFrame(t,k,p)),all=Object.values(t.runs).filter(r=>r.seed===11).flatMap(r=>r.frames.flatMap(f=>f.curve)),lo=Math.floor(Math.min(-1.2,...all)*2)/2,hi=Math.ceil(Math.max(1.2,...all)*2)/2,py=v=>190-140*(v-lo)/(hi-lo);host.dataset.trainingStep=String(frames[0].step);svg.innerHTML=axes()+tx(58,193,lo.toFixed(1),'end')+tx(58,54,hi.toFixed(1),'end')+line(t.x,t.truth,py,'#9baaac',true)+frames.map((f,i)=>line(t.x,f.curve,py,colors[i])).join('')+tx(320,25,en?`Seed11 · update ${frames[0].step}`:`种子11 · 更新 ${frames[0].step}`)+legend();if(out)out.textContent=(en?'Field error: ':'场误差：')+frames.map(f=>(100*f.relativeL2).toFixed(2)+'%').join(' · ');return;
+ }
+ const vals=kinds.map(k=>[11,22,33].map(seed=>t.runs[`${k}-${seed}`].relativeL2)),top=Math.max(0,Math.ceil(Math.log10(Math.max(...vals.flat())))),py=v=>190-140*(Math.log10(Math.max(v,1e-5))+5)/(top+5);svg.innerHTML=`<path d="M70 40V190H555" fill="none" stroke="#d4dce2" stroke-width="2.8"/>`+[-5,-3,-1,top].map(e=>tx(58,py(10**e)+6,'1e'+e,'end')).join('')+vals.map((a,i)=>a.map((v,j)=>`<circle cx="${114+i*140+(j-1)*12}" cy="${py(v)}" r="4.5" fill="${colors[i]}"/>`).join('')).join('')+tx(320,25,en?'Final field errors · all three seeds':'最终场误差 · 全部三个种子')+legend();if(out)out.textContent=en?'Equal292 parameters · timings disclosed separately':'均为292个参数 · 耗时单独报告';
+}

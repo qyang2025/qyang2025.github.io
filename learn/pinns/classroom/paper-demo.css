@@ -4,3 +4,5 @@
 .classroom-fitted #slide[data-key*="ntk-"] .scene-content:not(.paper-scene) .formula-box{width:fit-content;max-width:100%;align-self:center;padding-inline:12px}
 
 .classroom-fitted #slide[data-key*="fourier-"] .scene-content:not(.paper-scene) .formula-box{width:fit-content;max-width:100%;align-self:center;padding-inline:12px}
+
+.classroom-fitted #slide[data-key*="fbp-"] .scene-content:not(.paper-scene) .formula-box{width:fit-content;max-width:100%;align-self:center;padding-inline:12px}

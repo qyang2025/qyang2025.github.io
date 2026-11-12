@@ -130,11 +130,12 @@
     },
     {
       "number": "13",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Moseley, Markham & Nissen-Meyer, Finite Basis Physics-Informed Neural Networks",
       "source": "https://arxiv.org/abs/2107.07871",
       "topic": "Overlapping subdomains and local multiscale representations",
-      "scope": "Planned few-subdomain1D example;no large-scale or parallel speedup claim."
+      "scope": "Compact teaching adaptation: four C2 polynomial windows, hard zero endpoints and joint global optimisation. Not the original sigmoid windows, detached-neighbour parallel algorithm or scheduling benchmarks.",
+      "classroom": "classroom/?paper=moseley2021&language=en"
     },
     {
       "number": "14",

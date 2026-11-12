@@ -1,0 +1,5 @@
+# Paper13: FBPINNs
+Primary reference: https://arxiv.org/abs/2107.07871
+CPU teaching adaptation: 4 overlapping C2 polynomial windows, independent width24 networks, local coordinates, common hard zero endpoints and JOINT global optimisation. This is not the original sigmoid-window or detached-neighbour parallel/scheduled implementation.
+Run `python -m pip install -r requirements.txt` then `python fbpinn_poisson_cpu.py`. Four threads, float64, 12 runs, 2000 Adam updates each,90-second cap. Modified settings require `--output exploratory.json`.
+Every model has292 trainable parameters. Raw/local/narrow controls share initial weights per seed. Reference temperatures are validation only. Full fields, component contributions, slope errors and shifted-point residuals are in trace.json; guide.html states all settings, outcomes and limits. Local normalisation improves the raw-coordinate controls in these runs, but does not consistently beat the global model; narrow windows fail badly. No universal accuracy or parallel speedup claim.

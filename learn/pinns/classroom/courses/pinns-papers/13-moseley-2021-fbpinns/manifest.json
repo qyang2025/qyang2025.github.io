@@ -1,0 +1,48 @@
+{
+  "id": "moseley2021",
+  "paper": {
+    "number": 13,
+    "shortTitle": "Moseley2021 · FBPINNs",
+    "title": "Moseley, Markham & Nissen-Meyer (2021), Finite Basis Physics-Informed Neural Networks",
+    "url": "https://arxiv.org/abs/2107.07871",
+    "year": 2021,
+    "scope": "Compact teaching adaptation: four C2 polynomial windows, hard zero endpoints and joint global optimisation. Not the original sigmoid windows, detached-neighbour parallel algorithm or scheduling benchmarks."
+  },
+  "title": "Paper13: FBPINNs and local spatial representations",
+  "titleZh": "论文13：FBPINNs 与局部空间表示",
+  "totalMinutes": 45,
+  "download": "paper-13.zip",
+  "modules": [
+    {
+      "id": "139afec2-2021-4013-8013-000000000013",
+      "index": 0,
+      "title": "论文13：FBPINNs 与局部空间表示",
+      "titleEn": "Paper13: FBPINNs and local spatial representations",
+      "file": "1.json",
+      "pages": 22,
+      "sentenceCount": 98,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "moseley2021",
+      "name": "Moseley, Markham & Nissen-Meyer (2021), Finite Basis Physics-Informed Neural Networks",
+      "url": "https://arxiv.org/abs/2107.07871",
+      "text": "Primary reference. This lesson preserves overlapping windowed subnetworks and local coordinate normalisation, but uses compact C2 polynomial windows, hard zero endpoints and joint global optimisation in a tiny CPU adaptation."
+    },
+    {
+      "id": "fbp-primary",
+      "name": "Primary sections4.1–4.4: ansatz, windows, scheduling and parallel training",
+      "url": "https://arxiv.org/html/2107.07871v1",
+      "text": "The original sigmoid-window experiments and detached-neighbour parallel schedule are not reproduced. Our code differentiates the complete globally summed field and trains all subnetworks jointly; no scaling or parallel speedup is claimed."
+    },
+    {
+      "id": "fbp-local",
+      "name": "Twelve executed CPU controls and saved local contributions",
+      "url": "/courses/pinns-papers/13-moseley-2021-fbpinns/trace.json",
+      "text": "Four representations, three seeds, equal292 parameter counts, all final checkpoints. Source and reference match the previous lesson, but hard boundaries and architectures differ, preventing a direct ranking against Paper12 results."
+    }
+  ],
+  "downloadSha256": "f553664f0c1c4d2f6240f3d349e0b977d6dd87ea7842602ca74b17cbbcecedab"
+}

@@ -43,3 +43,8 @@
 .lecture-stage .paired-target{outline:3px solid #79d4ef!important;outline-offset:4px;background:#79d4ef20!important;box-shadow:0 0 12px #79d4ef44;opacity:1!important;animation:none!important}
 
 .audio-window-note{font:12px/1.4 KaTeX_Main,serif;color:#798477;margin:0;padding:0 8px;flex:none}
+/* A concept arrives with one brief emphasis, then remains legible without a flashing box. */
+.lecture-stage .teaching-target{outline:2px solid #ffe071cc!important;outline-offset:3px;background:#ffcf4914!important;box-shadow:0 0 12px #ffc83d22!important;animation:concept-emphasis 1.15s ease-out 1!important}
+.lecture-stage .paired-target{outline:1.5px solid #ffe07188!important;background:#ffcf490c!important;box-shadow:none!important}
+@keyframes concept-emphasis{from{filter:brightness(1.12);outline-color:#fff0a0;background:#ffcf4930;box-shadow:0 0 22px #ffc83d55}to{filter:brightness(1);outline-color:#ffe071cc;background:#ffcf4914;box-shadow:0 0 12px #ffc83d22}}
+@media(prefers-reduced-motion:reduce){.lecture-stage .teaching-target{animation:none!important}}

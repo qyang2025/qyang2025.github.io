@@ -10,6 +10,7 @@ export const paperTraceFiles=Object.freeze({
  paper08:'./courses/pinns-papers/08-jagtap-2020-cpinn/trace.json',
  paper09:'./courses/pinns-papers/09-kharazmi-2019-vpinn/trace.json',
  paper10:'./courses/pinns-papers/10-sukumar-2021-boundaries/trace.json',
+ paper13:'./courses/pinns-papers/13-moseley-2021-fbpinns/trace.json',
  paper12:'./courses/pinns-papers/12-wang-2020-fourier/trace.json',
  paper11:'./courses/pinns-papers/11-wang-2020-ntk/trace.json'
 });
@@ -28,4 +29,5 @@ register(['boundary-physical','boundary-distance','boundary-curvature'],{rendere
 register(['ntk-physical','ntk-kernel','ntk-spectrum'],{renderer:'ntk'});register(['ntk-code'],{code:true,customCode:true});register(['ntk-training','ntk-flow','ntk-error'],{nodes:2,replay:true,renderer:'ntk'});
 register(['ntk-drift'],{renderer:'ntk',replay:true});
 register(['fourier-physical','fourier-features','fourier-kernel'],{renderer:'fourier'});register(['fourier-code'],{code:true,customCode:true});register(['fourier-training','fourier-modes','fourier-error'],{nodes:2,replay:true,renderer:'fourier'});
+register(['fbp-physical','fbp-windows','fbp-parts'],{renderer:'fbp'});register(['fbp-code'],{code:true,customCode:true});register(['fbp-training','fbp-error'],{nodes:2,replay:true,renderer:'fbp'});
 export const paperDemoMeta=Object.freeze(entries);

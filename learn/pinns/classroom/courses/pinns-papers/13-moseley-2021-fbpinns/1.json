@@ -1,0 +1,2882 @@
+{
+  "id": "139afec2-2021-4013-8013-000000000013",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-13",
+  "chapterIndex": 0,
+  "title": "论文13：FBPINNs 与局部空间表示",
+  "titleEn": "Paper13: FBPINNs and local spatial representations",
+  "summary": "用同一根多尺度受热杆解释重叠窗口、局部坐标与完整组装导数，回放十二次相同参数数目的 CPU 对照。",
+  "summaryEn": "Connect overlapping windows, local coordinates and full assembled derivatives; replay twelve equal-parameter CPU controls on a multiscale rod.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "moseley2021",
+      "name": "Moseley, Markham & Nissen-Meyer (2021), Finite Basis Physics-Informed Neural Networks",
+      "url": "https://arxiv.org/abs/2107.07871",
+      "text": "Primary reference. This lesson preserves overlapping windowed subnetworks and local coordinate normalisation, but uses compact C2 polynomial windows, hard zero endpoints and joint global optimisation in a tiny CPU adaptation."
+    },
+    {
+      "id": "fbp-primary",
+      "name": "Primary sections4.1–4.4: ansatz, windows, scheduling and parallel training",
+      "url": "https://arxiv.org/html/2107.07871v1",
+      "text": "The original sigmoid-window experiments and detached-neighbour parallel schedule are not reproduced. Our code differentiates the complete globally summed field and trains all subnetworks jointly; no scaling or parallel speedup is claimed."
+    },
+    {
+      "id": "fbp-local",
+      "name": "Twelve executed CPU controls and saved local contributions",
+      "url": "/courses/pinns-papers/13-moseley-2021-fbpinns/trace.json",
+      "text": "Four representations, three seeds, equal292 parameter counts, all final checkpoints. Source and reference match the previous lesson, but hard boundaries and architectures differ, preventing a direct ranking against Paper12 results."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与局部构造",
+      "titleEn": "Physics and local construction"
+    },
+    {
+      "slide": 8,
+      "title": "导数与公平对照",
+      "titleEn": "Derivatives and controlled comparisons"
+    },
+    {
+      "slide": 14,
+      "title": "结果、范围与下一步",
+      "titleEn": "Results, limits and next steps"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文13：FBPINNs 与局部空间表示",
+      "titleEn": "Paper13: FBPINNs and local spatial representations",
+      "eyebrow": "PINNs 论文 13 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 13 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用同一根多尺度受热杆解释重叠窗口、局部坐标与完整组装导数，回放十二次相同参数数目的 CPU 对照。"
+      ],
+      "bulletsEn": [
+        "Connect overlapping windows, local coordinates and full assembled derivatives; replay twelve equal-parameter CPU controls on a multiscale rod."
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理与局部构造",
+            "labelEn": "Physics and local construction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "导数与公平对照",
+            "labelEn": "Derivatives and controlled comparisons",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "结果、范围与下一步",
+            "labelEn": "Results, limits and next steps",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先用与上篇相同的多尺度温度场解释重叠局部表示。再连接坐标缩放、完整乘积求导与相同参数数目的对照。最后回放全部 CPU 结果，区分平滑组装与物理精度，并说明这个实验没有检验哪些调度或扩展性结论。",
+          "textEn": "First explain overlapping local representations using the same multiscale temperature field as the previous lesson. Then connect coordinate scaling, complete product derivatives and equal-parameter controls. Finally replay every CPU result, separate smooth assembly from physical accuracy, and state which scheduling and scaling claims this experiment does not test.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fbp-bridge",
+      "title": "从全局频率特征，转向局部表示",
+      "titleEn": "From global frequency features to local representations",
+      "eyebrow": "论文 13 / 2",
+      "eyebrowEn": "PAPER 13 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从全局频率特征，转向局部表示"
+      ],
+      "bulletsEn": [
+        "From global frequency features to local representations"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：改变全局输入的频带",
+            "labelEn": "Previously: change global frequency bands",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：让小网络处理局部空间",
+            "labelEn": "Now: let small networks handle local space",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-bridge-b0",
+          "text": "傅里叶特征这一讲改变了一个全局表示偏爱的空间模式。它对带宽与随机初始化敏感，因此引出另一个问题：较小的局部表示能否有所帮助？",
+          "textEn": "The Fourier-feature lesson changed the spatial patterns preferred by one global representation. Its sensitivity to bandwidth and random initialisation motivates a different question: could smaller local representations help?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fbp-bridge-b1",
+          "text": "本篇介绍有限基物理信息神经网络，也就是 FBPINNs。我们将组合重叠窗口与局部坐标，再做实验，不预先假定它一定改善每个小问题。",
+          "textEn": "This paper introduces finite basis physics-informed neural networks, or F B PINNs. We will combine overlapping windows and local coordinates, then test the idea without assuming it must improve every small experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-physical",
+      "title": "仍用同时含宽峰和细纹的温度场",
+      "titleEn": "Keep a temperature field with broad and fine structure",
+      "eyebrow": "论文 13 / 3",
+      "eyebrowEn": "PAPER 13 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "仍用同时含宽峰和细纹的温度场"
+      ],
+      "bulletsEn": [
+        "Keep a temperature field with broad and fine structure"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-physical-b0",
+          "text": "这根杆有给定的有正有负热源，两端温度为零。u 表示相对参考的温度，x 是从零到一的位置。",
+          "textEn": "This rod has a prescribed signed heat source and zero temperature at both endpoints. U denotes temperature relative to a reference, and x is position from zero to one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-physical-b1",
+          "text": "先看这个宽宽的起伏，再看叠在上面的小波纹。一个大网络，能把两者都学好吗？移动光点只表示稳态热流方向，这幅图不是瞬态模拟，也不是训练预测。",
+          "textEn": "Look at the broad rise and fall, then the little ripples riding on it. Can one large network capture both comfortably? The moving dots only illustrate steady heat-flow direction; this picture is neither a transient simulation nor a trained prediction.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fbp-physical",
+      "paperTrace": "paper13",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-problem",
+      "title": "先把物理方程和验证参考固定下来",
+      "titleEn": "Fix the equation and the validation reference",
+      "eyebrow": "论文 13 / 4",
+      "eyebrowEn": "PAPER 13 / 4",
+      "visual": "steps",
+      "formula": "-u_{xx}=f,\\quad u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+      "formulaEn": "-u_{xx}=f,\\quad u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+      "bullets": [
+        "先把物理方程和验证参考固定下来"
+      ],
+      "bulletsEn": [
+        "Fix the equation and the validation reference"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-problem-b0",
+          "text": "下标 x x 表示空间二阶导数，f 是从这个参考解析推导出的热源。星号表示只用于独立验证的精确温度。",
+          "textEn": "The subscript x x means the second spatial derivative, and f is the analytic heat source derived from this reference. The star marks the exact temperature used for independent validation.",
+          "focus": 0,
+          "scene": {
+            "formula": "-u_{xx}=f,\\quad u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+            "formulaEn": "-u_{xx}=f,\\quad u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fbp-problem-b1",
+          "text": "所有对照都从方程残差学习，不使用内部温度标签。热源与上篇相同，但本篇精确施加端点值，因此不能把最终误差直接与上篇软边界运行排名比较。",
+          "textEn": "All controls learn from equation residuals rather than interior temperature labels. The source matches the previous lesson, but this lesson imposes exact endpoint values, so its final errors cannot be ranked directly against the previous soft-boundary runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "fbp-physical",
+      "paperTrace": "paper13",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-overlap",
+      "title": "重叠区域是共同贡献，不是硬切开",
+      "titleEn": "Overlap means shared contribution, not a hard cut",
+      "eyebrow": "论文 13 / 5",
+      "eyebrowEn": "PAPER 13 / 5",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "重叠区域是共同贡献，不是硬切开"
+      ],
+      "bulletsEn": [
+        "Overlap means shared contribution, not a hard cut"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-overlap-b0",
+          "text": "每条彩色曲线都是一个局部网络的窗口，记作 w i。看到两种颜色重叠的那一段了吗？那里由两个邻居共同贡献，并不是从一个网络突然切换到另一个网络。",
+          "textEn": "Each coloured curve, w i, is one local network’s window. See the strips where two colours overlap? Both neighbours contribute there, so we are not handing the solution from one network to another with a hard switch.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fbp-overlap-b1",
+          "text": "窗口在支撑范围外逐渐归零，而不是突然只选择一个模型。我们的构造让窗口及其前两阶导数在支撑边缘均为零。",
+          "textEn": "The windows fade to zero outside their supports rather than abruptly selecting a single model. In our construction, each window and its first two derivatives vanish at its support edges.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fbp-windows",
+      "paperTrace": "paper13",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-local-coordinate",
+      "title": "同一段细纹，在局部坐标中更容易展开",
+      "titleEn": "Rescale each subdomain into its own local coordinates",
+      "eyebrow": "论文 13 / 6",
+      "eyebrowEn": "PAPER 13 / 6",
+      "visual": "steps",
+      "formula": "z_i=\\frac{x-c_i}{h_i}",
+      "formulaEn": "z_i=\\frac{x-c_i}{h_i}",
+      "bullets": [
+        "同一段细纹，在局部坐标中更容易展开"
+      ],
+      "bulletsEn": [
+        "Rescale each subdomain into its own local coordinates"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理位置 x 与窗口中心 c",
+            "labelEn": "Physical position x and window centre c",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "以半径 h 缩放到局部坐标 z",
+            "labelEn": "Scale by radius h into local coordinate z",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-local-coordinate-b0",
+          "text": "c i 是子区域 i 的中心，h i 是物理坐标中的支撑半径。这个实验的四个中心均匀分布在单位长度的杆上。",
+          "textEn": "C i is the centre of subdomain i, and h i is its support radius in physical coordinates. The four centres in this experiment are spread evenly along the unit rod.",
+          "focus": 0,
+          "scene": {
+            "formula": "z_i=\\frac{x-c_i}{h_i}",
+            "formulaEn": "z_i=\\frac{x-c_i}{h_i}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fbp-local-coordinate-b1",
+          "text": "现在，把一个小区域放大来看。z i 用这个区域的半径作为距离单位，将它展开到负一至一。小波纹没有被删掉，只是每个小网络需要处理的波纹少了一些。",
+          "textEn": "Now zoom into one patch. Z i measures distance from its centre in units of that patch’s radius, stretching the patch across minus one to one. We have not erased the ripples; each small network simply has fewer of them to represent.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-window",
+      "title": "用可求二阶导数的紧支撑窗口",
+      "titleEn": "Choose compact windows with continuous second derivatives",
+      "eyebrow": "论文 13 / 7",
+      "eyebrowEn": "PAPER 13 / 7",
+      "visual": "steps",
+      "formula": "w_i(x)=\\big[\\max(0,1-z_i^2)\\big]^3",
+      "formulaEn": "w_i(x)=\\big[\\max(0,1-z_i^2)\\big]^3",
+      "bullets": [
+        "用可求二阶导数的紧支撑窗口"
+      ],
+      "bulletsEn": [
+        "Choose compact windows with continuous second derivatives"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-window-b0",
+          "text": "w i 是教学实现中使用的多项式窗口。它在局部坐标负一到一之间为正，在区间外严格为零。",
+          "textEn": "W i is the polynomial window used in our teaching implementation. It is positive for local coordinates between minus one and one, and exactly zero outside that interval.",
+          "focus": 0,
+          "scene": {
+            "formula": "w_i(x)=\\big[\\max(0,1-z_i^2)\\big]^3",
+            "formulaEn": "w_i(x)=\\big[\\max(0,1-z_i^2)\\big]^3",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fbp-window-b1",
+          "text": "三次幂使函数在支撑边缘连续可求二阶导数。这不同于原论文的 sigmoid 窗口；这些窗口直接相加，没有归一化为单位分解。",
+          "textEn": "The cubic power makes the function twice continuously differentiable at the support edges. This differs from the original paper’s sigmoid windows, and these windows are summed directly rather than normalised into a partition of unity.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "fbp-windows",
+      "paperTrace": "paper13",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-assembly",
+      "title": "把局部贡献相加，再施加边界约束",
+      "titleEn": "Sum local contributions, then impose the boundary constraint",
+      "eyebrow": "论文 13 / 8",
+      "eyebrowEn": "PAPER 13 / 8",
+      "visual": "steps",
+      "formula": "v_\\theta(x)=\\sum_{i=1}^{4}w_i(x)N_i(z_i),\\quad u_\\theta=x(1-x)v_\\theta",
+      "formulaEn": "v_\\theta(x)=\\sum_{i=1}^{4}w_i(x)N_i(z_i),\\quad u_\\theta=x(1-x)v_\\theta",
+      "bullets": [
+        "把局部贡献相加，再施加边界约束"
+      ],
+      "bulletsEn": [
+        "Sum local contributions, then impose the boundary constraint"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "独立局部网络 N，与各自窗口相乘",
+            "labelEn": "Independent local N times its own window",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "求和后乘上共同边界因子",
+            "labelEn": "Sum, then apply the common boundary factor",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-assembly-b0",
+          "text": "N i 是独立待训练的双曲正切子网络，θ 表示全部待训练权重与偏置，v θ 是全部加窗局部贡献之和。与上篇傅里叶架构不同，这些局部网络不共享待训练权重。",
+          "textEn": "N i is an independent trainable tanh subnetwork, theta collects all their trainable weights and biases, and v theta is the sum of all windowed local contributions. Unlike the previous Fourier architecture, these local networks do not share their trainable weights.",
+          "focus": 0,
+          "scene": {
+            "formula": "v_\\theta(x)=\\sum_{i=1}^{4}w_i(x)N_i(z_i),\\quad u_\\theta=x(1-x)v_\\theta",
+            "formulaEn": "v_\\theta(x)=\\sum_{i=1}^{4}w_i(x)N_i(z_i),\\quad u_\\theta=x(1-x)v_\\theta",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fbp-assembly-b1",
+          "text": "把总和乘以 x 与一减 x，便精确施加两端零温度。平滑性来自完整构造场，而满足物理方程仍然需要训练。",
+          "textEn": "Multiplying the sum by x times one minus x imposes zero endpoint temperatures exactly. Smoothness follows from the complete constructed field, while satisfying the physical equation still requires training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-product",
+      "title": "窗口变化也会进入物理曲率",
+      "titleEn": "Window derivatives also enter the physical curvature",
+      "eyebrow": "论文 13 / 9",
+      "eyebrowEn": "PAPER 13 / 9",
+      "visual": "steps",
+      "formula": "(wN)_{xx}=w_{xx}N+2w_xN_x+wN_{xx}",
+      "formulaEn": "(wN)_{xx}=w_{xx}N+2w_xN_x+wN_{xx}",
+      "bullets": [
+        "窗口变化也会进入物理曲率"
+      ],
+      "bulletsEn": [
+        "Window derivatives also enter the physical curvature"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "窗口及其导数，决定局部过渡",
+            "labelEn": "Window derivatives govern the transition",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "网络及其导数，共同决定曲率",
+            "labelEn": "Network derivatives jointly determine curvature",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-product-b0",
+          "text": "这里很容易犯一个错误：只对网络求导，把窗口忘了。为什么不行呢？物理贡献是两者的乘积，所以曲率里也必须包含窗口的导数。",
+          "textEn": "Here is an easy mistake: differentiate the network and forget the window. Why is that wrong? The physical contribution is their product, so its curvature includes the window’s derivatives too.",
+          "focus": 0,
+          "scene": {
+            "formula": "(wN)_{xx}=w_{xx}N+2w_xN_x+wN_{xx}",
+            "formulaEn": "(wN)_{xx}=w_{xx}N+2w_xN_x+wN_{xx}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fbp-product-b1",
+          "text": "顺着公式看这三项：窗口的曲率、交叉项，以及网络的曲率。下标 x 都表示对物理坐标求导，也要包含坐标缩放。这就是为什么自动微分必须保留窗口、完整求和与端点因子。",
+          "textEn": "Follow the three terms in the equation: window curvature, a cross term, and network curvature. Every subscript x means a physical-coordinate derivative, including coordinate scaling. That is why our autodiff graph keeps the windows, the full sum and the endpoint factor together.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-derivative-scale",
+      "title": "更窄的支撑会放大导数尺度",
+      "titleEn": "Narrower supports amplify derivative scales",
+      "eyebrow": "论文 13 / 10",
+      "eyebrowEn": "PAPER 13 / 10",
+      "visual": "steps",
+      "formula": "\\partial_x=h_i^{-1}\\partial_{z_i},\\qquad \\partial_{xx}=h_i^{-2}\\partial_{z_i z_i}",
+      "formulaEn": "\\partial_x=h_i^{-1}\\partial_{z_i},\\qquad \\partial_{xx}=h_i^{-2}\\partial_{z_i z_i}",
+      "bullets": [
+        "更窄的支撑会放大导数尺度"
+      ],
+      "bulletsEn": [
+        "Narrower supports amplify derivative scales"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "局部缩放有利于空间表示",
+            "labelEn": "Local scaling changes the representation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "物理二阶导数含半径的平方倒数",
+            "labelEn": "Physical curvature includes inverse radius squared",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-derivative-scale-b0",
+          "text": "一阶导数包含一次半径倒数，二阶导数包含两次。因此同一个局部形状在支撑收窄后，可能产生更大的物理曲率。",
+          "textEn": "The inverse radius appears once for a first derivative and twice for a second derivative. Therefore the same local shape can create much larger physical curvature when its support is narrowed.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\partial_x=h_i^{-1}\\partial_{z_i},\\qquad \\partial_{xx}=h_i^{-2}\\partial_{z_i z_i}",
+            "formulaEn": "\\partial_x=h_i^{-1}\\partial_{z_i},\\qquad \\partial_{xx}=h_i^{-2}\\partial_{z_i z_i}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        },
+        {
+          "id": "fbp-derivative-scale-b1",
+          "text": "局部表示的好处没有消除导数条件问题，也没有免除用残差点分辨过渡的需求。我们加入窄重叠对照来检验这个取舍，而不是认为窗口越窄越好。",
+          "textEn": "Local representation benefits do not remove derivative conditioning or the need to resolve transitions with residual points. We include a narrow-overlap control to test this trade-off rather than treating narrower windows as automatically better.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-loss",
+      "title": "对完整场测量同一个物理残差",
+      "titleEn": "Apply one physical residual to the complete field",
+      "eyebrow": "论文 13 / 11",
+      "eyebrowEn": "PAPER 13 / 11",
+      "visual": "steps",
+      "formula": "L=\\operatorname{mean}\\!\\left[\\left(\\frac{-u_{xx}-f}{s_f}\\right)^2\\right]",
+      "formulaEn": "L=\\operatorname{mean}\\!\\left[\\left(\\frac{-u_{xx}-f}{s_f}\\right)^2\\right]",
+      "bullets": [
+        "对完整场测量同一个物理残差"
+      ],
+      "bulletsEn": [
+        "Apply one physical residual to the complete field"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "九十六个共同内部中点",
+            "labelEn": "96 common interior midpoints",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不添加额外接口惩罚",
+            "labelEn": "No added interface penalty",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-loss-b0",
+          "text": "s f 是九十六个内部中点上热源的固定均方根。每种对照共用残差点与热源尺度，不使用内部温度标签。",
+          "textEn": "S f is the fixed root-mean-square source over ninety-six interior midpoints. Every control uses the same residual points and source scale, with no interior temperature labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "L=\\operatorname{mean}\\!\\left[\\left(\\frac{-u_{xx}-f}{s_f}\\right)^2\\right]",
+            "formulaEn": "L=\\operatorname{mean}\\!\\left[\\left(\\frac{-u_{xx}-f}{s_f}\\right)^2\\right]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fbp-loss-b1",
+          "text": "构造场已经提供连续过渡与精确的两端零温度。因此既不添加接口跳跃惩罚，也不添加边界温度惩罚，但仍在训练之后独立检查场误差与残差。",
+          "textEn": "The constructed field already supplies continuous transitions and exact zero endpoints. We therefore add neither an interface-jump penalty nor a boundary-temperature penalty, while still checking independent field and residual errors afterwards.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-controls",
+      "title": "相同参数总数下，分离归一化和重叠的作用",
+      "titleEn": "Separate normalisation and overlap at equal parameter counts",
+      "eyebrow": "论文 13 / 12",
+      "eyebrowEn": "PAPER 13 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "相同参数总数下，分离归一化和重叠的作用"
+      ],
+      "bulletsEn": [
+        "Separate normalisation and overlap at equal parameter counts"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "全局网络，与不缩放的局部对照",
+            "labelEn": "Global model and raw-coordinate local control",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "局部坐标，与窄重叠对照",
+            "labelEn": "Local coordinates and narrow-overlap control",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-controls-b0",
+          "text": "看曲线之前，先把参数预算对齐。全局方案用一个九十七单元的网络，局部方案用四个各二十四单元的独立网络。不论哪一种，总共都是二百九十二个待训练参数。",
+          "textEn": "Before comparing curves, let’s make the budget fair. One global network has ninety-seven hidden units; the local alternatives each have four independent networks with twenty-four units. Either way, the total is two hundred and ninety-two trainable parameters.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-controls-b1",
+          "text": "原坐标对照与局部归一化模型共用窗口和初始权重，却直接把物理 x 输入每个网络。窄窗对照也做局部归一化，但将支撑半径从零点三五缩小为零点一四。",
+          "textEn": "The raw-coordinate control has the same windows and initial weights as the locally normalised model, but passes the physical x directly to each network. The narrow control also normalises locally but reduces the support radius from zero point three five to zero point one four.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-seeds",
+      "title": "随机种子用于检查起点依赖",
+      "titleEn": "Use random seeds to check dependence on the starting point",
+      "eyebrow": "论文 13 / 13",
+      "eyebrowEn": "PAPER 13 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "随机种子用于检查起点依赖"
+      ],
+      "bulletsEn": [
+        "Use random seeds to check dependence on the starting point"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "种子：可重复随机起点的编号",
+            "labelEn": "Seed: identifier for reproducible random draws",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "三个起点，每个都跑四种设置",
+            "labelEn": "Three starts, four configurations at each",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-seeds-b0",
+          "text": "随机种子固定随机起点的抽样，使实验能够在相同环境下复现。十一、二十二和三十三，只是本次选择的三个编号。",
+          "textEn": "A seed fixes the random starting draws, allowing an experiment to be reproduced in the same environment. Eleven, twenty-two and thirty-three are simply the three identifiers chosen for this study.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-seeds-b1",
+          "text": "每个种子下，三种局部对照共享初始待训练权重，四种表示得到相同的点与更新预算。参数数目相等，不表示初始函数相同、耗时相等，或者优化问题等价。",
+          "textEn": "For each seed, the three local controls share their initial trainable weights, and all four representations receive the same points and update budget. Equal parameter counts do not imply identical initial functions, equal runtime or equivalent optimisation problems.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-code",
+      "title": "让自动微分看到完整组装过程",
+      "titleEn": "Keep the complete assembly inside spatial autodiff",
+      "eyebrow": "论文 13 / 14",
+      "eyebrowEn": "PAPER 13 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "让自动微分看到完整组装过程"
+      ],
+      "bulletsEn": [
+        "Keep the complete assembly inside spatial autodiff"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-code-b0",
+          "text": "前几行构造局部坐标与紧支撑多项式窗口。显示的贡献列表，是下载实现中四个独立网络循环的简写。",
+          "textEn": "The first lines form local coordinates and compact polynomial windows. The displayed contribution list abbreviates a loop over all four independent networks in the downloadable implementation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-code-b1",
+          "text": "必须在贡献求和并乘上硬边界因子之后，才对完整场求空间导数。我们用全批量 Adam 联合训练全部网络，采用四个 CPU 线程与六十四位浮点，每次运行两千步。",
+          "textEn": "Spatial derivatives are taken only after summing the contributions and multiplying by the hard-boundary factor. We train all networks jointly using full-batch Adam, four CPU threads and sixty-four-bit arithmetic for two thousand updates per run.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fbp-code",
+      "paperTrace": "paper13",
+      "demoCode": [
+        "z = (x - centres) / radius",
+        "w = clamp(1 - z*z, min=0)**3",
+        "parts = cat([w_i * net_i(z_i)], dim=1)",
+        "u = x * (1-x) * parts.sum(1, keepdim=True)",
+        "r = -grad(grad(u, x), x) - source(x)"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-training",
+      "title": "教授回放真实的四组训练过程",
+      "titleEn": "Replay four actual training trajectories",
+      "eyebrow": "论文 13 / 15",
+      "eyebrowEn": "PAPER 13 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "教授回放真实的四组训练过程"
+      ],
+      "bulletsEn": [
+        "Replay four actual training trajectories"
+      ],
+      "sourceIds": [
+        "moseley2021",
+        "fbp-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-training-b0",
+          "text": "来看看实际发生了什么。灰色是全局，蓝色用原坐标，金色用局部坐标，紫色用更窄的窗口。现在，跟着种子十一保存的曲线，看看相同步数里它们各自学到了什么。",
+          "textEn": "Let’s watch what actually happened. Grey is global, blue uses raw coordinates, gold uses local coordinates, and purple uses narrower windows. Now follow these saved seed-eleven curves through the same update budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-training-b1",
+          "text": "下方数字是独立测量的相对温度场误差，不是训练损失。这些来自已经执行的 CPU 检查点，浏览器回放时不训练新网络。",
+          "textEn": "The numbers below are independent relative temperature-field errors, not the training loss. These are executed CPU checkpoints, and the browser replays them without training a new network.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fbp-training",
+      "paperTrace": "paper13",
+      "replayStartSentence": 2,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-parts",
+      "title": "局部贡献需要相加，不能逐个当成完整解",
+      "titleEn": "Local contributions must be summed into the field",
+      "eyebrow": "论文 13 / 16",
+      "eyebrowEn": "PAPER 13 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "局部贡献需要相加，不能逐个当成完整解"
+      ],
+      "bulletsEn": [
+        "Local contributions must be summed into the field"
+      ],
+      "sourceIds": [
+        "moseley2021",
+        "fbp-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-parts-b0",
+          "text": "四条彩色曲线是种子十一局部归一化模型的最终贡献，已经包含各自窗口与共同端点因子。不应要求单个贡献在整个支撑范围内都等于完整温度。",
+          "textEn": "These four coloured curves are the final locally normalised contributions for seed eleven, including each window and the shared endpoint factor. A single contribution is not expected to equal the full temperature throughout its support.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-parts-b1",
+          "text": "粉色虚线是它们逐点求和的结果，正是训练时求导的场。平滑组装消除了突然切换，但并不会自动让这个总和成为准确物理解。",
+          "textEn": "The dashed pink curve is their pointwise sum, exactly the field differentiated during training. Smooth assembly removes abrupt switches but does not make this sum an accurate physical solution automatically.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fbp-parts",
+      "paperTrace": "paper13",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-error",
+      "title": "比较全部三个种子，而不是单条漂亮曲线",
+      "titleEn": "Compare every seed instead of one attractive curve",
+      "eyebrow": "论文 13 / 17",
+      "eyebrowEn": "PAPER 13 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "比较全部三个种子，而不是单条漂亮曲线"
+      ],
+      "bulletsEn": [
+        "Compare every seed instead of one attractive curve"
+      ],
+      "sourceIds": [
+        "moseley2021",
+        "fbp-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fbp-error-b0",
+          "text": "每组在对数纵轴上展示全部三个最终场误差。在声称归一化有效之前，先在每个种子内部比较局部坐标与原坐标。",
+          "textEn": "Each group contains all three final field errors on a logarithmic vertical scale. Compare local coordinates with raw coordinates within each seed before making a claim about normalisation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-error-b1",
+          "text": "所以，把网络拆开，问题就解决了吗？局部坐标改善了三个原坐标对照，却没有稳定胜过全局基线。窄窗误差还在百分之一百附近，这提醒我们，构造平滑还远远不够。",
+          "textEn": "So, did splitting the network solve the problem? Local coordinates help all three raw-coordinate controls, but do not consistently beat the global baseline. And the narrow windows remain near one hundred percent error: smooth construction alone was not enough.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fbp-error",
+      "paperTrace": "paper13",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-narrow",
+      "title": "窗的平滑性与训练难度是不同问题",
+      "titleEn": "Window smoothness and training difficulty are different questions",
+      "eyebrow": "论文 13 / 18",
+      "eyebrowEn": "PAPER 13 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "窗的平滑性与训练难度是不同问题"
+      ],
+      "bulletsEn": [
+        "Window smoothness and training difficulty are different questions"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "连续二阶导数，不等于小的二阶导数",
+            "labelEn": "Continuous second derivatives need not be small",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "精确端点，不等于准确内部场",
+            "labelEn": "Exact endpoints do not establish interior accuracy",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-narrow-b0",
+          "text": "窄窗仍然连续可求二阶导数，但过渡发生在更短的物理距离上。较大的导数与有限采样，仍可能使残差优化困难。",
+          "textEn": "Our narrow window remains twice continuously differentiable, but its transition occurs over a shorter physical distance. Large derivatives and limited sampling can still make the residual optimisation difficult.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-narrow-b1",
+          "text": "所有模型都通过构造精确满足端点值，内部场却仍可能不准确。我们保留偏移点残差检查与独立斜率误差，避免只看端点就判断精度。",
+          "textEn": "Every model has exact endpoint values by construction, yet its interior field can still be inaccurate. We retain shifted-point residual checks and independent slope errors to avoid judging accuracy from the endpoints alone.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-schedule",
+      "title": "原论文还允许局部训练调度",
+      "titleEn": "The paper also allows local training schedules",
+      "eyebrow": "论文 13 / 19",
+      "eyebrowEn": "PAPER 13 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "原论文还允许局部训练调度"
+      ],
+      "bulletsEn": [
+        "The paper also allows local training schedules"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "原论文：激活、固定与未激活网络",
+            "labelEn": "Paper: active, fixed and inactive subnetworks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本实验：全部网络同时联合更新",
+            "labelEn": "Here: jointly update every network",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-schedule-b0",
+          "text": "原方法可以激活选定子网络，固定已训练的邻居，再逐步走过整个区域。其并行算法交换邻居贡献，并控制更新哪些参数梯度。",
+          "textEn": "The original method can activate selected subnetworks, keep trained neighbours fixed and progress across the domain. Its parallel algorithm exchanges neighbouring contributions while controlling which parameter gradients are updated.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-schedule-b1",
+          "text": "我们的小实验采用更简单的联合全局优化循环，全部网络都激活。没有实现邻居梯度分离的并行更新，也没有移动式训练调度，因此测量耗时不是并行扩展性基准。",
+          "textEn": "Our small experiment uses a simpler joint global optimisation loop with every network active. It does not implement detached-neighbour parallel updates or a travelling training schedule, so its measured timings are not a parallel scalability benchmark.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-limits",
+      "title": "这是一维教学实现，保留清楚的适用边界",
+      "titleEn": "Keep the limits of this one-dimensional adaptation explicit",
+      "eyebrow": "论文 13 / 20",
+      "eyebrowEn": "PAPER 13 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这是一维教学实现，保留清楚的适用边界"
+      ],
+      "bulletsEn": [
+        "Keep the limits of this one-dimensional adaptation explicit"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留：重叠局部基与单独坐标缩放",
+            "labelEn": "Retained: overlapping local bases and scaling",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "改变：窗口、边界与联合训练算法",
+            "labelEn": "Changed: windows, boundaries and joint training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-limits-b0",
+          "text": "保留独立局部网络、平滑重叠支撑与单独输入归一化。改变了窗口族，省略输出反归一化，并为所有对照采用共同硬边界因子。",
+          "textEn": "We retain independent local networks, smooth overlapping support and separate input normalisation. We change the window family, omit output unnormalisation and use a common hard-boundary factor for all controls.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-limits-b1",
+          "text": "全部最终检查点、种子与耗时均可下载，也包含表现较差的结果。这个小型杆示例不声称复现原始大型波动基准、有限元比较，或证明普遍优越性。",
+          "textEn": "All final checkpoints, seeds and runtimes are downloadable, including any poor outcomes. No original large-wave benchmark, finite-element comparison or universal superiority is claimed from this compact rod example.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-exercise",
+      "title": "先预测，支撑半径减半会发生什么？",
+      "titleEn": "Predict what happens when the support radius is halved",
+      "eyebrow": "论文 13 / 21",
+      "eyebrowEn": "PAPER 13 / 21",
+      "visual": "steps",
+      "formula": "h_i\\mapsto h_i/2\\quad\\Longrightarrow\\quad h_i^{-2}\\mapsto4h_i^{-2}",
+      "formulaEn": "h_i\\mapsto h_i/2\\quad\\Longrightarrow\\quad h_i^{-2}\\mapsto4h_i^{-2}",
+      "bullets": [
+        "先预测，支撑半径减半会发生什么？"
+      ],
+      "bulletsEn": [
+        "Predict what happens when the support radius is halved"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "导数尺度：同一局部形状放大四倍",
+            "labelEn": "Derivative scale: four times for the same local shape",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "覆盖检查：相邻窗口之间是否留下空隙？",
+            "labelEn": "Coverage check: do neighbouring windows leave a gap?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-exercise-b0",
+          "text": "对局部坐标中的固定形状，支撑半径减半，会把二阶导数尺度放大四倍。这是链式法则的预测，不是对训练误差的保证。",
+          "textEn": "For a fixed shape in local coordinates, halving the support radius multiplies its second-derivative scale by four. This is a chain-rule prediction, not a guarantee about the trained error.",
+          "focus": 0,
+          "scene": {
+            "formula": "h_i\\mapsto h_i/2\\quad\\Longrightarrow\\quad h_i^{-2}\\mapsto4h_i^{-2}",
+            "formulaEn": "h_i\\mapsto h_i/2\\quad\\Longrightarrow\\quad h_i^{-2}\\mapsto4h_i^{-2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fbp-exercise-b1",
+          "text": "运行这个改变前，检查固定中心能否继续覆盖并重叠整个杆。修改运行必须另存，再对每个种子比较完整场、斜率与偏移残差误差。",
+          "textEn": "Before running that change, check whether the fixed centres still provide coverage and overlap across the rod. Save modified runs separately, then compare full-field, slope and shifted-residual errors for every seed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fbp-next",
+      "title": "下一篇：从一个预测，走向预测的不确定性",
+      "titleEn": "Next: move from one prediction to uncertainty",
+      "eyebrow": "论文 13 / 22",
+      "eyebrowEn": "PAPER 13 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一篇：从一个预测，走向预测的不确定性"
+      ],
+      "bulletsEn": [
+        "Next: move from one prediction to uncertainty"
+      ],
+      "sourceIds": [
+        "moseley2021"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：空间上分解表示",
+            "labelEn": "This paper: decompose the representation in space",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一篇：贝叶斯 PINNs 与后验分布",
+            "labelEn": "Next: Bayesian PINNs and posterior distributions",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fbp-next-b0",
+          "text": "改变表示可以改变优化结果，但单条预测曲线仍隐藏了不确定性。重复随机初始化测量的是训练变动，并不会自动变成贝叶斯不确定性。",
+          "textEn": "Changing the representation can change an optimiser’s result, but a single predicted curve still hides uncertainty. Repeating random initialisations measures training variability and is not automatically Bayesian uncertainty.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "fbp-next-b1",
+          "text": "下一篇计划介绍贝叶斯 PINNs，并在极小问题中进行真实后验推断。我们将区分数据、模型假设与数值近似带来的不确定性，同时保持小型 CPU 预算。",
+          "textEn": "The next planned paper introduces Bayesian PINNs and actual posterior inference in a tiny problem. We will distinguish uncertainty from data, model assumptions and numerical approximation while staying within a small CPU budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

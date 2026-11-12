@@ -1,0 +1,13 @@
+{
+  "paper": "13",
+  "checks": [
+    {
+      "slideId": "fbp-exercise",
+      "questionEn": "What changes when a support radius halves, and can the same centres still cover the domain?",
+      "questionZh": "支撑半径减半会改变什么，相同中心还能覆盖整个区域吗？",
+      "answerEn": "For a fixed local shape, the physical second derivative carries h to the power minus two, so halving h multiplies that scale by four. This does not predict the trained error because the learned shape can change. Coverage must be checked independently: our centres are spaced by0.25 and lie0.125 from the endpoints. Radius0.35 halved to0.175 retains coverage and overlap, while radius0.14 halved to0.07 leaves gaps. Compact windows and their first two derivatives vanish outside support, so no network can correct an uncovered interval in this ansatz. Save modified runs separately and compare all independent field, slope and shifted residual checks.",
+      "answerZh": "对固定局部形状，物理二阶导数包含半径的负二次幂，所以半径减半后该尺度放大四倍。这不预测训练后的误差，因为学习到的形状也会改变。还必须独立检查覆盖：这里中心间距为零点二五，最近中心离端点零点一二五。零点三五减半到零点一七五仍然覆盖并重叠，而零点一四减半到零点零七会留下空隙。紧支撑窗口及其前两阶导数在支撑外为零，因此在这个表示中，没有网络能修正未覆盖区间。修改运行必须另存，并比较完整场、斜率与偏移残差。",
+      "equation": "(h_i/2)^{-2}=4h_i^{-2}"
+    }
+  ]
+}

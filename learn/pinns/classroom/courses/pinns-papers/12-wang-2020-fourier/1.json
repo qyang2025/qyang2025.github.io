@@ -2826,8 +2826,8 @@
         },
         {
           "id": "fourier-next-b1",
-          "text": "下一篇计划研究 FBPINNs，把局部子网络与空间窗口组合。我们将问，空间上分解表示，能否在小型 CPU 预算内提供另一种处理多尺度的方法。",
-          "textEn": "The next planned paper is F B PINNs, which combines local subnetworks with spatial windows. We will ask whether dividing the representation spatially provides a different way to handle multiple scales within a small CPU budget.",
+          "text": "下一篇研究 FBPINNs，把局部子网络与空间窗口组合。我们将问，空间上分解表示，能否在小型 CPU 预算内提供另一种处理多尺度的方法。",
+          "textEn": "The next paper is F B PINNs, which combines local subnetworks with spatial windows. We will ask whether dividing the representation spatially provides a different way to handle multiple scales within a small CPU budget.",
           "focus": 0,
           "scene": {
             "formula": "",

@@ -2,8 +2,9 @@ export const poses={smile:[-3,3,0,.95,157,0],curious:[-12,5,-3,1.12,151,-3],focu
 export function chooseExpression(scene={},context={}) {
  if(context.thinking||context.buffering)return 'thinking';
  if(context.listening)return 'listening';
- if(poses[scene.expression])return scene.expression;
  const text=context.text||scene.caption||'';
+ if(scene.conversational&&context.playing){if(/[?？]/.test(text))return 'curious';if(/careful|mistake|not guarantee|注意|错误|不保证/i.test(text))return 'concerned';if(/therefore|so |that is why|因此|所以/i.test(text))return 'encouraging';return scene.gesture==='write'?'focused':'smile';}
+ if(poses[scene.expression])return scene.expression;
  if(/[?？]/.test(text))return 'curious';
  if(/陷阱|注意|不一定|不保证|trap|cannot|limitation|unbounded/i.test(text))return 'concerned';
  if(/答案|一致|因此|therefore|agrees|well done|result matches/i.test(text))return 'encouraging';

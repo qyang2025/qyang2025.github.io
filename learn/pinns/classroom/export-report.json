@@ -292,9 +292,22 @@
           "ready": 95
         }
       }
+    ],
+    "moseley2021": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 98,
+          "ready": 98
+        },
+        "zh": {
+          "total": 96,
+          "ready": 96
+        }
+      }
     ]
   },
-  "clips": 3831,
+  "clips": 4025,
   "features": [
     "progressive-reveal",
     "physical-animation",

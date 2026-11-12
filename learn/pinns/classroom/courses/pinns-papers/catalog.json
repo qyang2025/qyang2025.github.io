@@ -71,6 +71,12 @@
       "number": 12,
       "courseRoot": "courses/pinns-papers/12-wang-2020-fourier",
       "published": true
+    },
+    {
+      "id": "moseley2021",
+      "number": 13,
+      "courseRoot": "courses/pinns-papers/13-moseley-2021-fbpinns",
+      "published": true
     }
   ]
 }

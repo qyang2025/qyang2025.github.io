@@ -1,4 +1,4 @@
-import {paperDemoMeta} from './paper-demo-contract.mjs?v=paper12a';
+import {paperDemoMeta} from './paper-demo-contract.mjs?v=paper13c';
 import { sentences } from './player.mjs';
 
 export function fallbackTarget(slide, beatIndex, sentenceIndex = 0) {
@@ -101,8 +101,17 @@ export class TeachingPointer {
     this.observer=new ResizeObserver(this.update);this.observer.observe(host);
     window.addEventListener('scroll',this.update,{passive:true});window.addEventListener('resize',this.update);
   }
-  setTarget(cue) { this.cue=cue;this.refresh(); }
-  activity({speaking,reason}) { const active=!!speaking||reason==='ended'||(reason==='buffering'&&this.active);if(this.active===active&&this.speaking===!!speaking)return;this.active=active;this.speaking=!!speaking;this.refresh(); }
+  setTarget(cue) {const same=this.cue?.kind===cue.kind&&this.cue?.index===cue.index&&this.cue?.conceptKey===cue.conceptKey;this.cue=cue;if(same&&(this.target?.isConnected||cue.kind==='none')){this.pairRevealed();return;}this.refresh();}
+  pairRevealed(){
+    if(!this.active||!this.target?.isConnected)return;
+    const demo=this.target.closest('[data-paper-demo]');
+    if(demo)for(const peer of demo.querySelectorAll('[data-diagram-node]:not(.reveal-pending)'))if(peer!==this.target&&peer.getAttribute('aria-hidden')!=='true')peer.classList.add('paired-target');
+    if(this.host.querySelector('#slide')?.dataset.integratedEquation==='true'){
+      const selector=this.cue.kind==='formula'?'[data-diagram-node]:not(.reveal-pending)':'[data-formula-step="0"]:not(.reveal-pending)';
+      for(const peer of this.host.querySelectorAll(selector))if(peer!==this.target&&!peer.hidden&&peer.getAttribute('aria-hidden')!=='true')peer.classList.add('paired-target');
+    }
+  }
+  activity({speaking,reason}) { const active=!!speaking||reason==='ended'||(reason==='buffering'&&this.active);const changed=this.active!==active;this.active=active;this.speaking=!!speaking;this.host?.classList.toggle('narration-active',this.speaking);if(changed)this.refresh(); }
   refresh() {
     this.host.querySelectorAll('.paired-target').forEach(e=>e.classList.remove('paired-target'));
     this.host.querySelectorAll('.teaching-target').forEach(e=>e.classList.remove('teaching-target'));

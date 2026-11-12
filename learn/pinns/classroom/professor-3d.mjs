@@ -37,9 +37,9 @@ export function elbowPosition(shoulder,wrist,side,length=.49){
  return shoulder.clone().addScaledVector(direction,along).addScaledVector(bend,height);
 }
 // Measured from the relaxed downward arm: never lift beyond 45 degrees.
-export function gentleArmAngle(side,{expression='smile',speaking=false,energy=0,time=0,reduced=false}={}){
+export function gentleArmAngle(side,{expression='smile',speaking=false,energy=0,time=0,reduced=false,gesture}={}){
  const base=speaking?({encouraging:32,thinking:25,listening:20,curious:30,focused:28,concerned:26,smile:27})[expression]||27:({thinking:18,listening:14})[expression]||12;
- const pulse=speaking&&!reduced?Math.sin(time/430+side*1.15)*(10+Math.min(1,Math.max(0,energy))*8):0;
+ const pulse=speaking&&!reduced?(gesture===undefined?Math.sin(time/2300+side)*Math.sin(time/4300)*6:gesture*(18+Math.min(1,Math.max(0,energy))*7)-12):0;
  return side*Math.max(8,Math.min(45,base+pulse))*Math.PI/180;
 }
 export class ProfessorRig {
@@ -100,21 +100,21 @@ export class ProfessorRig {
  ball(parent,position,scale,material){const mesh=new T.Mesh(this.sphere,material);mesh.position.set(...position);mesh.scale.set(...scale);parent.add(mesh);return mesh;}
  segment(parent,a,b,r,material){const mesh=new T.Mesh(this.cylinder,material);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.scale.set(r,a.distanceTo(b),r);mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),b.clone().sub(a).normalize());parent.add(mesh);return mesh;}
  resize(){const w=this.element.clientWidth||240,h=this.element.clientHeight||300,aspect=w/h;this.camera.left=-1.45*aspect;this.camera.right=1.45*aspect;this.camera.top=1.45;this.camera.bottom=-1.45;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h,false);}
- update({expression,energy,speaking,time,dt,reduced,blink}){
+ update({expression,energy,speaking,time,dt,reduced,blink,presence={gesture:0,nod:0,gaze:0},engaged=speaking}){
   const target=facePoses[expression]||facePoses.smile;
   for(const k of Object.keys(target))this.pose[k]=easeToward(this.pose[k],target[k],dt,180);
   const p=this.pose,g=this.intensity,e=energy;
-  this.head.rotation.set(p.pitch*g,p.yaw*g,p.tilt*g+(reduced?0:Math.sin(time/480)*(speaking ? .035 : 0)));
-  this.root.position.y=(reduced||this.laserActive)?0:Math.sin(time/700)*.014+(speaking?Math.sin(time/220)*e*.02:0);
-  this.root.rotation.z=(reduced||this.laserActive)?0:Math.sin(time/1100)*.012;
+  this.head.rotation.set(p.pitch*1.1+presence.nod*.055,p.yaw*1.1-(this.laserActive?presence.gaze*.045:0),p.tilt*1.1);
+  this.root.position.y=(reduced||this.laserActive)?0:Math.sin(time/2100)*.008+presence.gesture*.006;
+  this.root.rotation.z=(reduced||this.laserActive)?0:presence.gesture*.008;
   this.eyes.forEach((eye,i)=>{const s=Math.max(.06,(1+(p.eyes-1)*g)*blink);eye.scale.y=.18*s;this.pupils[i].scale.y=.105*s;this.pupils[i].position.y=.02+(expression==='thinking'?.05:0);});
   this.brows.forEach((b,i)=>{b.position.y=.3+p.brow*g;b.rotation.z=p.asym*g*(i===0?1:-1);});
-  const open=Math.min(.2,e*.22)+(expression==='curious'?.06:0);this.openMouth.scale.y=Math.max(.005,open);this.openMouth.scale.x=expression==='curious'?.1:.18;this.openMouth.visible=open>.018;this.tongue.visible=open>.08;this.tongue.position.y=-.32-open*.65;
+  const open=speaking?Math.min(.2,e*.22):0;this.openMouth.scale.y=Math.max(.005,open);this.openMouth.scale.x=expression==='curious'?.1:.18;this.openMouth.visible=open>.018;this.tongue.visible=open>.08;this.tongue.position.y=-.32-open*.65;
   const coords=this.lipGeometry.attributes.position;for(let i=0;i<25;i++){const x=(i/24-.5)*.4;coords.setXYZ(i,x,-.31-p.smile*g*(1-(x/.2)**2),.572);}coords.needsUpdate=true;this.lips.visible=!this.openMouth.visible;
   for(const arm of this.arms){
    // The pointer planner selects a stable pose, with 120 degrees only an upper bound.
    // Keep it steady while aiming; the free arm and face remain expressive.
-   const angle=arm.hand===this.pointArm&&this.laserActive ? -(this.laserArmAngle??32)*Math.PI/180 : gentleArmAngle(arm.side,{expression,speaking,energy:e,time,reduced});
+   const angle=arm.hand===this.pointArm&&this.laserActive ? -(this.laserArmAngle??32)*Math.PI/180 : gentleArmAngle(arm.side,{expression,speaking:engaged,energy:e,time,reduced,gesture:presence.gesture});
    const targetRotation=new T.Quaternion().setFromEuler(new T.Euler(-.08,0,angle));
    if(arm.hand===this.pointArm){
     arm.motion||={angle:-new T.Euler().setFromQuaternion(arm.joint.quaternion).z,velocity:0};
@@ -127,7 +127,7 @@ export class ProfessorRig {
   this.canvas.dataset.gestureDegrees=this.arms.map(a=>new T.Euler().setFromQuaternion(a.joint.quaternion).z*180/Math.PI).map(a=>a.toFixed(2)).join(',');
   this.badge.textContent='';
   this.badge.dataset.expression=expression;this.element.dataset.expressionIntensity=String(g);
-  this.canvas.dataset.mouthOpening=open.toFixed(4);this.canvas.dataset.headPose=[this.head.rotation.x,this.head.rotation.y,this.head.rotation.z].map(v=>v.toFixed(3)).join(',');this.canvas.dataset.armAngle=this.pointArm.rotation.z.toFixed(4);this.canvas.dataset.laserGoalDegrees=String(this.laserArmAngle??'');this.canvas.dataset.laserAligned=String(this.isLaserAligned());
+  this.canvas.dataset.phraseGesture=presence.gesture.toFixed(4);this.canvas.dataset.mouthOpening=open.toFixed(4);this.canvas.dataset.headPose=[this.head.rotation.x,this.head.rotation.y,this.head.rotation.z].map(v=>v.toFixed(3)).join(',');this.canvas.dataset.armAngle=this.pointArm.rotation.z.toFixed(4);this.canvas.dataset.laserGoalDegrees=String(this.laserArmAngle??'');this.canvas.dataset.laserAligned=String(this.isLaserAligned());
   this.renderer.render(this.scene,this.camera);
  }
  laserPoseCandidates(point,landings=[point]){

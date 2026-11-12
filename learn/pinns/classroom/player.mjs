@@ -1,3 +1,4 @@
+import {conversationalPause} from './teaching-presence.mjs?v=paper13c';
 export function sentences(text, language = 'zh') {
   const segmented = [...new Intl.Segmenter(language === 'en' ? 'en' : 'zh', { granularity: 'sentence' }).segment(text)].map(x => x.segment);
   return segmented.flatMap(x => x.match(/[^；;]+[；;]?/gu) || []).map(x => x.trim()).filter(Boolean);
@@ -54,6 +55,7 @@ export class LecturePlayer {
     if (!this.playing) return;
     const token = this.epoch;
     const message = this.utterance(this.currentText());
+    const conversational=!!this.currentBeat().scene?.conversational||this.lesson.origin==='authored-paper-implementation';
     message.context = { lessonId: this.lesson.id, language: this.lesson.language || 'zh', slideId: this.currentSlide().id, beatId: this.currentBeat().id, sentenceIndex: this.sentence };
     if (this.sentence + 1 < sentences(this.currentBeat().text, this.lesson.language).length) message.nextContext = { ...message.context, sentenceIndex: this.sentence + 1 };
     else if (this.beat + 1 < this.currentSlide().beats.length) message.nextContext = { ...message.context, beatId: this.currentSlide().beats[this.beat + 1].id, sentenceIndex: 0 };
@@ -93,7 +95,7 @@ export class LecturePlayer {
       this.emit();
       const next = () => { if (token === this.epoch && this.playing) this.speak(); };
       if (this.gapMs === 0) next();
-      else this.timer = setTimeout(next, this.gapMs * (pageChanged ? 3 : beatChanged ? 2 : 1));
+      else this.timer = setTimeout(next, conversational?conversationalPause(message.text,this.gapMs,{pageChanged,beatChanged}):this.gapMs*(pageChanged?3:beatChanged?2:1));
     };
     message.onerror = event => {
       if (token !== this.epoch) return;

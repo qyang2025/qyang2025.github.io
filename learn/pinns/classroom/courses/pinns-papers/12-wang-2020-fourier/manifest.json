@@ -50,5 +50,5 @@
       "text": "Plain,low-band,high-band and two-scale representations; three seeds each,2000 updates. All final fields, source-normalised residuals, modal projections, initial output kernels and random frequencies are retained."
     }
   ],
-  "downloadSha256": "cf31766d5999176b4d446cac35bd981de9114128517ed22719c449a5ed17431f"
+  "downloadSha256": "7e50faddcd4369f3cdbfb0ecf1dce3cb25ec59cf35183d681b1b72522c8ee46c"
 }
