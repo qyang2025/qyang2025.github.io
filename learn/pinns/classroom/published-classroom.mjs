@@ -6,7 +6,7 @@ import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
 import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper11f';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=paper11f';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=paper11g';
 import {lessonSections,isOutline} from './course-outline.mjs?v=paper11f';
 import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper11f';
 import {schematicHtml} from './schematic.mjs';

@@ -26,7 +26,7 @@ export class ClassroomViewport {
   const fixed=innerWidth>=280&&innerHeight>=360,compact=fixed&&(innerWidth<900||innerHeight<600);
   document.documentElement.classList.toggle('classroom-fitted',fixed);document.documentElement.classList.toggle('classroom-compact',compact);
   if(!compact)this.openPanel('');
-  const zh=document.documentElement.lang.startsWith('zh');for(const button of this.panelButtons.children)button.textContent=button.dataset.panel==='slides'?(zh?'课程目录':'Slides'):(zh?'资料与设置':'Resources');
+  const zh=document.documentElement.lang.startsWith('zh'),hasLiveQuestions=!!document.getElementById('live-question-form');for(const button of this.panelButtons.children)button.textContent=button.dataset.panel==='slides'?(zh?'课程目录':'Slides'):hasLiveQuestions?(zh?'提问与资料':'Ask / resources'):(zh?'资料与设置':'Resources');
   document.documentElement.style.setProperty('--classroom-header-height',`${document.querySelector('.topbar').getBoundingClientRect().height}px`);
   const controls=[document.getElementById('course-roadmap'),document.querySelector('.lecture-meta'),document.querySelector('.playback'),document.querySelector('.caption')];
   if(!fixed){if(this.question.parentNode!==this.column)this.placeholder.after(this.question);delete this.stage.dataset.fixedSlide;for(const el of [this.stage,...controls]){el.style.width='';el.style.height='';}this.canvas.style.transform='';return;}
