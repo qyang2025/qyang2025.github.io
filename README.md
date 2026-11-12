@@ -20,7 +20,7 @@ To add a news item or paper, edit the `#news` / `#publications` sections in `ind
 ## Professor Vee learning series
 
 The homepage Teaching section and sidebar link to [Learning series](learn/). The
-[PINNs series](learn/pinns/) contains 19 paper presentations and 449 slides,
+[PINNs series](learn/pinns/) contains 20 paper presentations and 473 slides,
 plus a separate six-chapter foundation course. Everything published here is
 static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 
@@ -45,6 +45,7 @@ static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 | 17 | Jagtap2020 · XPINNs | 22 | 113/113 | 100/100 | [Open](learn/pinns/classroom/?paper=jagtap2020xpinns&language=en) |
 | 18 | McClenny2020 · SA-PINNs | 23 | 115/115 | 105/105 | [Open](learn/pinns/classroom/?paper=mcclenny2020sa&language=en) |
 | 19 | Lu2019 · DeepONet | 26 | 118/118 | 111/111 | [Open](learn/pinns/classroom/?paper=lu2019deeponet&language=en) |
+| 20 | Wang2021 · Physics-informed DeepONet | 24 | 109/109 | 99/99 | [Open](learn/pinns/classroom/?paper=wang2021pideeponet&language=en) |
 
 Foundation course recordings: English 453/453; Chinese 345/345.
 Incomplete recording sets stay in reading mode. A classroom language becomes

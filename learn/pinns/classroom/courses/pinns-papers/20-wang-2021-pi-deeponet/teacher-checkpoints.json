@@ -1,0 +1,13 @@
+{
+  "paper": "20",
+  "checks": [
+    {
+      "slideId": "piop-exercise",
+      "questionEn": "Does physics-only operator training learn without information?",
+      "questionZh": "纯物理算子训练是在没有信息的情况下学习吗？",
+      "answerEn": "No. It uses known source functions, a specified differential equation and boundary conditions, with residual constraints for each training function. It avoids paired training-temperature labels. This differs from having no information, and also differs from validation without reference solutions. Independent unseen input functions, shifted residual positions and full-field comparisons remain necessary. Finite residual sampling and sensor encoding do not certify arbitrary-input generalisation.",
+      "answerZh": "不是。它利用已知热源函数、指定微分方程以及边界条件，对每个训练函数设置残差约束。省去的是成对训练温度标签，而不是全部信息。评估仍然使用独立参考解、未见输入函数、偏移残差位置以及完整场比较。有限残差采样与传感器编码都不能证明任意输入上的泛化。",
+      "equation": "L_r=\\frac1{IJ}\\sum_{i,j}r_\\theta(f_i,x_j)^2"
+    }
+  ]
+}

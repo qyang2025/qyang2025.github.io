@@ -1,0 +1,42 @@
+{
+  "id": "wang2021pideeponet",
+  "paper": {
+    "number": 20,
+    "shortTitle": "Wang2021 · Physics-informed DeepONet",
+    "title": "Wang, Wang & Perdikaris (2021), Learning the solution operator of parametric partial differential equations with physics-informed DeepONets",
+    "url": "https://arxiv.org/abs/2103.10974",
+    "year": 2021,
+    "scope": "Tiny Poisson operator teaching adaptation. Same465-parameter nonlinear-branch DeepONet,hard zero endpoints,and paired initial states. Data72,physics0,and hybrid72label controls;24training functions and16collocation locations each. Analytic smooth-trunk derivatives are independently checked against automatic differentiation. No original GRF/Burgers/Eikonal benchmark or arbitrary-input generalisation claim."
+  },
+  "title": "Paper20: Physics-informed DeepONet and operator training without output labels",
+  "titleZh": "论文20：物理信息 DeepONet 与无输出标签的算子训练",
+  "totalMinutes": 50,
+  "download": "paper-20.zip",
+  "modules": [
+    {
+      "id": "139afec2-2021-4020-8020-000000000020",
+      "index": 0,
+      "title": "论文20：物理信息 DeepONet 与无输出标签的算子训练",
+      "titleEn": "Paper20: Physics-informed DeepONet and operator training without output labels",
+      "file": "1.json",
+      "pages": 24,
+      "sentenceCount": 109,
+      "plannedMinutes": 50
+    }
+  ],
+  "sources": [
+    {
+      "id": "wang2021pideeponet",
+      "name": "Wang, Wang & Perdikaris (2021), Learning the solution operator of parametric partial differential equations with physics-informed DeepONets",
+      "url": "https://arxiv.org/abs/2103.10974",
+      "text": "Primary physics-informed operator learning using differential-equation residuals across input functions. Our finite Poisson family and analytic smooth-trunk derivatives are CPU teaching adaptations, not original large benchmarks."
+    },
+    {
+      "id": "piop-local",
+      "name": "Nine paired CPU controls and independent derivative checks",
+      "url": "/courses/pinns-papers/20-wang-2021-pi-deeponet/trace.json",
+      "text": "Same 465-parameter architecture and initial states per seed. Data-only, physics-only and hybrid; all final checkpoints, held-out fields, residuals and extrapolation results retained."
+    }
+  ],
+  "downloadSha256": "ae2f221fbc3a200f829244ce71b44d7781a46f8c8f9206513a853751d670f4a4"
+}

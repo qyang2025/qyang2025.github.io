@@ -184,11 +184,12 @@
     },
     {
       "number": "20",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Wang,Wang & Perdikaris,Physics-informed DeepONets",
       "source": "https://arxiv.org/abs/2103.10974",
       "topic": "Physics-constrained operator learning",
-      "scope": "Planned compact CPU teaching adaptation;actual budget,controls and independent validation must pass before publication."
+      "scope": "Tiny Poisson operator teaching adaptation. Same465-parameter nonlinear-branch DeepONet,hard zero endpoints,and paired initial states. Data72,physics0,and hybrid72label controls;24training functions and16collocation locations each. Analytic smooth-trunk derivatives are independently checked against automatic differentiation. No original GRF/Burgers/Eikonal benchmark or arbitrary-input generalisation claim.",
+      "classroom": "classroom/?paper=wang2021pideeponet&language=en"
     },
     {
       "number": "17",

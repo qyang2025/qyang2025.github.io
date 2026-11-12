@@ -113,6 +113,12 @@
       "number": 19,
       "courseRoot": "courses/pinns-papers/19-lu-2019-deeponet",
       "published": true
+    },
+    {
+      "id": "wang2021pideeponet",
+      "number": 20,
+      "courseRoot": "courses/pinns-papers/20-wang-2021-pi-deeponet",
+      "published": true
     }
   ]
 }
