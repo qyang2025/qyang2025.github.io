@@ -1,4 +1,4 @@
-import {ProfessorRig} from './professor-3d.mjs?v=paper10d';
+import {ProfessorRig} from './professor-3d.mjs?v=paper11c';
 import {poses,chooseExpression,easeToward} from './expression.mjs';
 export function currentScene(slide,beat){return beat.scene||{formula:slide.formula,caption:slide.bullets[beat.focus],gesture:slide.visual==='equation'?'write':'point',stage:beat.focus};}
 export class ProfessorStage {

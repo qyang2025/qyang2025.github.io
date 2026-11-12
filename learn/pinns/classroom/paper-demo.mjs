@@ -1,12 +1,14 @@
-import {drawBoundary} from './boundary-demo.mjs?v=paper10b';
-import {drawVpinn} from './vpinn-demo.mjs?v=paper10b';
-import {drawCpinn} from './cpinn-demo.mjs?v=night-08b';
-import {drawSampling} from './sampling-demo.mjs?v=night-08b';
-import {drawGPinn} from './gpinn-demo.mjs?v=night-06a';
-import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper10b';
-import {drawCausal,causalKinds} from './causal-demo.mjs?v=night-05a';
-import {drawTransport,transportKinds} from './transport-demo.mjs?v=night-04b';
-import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=night-03b';
+import {reserveAxisGutter} from './plot-layout.mjs?v=paper11c';
+import {drawNtk} from './ntk-demo.mjs?v=paper11c';
+import {drawBoundary} from './boundary-demo.mjs?v=paper11c';
+import {drawVpinn} from './vpinn-demo.mjs?v=paper11c';
+import {drawCpinn} from './cpinn-demo.mjs?v=paper11c';
+import {drawSampling} from './sampling-demo.mjs?v=paper11c';
+import {drawGPinn} from './gpinn-demo.mjs?v=paper11c';
+import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper11c';
+import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper11c';
+import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper11c';
+import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper11c';
 import {mathHtml} from './math.mjs';
 import {sentences} from './player.mjs';
 const traces=new Map(),traceLoads=new Map();
@@ -33,23 +35,25 @@ export function syncPaperDemo(activity,position,slide,language){
  const host=document.querySelector('[data-paper-demo]');if(!host||activity.audioTime===undefined)return;
  const p=slide.id==='conditions'&&position.beat===0?0:paperProgress(slide,position,activity,language);host.dataset.progress=String(p);draw(host,p);
 }
-function draw(host,progress){
- const trace=traces.get(host.dataset.paperTrace||'paper01');if(!trace||paperDemoMeta[host.dataset.paperDemo]?.code)return;
- const kind=host.dataset.paperDemo,en=document.querySelector('#slide')?.lang==='en',svg=host.querySelector('svg');
- if(paperDemoMeta[kind]?.renderer==='boundary'){drawBoundary(host,trace,progress,en);return;}
- if(paperDemoMeta[kind]?.renderer==='vpinn'){drawVpinn(host,trace,progress,en);return;}
- if(paperDemoMeta[kind]?.renderer==='cpinn'){drawCpinn(host,trace,progress,en);return;}
- if(paperDemoMeta[kind]?.renderer==='sampling'){drawSampling(host,trace,progress,en);return;}
- if(paperDemoMeta[kind]?.renderer==='gpinn'){drawGPinn(host,trace,progress,en);return;}
- if(causalKinds.includes(kind)){drawCausal(host,trace,progress,en);return;}
- if(transportKinds.includes(kind)){drawTransport(host,trace,progress,en);return;}
- if(gradientKinds.includes(kind)){drawGradient(host,trace,progress,en);return;}
- if(kind.startsWith('inverse-')){drawInverse(host,trace,progress,en);return;}
- const axis=(symbol,x,y)=>`<foreignObject x="${x}" y="${y}" width="36" height="35"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(symbol,false)}</div></foreignObject>`;
+export function drawPaperDiagram(host,trace,progress,en){draw(host,progress,trace,en);}
+function draw(host,progress,providedTrace,providedLanguage){
+ const trace=providedTrace||traces.get(host.dataset.paperTrace||'paper01');if(!trace||paperDemoMeta[host.dataset.paperDemo]?.code)return;
+ const kind=host.dataset.paperDemo,en=providedLanguage??(document.querySelector('#slide')?.lang==='en'),svg=host.querySelector('svg');
+ if(paperDemoMeta[kind]?.renderer==='ntk'){drawNtk(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='boundary'){drawBoundary(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='vpinn'){drawVpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='cpinn'){drawCpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='sampling'){drawSampling(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='gpinn'){drawGPinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(causalKinds.includes(kind)){drawCausal(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(transportKinds.includes(kind)){drawTransport(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(gradientKinds.includes(kind)){drawGradient(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(kind.startsWith('inverse-')){drawInverse(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ const axis=(symbol,x,y)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="36" height="35"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(symbol,false)}</div></foreignObject>`;
  if(kind==='samples'){
   const data=[...Array(13)].map((_,i)=>`<circle cx="${60+i*40}" cy="185" r="4" fill="#ffe071"/>`).join('')+[...Array(7)].flatMap((_,i)=>[60,540].map(x=>`<circle cx="${x}" cy="${185-i*22}" r="4" fill="#ffe071"/>`)).join('');
   const physics=[...Array(28)].map((_,i)=>`<circle cx="${80+(i*137)%440}" cy="${42+(i*47)%125}" r="3" fill="#79d4ef"/>`).join('');
-  svg.innerHTML=`<path d="M60 30V185H555" fill="none" stroke="#ced8df" stroke-width="3"/>${data}${physics}${axis('x',565,170)}${axis('t',28,10)}<text x="300" y="217" text-anchor="middle">${en?'Gold: labelled edges · cyan: equation tests':'金色：边界标签 · 蓝色：方程检验点'}</text>`;return;
+  svg.innerHTML=`<path d="M60 30V185H555" fill="none" stroke="#ced8df" stroke-width="3"/>${data}${physics}${axis('x',565,170)}${axis('t',28,10)}<text x="300" y="217" text-anchor="middle">${en?'Gold: labelled edges · cyan: equation tests':'金色：边界标签 · 蓝色：方程检验点'}</text>`;reserveAxisGutter(svg);return;
  }
  const mainRun=trace.runs.pinn||trace.runs.clean;const frameIndex=Math.min(mainRun.frames.length-1,Math.floor(progress*(mainRun.frames.length-1))),frame=mainRun.frames[frameIndex];
  const timeIndex=Math.min(trace.times.length-1,Math.floor(Math.min(1,progress*2)*(trace.times.length-1)));
@@ -59,11 +63,11 @@ function draw(host,progress){
  const baseline=trace.runs['data-only'].frames.at(-1);
  svg.innerHTML=`<path d="M60 20V185H555M60 105H550" fill="none" stroke="#ced8df" stroke-width="2.8"/>${physical?path(initial,'#79d4ef',true):path(truth,'#79d4ef')}${path(physical?truth:frame.curve,'#ffe071')}${kind==='comparison'?path(baseline.curve,'#ff8e9e',true):''}${axis('x',565,172)}${axis('u',22,4)}<text x="60" y="209" text-anchor="middle">−1</text><text x="540" y="209" text-anchor="middle">1</text><text x="300" y="22" text-anchor="middle">${physical?`t = ${trace.times[timeIndex].toFixed(3)}`:en?'Final-time field':'终止时刻的场'}</text>${physical?`<path d="M125 244h30" stroke="#79d4ef" stroke-width="3" stroke-dasharray="6 4"/><text x="165" y="251">${en?'Initial':'初始'}</text><path d="M345 244h30" stroke="#ffe071" stroke-width="3"/><text x="385" y="251">${en?'Current':'当前'}</text>`:`<path d="M65 244h25" stroke="#79d4ef" stroke-width="3"/><text x="100" y="251">${en?'Reference':'参考'}</text><path d="M280 244h25" stroke="#ffe071" stroke-width="3"/><text x="315" y="251">PINN</text>${kind==='comparison'?`<path d="M425 244h25" stroke="#ff8e9e" stroke-width="3" stroke-dasharray="6 4"/><text x="460" y="251">${en?'Data only':'纯数据'}</text>`:''}`}`;
  const output=host.querySelector('output');if(output)output.textContent=en?`Adam ${frame.step}${frame.phase==='lbfgs'?' + L-BFGS':''} · relative error ${(frame.relativeL2*100).toFixed(2)}%`:`Adam ${frame.step}${frame.phase==='lbfgs'?' + L-BFGS':''} · 相对误差 ${(frame.relativeL2*100).toFixed(2)}%`;
- host.dataset.trainingStep=String(frame.step);host.dataset.physicalTime=String(trace.times[timeIndex]);
+ reserveAxisGutter(svg);host.dataset.trainingStep=String(frame.step);host.dataset.physicalTime=String(trace.times[timeIndex]);
 }
 function drawInverse(host,trace,progress,en){
  const kind=host.dataset.paperDemo,svg=host.querySelector('svg');
- const axis=(symbol,x,y)=>`<foreignObject x="${x}" y="${y}" width="65" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(symbol,false)}</div></foreignObject>`;
+ const axis=(symbol,x,y)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="65" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(symbol,false)}</div></foreignObject>`;
  const base=`<path d="M60 24V185H555" fill="none" stroke="#ced8df" stroke-width="2.8"/>`;
  if(kind==='inverse-observations'){
   const o=trace.observations,dots=o.x.map((x,i)=>`<circle cx="${60+(x+1)*240}" cy="${185-o.t[i]/trace.config.timeEnd*150}" r="2.9" fill="${o.clean[i]>=0?'#ffe071':'#79d4ef'}" opacity=".88"/>`).join('');

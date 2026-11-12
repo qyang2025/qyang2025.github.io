@@ -3040,8 +3040,8 @@
         },
         {
           "id": "boundary-next-b1",
-          "text": "下一篇计划用神经切线核研究这种竞争。它追问，同一物理问题中的不同损失分量为什么会以不同速率收敛。",
-          "textEn": "The next planned paper studies that competition through the neural tangent kernel. It asks why different loss components can converge at different rates even when they belong to the same physical problem.",
+          "text": "下一篇用神经切线核研究这种竞争。它追问，同一物理问题中的不同损失分量为什么会以不同速率收敛。",
+          "textEn": "The next paper studies that competition through the neural tangent kernel. It asks why different loss components can converge at different rates even when they belong to the same physical problem.",
           "focus": 0,
           "scene": {
             "formula": "",

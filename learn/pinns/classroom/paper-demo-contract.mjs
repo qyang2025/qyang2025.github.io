@@ -9,7 +9,8 @@ export const paperTraceFiles=Object.freeze({
  paper07:'./courses/pinns-papers/07-wu-2023-sampling/trace.json',
  paper08:'./courses/pinns-papers/08-jagtap-2020-cpinn/trace.json',
  paper09:'./courses/pinns-papers/09-kharazmi-2019-vpinn/trace.json',
- paper10:'./courses/pinns-papers/10-sukumar-2021-boundaries/trace.json'
+ paper10:'./courses/pinns-papers/10-sukumar-2021-boundaries/trace.json',
+ paper11:'./courses/pinns-papers/11-wang-2020-ntk/trace.json'
 });
 const entries={};
 function register(names,options={}){for(const name of names)entries[name]=Object.freeze({nodes:1,code:false,replay:false,renderer:'legacy',...options});}
@@ -23,4 +24,6 @@ register(['sampling-physical'],{renderer:'sampling'});register(['sampling-code']
 register(['cpinn-physical'],{renderer:'cpinn'});register(['cpinn-code'],{code:true,customCode:true});register(['cpinn-training','cpinn-flux','cpinn-jumps','cpinn-error'],{nodes:2,replay:true,renderer:'cpinn'});
 register(['vpinn-physical','vpinn-tests','vpinn-projection','vpinn-quadrature','vpinn-blind'],{renderer:'vpinn'});register(['vpinn-code'],{code:true,customCode:true});register(['vpinn-training','vpinn-moments','vpinn-error'],{nodes:2,replay:true,renderer:'vpinn'});
 register(['boundary-physical','boundary-distance','boundary-curvature'],{renderer:'boundary'});register(['boundary-code'],{code:true,customCode:true});register(['boundary-training','boundary-error','boundary-field-error'],{nodes:2,replay:true,renderer:'boundary'});
+register(['ntk-physical','ntk-kernel','ntk-spectrum'],{renderer:'ntk'});register(['ntk-code'],{code:true,customCode:true});register(['ntk-training','ntk-flow','ntk-error'],{nodes:2,replay:true,renderer:'ntk'});
+register(['ntk-drift'],{renderer:'ntk',replay:true});
 export const paperDemoMeta=Object.freeze(entries);

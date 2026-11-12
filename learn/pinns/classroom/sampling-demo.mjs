@@ -4,7 +4,7 @@ export function samplingFrame(trace,mode,progress,seed=11){const rows=trace.runs
 export function samplingEvent(trace,progress,seed=11){const run=trace.runs[`rad-${seed}`],rows=run.resamplingEvents;if(!rows.length)return {step:0,points:run.initialPoints,probabilities:trace.candidates.map(()=>1/trace.candidates.length),layerPoints:run.initialPoints.filter(x=>x>.9).length};return rows[Math.min(rows.length-1,Math.floor(Math.max(0,Math.min(1,progress))*(rows.length-1)))];}
 export function drawSampling(host,trace,progress,en){
  const svg=host.querySelector('svg'),kind=host.dataset.paperDemo,n=names[en?'en':'zh'];if(!svg)return;
- const text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`,axis=(s,x,y,width=60)=>`<foreignObject x="${x}" y="${y}" width="${width}" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
+ const text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`,axis=(s,x,y,width=60)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="${width}" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
  const px=x=>60+480*x,modes=['grid','resample','rad'],legend=(y=249)=>modes.map((m,i)=>`<path d="M${65+i*180} ${y-7}h24" stroke="${colours[m]}" stroke-width="3"/>`+text(95+i*180,y,n[m],'start')).join(''),output=host.querySelector('output'),frame=m=>samplingFrame(trace,m,progress);
  if(kind==='sampling-physical'){
   const value=x=>(Math.exp((x-1)/trace.config.nu)-Math.exp(-1/trace.config.nu))/(1-Math.exp(-1/trace.config.nu));

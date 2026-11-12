@@ -5,7 +5,7 @@ export function gpinnFrame(trace,mode,progress,seed=11){const frames=trace.runs[
 export function sourceRamp(trace,fraction){return trace.x.map((x,i)=>x+fraction*(trace.truth[i]-x));}
 export function drawGPinn(host,trace,progress,en){
  const svg=host.querySelector('svg'),kind=host.dataset.paperDemo,n=names[en?'en':'zh'];if(!svg)return;
- const text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`,axis=(s,x,y,width=60)=>`<foreignObject x="${x}" y="${y}" width="${width}" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
+ const text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`,axis=(s,x,y,width=60)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="${width}" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
  const modes=['pinn16','gpinn001','gpinn1'],legend=(y=249)=>modes.map((m,i)=>`<path d="M${60+i*185} ${y-7}h24" stroke="${colours[m]}" stroke-width="3"/>`+text(90+i*185,y,n[m],'start')).join('');
  const px=x=>60+480*x/Math.PI,frame=m=>gpinnFrame(trace,m,progress),output=host.querySelector('output');
  if(kind==='gpinn-physical'){

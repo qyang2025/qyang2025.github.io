@@ -5,7 +5,7 @@ const names={en:{unweighted:'Unit',fixed100:'Fixed 100',adaptive:'Ratio',guarded
 export function gradientFrame(trace,kind,progress,seed=11){const frames=trace.runs[`${kind}-${seed}`].frames;return frames[Math.min(frames.length-1,Math.floor(Math.max(0,Math.min(1,progress))*(frames.length-1)))];}
 export function drawGradient(host,trace,progress,en){
  const svg=host.querySelector('svg'),kind=host.dataset.paperDemo,n=names[en?'en':'zh'];if(!svg)return;
- const axis=(s,x,y)=>`<foreignObject x="${x}" y="${y}" width="60" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
+ const axis=(s,x,y)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="60" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
  const text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`;
  const frame=m=>gradientFrame(trace,m,progress),output=host.querySelector('output');
  const modes=['unweighted','adaptive','guarded'];
@@ -27,9 +27,9 @@ export function drawGradient(host,trace,progress,en){
   output.textContent=en?`Step ${f.step} · weight ${f.weight.toExponential(2)}`:`步数 ${f.step} · 权重 ${f.weight.toExponential(2)}`;host.dataset.step=String(f.step);return;
  }
  if(kind==='gradient-weight'){
-  const upper=Math.max(2,...modes.flatMap(m=>trace.runs[`${m}-11`].frames.map(f=>Math.log10(f.weight))))+.2;
+  const upper=Math.ceil(Math.max(2,...modes.flatMap(m=>trace.runs[`${m}-11`].frames.map(f=>Math.log10(f.weight)))));
   const points=m=>{const all=trace.runs[`${m}-11`].frames,count=Math.floor(progress*(all.length-1))+1;return all.slice(0,count).map(f=>`${60+480*f.step/trace.config.steps},${185-150*Math.log10(f.weight)/upper}`).join(' ');};
-  svg.innerHTML=`<path d="M60 28V185H555" fill="none" stroke="#ced8df" stroke-width="2.8"/>`+modes.map(m=>`<polyline points="${points(m)}" fill="none" stroke="${colours[m]}" stroke-width="3"/>`).join('')+text(40,190,'1')+text(40,44,`10^${Math.ceil(upper)}`)+axis('w',5,5)+text(60,214,'0')+text(300,214,en?'Adam step':'Adam 步数')+text(540,214,String(trace.config.steps))+legend(modes.map(m=>[n[m],colours[m]]));
+  svg.innerHTML=`<path d="M60 28V185H555" fill="none" stroke="#ced8df" stroke-width="2.8"/>`+modes.map(m=>`<polyline points="${points(m)}" fill="none" stroke="${colours[m]}" stroke-width="3"/>`).join('')+text(48,190,'1','end')+`<foreignObject x="-5" y="22" width="54" height="36"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis" style="text-align:right">${mathHtml(`10^{${upper}}`,false)}</div></foreignObject>`+axis('w',5,5)+text(60,214,'0')+text(300,214,en?'Adam step':'Adam 步数')+text(540,214,String(trace.config.steps))+legend(modes.map(m=>[n[m],colours[m]]));
   output.textContent=en?`Ratio ${frame('adaptive').weight.toExponential(2)} · guarded ${frame('guarded').weight.toFixed(1)}`:`比值 ${frame('adaptive').weight.toExponential(2)} · 限幅 ${frame('guarded').weight.toFixed(1)}`;host.dataset.step=String(frame('adaptive').step);return;
  }
  if(kind==='gradient-error'){

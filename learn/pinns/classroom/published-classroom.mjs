@@ -1,24 +1,26 @@
-import {SyncAudit} from './sync-audit.mjs?v=paper10d';
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper10d';
+import {createLocalClassroomUrl,restoreLecturePosition} from './classroom-handoff.mjs?v=paper11d';
+import {SyncAudit} from './sync-audit.mjs?v=paper11d';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper11d';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
-import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper10d';
+import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper11d';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=paper10d';
-import {lessonSections,isOutline} from './course-outline.mjs?v=paper10d';
-import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper10d';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=paper11d';
+import {lessonSections,isOutline} from './course-outline.mjs?v=paper11d';
+import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper11d';
 import {schematicHtml} from './schematic.mjs';
 import {mathHtml,proseHtml} from './math.mjs';
 import {lectureChart} from './lecture-chart.mjs';
-import {LecturePlayer,sentences} from './player.mjs?v=paper10d';
-import {currentScene,ProfessorStage} from './stage.mjs?v=paper10d';
-import {NeuralSpeech} from './neural-speech.mjs?v=paper10d';
+import {LecturePlayer,sentences} from './player.mjs?v=paper11d';
+import {currentScene,ProfessorStage} from './stage.mjs?v=paper11d';
+import {NeuralSpeech} from './neural-speech.mjs?v=paper11d';
 import {localizeLesson} from './languages.mjs';
 const $=id=>document.getElementById(id),escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedPaper=new URLSearchParams(location.search).get('paper')||'';let courseRoot='courses/pinns',courseKey='pinns',paperCatalog=[];
 const auditEnabled=new URLSearchParams(location.search).get('audit')==='1';
 const classroomSearch=(chapter,language)=>'?'+new URLSearchParams({...auditEnabled?{audit:'1'}:{},...requestedPaper?{paper:requestedPaper}:{},chapter:String(chapter+1),language}).toString();
+const returnedPosition=Object.fromEntries(['slide','beat','sentence'].map(k=>[k,Number(new URLSearchParams(location.search).get(k)||0)]));let returnedPositionApplied=false;
 let manifest,audioPack,rawLesson,chapter=0,language=new URLSearchParams(location.search).get('language')==='zh'?'zh':'en',loading=true,loadEpoch=0;
 const t=(en,zh)=>language==='en'?en:zh;
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').hidden=true,6500);}
@@ -51,6 +53,7 @@ function visual(slide, beat) {
 
 function render(){
  const lesson=player.lesson,p=player.displayPosition(),slide=lesson.slides[p.slide],beat=slide.beats[p.beat],en=language==='en',scene=currentScene(slide,beat),paperNumber=String(manifest.paper?.number||1).padStart(2,'0'),paperTitle=manifest.paper?.shortTitle||'Raissi 2017';
+ for(const [id,a,b]of[['live-title','Ask and get supplementary explanations','提问与补充讲解'],['live-label','Your question','你的问题'],['live-submit','Continue with local Codex','带到本机 Codex 生成讲解'],['live-open','Open interactive classroom','进入互动课堂（语音提问与新语音）'],['live-note','Requires Professor Vee running on this computer. Your question and lecture position transfer to the local classroom, where you generate extra slides and Kokoro narration.','需要本机 Professor Vee 服务运行。问题和讲解位置会带入本机课堂，在那里生成补充课件与 Kokoro 语音。'],['live-settings','Local connection','本机连接设置'],['live-port-label','Local classroom port','本机课堂端口'],['live-start-note','Start the local classroom with npm start in the virtual-professor folder. Default port:4317. Review and submit your question after entering.','在 virtual-professor 文件夹执行 npm start 启动本机课堂，默认端口4317。进入后可检查问题并提交生成。']])$(id).textContent=t(a,b);
  document.documentElement.lang=en?'en':'zh-CN';document.title=manifest.paper?t(`Paper ${paperNumber} · ${paperTitle} · Professor Vee`,`论文 ${paperNumber} · ${paperTitle} · 维教授`):`${en?'PINNs · Professor Vee':'PINNs · 维教授'} · ${chapter+1}`;
  $('brand-name').innerHTML=t('Professor Vee<small>QIANHONG YANG · LEARNING SERIES</small>','维教授<small>杨千鸿 · 系列课程</small>');
  for(const [id,enText,zhText]of [['series-link','PINNs series','PINNs 系列'],['home-link','Personal homepage','个人主页'],['language-label','Language','语言'],['series-label','SERIES 01 · PINNs','系列 01 · PINNs'],['chapter-label','Chapter','章节'],['guide-link','Full teacher guide','完整教师讲义'],['download-link','Download materials & Python','下载课件与 Python 实验'],['caption-label','Transcript','讲解字幕'],['sources-title','Primary sources','原始文献'],['professor-name','Professor Vee','维教授'],['professor-description','From physical intuition to equations.','从物理直觉走向方程。'],['chapter-prev','Previous chapter','上一章'],['chapter-next','Next chapter','下一章'],['next-step','Next step','下一步']])$(id).textContent=t(enText,zhText);
@@ -83,7 +86,13 @@ function render(){
  $('activity-hold').hidden=!player.activityHold;if(player.activityHold)$('activity-hold').textContent=t('Pause for reflection. Click Continue lesson when ready.','请先思考，准备好后点击继续讲解。');
  $('sources').innerHTML=lesson.sources.map(s=>`<li><a href="${escape(s.url.startsWith('/')?new URL('.'+s.url,import.meta.url).href:s.url)}" rel="noopener">${escape(s.name)}</a></li>`).join('');
 }
-async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`,{cache:'no-cache'});if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
+async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`,{cache:'no-cache'});if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));if(!returnedPositionApplied){restoreLecturePosition(player,returnedPosition);returnedPositionApplied=true;}history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
+
+function enterLocalClassroom(question=''){
+ if(!player.lesson)return;try{const port=Number($('live-port').value);const url=createLocalClassroomUrl({lessonId:player.lesson.id,courseKey,chapter,language,position:player.displayPosition(),question,port});player.pauseAtVisible();try{localStorage.setItem('vee.localClassroomPort',String(port));}catch{}location.assign(url);}catch{toast(t('Use a local port from1024 to65535 and a question under3000 characters.','请使用1024至65535之间的本机端口，问题不超过3000字。'));}}
+try{const port=Number(localStorage.getItem('vee.localClassroomPort'));if(Number.isInteger(port)&&port>=1024&&port<=65535)$('live-port').value=String(port);}catch{}
+$('live-question-form').onsubmit=e=>{e.preventDefault();const q=$('live-question').value.trim();if(!q){toast(t('Enter your question first.','请先输入问题。'));return;}enterLocalClassroom(q);};$('live-open').onclick=()=>enterLocalClassroom($('live-question').value.trim());
+
 $('mute').onclick=()=>{speech.setMuted(!speech.muted);if(player.lesson)render();};
 $('play').onclick=()=>player.playing?player.pauseAtVisible():player.play();$('previous').onclick=()=>player.seek(player.displayPosition().slide-1);$('next').onclick=()=>player.seek(player.displayPosition().slide+1);
 $('next-step').onclick=()=>player.stepForward();

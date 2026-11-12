@@ -7,7 +7,7 @@ export function fieldErrorsByTime(trace,mode,seed=11){const run=trace.runs[`${mo
 export function characteristicSegments(beta,progress,x0=Math.PI/2){const segments=[[]];for(let i=0;i<=100;i++){const t=progress*i/100,x=((x0+beta*t)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);if(i&&x<segments.at(-1).at(-1).x)segments.push([]);segments.at(-1).push({x,t});}return segments;}
 export function drawTransport(host,trace,progress,en){
  const svg=host.querySelector('svg'),kind=host.dataset.paperDemo,n=labels[en?'en':'zh'];if(!svg)return;
- const beta=trace.config.targetBeta,axis=(s,x,y)=>`<foreignObject x="${x}" y="${y}" width="60" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`,text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`;
+ const beta=trace.config.targetBeta,axis=(s,x,y)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="60" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`,text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`;
  const modes=['direct','curriculum','curriculum-extra'],legend=(y=249)=>modes.map((m,i)=>`<path d="M${55+i*185} ${y-7}h24" stroke="${colours[m]}" stroke-width="3"/>`+text(85+i*185,y,n[m],'start')).join('');
  const line=(curve,col,dash='')=>`<polyline points="${curve.map((u,i)=>`${60+480*trace.x[i]/(2*Math.PI)},${110-65*u}`).join(' ')}" fill="none" stroke="${col}" stroke-width="3" ${dash?'stroke-dasharray="7 5"':''}/>`;
  if(kind==='transport-physical'){

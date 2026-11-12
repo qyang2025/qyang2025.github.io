@@ -6,7 +6,7 @@ export function causalFrame(trace,mode,progress,seed=11){const f=trace.runs[`${m
 export function prefixWeights(losses,epsilon){let prefix=0;return losses.map(v=>{const weight=Math.exp(-epsilon*prefix);prefix+=v;return weight;});}
 export function drawCausal(host,trace,progress,en){
  const svg=host.querySelector('svg'),kind=host.dataset.paperDemo,n=names[en?'en':'zh'];if(!svg)return;
- const text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`,axis=(s,x,y)=>`<foreignObject x="${x}" y="${y}" width="60" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
+ const text=(x,y,s,anchor='middle')=>`<text x="${x}" y="${y}" text-anchor="${anchor}">${s}</text>`,axis=(s,x,y)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="60" height="38"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`;
  const modes=['uniform','fixed','annealed'],legend=(y=249)=>modes.map((m,i)=>`<path d="M${70+i*180} ${y-7}h24" stroke="${colours[m]}" stroke-width="3"/>`+text(100+i*180,y,n[m],'start')).join('');
  const frame=m=>causalFrame(trace,m,progress),output=host.querySelector('output');
  if(kind==='causal-physical'){
