@@ -307,8 +307,8 @@
       "beats": [
         {
           "id": "hpinn-physical-b0",
-          "text": "均匀热源加热单位长度的杆，两端温度固定为零。材料比例 ρ 改变局部导热率，因此重新分配材料，会改变热量到达冷端的效率。",
-          "textEn": "A uniform source heats this unit-length rod while both endpoints are held at zero temperature. Material fraction rho changes the local conductivity, so rearranging material changes how effectively heat reaches the cold ends.",
+          "text": "先看这根杆。热量沿整根杆输入，而两端温度保持为零。更好的导热材料，应该放在哪里呢？",
+          "textEn": "Look at the rod. Heat enters all along it, while both ends stay at zero temperature. Where should the better conductor go?",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -327,6 +327,11 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
               }
             ],
             "targetsEn": [
@@ -339,17 +344,22 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
               }
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "curious"
           }
         },
         {
           "id": "hpinn-physical-b1",
-          "text": "箭头表示稳态设计问题中的输入热量，不是瞬态热模拟。我们希望在固定高导热材料用量下，降低平均温度。",
-          "textEn": "The arrows illustrate supplied heat in a steady design problem; this is not a transient heat simulation. We want a small average temperature using a fixed amount of the more conductive material.",
+          "text": "颜色表示局部高导热材料比例，记作 ρ。移动这些材料，就改变了热量离开的方式。箭头表示稳态加热，不是瞬态模拟。",
+          "textEn": "Colour shows rho, the local fraction of conducting material. Moving it changes how heat escapes. The arrows illustrate steady heating, not a transient simulation.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -366,6 +376,11 @@
               },
               {
                 "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
                 "kind": "node",
                 "index": 0
               }
@@ -424,8 +439,8 @@
       "beats": [
         {
           "id": "hpinn-pde-b0",
-          "text": "x 是位置，u 是温度，k 是由 ρ 决定的导热率。右边是已知均匀热源，下标 x 表示空间导数。",
-          "textEn": "X is position, u is temperature, and k is conductivity determined by rho. The right-hand side is the known uniform heat source; the subscript x denotes a spatial derivative.",
+          "text": "先顺着杆里的热量来看。x 是位置，u 是温度，k 是局部导热率。下标 x 表示空间求导。右边的一，是均匀热源。",
+          "textEn": "Start with heat moving along the rod. X is position, u is temperature, and k is local conductivity. A subscript x means a spatial derivative. The one on the right is our uniform heat source.",
           "focus": 0,
           "scene": {
             "formula": "-\\frac{d}{dx}\\!\\left(k(\\rho)u_x\\right)=1,\\quad u(0)=u(1)=0",
@@ -444,6 +459,16 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
               }
             ],
             "targetsEn": [
@@ -461,6 +486,11 @@
                 "sentence": 2,
                 "kind": "formula",
                 "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
               }
             ],
             "conversational": true,
@@ -470,8 +500,8 @@
         },
         {
           "id": "hpinn-pde-b1",
-          "text": "改变 k 就会改变物理温度解。必须对完整通量 k 乘 u x 求导，包含导热率的空间变化，不能把 k 当成常数。",
-          "textEn": "Changing k changes the physical temperature solution. We must differentiate the entire flux k times u x, including the spatial variation of conductivity, rather than treating k as a constant.",
+          "text": "现在，换一下材料分布。k 会随位置变化，所以必须留在导数里面。把它拿到外面，描述的就不是同一根杆了。",
+          "textEn": "Now change the material. K changes with position, so it must stay inside the derivative. Taking it outside would describe a different rod.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -490,6 +520,11 @@
                 "sentence": 1,
                 "kind": "formula",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
               }
             ],
             "targetsEn": [
@@ -502,11 +537,16 @@
                 "sentence": 1,
                 "kind": "formula",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
               }
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "encouraging"
           }
         }
       ],
@@ -827,8 +867,8 @@
       "beats": [
         {
           "id": "hpinn-hard-b0",
-          "text": "N θ 是待训练网络，θ 收集它的权重与偏置。乘以 x 乘一减 x，使两端值严格为零。",
-          "textEn": "N theta is a trainable neural network and theta collects its weights and biases. Multiplication by x times one minus x enforces both endpoint values exactly.",
+          "text": "N θ 是待训练网络，θ 收集权重和偏置。看这个 x 乘一减 x 的因子。在任一端点，它会变成什么？零，所以两端温度严格满足要求。",
+          "textEn": "N theta is our trainable network; theta collects its weights and biases. Look at the factor x times one minus x. What happens at either end? It becomes zero, so both endpoint temperatures are exact.",
           "focus": 0,
           "scene": {
             "formula": "u_\\theta=x(1-x)\\operatorname{softplus}(N_\\theta(x))",
@@ -847,6 +887,16 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
               }
             ],
             "targetsEn": [
@@ -859,17 +909,32 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 4,
+                "kind": "formula",
+                "index": 0
               }
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "curious"
           }
         },
         {
           "id": "hpinn-hard-b1",
-          "text": "softplus 使预测内部温度非负。这些是所选表示中的硬约束，但不会强制内部微分方程成立。",
-          "textEn": "Softplus keeps the predicted interior temperature nonnegative. These are hard constraints in this chosen representation; they do not force the differential equation to hold inside the rod.",
+          "text": "softplus 保证内部预测非负。但杆里面的热平衡，也被保证了吗？还没有。正确边界，只完成了问题的一部分。",
+          "textEn": "Softplus keeps the interior prediction nonnegative. But have we enforced heat balance inside the rod? Not yet. A correct boundary is only part of the problem.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -886,6 +951,16 @@
               },
               {
                 "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 3,
                 "kind": "formula",
                 "index": 0
               }
@@ -905,11 +980,16 @@
                 "sentence": 2,
                 "kind": "formula",
                 "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "formula",
+                "index": 0
               }
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "curious"
           }
         }
       ],
@@ -1849,8 +1929,8 @@
       "beats": [
         {
           "id": "hpinn-training-b0",
-          "text": "金色显示弱惩罚运行中实际学习的温度，蓝色虚线是对同一材料设计独立求得的物理温度。两者端点值相同。",
-          "textEn": "Gold shows the actual learned temperature from the weak-penalty run, while dashed blue is an independent physical solve for that very same material design. Both fields share the same endpoint values.",
+          "text": "金色是弱惩罚网络预测的温度。蓝色虚线是对同一材料独立求得的物理解。现在看，金线逐渐降到零附近。蓝线跟着下降了吗？",
+          "textEn": "Gold is the weak-penalty network’s temperature prediction. Dashed blue solves the physics independently for the same material. Now watch gold fall towards zero. Does blue follow it?",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -1869,6 +1949,16 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
               }
             ],
             "targetsEn": [
@@ -1881,17 +1971,27 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
               }
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "curious"
           }
         },
         {
           "id": "hpinn-training-b1",
-          "text": "训练把神经场压到接近零时，独立物理温度仍然为正。因此，精确边界值无法挽救错误的内部方程。",
-          "textEn": "As training lowers the neural field towards zero, the independent physical temperature remains positive. Exact boundary values therefore do not rescue an inaccurate interior equation.",
+          "text": "没有，受热杆的物理温度仍然为正。热源并没有消失。只保证端点准确，不会自动保证内部方程成立。",
+          "textEn": "No, the heated rod still has positive temperature. Its heat source has not disappeared. Exact endpoint values alone do not enforce the equation inside.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -1910,6 +2010,11 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
               }
             ],
             "targetsEn": [
@@ -1922,17 +2027,23 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
               }
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "smile"
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "hpinn-training",
       "paperTrace": "paper16",
+      "replayStartSentence": 2,
       "introduceAtStart": true
     },
     {
@@ -1962,8 +2073,8 @@
       "beats": [
         {
           "id": "hpinn-objective-b0",
-          "text": "现在比较同一次运行的两条目标历史。金色积分神经温度，蓝色积分每个保存设计对应的独立物理温度。",
-          "textEn": "Now compare the two objective histories from that same run. Gold integrates the neural temperature; blue integrates the independently solved temperature for each saved design.",
+          "text": "来比较这两个分数。金色积分的是神经网络温度。蓝色来自同一材料的独立物理解。看，两条曲线开始分开了。",
+          "textEn": "Let us compare two scores. Gold integrates the neural temperature. Blue comes from the independent solve for the same material. Watch their scores separate.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -1980,6 +2091,16 @@
               },
               {
                 "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 3,
                 "kind": "node",
                 "index": 0
               }
@@ -1999,6 +2120,11 @@
                 "sentence": 2,
                 "kind": "node",
                 "index": 0
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 0
               }
             ],
             "conversational": true,
@@ -2008,8 +2134,8 @@
         },
         {
           "id": "hpinn-objective-b1",
-          "text": "接近零的金色数值不符合物理。但是候选材料本身仍可能改善验证目标，因此必须区分错误神经场与可能有用的设计。",
-          "textEn": "The near-zero gold value is physically false. Yet the candidate material itself can still improve the verified objective, so we must distinguish a bad neural field from a potentially useful design.",
+          "text": "金色接近零，看起来很漂亮。但这就是杆的真实表现吗？不是。物理分数要看蓝线。神经场不准，材料设计仍然可能有用。",
+          "textEn": "Near-zero gold looks excellent. But is that the rod’s real performance? No. Use blue to judge the physical score. A wrong neural field can still accompany a useful material design.",
           "focus": 0,
           "scene": {
             "formula": "",
@@ -2028,6 +2154,21 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
               }
             ],
             "targetsEn": [
@@ -2040,17 +2181,33 @@
                 "sentence": 1,
                 "kind": "node",
                 "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 4,
+                "kind": "node",
+                "index": 1
               }
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "curious"
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "hpinn-objective",
       "paperTrace": "paper16",
+      "replayStartSentence": 3,
       "introduceAtStart": true
     },
     {

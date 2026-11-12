@@ -1,4 +1,4 @@
-import {conversationalPause,conversationalRate} from './teaching-presence.mjs?v=series16';
+import {conversationalPause,conversationalRate} from './teaching-presence.mjs?v=spoken16';
 export function sentences(text, language = 'zh') {
   const segmented = [...new Intl.Segmenter(language === 'en' ? 'en' : 'zh', { granularity: 'sentence' }).segment(text)].map(x => x.segment);
   return segmented.flatMap(x => x.match(/[^；;]+[；;]?/gu) || []).map(x => x.trim()).filter(Boolean);

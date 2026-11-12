@@ -20,7 +20,7 @@
       "titleEn": "Paper16: Hard constraints and physics-informed inverse design",
       "file": "1.json",
       "pages": 23,
-      "sentenceCount": 97,
+      "sentenceCount": 111,
       "plannedMinutes": 50
     }
   ],
@@ -38,5 +38,5 @@
       "text": "Two-parameter symmetric conductivity design, hard zero endpoints, bounded material, weak/strong/augmented controls. Independent finite-volume verification and analytic flux checks; all three seeds retained."
     }
   ],
-  "downloadSha256": "f753b621500c00d12b897c4e84f85779c31416e4a82793a7aa532cdd0fc402e6"
+  "downloadSha256": "0d61710f64a3cde42d6c707baf93cf9b9d8b0e58ccdc00ab3d385ecc4f167d4d"
 }

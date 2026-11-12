@@ -41,7 +41,7 @@ export function phrasePresence({text='',audioTime=0,duration=0,speaking=false,re
 }
 export function conversationalRate(text){const role=speechRole(text);return role==='question'?.97:role==='invite'?1.025:role==='conclude'?.985:1;}
 export function conversationalPause(text,base,{beatChanged=false,pageChanged=false}={}){
- if(!base)return 0;if(pageChanged)return base*2.6;if(isTeachingQuestion(text))return base*1.7;if(beatChanged)return base*1.8;
+ if(!base)return 0;if(pageChanged)return base*2.6;if(isTeachingQuestion(text))return base*2.8;if(beatChanged)return base*1.8;
  if(/[:：]\s*$/.test(text))return base*.7;
  return base*(text.length>110?.85:text.length<55?.45:.6);
 }

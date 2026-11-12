@@ -336,17 +336,17 @@
       {
         "chapter": 1,
         "en": {
-          "total": 97,
-          "ready": 97
+          "total": 111,
+          "ready": 111
         },
         "zh": {
-          "total": 90,
-          "ready": 90
+          "total": 107,
+          "ready": 107
         }
       }
     ]
   },
-  "clips": 4574,
+  "clips": 4605,
   "features": [
     "progressive-reveal",
     "physical-animation",

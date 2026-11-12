@@ -41,7 +41,7 @@ static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 | 13 | Moseley2021 · FBPINNs | 22 | 98/98 | 96/96 | [Open](learn/pinns/classroom/?paper=moseley2021&language=en) |
 | 14 | Yang2020 · B-PINNs | 22 | 94/94 | 87/87 | [Open](learn/pinns/classroom/?paper=yang2020bpinns&language=en) |
 | 15 | Raissi2020 · HFM | 22 | 93/93 | 88/88 | [Open](learn/pinns/classroom/?paper=raissi2020hfm&language=en) |
-| 16 | Lu2021 · hPINNs inverse design | 23 | 97/97 | 90/90 | [Open](learn/pinns/classroom/?paper=lu2021hpinns&language=en) |
+| 16 | Lu2021 · hPINNs inverse design | 23 | 111/111 | 107/107 | [Open](learn/pinns/classroom/?paper=lu2021hpinns&language=en) |
 
 Foundation course recordings: English 453/453; Chinese 345/345.
 Incomplete recording sets stay in reading mode. A classroom language becomes
