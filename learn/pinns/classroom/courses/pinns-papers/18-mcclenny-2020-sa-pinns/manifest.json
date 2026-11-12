@@ -1,0 +1,42 @@
+{
+  "id": "mcclenny2020sa",
+  "paper": {
+    "number": 18,
+    "shortTitle": "McClenny2020 · SA-PINNs",
+    "title": "McClenny & Braga-Neto (2020 preprint),Self-Adaptive Physics-Informed Neural Networks using a Soft Attention Mechanism",
+    "url": "https://arxiv.org/abs/2009.04544",
+    "year": 2020,
+    "scope": "Steady one-dimensional boundary-layer adaptation of nonnegative trainable residual masks and min-max updates. Hard endpoint ansatz,all mask lambdas initially1,Adam descent/ascent,no L-BFGS or GP interpolation. Not original Burgers/Helmholtz/Allen-Cahn benchmarks."
+  },
+  "title": "Paper18: Self-adaptive PINNs and pointwise soft attention",
+  "titleZh": "论文18：自适应 PINNs 与逐点软注意力",
+  "totalMinutes": 45,
+  "download": "paper-18.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4018-8018-000000000018",
+      "index": 0,
+      "title": "论文18：自适应 PINNs 与逐点软注意力",
+      "titleEn": "Paper18: Self-adaptive PINNs and pointwise soft attention",
+      "file": "1.json",
+      "pages": 23,
+      "sentenceCount": 115,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "mcclenny2020sa",
+      "name": "McClenny & Braga-Neto (2020 preprint),Self-Adaptive Physics-Informed Neural Networks using a Soft Attention Mechanism",
+      "url": "https://arxiv.org/abs/2009.04544",
+      "text": "Primary method:trainable nonnegative pointwise masks,neural-weight descent and adaptive-weight ascent. The original benchmarks use Adam,optionally followed by L-BFGS with masks frozen. This compact steady boundary-layer adaptation uses hard endpoints,unit initial masks and no GP or L-BFGS phase."
+    },
+    {
+      "id": "sa-local",
+      "name": "Twelve CPU attention controls plus a labelled extra-budget diagnostic",
+      "url": "/courses/pinns-papers/18-mcclenny-2020-sa-pinns/trace.json",
+      "text": "Same97-parameter network and three paired initialisations. Fixed16,shared16,point16 and fixed64;2000 updates each. Independent1001-point fields and997 held-out residual points. Separate fixed64 seed11 diagnostic uses8000updates. All final outcomes retained."
+    }
+  ],
+  "downloadSha256": "457a6e407b9f32a3bb5cb738edd5c8de5809f899084a218155539b9d028c9bda"
+}

@@ -166,11 +166,12 @@
     },
     {
       "number": "18",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "McClenny & Braga-Neto,Self-Adaptive PINNs",
       "source": "https://arxiv.org/abs/2009.04544",
       "topic": "Trainable pointwise weights and soft attention",
-      "scope": "Planned compact CPU teaching adaptation;actual budget,controls and independent validation must pass before publication."
+      "scope": "Steady one-dimensional boundary-layer adaptation of nonnegative trainable residual masks and min-max updates. Hard endpoint ansatz,all mask lambdas initially1,Adam descent/ascent,no L-BFGS or GP interpolation. Not original Burgers/Helmholtz/Allen-Cahn benchmarks.",
+      "classroom": "classroom/?paper=mcclenny2020sa&language=en"
     },
     {
       "number": "19",

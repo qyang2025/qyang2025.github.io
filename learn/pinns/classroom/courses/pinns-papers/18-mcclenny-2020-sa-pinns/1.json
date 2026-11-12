@@ -1,0 +1,3122 @@
+{
+  "id": "139afec2-2020-4018-8018-000000000018",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-18",
+  "chapterIndex": 0,
+  "title": "论文18：自适应 PINNs 与逐点软注意力",
+  "titleEn": "Paper18: Self-adaptive PINNs and pointwise soft attention",
+  "summary": "用稳态边界层解释掩码上升与网络下降，区分共享尺度和逐点分配，保留失败及延长预算诊断。",
+  "summaryEn": "Explain mask ascent and network descent through a steady boundary layer,shared-scale controls,failures and a labelled longer diagnostic.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "mcclenny2020sa",
+      "name": "McClenny & Braga-Neto (2020 preprint),Self-Adaptive Physics-Informed Neural Networks using a Soft Attention Mechanism",
+      "url": "https://arxiv.org/abs/2009.04544",
+      "text": "Primary method:trainable nonnegative pointwise masks,neural-weight descent and adaptive-weight ascent. The original benchmarks use Adam,optionally followed by L-BFGS with masks frozen. This compact steady boundary-layer adaptation uses hard endpoints,unit initial masks and no GP or L-BFGS phase."
+    },
+    {
+      "id": "sa-local",
+      "name": "Twelve CPU attention controls plus a labelled extra-budget diagnostic",
+      "url": "/courses/pinns-papers/18-mcclenny-2020-sa-pinns/trace.json",
+      "text": "Same97-parameter network and three paired initialisations. Fixed16,shared16,point16 and fixed64;2000 updates each. Independent1001-point fields and997 held-out residual points. Separate fixed64 seed11 diagnostic uses8000updates. All final outcomes retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与掩码机制",
+      "titleEn": "Physics and mask mechanism"
+    },
+    {
+      "slide": 8,
+      "title": "梯度与公平对照",
+      "titleEn": "Gradients and controlled comparisons"
+    },
+    {
+      "slide": 13,
+      "title": "真实回放与独立验证",
+      "titleEn": "Actual replay and independent validation"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文18：自适应 PINNs 与逐点软注意力",
+      "titleEn": "Paper18: Self-adaptive PINNs and pointwise soft attention",
+      "eyebrow": "PINNs 论文 18 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 18 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "用稳态边界层解释掩码上升与网络下降，区分共享尺度和逐点分配，保留失败及延长预算诊断。"
+      ],
+      "bulletsEn": [
+        "Explain mask ascent and network descent through a steady boundary layer,shared-scale controls,failures and a labelled longer diagnostic."
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理与掩码机制",
+            "labelEn": "Physics and mask mechanism",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "梯度与公平对照",
+            "labelEn": "Gradients and controlled comparisons",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "真实回放与独立验证",
+            "labelEn": "Actual replay and independent validation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先观察狭窄稳态边界层，区分固定点位置与变化损失掩码。再连接下降/上升梯度、初始化和共享权重对照。最后回放全部结果，单独标注延长预算诊断，并解释未采样残差能够隐藏什么。",
+          "textEn": "First watch a narrow steady boundary layer and distinguish fixed point locations from changing loss masks. Then connect descent/ascent gradients,initialisation and shared-weight controls. Finally replay every result,keep the extra-budget diagnostic separate,and explain what unsampled residuals can hide.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sa-bridge",
+      "title": "固定权重之后，问一问哪些位置更难学",
+      "titleEn": "After fixed weights,ask which locations are difficult",
+      "eyebrow": "论文 18 / 2",
+      "eyebrowEn": "PAPER 18 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "固定权重之后，问一问哪些位置更难学"
+      ],
+      "bulletsEn": [
+        "After fixed weights,ask which locations are difficult"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：固定权重连接时间子域",
+            "labelEn": "Previously:fixed weights connect time slabs",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：让每个点的权重参与学习",
+            "labelEn": "Now:learn a weight at each point",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-bridge-b0",
+          "text": "XPINN 实验为接口损失选择了固定系数。但同一个残差项里，有些位置可能一直更难拟合。每个点应该始终获得相同强调吗？",
+          "textEn": "The XPINN experiment used chosen coefficients on its interface losses. But within a residual term, some locations can remain much harder to fit. Should every point keep the same emphasis?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sa-bridge-b1",
+          "text": "自适应 PINNs 为每个点附上可训练掩码。我们把局部注意力与单个共享权重比较，再检查两者在采样点之间都看不到什么。",
+          "textEn": "Self-adaptive PINNs attach trainable masks to individual points. We will compare local attention with a single shared weight, then check what neither method can see between sampled points.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-physical",
+      "title": "流动向右，右端却有一层很窄的温暖区",
+      "titleEn": "Rightward flow meets a narrow warm layer at the end",
+      "eyebrow": "论文 18 / 3",
+      "eyebrowEn": "PAPER 18 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "流动向右，右端却有一层很窄的温暖区"
+      ],
+      "bulletsEn": [
+        "Rightward flow meets a narrow warm layer at the end"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sa-physical-b0",
+          "text": "想象一个稳定向右的流动，左边界冷，右边界温暖。u 是无量纲温度，x 是零到一的位置。",
+          "textEn": "Picture a steady rightward flow with a cold left boundary and a warm right boundary. U is dimensionless temperature, and x is position from zero to one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-physical-b1",
+          "text": "右端附近很窄的温度上升区，就是边界层。箭头表示这个稳态问题中的对流，不是瞬态温度模拟。",
+          "textEn": "The narrow rise near the right end is a boundary layer. Arrows illustrate advection in this steady problem. They are not a transient temperature simulation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sa-physical",
+      "paperTrace": "paper18",
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-pde",
+      "title": "对流与扩散要在狭窄区域内平衡",
+      "titleEn": "Advection and diffusion must balance in a narrow region",
+      "eyebrow": "论文 18 / 4",
+      "eyebrowEn": "PAPER 18 / 4",
+      "visual": "steps",
+      "formula": "\\varepsilon u_{xx}-u_x=0,\\quad\\varepsilon=0.025,\\quad u(0)=0,\\;u(1)=1",
+      "formulaEn": "\\varepsilon u_{xx}-u_x=0,\\quad\\varepsilon=0.025,\\quad u(0)=0,\\;u(1)=1",
+      "bullets": [
+        "对流与扩散要在狭窄区域内平衡"
+      ],
+      "bulletsEn": [
+        "Advection and diffusion must balance in a narrow region"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sa-pde-b0",
+          "text": "ε 是已知无量纲扩散系数，取零点零二五。流速缩放为一，下标 x 表示空间求导。",
+          "textEn": "Epsilon is the known dimensionless diffusion coefficient, zero point zero two five. The flow speed is scaled to one. Subscript x means a spatial derivative.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\varepsilon u_{xx}-u_x=0,\\quad\\varepsilon=0.025,\\quad u(0)=0,\\;u(1)=1",
+            "formulaEn": "\\varepsilon u_{xx}-u_x=0,\\quad\\varepsilon=0.025,\\quad u(0)=0,\\;u(1)=1",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sa-pde-b1",
+          "text": "较小的 ε 使右端边界层很窄。精确指数形状只用于验证，训练没有内部温度标签。",
+          "textEn": "Small epsilon makes the right-hand layer narrow. The exact exponential profile is used only for validation. No interior temperature values appear in training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "sa-physical",
+      "paperTrace": "paper18",
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-fixed-points",
+      "title": "改变点的强调程度，不是移动点的位置",
+      "titleEn": "Change a point’s emphasis,not its location",
+      "eyebrow": "论文 18 / 5",
+      "eyebrowEn": "PAPER 18 / 5",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "改变点的强调程度，不是移动点的位置"
+      ],
+      "bulletsEn": [
+        "Change a point’s emphasis,not its location"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "位置 xᵢ：训练期间固定",
+            "labelEn": "Locations xᵢ:fixed during training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "掩码 mᵢ：可以随训练改变",
+            "labelEn": "Masks mᵢ:may change during training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-fixed-points-b0",
+          "text": "x i 表示第 i 个残差点。主要对照使用相同的十六个固定中点，训练期间位置不变。",
+          "textEn": "X i denotes residual point i. Our main controls use the same sixteen fixed midpoint locations. None of these points moves during training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-fixed-points-b1",
+          "text": "m i 是这个点对应的损失乘子。增大它会让该处残差代价更高，却不会加入新测量，也不会采样缺失区域。",
+          "textEn": "M i is the loss multiplier attached to that point. Increasing it makes a residual more costly, but does not insert a new measurement or sample a missing region.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-network",
+      "title": "先固定共同的网络与硬边界",
+      "titleEn": "First fix the common network and hard boundaries",
+      "eyebrow": "论文 18 / 6",
+      "eyebrowEn": "PAPER 18 / 6",
+      "visual": "steps",
+      "formula": "u_\\theta=x+x(1-x)N_\\theta(x)",
+      "formulaEn": "u_\\theta=x+x(1-x)N_\\theta(x)",
+      "bullets": [
+        "先固定共同的网络与硬边界"
+      ],
+      "bulletsEn": [
+        "First fix the common network and hard boundaries"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "θ：网络的权重与偏置",
+            "labelEn": "θ:network weights and biases",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "端点始终是 0 和 1",
+            "labelEn": "Endpoint values always remain0 and1",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-network-b0",
+          "text": "N θ 是宽度三十二的双曲正切网络。θ 收集权重与偏置，共九十七个参数。显示的构造使两端温度始终准确。",
+          "textEn": "N theta is a width-thirty-two tanh network. Theta collects its weights and biases, ninety-seven parameters in total. The displayed construction fixes both endpoint temperatures exactly.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta=x+x(1-x)N_\\theta(x)",
+            "formulaEn": "u_\\theta=x+x(1-x)N_\\theta(x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sa-network-b1",
+          "text": "每种对照都使用相同架构。正确端点不证明内部方程准确，所以仍要在训练点之外评估残差。",
+          "textEn": "Every control uses this same architecture. A correct endpoint does not certify the interior equation, so we still evaluate the residual away from training points.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-mask",
+      "title": "用正参数的平方构造非负掩码",
+      "titleEn": "Square positive parameters to form nonnegative masks",
+      "eyebrow": "论文 18 / 7",
+      "eyebrowEn": "PAPER 18 / 7",
+      "visual": "steps",
+      "formula": "m_i=\\lambda_i^2,\\quad r_i=\\varepsilon u_{\\theta,xx}(x_i)-u_{\\theta,x}(x_i)",
+      "formulaEn": "m_i=\\lambda_i^2,\\quad r_i=\\varepsilon u_{\\theta,xx}(x_i)-u_{\\theta,x}(x_i)",
+      "bullets": [
+        "用正参数的平方构造非负掩码"
+      ],
+      "bulletsEn": [
+        "Square positive parameters to form nonnegative masks"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "λᵢ：待学习的掩码参数",
+            "labelEn": "λᵢ:trainable mask parameter",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "rᵢ：第 i 个位置的方程残差",
+            "labelEn": "rᵢ:equation residual at location i",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-mask-b0",
+          "text": "λ i 是自适应参数，平方后得到非负乘子。r i 是位置 x i 的微分方程残差。",
+          "textEn": "Lambda i is the adaptive parameter, and its square is the nonnegative multiplier. R i is the differential-equation residual at location x i.",
+          "focus": 0,
+          "scene": {
+            "formula": "m_i=\\lambda_i^2,\\quad r_i=\\varepsilon u_{\\theta,xx}(x_i)-u_{\\theta,x}(x_i)",
+            "formulaEn": "m_i=\\lambda_i^2,\\quad r_i=\\varepsilon u_{\\theta,xx}(x_i)-u_{\\theta,x}(x_i)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sa-mask-b1",
+          "text": "这些运行把所有 λ 初始化为一，并始终保持为正。掩码不是概率，数值大小也不是可信度估计。",
+          "textEn": "All lambdas start at one and remain positive in these runs. These masks are not probabilities, and their magnitude is not a confidence estimate.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-minmax",
+      "title": "网络降低损失，掩码朝相反方向更新",
+      "titleEn": "The network descends while masks update in the opposite direction",
+      "eyebrow": "论文 18 / 8",
+      "eyebrowEn": "PAPER 18 / 8",
+      "visual": "steps",
+      "formula": "\\min_\\theta\\max_{\\lambda>0}L,\\quad L=\\frac1N\\sum_i\\lambda_i^2r_i^2",
+      "formulaEn": "\\min_\\theta\\max_{\\lambda>0}L,\\quad L=\\frac1N\\sum_i\\lambda_i^2r_i^2",
+      "bullets": [
+        "网络降低损失，掩码朝相反方向更新"
+      ],
+      "bulletsEn": [
+        "The network descends while masks update in the opposite direction"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "θ：寻找更小残差的温度场",
+            "labelEn": "θ:seek a field with smaller residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "λ：提高难拟合位置的代价",
+            "labelEn": "λ:raise the cost of difficult locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-minmax-b0",
+          "text": "N 是残差点数。温度网络沿下降方向减小 L，掩码参数则对同一个目标做上升更新。",
+          "textEn": "N counts the residual points. The temperature network takes a descent step to reduce L. The mask parameters take an ascent step on that same objective.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\min_\\theta\\max_{\\lambda>0}L,\\quad L=\\frac1N\\sum_i\\lambda_i^2r_i^2",
+            "formulaEn": "\\min_\\theta\\max_{\\lambda>0}L,\\quad L=\\frac1N\\sum_i\\lambda_i^2r_i^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sa-minmax-b1",
+          "text": "为什么方向相反？难以消除的残差会推动乘子增大，促使网络处理该处。这是有限预算的极小极大过程，不保证稳定全局鞍点。",
+          "textEn": "Why the opposite directions? A stubborn residual makes its multiplier increase, pressing the network to address it. This is a finite-budget min-max procedure, not a guarantee of a stable global saddle point.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-gradient",
+      "title": "残差平方决定掩码上升的驱动力",
+      "titleEn": "Squared residuals drive the mask ascent",
+      "eyebrow": "论文 18 / 9",
+      "eyebrowEn": "PAPER 18 / 9",
+      "visual": "steps",
+      "formula": "\\frac{\\partial L}{\\partial\\lambda_i}=\\frac{2\\lambda_i r_i^2}{N}",
+      "formulaEn": "\\frac{\\partial L}{\\partial\\lambda_i}=\\frac{2\\lambda_i r_i^2}{N}",
+      "bullets": [
+        "残差平方决定掩码上升的驱动力"
+      ],
+      "bulletsEn": [
+        "Squared residuals drive the mask ascent"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "大残差提供更强的上升梯度",
+            "labelEn": "Larger residual supplies a larger ascent gradient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "Adam 的历史状态也影响实际步长",
+            "labelEn": "Adam history also affects the actual step",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-gradient-b0",
+          "text": "当 λ 为正时，显示的导数非负。更大的残差平方，为该掩码提供更强的瞬时梯度。",
+          "textEn": "For a positive lambda, the displayed derivative is nonnegative. A larger squared residual gives a stronger instantaneous gradient for that mask.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\frac{\\partial L}{\\partial\\lambda_i}=\\frac{2\\lambda_i r_i^2}{N}",
+            "formulaEn": "\\frac{\\partial L}{\\partial\\lambda_i}=\\frac{2\\lambda_i r_i^2}{N}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sa-gradient-b1",
+          "text": "这里使用 Adam，动量与自适应缩放也影响更新。最终掩码记录了训练历史，并不等于把当前残差重新画一遍。",
+          "textEn": "Our optimiser is Adam, so momentum and adaptive scaling also affect the update. A final mask records training history; it is not simply the current residual plotted again.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-initial",
+      "title": "先让初始权重相同，再观察它们如何分化",
+      "titleEn": "Start with equal masks,then observe how they diverge",
+      "eyebrow": "论文 18 / 10",
+      "eyebrowEn": "PAPER 18 / 10",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "先让初始权重相同，再观察它们如何分化"
+      ],
+      "bulletsEn": [
+        "Start with equal masks,then observe how they diverge"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本实验：所有 λ 从 1 开始",
+            "labelEn": "Here:every λ starts at1",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "原文还有随机初始化与其他训练阶段",
+            "labelEn": "Paper:random initialisation and additional training phases",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-initial-b0",
+          "text": "单位初始掩码让三个十六点对照的初始残差目标一致。同一种子内部，神经初始参数也完全配对。",
+          "textEn": "Unit initial masks make the initial residual objective identical across our three sixteen-point controls. Their neural initial parameters are paired within each seed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-initial-b1",
+          "text": "这不同于原文的随机掩码初始化。我们省略可选 L-BFGS 阶段与高斯过程插值；由于端点采用硬约束，只适应内部残差掩码。",
+          "textEn": "This differs from the paper’s random mask initialisations. We also omit its optional L-BFGS phase and Gaussian-process interpolation, and adapt only interior residual masks because our endpoints are hard constraints.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-shared",
+      "title": "一个共享权重，帮助区分整体放大与逐点分配",
+      "titleEn": "A shared weight helps distinguish global growth from local allocation",
+      "eyebrow": "论文 18 / 11",
+      "eyebrowEn": "PAPER 18 / 11",
+      "visual": "steps",
+      "formula": "m_1=\\cdots=m_N=\\lambda^2",
+      "formulaEn": "m_1=\\cdots=m_N=\\lambda^2",
+      "bullets": [
+        "一个共享权重，帮助区分整体放大与逐点分配"
+      ],
+      "bulletsEn": [
+        "A shared weight helps distinguish global growth from local allocation"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "共享：所有点一起变得更重要",
+            "labelEn": "Shared:all points grow in importance together",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "逐点：不同位置可采用不同掩码",
+            "labelEn": "Pointwise:different locations can receive different masks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-shared-b0",
+          "text": "共享对照只为十六个点学习一个 λ。它可以整体加强残差项，却不能在位置之间做选择。",
+          "textEn": "The shared control learns just one lambda for all sixteen points. It can strengthen the residual term overall, but cannot choose one location over another.",
+          "focus": 0,
+          "scene": {
+            "formula": "m_1=\\cdots=m_N=\\lambda^2",
+            "formulaEn": "m_1=\\cdots=m_N=\\lambda^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sa-shared-b1",
+          "text": "与逐点掩码比较，有助于区分尺度增大与空间分配。它是诊断对照，不意味着两个 Adam 系统具有完全相同的优化动力学。",
+          "textEn": "Comparing it with pointwise masks helps separate scale growth from spatial allocation. It is a diagnostic control, not a claim that the two Adam systems have identical optimisation dynamics.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-code",
+      "title": "两个优化器，使用同一次反向传播",
+      "titleEn": "Two optimisers use the same backward pass",
+      "eyebrow": "论文 18 / 12",
+      "eyebrowEn": "PAPER 18 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "两个优化器，使用同一次反向传播"
+      ],
+      "bulletsEn": [
+        "Two optimisers use the same backward pass"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sa-code-b0",
+          "text": "同一次反向传播为两组参数提供梯度。网络的 Adam 下降，掩码的 Adam 上升，只反转掩码方向是关键。",
+          "textEn": "One backward pass supplies gradients to both parameter groups. Adam descends for the network and ascends for the masks. Reversing only the mask direction is essential.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-code-b1",
+          "text": "网络学习率为零点零零三，掩码学习率为零点零零五。下载实现包含完整求导与记录代码。",
+          "textEn": "The network learning rate is zero point zero zero three, and the mask rate is zero point zero zero five. The downloaded implementation includes the complete derivative and recording code.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sa-code",
+      "paperTrace": "paper18",
+      "demoCode": [
+        "loss = mean((lam**2)*(residual**2))",
+        "network_optim.zero_grad(); mask_optim.zero_grad()",
+        "loss.backward()",
+        "network_optim.step()  # Adam descent",
+        "mask_optim.step()     # Adam(maximize=True)"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-protocol",
+      "title": "主要对照同预算，密集采样单独标注",
+      "titleEn": "Match the main update budgets and label the denser control",
+      "eyebrow": "论文 18 / 13",
+      "eyebrowEn": "PAPER 18 / 13",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "主要对照同预算，密集采样单独标注"
+      ],
+      "bulletsEn": [
+        "Match the main update budgets and label the denser control"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "固定16、共享16、逐点16",
+            "labelEn": "Fixed16,shared16,pointwise16",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "固定64：四倍配置点，仍用2000步",
+            "labelEn": "Fixed64:four times the points,still2000 updates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-protocol-b0",
+          "text": "四种设置分别使用三个配对随机起点。所有主要运行均为两千步；更密集的普通基线使用六十四点，而不是十六点。",
+          "textEn": "We run four settings from each of three paired random starts. Every main run uses two thousand updates. The denser ordinary baseline uses sixty-four points instead of sixteen.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-protocol-b1",
+          "text": "所有网络都有九十七个参数。共享注意力多一个可训练标量，逐点注意力多十六个。密集基线改变了采样成本，不是完全相同资源的比较。",
+          "textEn": "All networks have ninety-seven parameters. Shared attention adds one trainable scalar, and pointwise attention adds sixteen. The denser baseline changes sampling cost, so it is not an identical-resource comparison.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-weights",
+      "title": "看掩码增长，注意这些点没有移动",
+      "titleEn": "Watch the masks grow while the points stay put",
+      "eyebrow": "论文 18 / 14",
+      "eyebrowEn": "PAPER 18 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "看掩码增长，注意这些点没有移动"
+      ],
+      "bulletsEn": [
+        "Watch the masks grow while the points stay put"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa",
+        "sa-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sa-weights-b0",
+          "text": "每个标记都停在原始残差位置。高度和大小表示真实的掩码平方值。现在看保存的掩码更新。",
+          "textEn": "Each marker stays at its original residual location. Its height and size encode the actual squared mask value. Now watch the saved mask updates.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-weights-b1",
+          "text": "有些点得到更强强调。数值累积优化历史，整体尺度也会增加。这是变化的损失，不是概率分布。",
+          "textEn": "Some points receive more emphasis than others. The values accumulate optimisation history, and the overall scale also increases. This is a changing loss, not a probability distribution.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sa-weights",
+      "paperTrace": "paper18",
+      "introduceAtStart": true,
+      "replayStartSentence": 2
+    },
+    {
+      "id": "sa-training",
+      "title": "注意力的变化，最终必须回到温度场",
+      "titleEn": "Attention changes must ultimately be checked in the temperature field",
+      "eyebrow": "论文 18 / 15",
+      "eyebrowEn": "PAPER 18 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "注意力的变化，最终必须回到温度场"
+      ],
+      "bulletsEn": [
+        "Attention changes must ultimately be checked in the temperature field"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa",
+        "sa-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sa-training-b0",
+          "text": "这里是起点十一的真实温度检查点。虚线是独立精确参考。现在看四种设置的训练历史。",
+          "textEn": "These are actual saved temperature fields from starting identifier eleven. The dashed curve is the independent exact reference. Now watch the four training histories.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-training-b1",
+          "text": "看起来合理的窄层令人鼓舞，但还不够。必须检查完整场，以及训练点之间的方程。端点准确，也可能同时存在内部误差。",
+          "textEn": "A plausible narrow layer is encouraging, but it is not enough. We must check the full field and the equation between the training points. Hard endpoint values can coexist with interior errors.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sa-training",
+      "paperTrace": "paper18",
+      "introduceAtStart": true,
+      "replayStartSentence": 2
+    },
+    {
+      "id": "sa-loss",
+      "title": "变化的加权损失，不能直接当作精度刻度",
+      "titleEn": "A changing weighted loss is not a direct accuracy scale",
+      "eyebrow": "论文 18 / 16",
+      "eyebrowEn": "PAPER 18 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "变化的加权损失，不能直接当作精度刻度"
+      ],
+      "bulletsEn": [
+        "A changing weighted loss is not a direct accuracy scale"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa",
+        "sa-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sa-loss-b0",
+          "text": "金色包含学习的掩码，蓝色把相同位置的残差权重移除。现在在对数刻度上比较历史。",
+          "textEn": "Gold includes the learned masks. Blue uses the same point residuals with those weights removed. Now compare their histories on the logarithmic scale.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-loss-b1",
+          "text": "掩码增长时，目标本身也在变化。因此直接比较不同时刻的金色数值，可能误导。原论文比较训练损失时，也移除了权重。",
+          "textEn": "The objective itself changes when masks grow. Comparing gold values from different times can therefore mislead. The original paper also removes weights when comparing training losses.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sa-loss",
+      "paperTrace": "paper18",
+      "introduceAtStart": true,
+      "replayStartSentence": 2
+    },
+    {
+      "id": "sa-error",
+      "title": "三个起点，检验逐点注意力是否稳定获益",
+      "titleEn": "Use all three starts to test whether pointwise attention helps consistently",
+      "eyebrow": "论文 18 / 17",
+      "eyebrowEn": "PAPER 18 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "三个起点，检验逐点注意力是否稳定获益"
+      ],
+      "bulletsEn": [
+        "Use all three starts to test whether pointwise attention helps consistently"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa",
+        "sa-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "sa-error-b0",
+          "text": "主要圆点都使用两千步。解释密集对照前，先在十六点设置内部比较固定、共享与逐点结果。",
+          "textEn": "The main circles all use two thousand updates. Compare fixed, shared and pointwise results within the sixteen-point setting before interpreting the denser control.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-error-b1",
+          "text": "逐点掩码改善了一些起点，尤其是困难的第三个起点。但它没有稳定胜过共享掩码。额外的粉色菱形使用不同预算，接下来单独解释。",
+          "textEn": "Pointwise masks help some starts, especially the difficult third start. They do not consistently beat the shared-mask control. The additional pink diamond has a different budget; we will explain it separately.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "sa-error",
+      "paperTrace": "paper18",
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-diagnostic",
+      "title": "更多点的差结果，会不会只是训练还不够？",
+      "titleEn": "Could the denser control simply need more optimisation?",
+      "eyebrow": "论文 18 / 18",
+      "eyebrowEn": "PAPER 18 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "更多点的差结果，会不会只是训练还不够？"
+      ],
+      "bulletsEn": [
+        "Could the denser control simply need more optimisation?"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa",
+        "sa-local"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "同一种子与64点：2000步约125%误差",
+            "labelEn": "Same seed and64points:about125% error after2000updates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "额外诊断：8000步约2.2%误差",
+            "labelEn": "Extra diagnostic:about2.2% after8000updates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-diagnostic-b0",
+          "text": "六十四点对照在主要预算下表现很差。我们保留结果，再从相同起点十一进行单独诊断。",
+          "textEn": "The sixty-four-point control performed poorly at the main budget. We kept that result, and ran a separate diagnostic from the same starting identifier eleven.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-diagnostic-b1",
+          "text": "只把更新预算从两千增加到八千，最终场误差降到约百分之二点二。这诊断了预算敏感性，不是对注意力方法的同预算胜利。",
+          "textEn": "Only the update budget changes, from two thousand to eight thousand. The final field error falls to about two point two percent. This diagnoses budget sensitivity; it is not a fair same-budget victory over attention.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 3,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-blind",
+      "title": "没有采样的位置，掩码看不到",
+      "titleEn": "A mask cannot see a location that was never sampled",
+      "eyebrow": "论文 18 / 19",
+      "eyebrowEn": "PAPER 18 / 19",
+      "visual": "steps",
+      "formula": "r(x_i)=0\\;\\text{for all }i\\;\\not\\Rightarrow\\;r(x)=0\\;\\text{everywhere}",
+      "formulaEn": "r(x_i)=0\\;\\text{for all }i\\;\\not\\Rightarrow\\;r(x)=0\\;\\text{everywhere}",
+      "bullets": [
+        "没有采样的位置，掩码看不到"
+      ],
+      "bulletsEn": [
+        "A mask cannot see a location that was never sampled"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "已有点：再大的权重也只乘已有残差",
+            "labelEn": "Existing points:weights multiply existing residuals",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "点间空隙：仍可能藏着物理误差",
+            "labelEn": "Between points:physical errors may remain hidden",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-blind-b0",
+          "text": "想象在两个采样位置之间放一个平滑紧支撑小鼓包。它及前两阶导数可以在所有训练点上为零。",
+          "textEn": "Imagine a smooth compact bump placed entirely between two sampled locations. It and its first two derivatives can vanish at every training point.",
+          "focus": 0,
+          "scene": {
+            "formula": "r(x_i)=0\\;\\text{for all }i\\;\\not\\Rightarrow\\;r(x)=0\\;\\text{everywhere}",
+            "formulaEn": "r(x_i)=0\\;\\text{for all }i\\;\\not\\Rightarrow\\;r(x)=0\\;\\text{everywhere}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "sa-blind-b1",
+          "text": "加入这个鼓包，可以保持所有采样残差不变，却改变点间的场。这是函数空间反例，不是说当前网络能够精确表示这个鼓包。",
+          "textEn": "Adding that bump can preserve every sampled residual while changing the field between points. This is a function-space counterexample, not a claim that our particular network exactly represents that bump.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-validation",
+      "title": "场误差与点间残差，不会自动给出同一个排名",
+      "titleEn": "Field error and held-out residuals need not rank models the same way",
+      "eyebrow": "论文 18 / 20",
+      "eyebrowEn": "PAPER 18 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "场误差与点间残差，不会自动给出同一个排名"
+      ],
+      "bulletsEn": [
+        "Field error and held-out residuals need not rank models the same way"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "1001点精确场比较",
+            "labelEn": "Exact-field comparison on1001points",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "997个偏移位置检查残差",
+            "labelEn": "Residual checks at997shifted locations",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-validation-b0",
+          "text": "在一千零一个位置与精确场比较，并在九百九十七个偏移位置检查残差。两组位置都不提供内部训练标签。",
+          "textEn": "We compare against the exact field at one thousand and one locations, and check residuals at nine hundred and ninety-seven shifted positions. Neither set supplies interior training labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-validation-b1",
+          "text": "有些稀疏拟合的场误差较小，点间残差却明显偏大。这个预算下，密集拟合还可能呈现相反排名。应同时报告，而不是挑选有利于某种方法的指标。",
+          "textEn": "Some sparse fits have relatively small field errors but substantial held-out residuals. A denser fit can show the opposite ranking at this budget. Report both quantities instead of selecting the one that favours a method.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-limits",
+      "title": "保留软注意力机制，不冒充原始大型基准",
+      "titleEn": "Retain the soft-attention mechanism without claiming the original benchmarks",
+      "eyebrow": "论文 18 / 21",
+      "eyebrowEn": "PAPER 18 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "保留软注意力机制，不冒充原始大型基准"
+      ],
+      "bulletsEn": [
+        "Retain the soft-attention mechanism without claiming the original benchmarks"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留：非负掩码与Adam下降/上升",
+            "labelEn": "Retained:nonnegative masks and Adam descent/ascent",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "改变：一维稳态问题、硬端点与初始掩码",
+            "labelEn": "Changed:steady1D problem,hard endpoints,initial masks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-limits-b0",
+          "text": "原论文研究更丰富的 Burgers、Helmholtz 与 Allen-Cahn 问题。这个一维稳态示例单独展示可训练残差掩码机制。",
+          "textEn": "The original paper studies richer Burgers, Helmholtz and Allen-Cahn problems. Our steady one-dimensional example isolates the trainable residual-mask mechanism.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        },
+        {
+          "id": "sa-limits-b1",
+          "text": "采用硬端点、单位初始掩码，没有 L-BFGS 或高斯过程插值。所有主要预算下的失败结果都可下载，延长诊断也单独标注。",
+          "textEn": "We use hard endpoints, unit initial masks and no L-BFGS or Gaussian-process interpolation. All failed main-budget outcomes remain downloadable, alongside the separately labelled longer diagnostic.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-exercise",
+      "title": "若所有采样残差都为零，增加掩码能发现点间鼓包吗？",
+      "titleEn": "If sampled residuals vanish,can larger masks detect an unseen bump?",
+      "eyebrow": "论文 18 / 22",
+      "eyebrowEn": "PAPER 18 / 22",
+      "visual": "steps",
+      "formula": "\\partial_{\\lambda_i}L=0\\quad\\text{when }r_i=0",
+      "formulaEn": "\\partial_{\\lambda_i}L=0\\quad\\text{when }r_i=0",
+      "bullets": [
+        "若所有采样残差都为零，增加掩码能发现点间鼓包吗？"
+      ],
+      "bulletsEn": [
+        "If sampled residuals vanish,can larger masks detect an unseen bump?"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "采样残差为零：掩码梯度也为零",
+            "labelEn": "Zero sampled residual:zero mask gradient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "需要新的验证信息，不只是更大权重",
+            "labelEn": "Need new validation information,not merely larger weights",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-exercise-b0",
+          "text": "假设每个采样残差都严格为零，但点之间有平滑误差鼓包。掩码梯度会告诉我们什么？",
+          "textEn": "Suppose every sampled residual is exactly zero, but a smooth error bump lies between the points. What does the mask gradient tell us?",
+          "focus": 0,
+          "scene": {
+            "formula": "\\partial_{\\lambda_i}L=0\\quad\\text{when }r_i=0",
+            "formulaEn": "\\partial_{\\lambda_i}L=0\\quad\\text{when }r_i=0",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sa-exercise-b1",
+          "text": "这些位置的梯度全为零，掩码增长没有信号来揭示鼓包。需要独立验证和有效采样。因此，自适应权重与自适应采样解决不同问题。",
+          "textEn": "It is zero at all those locations, so mask growth has no signal to expose the bump. Use independent checks and informative sampling. This is why adaptive weighting and adaptive sampling solve different problems.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "explain",
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "sa-next",
+      "title": "下一篇：不再只为一个输入求一次解",
+      "titleEn": "Next:learn more than one solution for one input",
+      "eyebrow": "论文 18 / 23",
+      "eyebrowEn": "PAPER 18 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一篇：不再只为一个输入求一次解"
+      ],
+      "bulletsEn": [
+        "Next:learn more than one solution for one input"
+      ],
+      "sourceIds": [
+        "mcclenny2020sa"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：改善单个问题的训练目标",
+            "labelEn": "Here:improve training for one problem",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下篇：输入函数到输出场的算子",
+            "labelEn": "Next:an operator from input functions to output fields",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "sa-next-b0",
+          "text": "到这里，大多数网络仍然为一个选定的物理问题训练。如果热源或初始形状改变，必须重新开始吗？",
+          "textEn": "So far, we have mostly trained a network for one chosen physical problem. If the source or initial profile changes, must we start again?",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "sa-next-b1",
+          "text": "DeepONet 改变学习对象：从一个场，变成函数之间的映射。我们先做极小的监督算子实验，下一篇再加入物理。",
+          "textEn": "DeepONet changes the object being learned: from one field to a map between functions. We will begin with a tiny supervised operator experiment, then add physics in the following paper.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "conversational": true,
+            "deliveryRole": "bridge",
+            "expression": "smile"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

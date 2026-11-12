@@ -101,6 +101,12 @@
       "number": 17,
       "courseRoot": "courses/pinns-papers/17-jagtap-2020-xpinns",
       "published": true
+    },
+    {
+      "id": "mcclenny2020sa",
+      "number": 18,
+      "courseRoot": "courses/pinns-papers/18-mcclenny-2020-sa-pinns",
+      "published": true
     }
   ]
 }

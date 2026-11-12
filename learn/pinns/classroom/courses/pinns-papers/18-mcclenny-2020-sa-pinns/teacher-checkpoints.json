@@ -1,0 +1,13 @@
+{
+  "paper": "18",
+  "checks": [
+    {
+      "slideId": "sa-exercise",
+      "questionEn": "Can larger masks reveal a smooth bump between all sampled points?",
+      "questionZh": "增大掩码能揭示所有采样点之间的平滑鼓包吗？",
+      "answerEn": "No. If every sampled residual is zero,each mask gradient2lambda_i r_i²/N vanishes. A compact C2 bump supported strictly between adjacent sampled locations can change the field while leaving the function and its first two derivatives unchanged at every sampled point. This function-space counterexample does not claim exact representation by our tiny network. Independent field and held-out residual checks remain necessary;weight adaptation does not create new information or move sample locations.",
+      "answerZh": "不能。当每个采样残差都为零时，每个掩码梯度也为零。一个支撑完全位于相邻采样点之间的紧支撑 C2 鼓包，可以改变场，同时保持所有采样位置的函数及前两阶导数不变。这个函数空间反例不声称小网络能精确表示它。仍需独立场与点间残差检查；权重自适应不会创造新信息，也不会移动采样位置。",
+      "equation": "\\partial_{\\lambda_i}L=2\\lambda_i r_i^2/N"
+    }
+  ]
+}

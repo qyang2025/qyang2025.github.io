@@ -357,9 +357,22 @@
           "ready": 100
         }
       }
+    ],
+    "mcclenny2020sa": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 115,
+          "ready": 115
+        },
+        "zh": {
+          "total": 105,
+          "ready": 105
+        }
+      }
     ]
   },
-  "clips": 4818,
+  "clips": 5036,
   "features": [
     "progressive-reveal",
     "physical-animation",
