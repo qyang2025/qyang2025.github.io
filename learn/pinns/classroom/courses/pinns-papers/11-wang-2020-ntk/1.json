@@ -3037,8 +3037,8 @@
         },
         {
           "id": "ntk-next-b1",
-          "text": "下一篇计划研究傅里叶特征与多尺度学习中的特征向量偏置。仍将使用小型 CPU 示例，追问输入表示让哪些空间模式更容易学习。",
-          "textEn": "The next planned paper examines Fourier features and eigenvector bias in multiscale learning. We will again use a small CPU example, asking which spatial patterns the representation makes easier to learn.",
+          "text": "下一篇研究傅里叶特征与多尺度学习中的特征向量偏置。仍将使用小型 CPU 示例，追问输入表示让哪些空间模式更容易学习。",
+          "textEn": "The next paper examines Fourier features and eigenvector bias in multiscale learning. We will again use a small CPU example, asking which spatial patterns the representation makes easier to learn.",
           "focus": 0,
           "scene": {
             "formula": "",

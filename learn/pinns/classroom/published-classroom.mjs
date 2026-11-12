@@ -1,20 +1,20 @@
-import {createLocalClassroomUrl,restoreLecturePosition} from './classroom-handoff.mjs?v=paper11f';
-import {SyncAudit} from './sync-audit.mjs?v=paper11f';
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper11f';
+import {createLocalClassroomUrl,restoreLecturePosition} from './classroom-handoff.mjs?v=paper12a';
+import {SyncAudit} from './sync-audit.mjs?v=paper12a';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper12a';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
-import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper11f';
+import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper12a';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=paper11g';
-import {lessonSections,isOutline} from './course-outline.mjs?v=paper11f';
-import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper11f';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=paper12a';
+import {lessonSections,isOutline} from './course-outline.mjs?v=paper12a';
+import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper12a';
 import {schematicHtml} from './schematic.mjs';
 import {mathHtml,proseHtml} from './math.mjs';
 import {lectureChart} from './lecture-chart.mjs';
-import {LecturePlayer,sentences} from './player.mjs?v=paper11f';
-import {currentScene,ProfessorStage} from './stage.mjs?v=paper11f';
-import {NeuralSpeech} from './neural-speech.mjs?v=paper11f';
+import {LecturePlayer,sentences} from './player.mjs?v=paper12a';
+import {currentScene,ProfessorStage} from './stage.mjs?v=paper12a';
+import {NeuralSpeech} from './neural-speech.mjs?v=paper12a';
 import {localizeLesson} from './languages.mjs';
 const $=id=>document.getElementById(id),escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedPaper=new URLSearchParams(location.search).get('paper')||'';let courseRoot='courses/pinns',courseKey='pinns',paperCatalog=[];
@@ -87,7 +87,7 @@ function render(){
  $('activity-hold').hidden=!player.activityHold;if(player.activityHold)$('activity-hold').textContent=t('Pause for reflection. Click Continue lesson when ready.','请先思考，准备好后点击继续讲解。');
  $('sources').innerHTML=lesson.sources.map(s=>`<li><a href="${escape(s.url.startsWith('/')?new URL('.'+s.url,import.meta.url).href:s.url)}" rel="noopener">${escape(s.name)}</a></li>`).join('');
 }
-async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`,{cache:'no-cache'});if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));if(!returnedPositionApplied){restoreLecturePosition(player,returnedPosition);returnedPositionApplied=true;}history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
+async function loadChapter(index){const epoch=++loadEpoch;loading=true;player.pauseAtVisible();if(player.lesson)render();try{const response=await fetch(`${courseRoot}/${manifest.modules[index].file}`,{cache:'no-cache'});if(!response.ok)throw Error('Course unavailable');const lesson=await response.json();if(epoch!==loadEpoch)return;rawLesson=lesson;chapter=index;loading=false;player.voiceURI=language==='en'?'bm_george':'zm_010';player.load(localizeLesson(rawLesson,language));if(!returnedPositionApplied){restoreLecturePosition(player,returnedPosition);returnedPositionApplied=true;}history.replaceState(null,'',classroomSearch(chapter,language));}catch(error){if(epoch===loadEpoch){loading=false;toast(error.message);if(player.lesson)render();}}}
 
 function enterLocalClassroom(question=''){
  if(!player.lesson)return;try{const port=Number($('live-port').value);const url=createLocalClassroomUrl({lessonId:player.lesson.id,courseKey,chapter,language,position:player.displayPosition(),question,port});player.pauseAtVisible();try{localStorage.setItem('vee.localClassroomPort',String(port));}catch{}location.assign(url);}catch{toast(t('Use a local port from1024 to65535 and a question under3000 characters.','请使用1024至65535之间的本机端口，问题不超过3000字。'));}}
@@ -100,5 +100,5 @@ $('next-step').onclick=()=>player.stepForward();
 $('rate').onchange=()=>{player.rate=Number($('rate').value);if(player.playing)player.play();};
 function navigatePaper(direction){const index=paperCatalog.findIndex(p=>p.id===requestedPaper),next=paperCatalog[index+direction];if(!next)return;player.pauseAtVisible();location.search=new URLSearchParams({paper:next.id,chapter:'1',language}).toString();}
 $('chapter-select').onchange=()=>loadChapter(Number($('chapter-select').value));$('chapter-prev').onclick=()=>manifest.paper?navigatePaper(-1):loadChapter(chapter-1);$('chapter-next').onclick=()=>manifest.paper?navigatePaper(1):loadChapter(chapter+1);
-$('language-select').onchange=()=>{const nextLanguage=$('language-select').value;player.pauseAtVisible();language=nextLanguage;player.voiceURI=language==='en'?'bm_george':'zm_010';player.setLanguage(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));};
+$('language-select').onchange=()=>{const nextLanguage=$('language-select').value;if(loading||!rawLesson||!player.lesson){language=nextLanguage;return;}player.pauseAtVisible();language=nextLanguage;player.voiceURI=language==='en'?'bm_george':'zm_010';player.setLanguage(localizeLesson(rawLesson,language));history.replaceState(null,'',classroomSearch(chapter,language));};
 try{if(requestedPaper){const catalog=await(await fetch('courses/pinns-papers/catalog.json',{cache:'no-cache'})).json();paperCatalog=catalog.papers.filter(p=>p.published);const entry=paperCatalog.find(p=>p.id===requestedPaper);if(!entry)throw Error('Paper not available');courseRoot=entry.courseRoot;courseKey=entry.id;}[manifest,audioPack]=await Promise.all([courseRoot+'/manifest.json','published-audio.json'].map(async url=>{const r=await fetch(url,{cache:'no-cache'});if(!r.ok)throw Error('Course files unavailable');return r.json();}));await speech.configure();await loadChapter(Math.max(0,Math.min(manifest.modules.length-1,(Number(new URLSearchParams(location.search).get('chapter'))||1)-1)));}catch(error){$('play').textContent=t('Course unavailable','课程暂不可用');toast(error.message);}

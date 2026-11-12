@@ -1,0 +1,2861 @@
+{
+  "id": "139afec2-2020-4012-8012-000000000012",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-12",
+  "chapterIndex": 0,
+  "title": "论文12：傅里叶特征与多尺度表示",
+  "titleEn": "Paper12: Fourier features and multiscale representations",
+  "summary": "从有细小波纹的温度场解释频率、核模式与多尺度共享表示，回放十二次 CPU 对照并保留失败。",
+  "summaryEn": "Connect temperature ripples, frequency embeddings and kernel patterns; replay twelve CPU controls, including multiscale failures.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "wang2020fourier",
+      "name": "Wang, Wang & Perdikaris (2020 preprint;2021 journal), On the eigenvector bias of Fourier feature networks",
+      "url": "https://arxiv.org/abs/2012.10047",
+      "text": "Primary reference for eigenvector bias, random Fourier embeddings and multiscale PINNs. This lesson uses a new small signed-temperature rod and discloses all twelve CPU outcomes; it does not reproduce the original high-frequency benchmarks."
+    },
+    {
+      "id": "fourier-primary",
+      "name": "Primary equations3.9 and3.24–3.27, sections3.2–4.1",
+      "url": "https://arxiv.org/html/2012.10047v1",
+      "text": "The earlier toy convention uses cos(Bx), while the multiscale architecture uses cos(2πBx). We explicitly use the latter, keep B fixed, share the nonlinear core between branches and distinguish an output-kernel diagnostic from the full PINN residual kernel."
+    },
+    {
+      "id": "fourier-code-source",
+      "name": "Authors’ MultiscalePINNs implementation",
+      "url": "https://github.com/PredictiveIntelligenceLab/MultiscalePINNs",
+      "text": "Original implementation reference; our compact PyTorch CPU adaptation uses separate budgets, source, network size and seeds."
+    },
+    {
+      "id": "fourier-local",
+      "name": "Twelve complete CPU runs and independent validation",
+      "url": "/courses/pinns-papers/12-wang-2020-fourier/trace.json",
+      "text": "Plain,low-band,high-band and two-scale representations; three seeds each,2000 updates. All final fields, source-normalised residuals, modal projections, initial output kernels and random frequencies are retained."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与频率表示",
+      "titleEn": "Physics and frequency features"
+    },
+    {
+      "slide": 8,
+      "title": "共享架构与物理训练",
+      "titleEn": "Shared architecture and physics training"
+    },
+    {
+      "slide": 15,
+      "title": "实际结果与局限",
+      "titleEn": "Executed results and limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文12：傅里叶特征与多尺度表示",
+      "titleEn": "Paper12: Fourier features and multiscale representations",
+      "eyebrow": "PINNs 论文 12 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 12 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从有细小波纹的温度场解释频率、核模式与多尺度共享表示，回放十二次 CPU 对照并保留失败。"
+      ],
+      "bulletsEn": [
+        "Connect temperature ripples, frequency embeddings and kernel patterns; replay twelve CPU controls, including multiscale failures."
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理与频率表示",
+            "labelEn": "Physics and frequency features",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "共享架构与物理训练",
+            "labelEn": "Shared architecture and physics training",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "实际结果与局限",
+            "labelEn": "Executed results and limits",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "先用同时包含宽尺度与细尺度温度变化的杆，解释空间频率为何重要。再把傅里叶映射、共享分支与完整空间求导连接到物理损失。最后回放全部 CPU 对照，检查完整场与模态误差，说明为什么多尺度不保证改善。",
+          "textEn": "First use a rod with broad and fine temperature variations to explain why spatial frequency matters. Then connect Fourier maps, shared branches and full spatial differentiation to the physical loss. Finally replay all CPU controls, inspect complete field and mode errors, and explain why multiple scales do not guarantee an improvement.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fourier-bridge",
+      "title": "从调整损失，走向调整输入表示",
+      "titleEn": "From weighting losses to changing the representation",
+      "eyebrow": "论文 12 / 2",
+      "eyebrowEn": "PAPER 12 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从调整损失，走向调整输入表示"
+      ],
+      "bulletsEn": [
+        "From weighting losses to changing the representation"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：各目标改变参数的速率",
+            "labelEn": "Previously: rates of parameter change",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：哪些空间模式容易学习？",
+            "labelEn": "Now: which spatial patterns are easier?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-bridge-b0",
+          "text": "上篇把训练速率与神经切线核联系起来。损失权重改变各目标的影响，但没有完全回答网络更偏爱哪些空间模式。",
+          "textEn": "The previous paper connected training rates to the neural tangent kernel. Loss weights changed the influence of objectives, but did not fully address which spatial patterns the network prefers.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-bridge-b1",
+          "text": "本篇通过傅里叶特征改变坐标表示。我们先问它如何改变偏爱的模式，再用 CPU 检验一个小型多尺度物理问题。",
+          "textEn": "This paper changes the coordinate representation through Fourier features. We will ask how this changes preferred patterns, then test a small multiscale physical problem on the CPU.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-physical",
+      "title": "同一根杆上，同时存在宽峰和细小波纹",
+      "titleEn": "A broad temperature pattern with small ripples",
+      "eyebrow": "论文 12 / 3",
+      "eyebrowEn": "PAPER 12 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "同一根杆上，同时存在宽峰和细小波纹"
+      ],
+      "bulletsEn": [
+        "A broad temperature pattern with small ripples"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-physical-b0",
+          "text": "这根杆与一个有正有负的分布热源交换热量，两端温度均为零。u 是相对参考的温度，因此蓝色区域可以为负，不表示绝对温度为负。",
+          "textEn": "This rod exchanges heat with a signed distributed source and has zero temperature at both ends. U is temperature relative to a reference, so blue regions can have negative values without implying negative absolute temperature.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-physical-b1",
+          "text": "黄色曲线同时包含宽尺度变化和细小空间波纹。移动光点表示这个稳态参考中的局部热流方向，不是瞬态模拟或训练预测。",
+          "textEn": "The yellow profile combines a broad variation with small spatial ripples. Moving dots illustrate the local heat-flow direction in this steady reference, not a transient simulation or a trained prediction.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fourier-physical",
+      "paperTrace": "paper12",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-reference",
+      "title": "用物理图像定义两个空间尺度",
+      "titleEn": "Define the two scales in the physical picture",
+      "eyebrow": "论文 12 / 4",
+      "eyebrowEn": "PAPER 12 / 4",
+      "visual": "steps",
+      "formula": "u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+      "formulaEn": "u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+      "bullets": [
+        "用物理图像定义两个空间尺度"
+      ],
+      "bulletsEn": [
+        "Define the two scales in the physical picture"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-reference-b0",
+          "text": "x 是从零到一的归一化位置，星号表示独立参考解。第一个正弦沿杆完成一个周期，提供宽尺度变化。",
+          "textEn": "X is normalised position from zero to one, and the star identifies the independent reference. The first sine completes one cycle along the rod and supplies the broad variation.",
+          "focus": 0,
+          "scene": {
+            "formula": "u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+            "formulaEn": "u^*(x)=\\sin(2\\pi x)+0.1\\sin(12\\pi x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-reference-b1",
+          "text": "第二个正弦完成六个周期，幅值为零点一。内部参考温度只在训练之后评价结果，从不作为训练标签。",
+          "textEn": "The second sine completes six cycles with amplitude zero point one. Interior reference temperatures will evaluate the result afterwards and will never appear as training labels.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "fourier-physical",
+      "paperTrace": "paper12",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-equation",
+      "title": "小波纹也可能产生很大的曲率",
+      "titleEn": "Small ripples can have large curvature",
+      "eyebrow": "论文 12 / 5",
+      "eyebrowEn": "PAPER 12 / 5",
+      "visual": "steps",
+      "formula": "\\begin{gathered}-u_{xx}=f\\\\f=4\\pi^2[\\sin(2\\pi x)+3.6\\sin(12\\pi x)]\\end{gathered}",
+      "formulaEn": "\\begin{gathered}-u_{xx}=f\\\\f=4\\pi^2[\\sin(2\\pi x)+3.6\\sin(12\\pi x)]\\end{gathered}",
+      "bullets": [
+        "小波纹也可能产生很大的曲率"
+      ],
+      "bulletsEn": [
+        "Small ripples can have large curvature"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "温度：细尺度幅值只有0.1",
+            "labelEn": "Temperature: ripple amplitude0.1",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "热源：二阶导数放大高频",
+            "labelEn": "Source: curvature amplifies high frequencies",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-equation-b0",
+          "text": "下标 x x 表示空间二阶导数，f 是给定的有正有负热源。正弦求两次导数后，幅值乘以角频率的平方。",
+          "textEn": "The subscript x x denotes the second spatial derivative, and f is the prescribed signed heat source. Differentiating a sine twice multiplies its amplitude by its angular frequency squared.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\begin{gathered}-u_{xx}=f\\\\f=4\\pi^2[\\sin(2\\pi x)+3.6\\sin(12\\pi x)]\\end{gathered}",
+            "formulaEn": "\\begin{gathered}-u_{xx}=f\\\\f=4\\pi^2[\\sin(2\\pi x)+3.6\\sin(12\\pi x)]\\end{gathered}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-equation-b1",
+          "text": "因此，小温度波纹对热源的幅值贡献反而大于宽尺度模式。准确学习一个很大的热源分量，不等于准确恢复整个温度场。",
+          "textEn": "Consequently, the small temperature ripple contributes a larger source amplitude than the broad mode. Learning a large source contribution accurately is not the same as recovering the entire temperature field accurately.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-bias",
+      "title": "核的特征向量，给出了偏爱的形状",
+      "titleEn": "Kernel eigenvectors describe preferred shapes",
+      "eyebrow": "论文 12 / 6",
+      "eyebrowEn": "PAPER 12 / 6",
+      "visual": "steps",
+      "formula": "Kq_j=\\mu_jq_j,\\qquad c_j(\\tau)=e^{-\\mu_j\\tau}c_j(0)",
+      "formulaEn": "Kq_j=\\mu_jq_j,\\qquad c_j(\\tau)=e^{-\\mu_j\\tau}c_j(0)",
+      "bullets": [
+        "核的特征向量，给出了偏爱的形状"
+      ],
+      "bulletsEn": [
+        "Kernel eigenvectors describe preferred shapes"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "特征向量：误差的空间形状",
+            "labelEn": "Eigenvector: a spatial error pattern",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "特征值：冻结核下的衰减速率",
+            "labelEn": "Eigenvalue: a frozen-kernel decay rate",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-bias-b0",
+          "text": "q j 是经验核 K 的特征向量，也就是评价点上采样的空间形状。μ j 是对应特征值，c j 是误差在这个方向上的投影。",
+          "textEn": "Q j is an eigenvector of the empirical kernel K, a spatial pattern sampled on the evaluation points. Mu j is its eigenvalue, and c j is the error projected onto that direction.",
+          "focus": 0,
+          "scene": {
+            "formula": "Kq_j=\\mu_jq_j,\\qquad c_j(\\tau)=e^{-\\mu_j\\tau}c_j(0)",
+            "formulaEn": "Kq_j=\\mu_jq_j,\\qquad c_j(\\tau)=e^{-\\mu_j\\tau}c_j(0)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-bias-b1",
+          "text": "固定核的连续梯度流中，这个系数随优化时间 τ 指数衰减。我们的小型非线性网络不一定保持常核，所以这里只作解释，不当作运行结果的预测定理。",
+          "textEn": "For a fixed kernel under continuous gradient flow, that coefficient decays exponentially in optimisation time tau. Our small nonlinear network need not keep its kernel fixed, so this is an interpretation rather than a prediction theorem for our runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-map",
+      "title": "先把位置，映射为一组正弦和余弦",
+      "titleEn": "Map position into sine and cosine features",
+      "eyebrow": "论文 12 / 7",
+      "eyebrowEn": "PAPER 12 / 7",
+      "visual": "steps",
+      "formula": "\\gamma_B(x)=[\\cos(2\\pi Bx),\\;\\sin(2\\pi Bx)]",
+      "formulaEn": "\\gamma_B(x)=[\\cos(2\\pi Bx),\\;\\sin(2\\pi Bx)]",
+      "bullets": [
+        "先把位置，映射为一组正弦和余弦"
+      ],
+      "bulletsEn": [
+        "Map position into sine and cosine features"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-map-b0",
+          "text": "γ 是坐标映射，B 包含随机抽取的频率，单位是每单位长度的周期数。两条说明曲线展示不同频率大小如何产生缓慢或快速变化的输入特征。",
+          "textEn": "Gamma is a coordinate mapping, and B contains randomly drawn frequencies in cycles per unit length. The two illustrative curves show that different frequency magnitudes create slowly or rapidly varying input features.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\gamma_B(x)=[\\cos(2\\pi Bx),\\;\\sin(2\\pi Bx)]",
+            "formulaEn": "\\gamma_B(x)=[\\cos(2\\pi Bx),\\;\\sin(2\\pi Bx)]",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-map-b1",
+          "text": "映射把正弦和余弦对交给非线性网络，并没有把最终温度限定成固定傅里叶级数。我们采用论文多尺度架构中显式含二圆周率的约定。",
+          "textEn": "The mapping provides sine and cosine pairs to a nonlinear network, rather than declaring the final temperature to be a fixed Fourier series. We use the paper’s multiscale convention with an explicit two pi factor.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "fourier-features",
+      "paperTrace": "paper12",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-bandwidth",
+      "title": "带宽控制抽样分布，不保证抽中目标频率",
+      "titleEn": "Bandwidth controls a distribution, not a guaranteed match",
+      "eyebrow": "论文 12 / 8",
+      "eyebrowEn": "PAPER 12 / 8",
+      "visual": "steps",
+      "formula": "B_{ik}=\\sigma_i Z_{ik},\\qquad Z_{ik}\\sim\\mathcal N(0,1)",
+      "formulaEn": "B_{ik}=\\sigma_i Z_{ik},\\qquad Z_{ik}\\sim\\mathcal N(0,1)",
+      "bullets": [
+        "带宽控制抽样分布，不保证抽中目标频率"
+      ],
+      "bulletsEn": [
+        "Bandwidth controls a distribution, not a guaranteed match"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "较小带宽：倾向缓慢变化的特征",
+            "labelEn": "Small bandwidth: usually slower features",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "较大带宽：允许更快的变化",
+            "labelEn": "Large bandwidth: permits faster variation",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-bandwidth-b0",
+          "text": "σ i 是频率分支 i 的标准差，Z 包含独立标准正态随机数。较小 σ 倾向平滑特征，较大 σ 允许更快的振荡。",
+          "textEn": "Sigma i is the standard deviation for frequency branch i, and Z contains independent standard-normal draws. Small sigma favours smooth features, while larger sigma allows faster oscillations.",
+          "focus": 0,
+          "scene": {
+            "formula": "B_{ik}=\\sigma_i Z_{ik},\\qquad Z_{ik}\\sim\\mathcal N(0,1)",
+            "formulaEn": "B_{ik}=\\sigma_i Z_{ik},\\qquad Z_{ik}\\sim\\mathcal N(0,1)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-bandwidth-b1",
+          "text": "这是随机抽样，并没有按构造塞入精确目标频率。过大的带宽还可能在约束之间产生不需要的振荡，因此并非越大越好。",
+          "textEn": "The draw is random and does not insert the exact target frequencies by construction. Very large bandwidth can also introduce unwanted oscillations between constraints, so larger is not automatically better.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-architecture",
+      "title": "不同尺度经过同一个非线性核心",
+      "titleEn": "Different scales share one nonlinear core",
+      "eyebrow": "论文 12 / 9",
+      "eyebrowEn": "PAPER 12 / 9",
+      "visual": "steps",
+      "formula": "u_\\theta(x)=a^\\top[h_\\theta(\\gamma_{B_1}(x)),h_\\theta(\\gamma_{B_2}(x))]+c",
+      "formulaEn": "u_\\theta(x)=a^\\top[h_\\theta(\\gamma_{B_1}(x)),h_\\theta(\\gamma_{B_2}(x))]+c",
+      "bullets": [
+        "不同尺度经过同一个非线性核心"
+      ],
+      "bulletsEn": [
+        "Different scales share one nonlinear core"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "两组特征，共享核心参数",
+            "labelEn": "Two feature groups share core weights",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "拼接特征，再学习线性输出",
+            "labelEn": "Concatenate, then learn a linear output",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-architecture-b0",
+          "text": "h θ 表示每个频率分支使用相同的双曲正切核心，共享权重与偏置。这个实验的每个分支有八个随机频率，组成十六个正弦余弦特征。",
+          "textEn": "H theta denotes the same tanh core applied to each frequency branch, with shared weights and biases. Each branch has eight random frequencies and sixteen sine-cosine features in this experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "u_\\theta(x)=a^\\top[h_\\theta(\\gamma_{B_1}(x)),h_\\theta(\\gamma_{B_2}(x))]+c",
+            "formulaEn": "u_\\theta(x)=a^\\top[h_\\theta(\\gamma_{B_1}(x)),h_\\theta(\\gamma_{B_2}(x))]+c",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-architecture-b1",
+          "text": "两组十六单元核心输出先拼接，再由 a 和 c 形成待学习的标量输出。这保留多尺度共享方式，但规模远小于原始基准。",
+          "textEn": "The two sixteen-unit core outputs are concatenated, then a and c form the learned scalar output. This follows the multiscale sharing pattern at a much smaller size than the original benchmarks.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-fixed",
+      "title": "频率固定，坐标导数仍穿过映射",
+      "titleEn": "Frequencies stay fixed; spatial derivatives pass through",
+      "eyebrow": "论文 12 / 10",
+      "eyebrowEn": "PAPER 12 / 10",
+      "visual": "steps",
+      "formula": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+      "formulaEn": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+      "bullets": [
+        "频率固定，坐标导数仍穿过映射"
+      ],
+      "bulletsEn": [
+        "Frequencies stay fixed; spatial derivatives pass through"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "B 不属于优化器参数",
+            "labelEn": "B is not an optimiser parameter",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "对 x 求导时仍包含频率因子",
+            "labelEn": "Spatial derivatives include frequency factors",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-fixed-b0",
+          "text": "B 保存为固定缓冲量，优化器从不更新它。这不同于学习频率数值，也不同于直接用参考温度拟合频率。",
+          "textEn": "B is stored as a fixed buffer and never updated by the optimiser. This is different from learning frequency values or fitting them directly to reference temperatures.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+            "formulaEn": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-fixed-b1",
+          "text": "对 x 求导时，自动微分仍必须穿过特征映射。遗漏二圆周率 b 因子会改变物理残差，使对照失效。",
+          "textEn": "Automatic differentiation must still pass through the feature map when differentiating with respect to x. Omitting the two pi b factors would change the physical residual and invalidate the comparison.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-kernel",
+      "title": "观察实际初始化后的核模式",
+      "titleEn": "Inspect the actual initial kernel patterns",
+      "eyebrow": "论文 12 / 11",
+      "eyebrowEn": "PAPER 12 / 11",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "观察实际初始化后的核模式"
+      ],
+      "bulletsEn": [
+        "Inspect the actual initial kernel patterns"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-kernel-b0",
+          "text": "这三条曲线是种子十一多尺度网络初始输出核的主要特征向量。它们来自四十一个网格点上的参数导数，只为显示而重新缩放。",
+          "textEn": "These three curves are leading eigenvectors of the multiscale network’s initial output kernel for seed eleven. They come from parameter derivatives at forty-one grid points and are rescaled only for display.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-kernel-b1",
+          "text": "特征向量的正负号任意，这些方向不等同于单个正弦特征。这只是输出核诊断；完整 PINN 还包含导数残差块，不能仅靠这些曲线预测 PDE 训练。",
+          "textEn": "Eigenvector signs are arbitrary, and these directions are not identical to individual sine features. This is an output-kernel diagnostic; the full PINN also contains derivative-residual blocks, so these curves alone cannot predict PDE training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fourier-kernel",
+      "paperTrace": "paper12",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-controls",
+      "title": "四种表示，保留全部三个种子",
+      "titleEn": "Four representations with all three seeds retained",
+      "eyebrow": "论文 12 / 12",
+      "eyebrowEn": "PAPER 12 / 12",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "四种表示，保留全部三个种子"
+      ],
+      "bulletsEn": [
+        "Four representations with all three seeds retained"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "普通网络与两种单频带对照",
+            "labelEn": "Plain network and two band controls",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "双尺度：同时提供低频与高频",
+            "labelEn": "Two scales: provide both frequency bands",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-controls-b0",
+          "text": "普通双曲正切网络有一百零一个隐藏单元，共三百零四个待训练参数。双分支低频与高频对照，带宽分别为零点五与零点五，或者四与四。",
+          "textEn": "The plain tanh network has one hundred and one hidden units and three hundred and four trainable parameters. Two-branch low-band and high-band controls use bandwidth pairs zero point five and zero point five, or four and four.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-controls-b1",
+          "text": "多尺度带宽为零点五与四，与两种傅里叶对照一样有三百零五个参数。保留种子十一、二十二和三十三；参数数目接近不表示计算量相同，也不表示初始函数相同。",
+          "textEn": "The multiscale pair is zero point five and four, with three hundred and five parameters like both Fourier controls. We retain seeds eleven, twenty-two and thirty-three; similar parameter counts do not imply equal computation or identical initial functions.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-loss",
+      "title": "共同的物理损失，不使用内部温度标签",
+      "titleEn": "One physical loss without interior temperature labels",
+      "eyebrow": "论文 12 / 13",
+      "eyebrowEn": "PAPER 12 / 13",
+      "visual": "steps",
+      "formula": "L=\\operatorname{mean}[(r/s_f)^2]+\\operatorname{mean}(u_b^2),\\quad r=-u_{xx}-f",
+      "formulaEn": "L=\\operatorname{mean}[(r/s_f)^2]+\\operatorname{mean}(u_b^2),\\quad r=-u_{xx}-f",
+      "bullets": [
+        "共同的物理损失，不使用内部温度标签"
+      ],
+      "bulletsEn": [
+        "One physical loss without interior temperature labels"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "内部：归一化方程残差",
+            "labelEn": "Interior: normalised equation residual",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "两端：温度接近零",
+            "labelEn": "Endpoints: temperatures approach zero",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-loss-b0",
+          "text": "r 是在九十六个固定内部中点上评价的方程不匹配。s f 是这些点上热源的固定均方根，所有对照共用它来设置残差尺度。",
+          "textEn": "R is the equation mismatch, evaluated at ninety-six fixed interior midpoints. S f is the fixed root-mean-square source on those points, shared by every control to set the residual scale.",
+          "focus": 0,
+          "scene": {
+            "formula": "L=\\operatorname{mean}[(r/s_f)^2]+\\operatorname{mean}(u_b^2),\\quad r=-u_{xx}-f",
+            "formulaEn": "L=\\operatorname{mean}[(r/s_f)^2]+\\operatorname{mean}(u_b^2),\\quad r=-u_{xx}-f",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-loss-b1",
+          "text": "边界向量 u b 包含两端温度。全部运行的端点惩罚使用相同单位权重，解析内部温度始终不进入训练损失。",
+          "textEn": "The boundary vector u b contains the two endpoint temperatures. Its penalty uses the same unit weight in all runs, and analytic interior temperatures remain outside the training loss.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-code",
+      "title": "从固定频率到完整的坐标自动微分",
+      "titleEn": "From fixed frequencies to full spatial autodiff",
+      "eyebrow": "论文 12 / 14",
+      "eyebrowEn": "PAPER 12 / 14",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从固定频率到完整的坐标自动微分"
+      ],
+      "bulletsEn": [
+        "From fixed frequencies to full spatial autodiff"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-code-b0",
+          "text": "把 B 注册为缓冲量，既固定随机频率，也把它们保存在模型里。正弦余弦映射仍位于前向计算图内部。",
+          "textEn": "Registering B as a buffer keeps random frequencies fixed while preserving them in the saved model. The sine-cosine map remains inside the forward computation graph.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-code-b1",
+          "text": "最后一行是两次自动求导的缩写，下载实现会启用导数计算图。两个分支共享核心，训练更新共同权重和输出层。",
+          "textEn": "The final line abbreviates two automatic derivatives with graph construction enabled in the downloadable implementation. Both branches share the core, and training updates their common weights plus the output layer.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fourier-code",
+      "paperTrace": "paper12",
+      "demoCode": [
+        "self.register_buffer(\"B\", scales[:, None] * Z)",
+        "a_i = 2 * pi * x @ B[i].reshape(1, -1)",
+        "h_i = tanh(core(cat((cos(a_i), sin(a_i)), 1)))",
+        "u = output(cat((h_1, h_2), dim=1))",
+        "r = -grad(grad(u, x), x) - source(x)"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-budget",
+      "title": "小型 CPU 预算与配对设置",
+      "titleEn": "A small CPU budget with paired settings",
+      "eyebrow": "论文 12 / 15",
+      "eyebrowEn": "PAPER 12 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "小型 CPU 预算与配对设置"
+      ],
+      "bulletsEn": [
+        "A small CPU budget with paired settings"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "四线程，六十四位浮点",
+            "labelEn": "Four threads, float64",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "每次2000步，共十二次运行",
+            "labelEn": "2000 updates per run, twelve runs",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-budget-b0",
+          "text": "使用四个 CPU 线程、六十四位浮点和全批量 Adam，学习率为零点零零一。各表示共用残差位置、端点值与固定损失归一化。",
+          "textEn": "We use four CPU threads, sixty-four-bit arithmetic and full-batch Adam with learning rate zero point zero zero one. All representations see the same residual locations, endpoint values and fixed loss normalisation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-budget-b1",
+          "text": "每次都在九十秒上限内完成两千步，不提前停止，也不挑选最佳检查点。同一种子的傅里叶对照共用初始待训练权重和基础高斯样本，但带宽不同仍会产生不同初始函数。",
+          "textEn": "Each run completes two thousand updates within a ninety-second cap, without early stopping or best-checkpoint selection. The Fourier controls share initial trainable weights and underlying Gaussian draws within each seed, although different bandwidths produce different initial functions.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-training",
+      "title": "回放同一种子的四种真实训练曲线",
+      "titleEn": "Replay four real training trajectories for one seed",
+      "eyebrow": "论文 12 / 16",
+      "eyebrowEn": "PAPER 12 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回放同一种子的四种真实训练曲线"
+      ],
+      "bulletsEn": [
+        "Replay four real training trajectories for one seed"
+      ],
+      "sourceIds": [
+        "wang2020fourier",
+        "fourier-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-training-b0",
+          "text": "这里回放种子十一：灰色是普通网络，蓝色是低频，紫色是高频，金色是多尺度。观察相同两千步预算下保存曲线的变化；虚线参考只用于验证。",
+          "textEn": "This replay shows seed eleven: grey is plain, blue is low-band, purple is high-band, and gold is multiscale. Watch the saved curves change across the same two thousand update budget; the dashed reference is used only for validation.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-training-b1",
+          "text": "下方数字是在四百零一个独立网格点上测量的相对温度场误差。这里金色并不是赢家，浏览器回放真实检查点，而不是执行新的训练任务。",
+          "textEn": "The numbers below report relative temperature-field errors on four hundred and one independent grid points. Gold is not the winner here, and the browser replays actual checkpoints rather than running a new training job.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fourier-training",
+      "paperTrace": "paper12",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-modes",
+      "title": "分别测量宽尺度和细尺度的系数误差",
+      "titleEn": "Measure broad and fine mode errors separately",
+      "eyebrow": "论文 12 / 17",
+      "eyebrowEn": "PAPER 12 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "分别测量宽尺度和细尺度的系数误差"
+      ],
+      "bulletsEn": [
+        "Measure broad and fine mode errors separately"
+      ],
+      "sourceIds": [
+        "wang2020fourier",
+        "fourier-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-modes-b0",
+          "text": "蓝色和紫色曲线跟踪多尺度种子十一中，一个周期与六个周期模态的系数绝对误差。系数来自预测场的独立梯形积分投影，不是读取网络权重。",
+          "textEn": "The blue and purple curves track absolute coefficient errors for the one-cycle and six-cycle modes of multiscale seed eleven. Coefficients are obtained by independent trapezoidal projections of the predicted field, not by reading network weights.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        },
+        {
+          "id": "fourier-modes-b1",
+          "text": "两个投影误差有用，却没有测量所有可能的场畸变。额外振荡或其他形状仍可能造成很大的总误差，而且两个模态并不保证同速改善。",
+          "textEn": "These two projection errors are useful, but they do not measure every possible field distortion. Extra oscillations or other shapes can still create a large total error, and the two modes do not improve at guaranteed equal rates.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fourier-modes",
+      "paperTrace": "paper12",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-projection",
+      "title": "模态投影必须与完整场误差一起看",
+      "titleEn": "Read modal projections alongside the full field error",
+      "eyebrow": "论文 12 / 18",
+      "eyebrowEn": "PAPER 12 / 18",
+      "visual": "steps",
+      "formula": "\\widehat a_k=2\\int_0^1u_\\theta(x)\\sin(2\\pi kx)\\,dx,\\quad k\\in\\{1,6\\}",
+      "formulaEn": "\\widehat a_k=2\\int_0^1u_\\theta(x)\\sin(2\\pi kx)\\,dx,\\quad k\\in\\{1,6\\}",
+      "bullets": [
+        "模态投影必须与完整场误差一起看"
+      ],
+      "bulletsEn": [
+        "Read modal projections alongside the full field error"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "目标系数分别为1和0.1",
+            "labelEn": "Reference coefficients are1 and0.1",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "其他形状仍计入完整场误差",
+            "labelEn": "Other shapes remain in full-field error",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-projection-b0",
+          "text": "带帽 a k 是沿杆 k 个周期的正弦投影系数。利用正交性，k 为一和六时，参考系数分别是一和零点一。",
+          "textEn": "A hat k is the projected sine coefficient for k cycles along the rod. Orthogonality makes the reference coefficients one and zero point one for k equal to one and six.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\widehat a_k=2\\int_0^1u_\\theta(x)\\sin(2\\pi kx)\\,dx,\\quad k\\in\\{1,6\\}",
+            "formulaEn": "\\widehat a_k=2\\int_0^1u_\\theta(x)\\sin(2\\pi kx)\\,dx,\\quad k\\in\\{1,6\\}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-projection-b1",
+          "text": "预测即使匹配这两个投影，也可能包含其他不需要的形状。因此还要比较完整场、端点误差，以及新偏移位置上的方程残差。",
+          "textEn": "A prediction can match those two projections yet contain other unwanted shapes. Therefore we also compare its complete field, endpoint error and equation residual at new shifted locations.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-error",
+      "title": "三个种子都展示，不只展示最优结果",
+      "titleEn": "Show every seed, not only the best outcome",
+      "eyebrow": "论文 12 / 19",
+      "eyebrowEn": "PAPER 12 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "三个种子都展示，不只展示最优结果"
+      ],
+      "bulletsEn": [
+        "Show every seed, not only the best outcome"
+      ],
+      "sourceIds": [
+        "wang2020fourier",
+        "fourier-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "fourier-error-b0",
+          "text": "每组包含三个最终相对场误差，纵轴采用对数尺度。这个特定问题和预算中，低频对照稳定在大约百分之零点二到零点四。",
+          "textEn": "Each group contains three final relative field errors on a logarithmic vertical scale. Low-band controls are consistently around zero point two to zero point four percent in this particular problem and budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-error-b1",
+          "text": "多尺度误差从大约百分之零点二到超过百分之一百。最佳种子表现很好，但明显的变动使我们不能声称这个双尺度选择能稳定胜过低频对照。",
+          "textEn": "The multiscale errors range from about zero point two percent to more than one hundred percent. Its best seed is strong, but its variability prevents a claim that this two-scale choice reliably beats the low-band controls.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "fourier-error",
+      "paperTrace": "paper12",
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-interpret",
+      "title": "为什么低频特征也能学会细小波纹？",
+      "titleEn": "Why can low-band features also learn the ripples?",
+      "eyebrow": "论文 12 / 20",
+      "eyebrowEn": "PAPER 12 / 20",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么低频特征也能学会细小波纹？"
+      ],
+      "bulletsEn": [
+        "Why can low-band features also learn the ripples?"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "非线性核心可以产生更复杂的形状",
+            "labelEn": "A nonlinear core can form richer shapes",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "初始频带不是输出频率的硬上限",
+            "labelEn": "Initial bandwidth is not a hard output cutoff",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-interpret-b0",
+          "text": "非线性双曲正切核心会组合与混合输入特征，因此较小输入带宽并不构成输出的严格带限。随机抽样与非线性优化共同影响有限预算内能够学到什么。",
+          "textEn": "The nonlinear tanh core composes and mixes input features, so a small input bandwidth does not impose a strict band limit on the output. Random draws and nonlinear optimisation both affect what becomes learnable within a finite budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-interpret-b1",
+          "text": "这不否定论文改变偏好方向的动机。它说明更大或混合带宽需要验证，不能预先假定一定改善。",
+          "textEn": "This observation does not contradict the paper’s motivation for changing preferred directions. It does show that choosing a larger or mixed bandwidth requires validation rather than an assumed improvement.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-limits",
+      "title": "保留方法，清楚说明小实验的边界",
+      "titleEn": "Keep the method and state the experiment’s limits",
+      "eyebrow": "论文 12 / 21",
+      "eyebrowEn": "PAPER 12 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "保留方法，清楚说明小实验的边界"
+      ],
+      "bulletsEn": [
+        "Keep the method and state the experiment’s limits"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留：随机映射、共享核心、多尺度",
+            "labelEn": "Retained: random maps, sharing, multiple scales",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "范围：教学杆与输出核诊断",
+            "labelEn": "Scope: teaching rod and output-kernel diagnostic",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-limits-b0",
+          "text": "保留固定随机傅里叶映射、共享非线性核心与分支输出拼接。热源、网络大小和预算刻意采用更小的教学设置，全部十二次结果都可以下载。",
+          "textEn": "We preserve fixed random Fourier maps, a shared nonlinear core and concatenated branch outputs. The source, network size and budget are deliberately smaller teaching choices, and all twelve outcomes remain downloadable.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "fourier-limits-b1",
+          "text": "没有复现论文原始的高频、波动或反应扩散基准。输出核示意也没有验证常核假设，更没有预测受导数约束的完整 PINN 动力学。",
+          "textEn": "We have not reproduced the paper’s original high-frequency, wave or reaction-diffusion benchmarks. Nor does the output-kernel illustration verify constant-kernel assumptions or predict the complete derivative-constrained PINN dynamics.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-exercise",
+      "title": "先预测，再改变频带与残差采样",
+      "titleEn": "Predict before changing bandwidth and sampling",
+      "eyebrow": "论文 12 / 22",
+      "eyebrowEn": "PAPER 12 / 22",
+      "visual": "steps",
+      "formula": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+      "formulaEn": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+      "bullets": [
+        "先预测，再改变频带与残差采样"
+      ],
+      "bulletsEn": [
+        "Predict before changing bandwidth and sampling"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "预测：频率加倍，曲率幅值怎样变？",
+            "labelEn": "Predict: double frequency, what happens to curvature?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "检验：新位置残差与完整温度场",
+            "labelEn": "Check: shifted residuals and the complete field",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-exercise-b0",
+          "text": "如果 b 加倍而正弦幅值不变，二阶导数幅值会变成四倍。先预测这如何影响优化，以及现有残差点还能否分辨产生的振荡。",
+          "textEn": "If b doubles while the sine amplitude stays fixed, its second-derivative amplitude becomes four times larger. Predict how this can affect optimisation and whether the existing residual points still resolve the resulting oscillations.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+            "formulaEn": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "fourier-exercise-b1",
+          "text": "改变带宽或采样的实验必须另存输出。比较全部种子、独立场与模态误差，以及偏移点残差，再判断改变是否有效。",
+          "textEn": "Run any changed bandwidth or sampling experiment into a new output file. Compare all seeds, independent field and mode errors, and residuals at shifted points before deciding whether the change helped.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "fourier-next",
+      "title": "下一步：把全局多尺度变成局部分解",
+      "titleEn": "Next: move from global features to local decomposition",
+      "eyebrow": "论文 12 / 23",
+      "eyebrowEn": "PAPER 12 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "下一步：把全局多尺度变成局部分解"
+      ],
+      "bulletsEn": [
+        "Next: move from global features to local decomposition"
+      ],
+      "sourceIds": [
+        "wang2020fourier"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：一个全局模型改变输入频带",
+            "labelEn": "This paper: change a global model’s feature bands",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一篇：局部子网络与空间窗口",
+            "labelEn": "Next: local subnetworks and spatial windows",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "fourier-next-b0",
+          "text": "全局傅里叶特征改变偏爱的空间模式，但单个共享表示仍可能对带宽和随机初始化敏感。这里混合频带的失败具体展示了这个局限。",
+          "textEn": "Global Fourier features change preferred spatial patterns, but a single shared representation can remain sensitive to bandwidth and random initialisation. Our mixed-band failures make that limitation concrete.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "concerned"
+          }
+        },
+        {
+          "id": "fourier-next-b1",
+          "text": "下一篇计划研究 FBPINNs，把局部子网络与空间窗口组合。我们将问，空间上分解表示，能否在小型 CPU 预算内提供另一种处理多尺度的方法。",
+          "textEn": "The next planned paper is F B PINNs, which combines local subnetworks with spatial windows. We will ask whether dividing the representation spatially provides a different way to handle multiple scales within a small CPU budget.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

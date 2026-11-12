@@ -1,0 +1,54 @@
+{
+  "id": "wang2020fourier",
+  "paper": {
+    "number": 12,
+    "shortTitle": "Wang2020 · Fourier features",
+    "title": "Wang, Wang & Perdikaris (2020 preprint;2021 journal), On the eigenvector bias of Fourier feature networks",
+    "url": "https://arxiv.org/abs/2012.10047",
+    "year": 2020,
+    "scope": "Teaching adaptation: signed steady rod, two-scale source, tiny shared-core branches; not the original high-frequency benchmarks or a constant-kernel theorem."
+  },
+  "title": "Paper12: Fourier features and multiscale representations",
+  "titleZh": "论文12：傅里叶特征与多尺度表示",
+  "totalMinutes": 45,
+  "download": "paper-12.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4012-8012-000000000012",
+      "index": 0,
+      "title": "论文12：傅里叶特征与多尺度表示",
+      "titleEn": "Paper12: Fourier features and multiscale representations",
+      "file": "1.json",
+      "pages": 23,
+      "sentenceCount": 94,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "wang2020fourier",
+      "name": "Wang, Wang & Perdikaris (2020 preprint;2021 journal), On the eigenvector bias of Fourier feature networks",
+      "url": "https://arxiv.org/abs/2012.10047",
+      "text": "Primary reference for eigenvector bias, random Fourier embeddings and multiscale PINNs. This lesson uses a new small signed-temperature rod and discloses all twelve CPU outcomes; it does not reproduce the original high-frequency benchmarks."
+    },
+    {
+      "id": "fourier-primary",
+      "name": "Primary equations3.9 and3.24–3.27, sections3.2–4.1",
+      "url": "https://arxiv.org/html/2012.10047v1",
+      "text": "The earlier toy convention uses cos(Bx), while the multiscale architecture uses cos(2πBx). We explicitly use the latter, keep B fixed, share the nonlinear core between branches and distinguish an output-kernel diagnostic from the full PINN residual kernel."
+    },
+    {
+      "id": "fourier-code-source",
+      "name": "Authors’ MultiscalePINNs implementation",
+      "url": "https://github.com/PredictiveIntelligenceLab/MultiscalePINNs",
+      "text": "Original implementation reference; our compact PyTorch CPU adaptation uses separate budgets, source, network size and seeds."
+    },
+    {
+      "id": "fourier-local",
+      "name": "Twelve complete CPU runs and independent validation",
+      "url": "/courses/pinns-papers/12-wang-2020-fourier/trace.json",
+      "text": "Plain,low-band,high-band and two-scale representations; three seeds each,2000 updates. All final fields, source-normalised residuals, modal projections, initial output kernels and random frequencies are retained."
+    }
+  ],
+  "downloadSha256": "8751d3720a3f7f1ffa0035819a67559dc109ef20ccd21b1bd5af508b4c7eef89"
+}

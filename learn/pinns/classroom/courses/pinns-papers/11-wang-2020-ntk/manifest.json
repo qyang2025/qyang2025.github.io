@@ -44,5 +44,5 @@
       "text": "Three paired seeds, unit weights, frozen initial-trace weights and weights refreshed every400 steps. Complete final fields, kernel drift and initial-kernel continuous-flow diagnostics are retained; the earlier unstable pilot is separately disclosed."
     }
   ],
-  "downloadSha256": "f2756a5310e85d64d974ab124318ec8315c0142f147ba73f4023795261e65888"
+  "downloadSha256": "48608e6ed4d3132afee7d8cc0aed8bd584ea5653bb269062ce7cdaf5db360d8e"
 }

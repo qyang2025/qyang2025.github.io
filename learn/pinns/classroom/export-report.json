@@ -279,9 +279,22 @@
           "ready": 102
         }
       }
+    ],
+    "wang2020fourier": [
+      {
+        "chapter": 1,
+        "en": {
+          "total": 94,
+          "ready": 94
+        },
+        "zh": {
+          "total": 94,
+          "ready": 94
+        }
+      }
     ]
   },
-  "clips": 3641,
+  "clips": 3829,
   "features": [
     "progressive-reveal",
     "physical-animation",

@@ -1,0 +1,13 @@
+{
+  "paper": "12",
+  "checks": [
+    {
+      "slideId": "fourier-exercise",
+      "questionEn": "If frequency doubles with fixed sine amplitude, what changes in the second derivative, and what must be revalidated?",
+      "questionZh": "保持正弦幅值不变，频率加倍后，二阶导数如何改变，又需要重新验证什么？",
+      "answerEn": "The second derivative contains the square of angular frequency, so its amplitude grows by four. A Fourier mapping must remain in the spatial-autodiff graph even when its frequency buffer is fixed. Larger derivative scales can alter conditioning and the residual sampling needed to resolve oscillations. There is no guarantee that larger bandwidth improves the temperature field or all seeds. Compare independent complete-field errors, modal projections, endpoint errors and shifted residual checks; save modified runs separately. Matching only two modal coefficients does not rule out other erroneous field shapes.",
+      "answerZh": "二阶导数包含角频率的平方，因此幅值增大四倍。即使频率缓冲量固定，傅里叶映射也必须保留在空间自动微分图内。导数尺度变大可能改变条件数与分辨振荡所需的残差采样。更大带宽不保证改善温度场或所有种子。必须同时比较独立完整场误差、模态投影、端点误差与偏移点残差，并把修改运行另存。只匹配两个模态系数，无法排除其他错误形状。",
+      "equation": "\\partial_{xx}\\sin(2\\pi bx)=-(2\\pi b)^2\\sin(2\\pi bx)"
+    }
+  ]
+}

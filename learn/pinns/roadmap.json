@@ -121,11 +121,12 @@
     },
     {
       "number": "12",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Wang, Wang & Perdikaris, On the eigenvector bias of Fourier feature networks",
       "source": "https://arxiv.org/abs/2012.10047",
       "topic": "Fourier features and multiscale PDEs",
-      "scope": "Planned1D mixed-frequency controlled example,not large wave or reaction-diffusion benchmarks."
+      "scope": "Teaching adaptation: signed steady rod, two-scale source, tiny shared-core branches; not the original high-frequency benchmarks or a constant-kernel theorem.",
+      "classroom": "classroom/?paper=wang2020fourier&language=en"
     },
     {
       "number": "13",

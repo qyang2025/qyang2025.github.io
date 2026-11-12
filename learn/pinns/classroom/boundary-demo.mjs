@@ -12,7 +12,7 @@ export function drawBoundary(host,t,p,en){
  }
  if(kind==='boundary-distance'){
   const py=v=>187-135*v;
-  svg.innerHTML=axes('d,\\varphi')+line(t.x,t.x.map(x=>1-Math.abs(x)),py,colors[3])+line(t.x,t.x.map(x=>(1-x*x)/2),py,colors[2])+text(305,23,en?'Diameter slice · same zeros, different smoothness':'直径截面 · 零点相同，光滑性不同')+text(58,191,'0','end')+text(58,56,'1','end')+math('d=1-|x|',95,226,200)+math('\\varphi=(1-x^2)/2',330,226,260);return;
+  svg.innerHTML=axes('d,\\varphi')+line(t.x,t.x.map(x=>1-Math.abs(x)),py,colors[3])+line(t.x,t.x.map(x=>(1-x*x)/2),py,colors[2])+text(305,23,en?'Diameter · smooth and nonsmooth distances':'直径截面 · 零点相同，光滑性不同')+text(58,191,'0','end')+text(58,56,'1','end')+math('d=1-|x|',95,226,200)+math('\\varphi=(1-x^2)/2',330,226,260);return;
  }
  if(kind==='boundary-curvature'){
   const radii=Array.from({length:150},(_,i)=>.025+i*.975/149),cx=r=>70+470*r,py=v=>188-135*Math.log10(v)/Math.log10(40),curve=(f,c)=>`<polyline points="${radii.map(r=>`${cx(r)},${py(f(r))}`).join(' ')}" fill="none" stroke="${c}" stroke-width="3"/>`;

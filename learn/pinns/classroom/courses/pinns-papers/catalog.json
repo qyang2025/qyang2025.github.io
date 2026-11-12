@@ -65,6 +65,12 @@
       "number": 11,
       "courseRoot": "courses/pinns-papers/11-wang-2020-ntk",
       "published": true
+    },
+    {
+      "id": "wang2020fourier",
+      "number": 12,
+      "courseRoot": "courses/pinns-papers/12-wang-2020-fourier",
+      "published": true
     }
   ]
 }

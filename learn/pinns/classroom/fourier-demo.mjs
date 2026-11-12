@@ -1,0 +1,25 @@
+import{mathHtml}from'./math.mjs';
+const kinds=['plain','low','high','multi'],colors=['#cbd7de','#79d4ef','#c7b4ff','#ffe071'];
+export function fourierFrame(t,k,p,seed=11){const a=t.runs[`${k}-${seed}`].frames;return a[Math.floor(Math.max(0,Math.min(1,p))*(a.length-1))];}
+export function drawFourier(host,t,p,en){const svg=host.querySelector('svg'),out=host.querySelector('output'),kind=host.dataset.paperDemo;if(!svg)return;
+ const tx=(x,y,s,a='middle')=>`<text x="${x}" y="${y}" text-anchor="${a}">${s}</text>`,mx=(s,x,y,w=65)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="${w}" height="36"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`,px=x=>70+470*x,line=(xs,ys,py,c,d=false)=>`<polyline points="${xs.map((x,i)=>`${px(x)},${py(ys[i])}`).join(' ')}" fill="none" stroke="${c}" stroke-width="3"${d?' stroke-dasharray="7 5"':''}/>`;
+ const axes=(label='u',x='x')=>`<path d="M70 40V190H555" fill="none" stroke="#d4dce2" stroke-width="2.8"/>`+mx(label,15,22)+(x?mx(x,555,179,80):'')+tx(70,216,'0')+tx(540,216,'1');
+ const legend=()=>kinds.map((k,i)=>`<path d="M${58+i*140} 242h19" stroke="${colors[i]}" stroke-width="3"/>`+tx(83+i*140,249,(en?['Plain','Low','High','Multi']:['普通','低频','高频','多尺度'])[i],'start')).join('');
+ if(kind==='fourier-physical'){
+  const py=v=>154-45*v;svg.innerHTML=Array.from({length:48},(_,i)=>{const x=(i+.5)/48,u=Math.sin(2*Math.PI*x)+.1*Math.sin(12*Math.PI*x),a=Math.min(1,Math.abs(u));return `<rect x="${px(i/48)}" y="44" width="10" height="24" fill="${u>0?`rgb(${Math.round(60+180*a)},130,55)`:`rgb(40,130,${Math.round(100+140*a)})`}"/>`;}).join('')+`<rect x="70" y="44" width="470" height="24" fill="none" stroke="#d4dce2" stroke-width="2.8"/>`+axes()+`<path d="M70 ${py(0)}H540" stroke="#657881" stroke-dasharray="5 5"/>`+line(t.x,t.truth,py,'#ffe071')+Array.from({length:9},(_,i)=>{const x=(i+.5)/9,flux=-2*Math.PI*Math.cos(2*Math.PI*x)-1.2*Math.PI*Math.cos(12*Math.PI*x),z=x+Math.sign(flux)*.025*((p*12+i/9)%1);return `<circle cx="${px(z)}" cy="56" r="3" fill="#fff3cc"/>`;}).join('')+tx(320,25,en?'Warm / cold relative to a reference':'相对参考温度的暖区与冷区')+tx(320,249,en?'Steady temperature · qualitative heat-flow dots':'稳态温度 · 热流定性标记');return;
+ }
+ if(kind==='fourier-features'){
+  const xs=t.x,py=v=>119-47*v;svg.innerHTML=axes('\\gamma')+line(xs,xs.map(x=>Math.sin(2*Math.PI*.5*x)),py,colors[1])+line(xs,xs.map(x=>Math.sin(2*Math.PI*4*x)),py,colors[2])+tx(320,25,en?'Two illustrative basis frequencies':'两个用于说明的基频')+tx(320,249,en?'Blue:0.5 cycles · purple:4 cycles':'蓝：0.5 周期 · 紫：4 周期');return;
+ }
+ if(kind==='fourier-kernel'){
+  const r=t.runs['multi-11'],py=v=>120-65*v,normal=r.leadingEigenvectors.map(v=>{const a=Math.max(...v.map(Math.abs));return v.map(z=>z/a);});svg.innerHTML=axes('q')+normal.map((v,i)=>line(t.kernelX,v,py,colors[i+1])).join('')+tx(320,25,en?'Multiscale output NTK · leading3 eigenvectors':'多尺度输出核 · 前三个特征向量')+tx(320,249,en?'Arbitrary sign · normalised for display':'符号任意 · 仅显示归一化');return;
+ }
+ if(kind==='fourier-training'){
+  const frames=kinds.map(k=>fourierFrame(t,k,p)),all=Object.values(t.runs).filter(r=>r.seed===11).flatMap(r=>r.frames.flatMap(f=>f.curve)),lo=Math.floor(Math.min(-1.2,...all)*2)/2,hi=Math.ceil(Math.max(1.2,...all)*2)/2,py=v=>190-140*(v-lo)/(hi-lo);host.dataset.trainingStep=String(frames[0].step);
+  svg.innerHTML=axes()+tx(58,193,lo.toFixed(1),'end')+tx(58,54,hi.toFixed(1),'end')+line(t.x,t.truth,py,'#9baaac',true)+frames.map((f,i)=>line(t.x,f.curve,py,colors[i])).join('')+tx(320,25,en?`Seed11 · update ${frames[0].step}`:`种子11 · 更新 ${frames[0].step}`)+legend();if(out)out.textContent=(en?'Field error: ':'场误差：')+frames.map(f=>(100*f.relativeL2).toFixed(2)+'%').join(' · ');return;
+ }
+ if(kind==='fourier-modes'){
+  const run=t.runs['multi-11'],f=run.frames.slice(0,Math.floor(p*(run.frames.length-1))+1),py=v=>190-28*(Math.log10(Math.max(v,1e-5))+5);host.dataset.trainingStep=String(f.at(-1).step);svg.innerHTML=axes('\\Delta a','n/S')+[-5,-3,-1,0].map(e=>tx(58,py(10**e)+6,'1e'+e,'end')).join('')+[0,1].map((k)=>line(f.map(f=>f.step/t.steps),f.map(f=>f.modeErrors[k]),py,colors[k+1])).join('')+tx(320,25,en?'Multiscale · absolute mode-coefficient errors':'多尺度 · 模态系数绝对误差')+tx(190,249,en?'Blue:1 cycle':'蓝：1 周期')+tx(452,249,en?'Purple:6 cycles':'紫：6 周期');if(out)out.textContent=en?'Equal learning rates are not assumed.':'不假设两个模态以相同速率学习。';return;
+ }
+ const values=kinds.map(k=>[11,22,33].map(seed=>t.runs[`${k}-${seed}`].relativeL2)),py=v=>190-35*(Math.log10(Math.max(v,1e-4))+4);svg.innerHTML=`<path d="M70 40V190H555" fill="none" stroke="#d4dce2" stroke-width="2.8"/>`+[-4,-2,0].map(e=>tx(58,py(10**e)+6,'1e'+e,'end')).join('')+values.map((a,i)=>a.map((v,j)=>`<circle cx="${114+i*140+(j-1)*12}" cy="${py(v)}" r="4.5" fill="${colors[i]}"/>`).join('')).join('')+tx(320,25,en?'Final field errors · three seeds each':'最终场误差 · 每种三个种子')+legend();if(out)out.textContent=en?'Final checkpoints only · no best-seed selection':'只用最终检查点 · 不挑选最佳种子';
+}
