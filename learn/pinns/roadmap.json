@@ -112,11 +112,12 @@
     },
     {
       "number": "11",
-      "status": "Planned",
+      "status": "Implemented",
       "paper": "Wang, Yu & Perdikaris, When and why PINNs fail to train: A neural tangent kernel perspective",
       "source": "https://arxiv.org/abs/2007.14527",
       "topic": "NTK, eigenvalues and competing convergence rates",
-      "scope": "Planned small-network kernel and training experiment;finite-network limits distinguished from infinite-width theory."
+      "scope": "Independent small Poisson rod adaptation: empirical finite-width NTK with mean-normalised output blocks; single hidden layer width32, not original width100/500 or wave benchmarks. Fixed-step SGD with an initial empirical spectral heuristic is not a global stability guarantee or infinite-width convergence proof.",
+      "classroom": "classroom/?paper=wang2020ntk&language=en"
     },
     {
       "number": "12",

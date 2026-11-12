@@ -1,20 +1,20 @@
-import {createLocalClassroomUrl,restoreLecturePosition} from './classroom-handoff.mjs?v=paper11d';
-import {SyncAudit} from './sync-audit.mjs?v=paper11d';
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper11d';
+import {createLocalClassroomUrl,restoreLecturePosition} from './classroom-handoff.mjs?v=paper11f';
+import {SyncAudit} from './sync-audit.mjs?v=paper11f';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper11f';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
-import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper11d';
+import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper11f';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=paper11d';
-import {lessonSections,isOutline} from './course-outline.mjs?v=paper11d';
-import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper11d';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=paper11f';
+import {lessonSections,isOutline} from './course-outline.mjs?v=paper11f';
+import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper11f';
 import {schematicHtml} from './schematic.mjs';
 import {mathHtml,proseHtml} from './math.mjs';
 import {lectureChart} from './lecture-chart.mjs';
-import {LecturePlayer,sentences} from './player.mjs?v=paper11d';
-import {currentScene,ProfessorStage} from './stage.mjs?v=paper11d';
-import {NeuralSpeech} from './neural-speech.mjs?v=paper11d';
+import {LecturePlayer,sentences} from './player.mjs?v=paper11f';
+import {currentScene,ProfessorStage} from './stage.mjs?v=paper11f';
+import {NeuralSpeech} from './neural-speech.mjs?v=paper11f';
 import {localizeLesson} from './languages.mjs';
 const $=id=>document.getElementById(id),escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedPaper=new URLSearchParams(location.search).get('paper')||'';let courseRoot='courses/pinns',courseKey='pinns',paperCatalog=[];
@@ -38,6 +38,7 @@ const player=new LecturePlayer({speech,utterance:text=>({text}),onChange:()=>{if
 }});
 const playback=new PlaybackControl({onStop:()=>player.pauseAtVisible()});speech.playback=playback;
 function visual(slide, beat) {
+  $('slide').lang = player.lesson.language || 'zh';
   if(slide.paperDemo)return paperDemoHtml(slide,player.lesson.language==='en');
   const scene = currentScene(slide, beat);
   $('slide').lang = player.lesson.language || 'zh';

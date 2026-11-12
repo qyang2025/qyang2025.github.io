@@ -1,0 +1,3082 @@
+{
+  "id": "139afec2-2020-4011-8011-000000000011",
+  "origin": "authored-paper-implementation",
+  "courseId": "pinns-paper-11",
+  "chapterIndex": 0,
+  "title": "论文 11：NTK 与不同步的训练速率",
+  "titleEn": "Paper 11: NTKs and unequal training rates",
+  "summary": "从受热杆、参数敏感度和核谱出发，回放九次 CPU 对照，区分迹平衡、核变化与真实误差。",
+  "summaryEn": "Connect a heated rod, parameter sensitivities and kernel spectra; replay nine CPU controls and distinguish trace balance, kernel drift and field error.",
+  "language": "zh",
+  "sources": [
+    {
+      "id": "wang2020ntk",
+      "name": "Wang, Yu & Perdikaris (2020 preprint), When and why PINNs fail to train: A neural tangent kernel perspective",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Sections3–6 introduce the PINN kernel, spectral training dynamics and trace-based loss weights; Algorithm1. Our finite width32 rod uses mean-normalised Jacobian blocks, a smaller grid and2400 SGD steps; not the original wide-network or wave benchmarks."
+    },
+    {
+      "id": "ntk-primary",
+      "name": "Primary HTML: kernel blocks and Algorithm1",
+      "url": "https://arxiv.org/html/2007.14527v1",
+      "text": "We distinguish empirical finite-network measurements from the paper’s infinite-width constant-kernel limit. Positive weights are analysed in symmetric weighted coordinates; trace balance does not establish equality of all convergence modes."
+    },
+    {
+      "id": "ntk-local",
+      "name": "Nine executed CPU controls, saved kernels and failed development pilot",
+      "url": "/courses/pinns-papers/11-wang-2020-ntk/trace.json",
+      "text": "Three paired seeds, unit weights, frozen initial-trace weights and weights refreshed every400 steps. Complete final fields, kernel drift and initial-kernel continuous-flow diagnostics are retained; the earlier unstable pilot is separately disclosed."
+    }
+  ],
+  "sectionStarts": [
+    {
+      "slide": 1,
+      "title": "物理与核的构造",
+      "titleEn": "Physics and kernel construction"
+    },
+    {
+      "slide": 9,
+      "title": "速率与迹权重",
+      "titleEn": "Rates and trace weights"
+    },
+    {
+      "slide": 17,
+      "title": "实验、验证与局限",
+      "titleEn": "Evidence and limits"
+    }
+  ],
+  "slides": [
+    {
+      "id": "course-outline",
+      "title": "论文 11：NTK 与不同步的训练速率",
+      "titleEn": "Paper 11: NTKs and unequal training rates",
+      "eyebrow": "PINNs 论文 11 / 学习路线",
+      "eyebrowEn": "PINNs PAPER 11 / Learning route",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "从受热杆、参数敏感度和核谱出发，回放九次 CPU 对照，区分迹平衡、核变化与真实误差。"
+      ],
+      "bulletsEn": [
+        "Connect a heated rod, parameter sensitivities and kernel spectra; replay nine CPU controls and distinguish trace balance, kernel drift and field error."
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "物理与核的构造",
+            "labelEn": "Physics and kernel construction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "速率与迹权重",
+            "labelEn": "Rates and trace weights",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          },
+          {
+            "label": "实验、验证与局限",
+            "labelEn": "Evidence and limits",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 0
+          }
+        ],
+        "links": [
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          },
+          {
+            "label": "继续",
+            "labelEn": "Then"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "outline-b0",
+          "text": "边界构造避免了一种损失竞争，本篇研究保留惩罚时的这种竞争。先从受热杆连接到参数敏感度与经验核。再推导迹加权并检查九次 CPU 运行，观察常核直觉在哪些地方失效。",
+          "textEn": "Boundary construction avoids one loss competition, so we now study that competition when penalties remain. First connect a heated rod to parameter sensitivities and the empirical kernel. Then derive trace weighting and inspect nine CPU runs, checking where constant-kernel intuition breaks down.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 2,
+                "kind": "node",
+                "index": 2
+              }
+            ],
+            "expression": "smile"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ntk-bridge",
+      "title": "边界构造之后，回看训练速率",
+      "titleEn": "After boundary construction, revisit training rates",
+      "eyebrow": "论文 11 / 2",
+      "eyebrowEn": "PAPER 11 / 2",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "边界构造之后，回看训练速率"
+      ],
+      "bulletsEn": [
+        "After boundary construction, revisit training rates"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "上篇：通过构造满足边界",
+            "labelEn": "Previously: satisfy boundaries by construction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "本篇：理解损失分量的学习速率",
+            "labelEn": "Now: understand loss-component learning rates",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-bridge-b0",
+          "text": "上篇通过几何试探函数精确满足边界值。如果改用边界惩罚训练，不同损失分量仍可能以不同速率改善。",
+          "textEn": "The previous paper made boundary values exact through a geometric trial function. When we instead train boundary penalties, different loss components can still improve at different rates.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-bridge-b1",
+          "text": "本篇用神经切线核，也就是 NTK，研究这种相互作用。我们将连接参数敏感度、核谱与实际 CPU 训练，不把小网络当作无限宽网络。",
+          "textEn": "This paper studies that interaction using the neural tangent kernel, abbreviated N T K. We will connect parameter sensitivities, kernel spectra and actual CPU training without assuming a small network behaves like an infinitely wide one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-physical",
+      "title": "回到两端冷却的受热杆",
+      "titleEn": "Return to a heated rod with cold endpoints",
+      "eyebrow": "论文 11 / 3",
+      "eyebrowEn": "PAPER 11 / 3",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "回到两端冷却的受热杆"
+      ],
+      "bulletsEn": [
+        "Return to a heated rod with cold endpoints"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-physical-b0",
+          "text": "一根杆取单位导热系数，两端冷却，已知内部热源在中间最强。u 表示归一化稳态温度，x 是从零到一的位置。",
+          "textEn": "A rod has unit conductivity, cold endpoints and a known internal heat source strongest near the centre. U denotes normalised steady temperature and x is position from zero to one.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-physical-b1",
+          "text": "黄色曲线是独立参考温度，移动标记表示向外热流。这是稳态物理示意，不是瞬态模拟，也不是训练结果。",
+          "textEn": "The yellow curve is the independent reference temperature, and moving markers illustrate outward heat flow. This is a steady physical illustration, not a transient simulation or a training result.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "ntk-physical",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-problem",
+      "title": "先固定物理问题和参考解",
+      "titleEn": "Fix the physical problem and reference solution",
+      "eyebrow": "论文 11 / 4",
+      "eyebrowEn": "PAPER 11 / 4",
+      "visual": "steps",
+      "formula": "-u_{xx}=\\pi^2\\sin(\\pi x),\\quad u(0)=u(1)=0,\\qquad u^*=\\sin(\\pi x)",
+      "formulaEn": "-u_{xx}=\\pi^2\\sin(\\pi x),\\quad u(0)=u(1)=0,\\qquad u^*=\\sin(\\pi x)",
+      "bullets": [
+        "先固定物理问题和参考解"
+      ],
+      "bulletsEn": [
+        "Fix the physical problem and reference solution"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-problem-b0",
+          "text": "热源为圆周率平方乘正弦圆周率 x，温度二阶导数的负值与它平衡。星号表示满足两端温度的解析参考。",
+          "textEn": "The heat source is pi squared times sine of pi x, and the negative second derivative balances that source. The star marks the analytic reference, which satisfies both endpoint values.",
+          "focus": 0,
+          "scene": {
+            "formula": "-u_{xx}=\\pi^2\\sin(\\pi x),\\quad u(0)=u(1)=0,\\qquad u^*=\\sin(\\pi x)",
+            "formulaEn": "-u_{xx}=\\pi^2\\sin(\\pi x),\\quad u(0)=u(1)=0,\\qquad u^*=\\sin(\\pi x)",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-problem-b1",
+          "text": "所有对照都直接学习温度，并用软惩罚约束端点。内部参考值只在训练之外测量误差，从不进入训练损失。",
+          "textEn": "All controls learn the temperature directly with soft endpoint penalties. Reference interior values measure error after training and never enter the training loss.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "ntk-physical",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-loss",
+      "title": "两个目标共同改变同一组参数",
+      "titleEn": "Two objectives change the same parameter vector",
+      "eyebrow": "论文 11 / 5",
+      "eyebrowEn": "PAPER 11 / 5",
+      "visual": "steps",
+      "formula": "L=\\frac{\\lambda_b}{2}\\operatorname{mean}(u_b^2)+\\frac{\\lambda_r}{2}\\operatorname{mean}(r^2),\\quad r=-u_{xx}-f",
+      "formulaEn": "L=\\frac{\\lambda_b}{2}\\operatorname{mean}(u_b^2)+\\frac{\\lambda_r}{2}\\operatorname{mean}(r^2),\\quad r=-u_{xx}-f",
+      "bullets": [
+        "两个目标共同改变同一组参数"
+      ],
+      "bulletsEn": [
+        "Two objectives change the same parameter vector"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "边界目标：温度接近零",
+            "labelEn": "Boundary objective: temperatures approach zero",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "内部目标：曲率匹配热源",
+            "labelEn": "Interior objective: curvature matches the source",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-loss-b0",
+          "text": "下标 b 表示两个端点温度，λ b 加权它们的平方误差。θ 表示温度网络全部待训练权重与偏置。",
+          "textEn": "The boundary subscript b identifies the two endpoint temperatures, and lambda b weights their squared error. Theta denotes every trainable weight and bias of the temperature network.",
+          "focus": 0,
+          "scene": {
+            "formula": "L=\\frac{\\lambda_b}{2}\\operatorname{mean}(u_b^2)+\\frac{\\lambda_r}{2}\\operatorname{mean}(r^2),\\quad r=-u_{xx}-f",
+            "formulaEn": "L=\\frac{\\lambda_b}{2}\\operatorname{mean}(u_b^2)+\\frac{\\lambda_r}{2}\\operatorname{mean}(r^2),\\quad r=-u_{xx}-f",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-loss-b1",
+          "text": "残差 r 测量内部方程不匹配，f 是已知热源。λ r 加权这个第二目标；它改变同一个 θ，而不是另一个网络。",
+          "textEn": "The residual r measures the interior equation mismatch, with f denoting the known source. Lambda r weights this second objective, which changes the same theta rather than a separate network.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-normalised",
+      "title": "先把均值归一化写进误差向量",
+      "titleEn": "Put mean normalisation into the error vector",
+      "eyebrow": "论文 11 / 6",
+      "eyebrowEn": "PAPER 11 / 6",
+      "visual": "steps",
+      "formula": "e=\\begin{bmatrix}u_b/\\sqrt{N_b}\\\\r/\\sqrt{N_r}\\end{bmatrix},\\qquad N_b=2,\\quad N_r=24",
+      "formulaEn": "e=\\begin{bmatrix}u_b/\\sqrt{N_b}\\\\r/\\sqrt{N_r}\\end{bmatrix},\\qquad N_b=2,\\quad N_r=24",
+      "bullets": [
+        "先把均值归一化写进误差向量"
+      ],
+      "bulletsEn": [
+        "Put mean normalisation into the error vector"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "两个边界误差除以根号二",
+            "labelEn": "Divide boundary errors by square root of two",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "二十四个残差除以根号二十四",
+            "labelEn": "Divide residuals by square root of24",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-normalised-b0",
+          "text": "e 先堆叠两个除以数量平方根的边界误差。这个缩放让对应向量范数的平方等于边界误差平方均值。",
+          "textEn": "E stacks the two boundary errors after division by the square root of their count. This scaling makes their squared vector norm equal the mean squared boundary error.",
+          "focus": 0,
+          "scene": {
+            "formula": "e=\\begin{bmatrix}u_b/\\sqrt{N_b}\\\\r/\\sqrt{N_r}\\end{bmatrix},\\qquad N_b=2,\\quad N_r=24",
+            "formulaEn": "e=\\begin{bmatrix}u_b/\\sqrt{N_b}\\\\r/\\sqrt{N_r}\\end{bmatrix},\\qquad N_b=2,\\quad N_r=24",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-normalised-b1",
+          "text": "二十四个内部残差则除以根号二十四。必须记录这个归一化，因为核的迹与数值损失权重都依赖它。",
+          "textEn": "The twenty-four interior residuals are scaled by the square root of twenty-four. Recording this normalisation is essential because kernel traces and numerical loss weights depend on it.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-jacobian",
+      "title": "雅可比矩阵描述参数敏感度",
+      "titleEn": "The Jacobian describes parameter sensitivity",
+      "eyebrow": "论文 11 / 7",
+      "eyebrowEn": "PAPER 11 / 7",
+      "visual": "steps",
+      "formula": "J_{ij}=\\frac{\\partial e_i}{\\partial\\theta_j}",
+      "formulaEn": "J_{ij}=\\frac{\\partial e_i}{\\partial\\theta_j}",
+      "bullets": [
+        "雅可比矩阵描述参数敏感度"
+      ],
+      "bulletsEn": [
+        "The Jacobian describes parameter sensitivity"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "一行：某个误差如何响应参数",
+            "labelEn": "One row: how one error responds to parameters",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "不同行：是否沿相似方向改变",
+            "labelEn": "Different rows: do their changes align?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-jacobian-b0",
+          "text": "J 是归一化误差向量对网络参数的雅可比矩阵。第 i 行汇集误差 i 对每个参数 θ j 的微小变化响应。",
+          "textEn": "J is the Jacobian of the normalised error vector with respect to network parameters. Row i collects how error i changes under small changes of every parameter theta j.",
+          "focus": 0,
+          "scene": {
+            "formula": "J_{ij}=\\frac{\\partial e_i}{\\partial\\theta_j}",
+            "formulaEn": "J_{ij}=\\frac{\\partial e_i}{\\partial\\theta_j}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-jacobian-b1",
+          "text": "比较两行，就是问这两个误差是否沿相近参数方向响应。两行的内积形成核所测量的耦合。",
+          "textEn": "Comparing two rows asks whether those errors respond along similar parameter directions. Their inner product creates the coupling measured by the kernel.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-kernel",
+      "title": "把敏感度内积画成一张矩阵",
+      "titleEn": "Draw sensitivity inner products as a matrix",
+      "eyebrow": "论文 11 / 8",
+      "eyebrowEn": "PAPER 11 / 8",
+      "visual": "steps",
+      "formula": "K=JJ^\\top,\\qquad K_{ij}=\\langle J_i,J_j\\rangle",
+      "formulaEn": "K=JJ^\\top,\\qquad K_{ij}=\\langle J_i,J_j\\rangle",
+      "bullets": [
+        "把敏感度内积画成一张矩阵"
+      ],
+      "bulletsEn": [
+        "Draw sensitivity inner products as a matrix"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-kernel-b0",
+          "text": "K 是当前有限网络参数下的经验神经切线核。每个格子都是 J 的两行内积，使用我们归一化后的边界与残差输出。",
+          "textEn": "K is the empirical neural tangent kernel at the current finite-network parameters. Each displayed cell is the inner product between two rows of J, using our normalised boundary and residual outputs.",
+          "focus": 0,
+          "scene": {
+            "formula": "K=JJ^\\top,\\qquad K_{ij}=\\langle J_i,J_j\\rangle",
+            "formulaEn": "K=JJ^\\top,\\qquad K_{ij}=\\langle J_i,J_j\\rangle",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-kernel-b1",
+          "text": "金色格子为正，蓝色为负，亮度表示幅值。某些元素为负，并不违背整个 Gram 矩阵的半正定性。",
+          "textEn": "Gold cells are positive and blue cells negative, with brightness indicating magnitude. Individual negative entries do not contradict positive semidefiniteness of the complete Gram matrix.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "ntk-kernel",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-blocks",
+      "title": "对角块和交叉块都很重要",
+      "titleEn": "Both diagonal and cross blocks matter",
+      "eyebrow": "论文 11 / 9",
+      "eyebrowEn": "PAPER 11 / 9",
+      "visual": "steps",
+      "formula": "K=\\begin{bmatrix}K_{bb}&K_{br}\\\\K_{rb}&K_{rr}\\end{bmatrix}",
+      "formulaEn": "K=\\begin{bmatrix}K_{bb}&K_{br}\\\\K_{rb}&K_{rr}\\end{bmatrix}",
+      "bullets": [
+        "对角块和交叉块都很重要"
+      ],
+      "bulletsEn": [
+        "Both diagonal and cross blocks matter"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "对角块：各类误差的自耦合",
+            "labelEn": "Diagonal blocks: within-objective coupling",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "交叉块：边界与残差相互作用",
+            "labelEn": "Cross blocks: boundary–residual interaction",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-blocks-b0",
+          "text": "K b b 耦合边界误差，K r r 耦合内部残差。它们的迹概括每一组参数敏感度平方的总和。",
+          "textEn": "K b b couples boundary errors to boundary errors, while K r r couples residuals to residuals. Their traces summarise squared parameter sensitivities within each group.",
+          "focus": 0,
+          "scene": {
+            "formula": "K=\\begin{bmatrix}K_{bb}&K_{br}\\\\K_{rb}&K_{rr}\\end{bmatrix}",
+            "formulaEn": "K=\\begin{bmatrix}K_{bb}&K_{br}\\\\K_{rb}&K_{rr}\\end{bmatrix}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-blocks-b1",
+          "text": "非对角块通过共享参数，把边界误差和残差连接起来。分别统计迹很有用，但不会取消这种相互作用，也不能预测每个独立模式。",
+          "textEn": "The off-diagonal blocks couple boundary and residual errors through shared parameters. Separate trace statistics are useful summaries, but they do not remove this interaction or predict every individual mode.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-flow-equation",
+      "title": "梯度流把参数更新变成误差更新",
+      "titleEn": "Gradient flow turns parameter updates into error dynamics",
+      "eyebrow": "论文 11 / 10",
+      "eyebrowEn": "PAPER 11 / 10",
+      "visual": "steps",
+      "formula": "\\dot\\theta=-J^\\top e\\quad\\Longrightarrow\\quad\\dot e=-K e",
+      "formulaEn": "\\dot\\theta=-J^\\top e\\quad\\Longrightarrow\\quad\\dot e=-K e",
+      "bullets": [
+        "梯度流把参数更新变成误差更新"
+      ],
+      "bulletsEn": [
+        "Gradient flow turns parameter updates into error dynamics"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "参数空间：沿损失梯度下降",
+            "labelEn": "Parameter space: descend the loss gradient",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "误差空间：由核耦合的变化",
+            "labelEn": "Error space: changes coupled by the kernel",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-flow-equation-b0",
+          "text": "对单位权重的连续梯度流，参数变化率是负的 J 转置乘 e。点号表示对优化时间求导，不是热传导的物理时间。",
+          "textEn": "For unit weights and continuous gradient flow, the parameter velocity is minus J transpose times e. The dot denotes differentiation with respect to optimisation time, not physical heat-transfer time.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\dot\\theta=-J^\\top e\\quad\\Longrightarrow\\quad\\dot e=-K e",
+            "formulaEn": "\\dot\\theta=-J^\\top e\\quad\\Longrightarrow\\quad\\dot e=-K e",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-flow-equation-b1",
+          "text": "应用链式法则，误差变化率等于负的 K 乘 e。这里使用当前核；有限网络训练时，这个核可能发生变化。",
+          "textEn": "Applying the chain rule gives error velocity equal to minus K times e. This identity uses the current kernel, which may change as a finite network trains.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-spectrum",
+      "title": "大特征值与小特征值意味着什么？",
+      "titleEn": "What do large and small eigenvalues mean?",
+      "eyebrow": "论文 11 / 11",
+      "eyebrowEn": "PAPER 11 / 11",
+      "visual": "steps",
+      "formula": "Kq_i=\\mu_i q_i,\\qquad c_i(\\tau)=c_i(0)e^{-\\mu_i\\tau}",
+      "formulaEn": "Kq_i=\\mu_i q_i,\\qquad c_i(\\tau)=c_i(0)e^{-\\mu_i\\tau}",
+      "bullets": [
+        "大特征值与小特征值意味着什么？"
+      ],
+      "bulletsEn": [
+        "What do large and small eigenvalues mean?"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-spectrum-b0",
+          "text": "q i 是单位特征向量，μ i 是对应核特征值，c i 是误差沿该方向的系数。如果核保持不变，这个系数随优化时间 τ 指数衰减。",
+          "textEn": "Q i is a unit eigenvector, mu i its kernel eigenvalue, and c i the error coefficient along that direction. If the kernel stays fixed, that coefficient decays exponentially in optimisation time tau.",
+          "focus": 0,
+          "scene": {
+            "formula": "Kq_i=\\mu_i q_i,\\qquad c_i(\\tau)=c_i(0)e^{-\\mu_i\\tau}",
+            "formulaEn": "Kq_i=\\mu_i q_i,\\qquad c_i(\\tau)=c_i(0)e^{-\\mu_i\\tau}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-spectrum-b1",
+          "text": "较大的正特征值带来更快衰减，零特征值则让相应误差在冻结模型中保持不变。蓝线展示初始经验谱，极小值采用显示下限。",
+          "textEn": "Large positive eigenvalues give faster decay, while zero eigenvalues leave corresponding errors unchanged in this frozen model. The blue curve shows the initial empirical spectrum, with a display floor for very small values.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "ntk-spectrum",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-trace",
+      "title": "迹是总敏感度，不是完整的收敛故事",
+      "titleEn": "Trace summarises sensitivity, not the whole convergence story",
+      "eyebrow": "论文 11 / 12",
+      "eyebrowEn": "PAPER 11 / 12",
+      "visual": "steps",
+      "formula": "\\operatorname{tr}K=\\|J\\|_F^2=\\sum\\nolimits_i\\mu_i",
+      "formulaEn": "\\operatorname{tr}K=\\|J\\|_F^2=\\sum\\nolimits_i\\mu_i",
+      "bullets": [
+        "迹是总敏感度，不是完整的收敛故事"
+      ],
+      "bulletsEn": [
+        "Trace summarises sensitivity, not the whole convergence story"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "快速统计：对角元素之和",
+            "labelEn": "Quick statistic: sum diagonal elements",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "仍需检查：模式分布与交叉耦合",
+            "labelEn": "Still inspect: mode distribution and cross coupling",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-trace-b0",
+          "text": "迹是对角元素之和，等于 J 的 Frobenius 范数平方。它也等于核特征值之和，因此不必完整特征分解就能计算。",
+          "textEn": "The trace is the sum of diagonal entries and equals the squared Frobenius norm of J. It is also the sum of kernel eigenvalues, so it can be computed without a full eigendecomposition.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\operatorname{tr}K=\\|J\\|_F^2=\\sum\\nolimits_i\\mu_i",
+            "formulaEn": "\\operatorname{tr}K=\\|J\\|_F^2=\\sum\\nolimits_i\\mu_i",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-trace-b1",
+          "text": "两个核即使迹相同，较小特征值与误差投影仍可能不同。因此平衡迹统计，并不等于平衡每个收敛模式。",
+          "textEn": "Two kernels with equal trace can still have very different small eigenvalues and error projections. Equalising trace statistics therefore does not equalise every convergence mode.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "encouraging"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-weights",
+      "title": "用迹给损失分量分配权重",
+      "titleEn": "Use traces to weight the loss components",
+      "eyebrow": "论文 11 / 13",
+      "eyebrowEn": "PAPER 11 / 13",
+      "visual": "steps",
+      "formula": "\\lambda_b=\\frac{T_b+T_r}{T_b},\\qquad\\lambda_r=\\frac{T_b+T_r}{T_r}",
+      "formulaEn": "\\lambda_b=\\frac{T_b+T_r}{T_b},\\qquad\\lambda_r=\\frac{T_b+T_r}{T_r}",
+      "bullets": [
+        "用迹给损失分量分配权重"
+      ],
+      "bulletsEn": [
+        "Use traces to weight the loss components"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "测量：两组归一化核的迹",
+            "labelEn": "Measure: traces of both normalised blocks",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "加权：提高较小迹分量的贡献",
+            "labelEn": "Weight: raise the smaller-trace contribution",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-weights-b0",
+          "text": "T b 和 T r 表示我们按均值归一化后的边界块与残差块的迹。这些比值把论文的迹规则应用到本实验明确的损失约定。",
+          "textEn": "T b and T r denote the traces of our mean-normalised boundary and residual blocks. These ratios adapt the paper’s trace rule to the exact loss convention used in this experiment.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\lambda_b=\\frac{T_b+T_r}{T_b},\\qquad\\lambda_r=\\frac{T_b+T_r}{T_r}",
+            "formulaEn": "\\lambda_b=\\frac{T_b+T_r}{T_b},\\qquad\\lambda_r=\\frac{T_b+T_r}{T_r}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-weights-b1",
+          "text": "在计算权重的时刻，两组加权块就有相同的迹。我们比较固定初始权重与每四百步刷新权重。",
+          "textEn": "Each weighted block then has the same trace at the time weights are computed. We compare keeping these initial weights fixed with refreshing them every four hundred updates.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-weighted",
+      "title": "在对称坐标中检查加权动力学",
+      "titleEn": "Inspect weighted dynamics in symmetric coordinates",
+      "eyebrow": "论文 11 / 14",
+      "eyebrowEn": "PAPER 11 / 14",
+      "visual": "steps",
+      "formula": "z=D^{1/2}e,\\qquad\\dot z=-Az,\\quad A=D^{1/2}KD^{1/2}",
+      "formulaEn": "z=D^{1/2}e,\\qquad\\dot z=-Az,\\quad A=D^{1/2}KD^{1/2}",
+      "bullets": [
+        "在对称坐标中检查加权动力学"
+      ],
+      "bulletsEn": [
+        "Inspect weighted dynamics in symmetric coordinates"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "D：正的边界和残差权重",
+            "labelEn": "D: positive boundary and residual weights",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "A：对称半正定的加权核",
+            "labelEn": "A: symmetric positive-semidefinite weighted kernel",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-weighted-b0",
+          "text": "D 是由正的边界与残差权重组成的对角矩阵，z 是相应缩放后的误差。权重固定时，这个坐标变化给出对称矩阵 A。",
+          "textEn": "D is diagonal with positive boundary and residual weights, and z is the correspondingly scaled error. For weights held constant, this coordinate change gives the symmetric matrix A.",
+          "focus": 0,
+          "scene": {
+            "formula": "z=D^{1/2}e,\\qquad\\dot z=-Az,\\quad A=D^{1/2}KD^{1/2}",
+            "formulaEn": "z=D^{1/2}e,\\qquad\\dot z=-Az,\\quad A=D^{1/2}KD^{1/2}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-weighted-b1",
+          "text": "A 仍是雅可比行缩放后的 Gram 矩阵，因此半正定。冻结 A 后，显式梯度下降仍需要足够小的步长；正权重本身并不保证非线性训练稳定。",
+          "textEn": "A is positive semidefinite because it is still a Jacobian Gram matrix after row scaling. For a frozen A, explicit gradient descent needs a sufficiently small step; positive weights alone do not guarantee nonlinear training stability.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              },
+              {
+                "sentence": 2,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-controls",
+      "title": "三个策略共享每个种子的起点",
+      "titleEn": "Three policies share each seed’s starting point",
+      "eyebrow": "论文 11 / 15",
+      "eyebrowEn": "PAPER 11 / 15",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "三个策略共享每个种子的起点"
+      ],
+      "bulletsEn": [
+        "Three policies share each seed’s starting point"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "单位权重与固定初始迹权重",
+            "labelEn": "Unit weights and fixed initial-trace weights",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "刷新迹权重，保留全部最终结果",
+            "labelEn": "Refresh trace weights; retain every final result",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-controls-b0",
+          "text": "单位策略把两个权重保持为一，冻结策略只在初始化计算迹权重。每个种子下，它们共享相同网络参数与同一个固定学习率。",
+          "textEn": "The unit policy keeps both weights at one, and the frozen policy computes trace weights only at initialisation. For each seed they share identical network parameters and the same fixed learning rate.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-controls-b1",
+          "text": "自适应策略每四百步刷新不参与反向传播的迹权重。运行种子十一、二十二、三十三，保留最终检查点，不挑选验证集上最好的结果。",
+          "textEn": "The adaptive policy refreshes detached trace weights every four hundred updates. We run seeds eleven, twenty-two and thirty-three, keeping final checkpoints rather than selecting the best validation result.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-code",
+      "title": "核来自输出对参数的导数",
+      "titleEn": "The kernel comes from output derivatives with respect to parameters",
+      "eyebrow": "论文 11 / 16",
+      "eyebrowEn": "PAPER 11 / 16",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "核来自输出对参数的导数"
+      ],
+      "bulletsEn": [
+        "The kernel comes from output derivatives with respect to parameters"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-code-b0",
+          "text": "代码把边界输出和方程残差对全部待训练参数求导。行除以样本数平方根，与均值损失严格对应。",
+          "textEn": "The code differentiates boundary outputs and equation residuals with respect to all trainable parameters. Dividing rows by square roots of sample counts matches the mean losses exactly.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-code-b1",
+          "text": "雅可比元素平方的总和给出两个迹，分离梯度后的比值成为损失权重。小型教学实现还保存完整核用于观察，但计算权重本身只需要迹。",
+          "textEn": "Squared Jacobian entries provide the two traces, and detached ratios become loss weights. The small teaching implementation saves complete kernels for inspection, although weights themselves need only the traces.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "ntk-code",
+      "paperTrace": "paper11",
+      "demoCode": [
+        "Jb = param_jacobian(ub) / sqrt(Nb)",
+        "Jr = param_jacobian(r) / sqrt(Nr)",
+        "Tb, Tr = Jb.square().sum(), Jr.square().sum()",
+        "wb, wr = trace_weights(Tb, Tr)  # detached",
+        "loss = (wb*mean(ub**2) + wr*mean(r**2))/2"
+      ],
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-budget",
+      "title": "九次 CPU 运行，明确步长与预算",
+      "titleEn": "Nine CPU runs with explicit step size and budget",
+      "eyebrow": "论文 11 / 17",
+      "eyebrowEn": "PAPER 11 / 17",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "九次 CPU 运行，明确步长与预算"
+      ],
+      "bulletsEn": [
+        "Nine CPU runs with explicit step size and budget"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "单隐藏层宽度三十二，共九十七参数",
+            "labelEn": "One hidden layer, width32,97 parameters",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "二千四百步，三个种子，三个策略",
+            "labelEn": "2400 steps, three seeds, three policies",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-budget-b0",
+          "text": "网络只有一个三十二单元的双曲正切隐藏层，共九十七个参数。使用六十四位浮点、四个 CPU 线程、二十四个内部点和两个端点。",
+          "textEn": "This network has one hidden layer of thirty-two tanh units and ninety-seven parameters. We use float sixty-four, four CPU threads, twenty-four interior points and the two endpoints.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-budget-b1",
+          "text": "每次都在九十秒上限内完成二千四百步全批量 SGD 更新。每个种子的共同步长采用初始谱安全系数零点零五，这不保证核保持不变。",
+          "textEn": "Each run completes two thousand four hundred full-batch S G D updates within its ninety-second cap. The common per-seed step uses an initial spectral safety factor of zero point zero five, not a guarantee that the kernel stays fixed.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-training",
+      "title": "让教授回放真实训练过程",
+      "titleEn": "Replay the actual training process",
+      "eyebrow": "论文 11 / 18",
+      "eyebrowEn": "PAPER 11 / 18",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "让教授回放真实训练过程"
+      ],
+      "bulletsEn": [
+        "Replay the actual training process"
+      ],
+      "sourceIds": [
+        "wang2020ntk",
+        "ntk-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-training-b0",
+          "text": "三条曲线从同一个初始温度网络出发，回放种子十一保存的检查点。蓝色采用单位权重，金色固定初始迹权重，紫色刷新迹。",
+          "textEn": "The three curves replay saved seed-eleven checkpoints from the same starting temperature network. Blue uses unit weights, gold freezes initial-trace weights, and purple refreshes the traces.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-training-b1",
+          "text": "显示数字是在三百零一个独立网格点上的相对温度误差。浏览器回放已执行的 CPU 结果，不在观看时训练模型。",
+          "textEn": "The displayed numbers are relative temperature errors over three hundred and one independent grid points. The browser replays executed CPU results and does not train a model while you watch.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "ntk-training",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-error",
+      "title": "把所有种子的最终误差放在一起",
+      "titleEn": "Compare every seed’s final field error",
+      "eyebrow": "论文 11 / 19",
+      "eyebrowEn": "PAPER 11 / 19",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把所有种子的最终误差放在一起"
+      ],
+      "bulletsEn": [
+        "Compare every seed’s final field error"
+      ],
+      "sourceIds": [
+        "wang2020ntk",
+        "ntk-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-error-b0",
+          "text": "每组彩色点包含三个最终场误差，而不是只展示最好的种子。这个小实验中，单位权重的误差大约为百分之零点五到六。",
+          "textEn": "Each coloured group contains three final field errors, rather than only the best seed. Unit weights give roughly zero point five to six percent error in these small runs.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-error-b1",
+          "text": "两个迹加权策略都改善了这些具体对照，刷新权重在这里得到最小误差。这九次教学对照不是普遍保证，也没有复现论文的大型波动基准。",
+          "textEn": "Both trace-weight policies improve these particular controls, and refreshed weights give the smallest errors here. This nine-run teaching comparison is not a universal guarantee or a reproduction of the paper’s large wave benchmark.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "ntk-error",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-drift",
+      "title": "有限网络的核并没有冻结",
+      "titleEn": "The finite network’s kernel did not stay frozen",
+      "eyebrow": "论文 11 / 20",
+      "eyebrowEn": "PAPER 11 / 20",
+      "visual": "steps",
+      "formula": "\\delta K=\\frac{\\|K_n-K_0\\|_F}{\\|K_0\\|_F}",
+      "formulaEn": "\\delta K=\\frac{\\|K_n-K_0\\|_F}{\\|K_0\\|_F}",
+      "bullets": [
+        "有限网络的核并没有冻结"
+      ],
+      "bulletsEn": [
+        "The finite network’s kernel did not stay frozen"
+      ],
+      "sourceIds": [
+        "wang2020ntk",
+        "ntk-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-drift-b0",
+          "text": "δ K 用 Frobenius 范数测量经验核相对于初始化的变化。横坐标是更新编号 n 除以总预算 S。",
+          "textEn": "Delta K is relative empirical kernel drift, measured with the Frobenius norm against initialisation. The horizontal coordinate is update number n divided by the total budget S.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\delta K=\\frac{\\|K_n-K_0\\|_F}{\\|K_0\\|_F}",
+            "formulaEn": "\\delta K=\\frac{\\|K_n-K_0\\|_F}{\\|K_0\\|_F}",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-drift-b1",
+          "text": "种子十一的曲线变化明显，因此不能把常核近似当作这个宽度三十二实验的定量描述。迹加权改善结果，并不证明无限宽极限适用。",
+          "textEn": "The seed-eleven curves change substantially, so the constant-kernel approximation is not quantitatively justified for this width-thirty-two experiment. Improvement from trace weights does not prove the infinite-width limit applies.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "paperDemo": "ntk-drift",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-flow",
+      "title": "把冻结核预测与实际 SGD 分开",
+      "titleEn": "Separate frozen-kernel flow from actual SGD",
+      "eyebrow": "论文 11 / 21",
+      "eyebrowEn": "PAPER 11 / 21",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "把冻结核预测与实际 SGD 分开"
+      ],
+      "bulletsEn": [
+        "Separate frozen-kernel flow from actual SGD"
+      ],
+      "sourceIds": [
+        "wang2020ntk",
+        "ntk-local"
+      ],
+      "schematic": {
+        "kind": "none",
+        "nodes": [],
+        "links": []
+      },
+      "beats": [
+        {
+          "id": "ntk-flow-b0",
+          "text": "蓝色展示单位权重、种子十一运行的实际内部残差范数。金色虚线把初始核固定，按连续优化时间推进初始误差。",
+          "textEn": "Blue shows the actual interior residual norm for the unit-weight seed-eleven run. The dashed gold curve evolves the initial error using the initial kernel held fixed in continuous optimisation time.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-flow-b1",
+          "text": "这是不同的动力学，它们的偏差提供信息，不是动画故障。核的变化与有限 SGD 步长，都限制了冻结核流这个诊断。",
+          "textEn": "These are different dynamics, and their disagreement is informative rather than an animation bug. Kernel drift and the finite S G D step both limit this frozen-flow diagnostic.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "paperDemo": "ntk-flow",
+      "paperTrace": "paper11",
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-pilot",
+      "title": "也记录开发时遇到的步长失败",
+      "titleEn": "Record the step-size failure encountered during development",
+      "eyebrow": "论文 11 / 22",
+      "eyebrowEn": "PAPER 11 / 22",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "也记录开发时遇到的步长失败"
+      ],
+      "bulletsEn": [
+        "Record the step-size failure encountered during development"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "早期试验：更大的初始步长",
+            "labelEn": "Early pilot: larger initial step",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "正式对照：统一缩小后全部重跑",
+            "labelEn": "Final controls: uniformly reduce and rerun all",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-pilot-b0",
+          "text": "早期开发试验使用大十倍的谱系数，并在自适应运行中失败。两个已完成对照和失败说明单独保存，不混入正式九次记录。",
+          "textEn": "An earlier development pilot used a spectral factor ten times larger and failed during the adaptive run. Its two completed controls and failure note remain separate from the final nine-run record.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-pilot-b1",
+          "text": "随后为每个策略和种子统一缩小系数，重新执行完整对照。初始谱估计只是局部参考，因为非线性训练中的经验核会改变。",
+          "textEn": "We reduced the factor for every policy and seed, then reran the entire comparison. An initial spectral estimate is only a local guide because the empirical kernel can change during nonlinear training.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-limits",
+      "title": "这篇课件证明了什么，又没有证明什么？",
+      "titleEn": "What does this lesson establish?",
+      "eyebrow": "论文 11 / 23",
+      "eyebrowEn": "PAPER 11 / 23",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "这篇课件证明了什么，又没有证明什么？"
+      ],
+      "bulletsEn": [
+        "What does this lesson establish?"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "保留：经验核、迹权重与动力学检查",
+            "labelEn": "Retained: empirical kernels, trace weights, dynamics",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "范围：小型一维杆，不是无限宽定理",
+            "labelEn": "Scope: small1D rod, not an infinite-width theorem",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-limits-b0",
+          "text": "我们独立检查 Gram 构造、损失归一化与保存的数值误差。实验展示的是采样、步长和三个种子都明确的有限网络对照。",
+          "textEn": "We independently check the Gram construction, loss normalisation and saved numerical errors. The experiment demonstrates a finite-network comparison with disclosed sampling, step size and all three seeds.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-limits-b1",
+          "text": "它不验证论文的无限宽定理，不解决谱偏置，也不证明所有损失模式同速收敛。下一篇会改变输入表示，更直接地研究频率学习。",
+          "textEn": "It does not verify the paper’s infinite-width theorem, resolve spectral bias or establish equal convergence of every loss mode. The next paper will change input representations to address frequency learning more directly.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-exercise",
+      "title": "改变残差数量前，先预测归一化的影响",
+      "titleEn": "Predict normalisation effects before changing the residual count",
+      "eyebrow": "论文 11 / 24",
+      "eyebrowEn": "PAPER 11 / 24",
+      "visual": "steps",
+      "formula": "\\widehat J_r=J_r/\\sqrt{N_r},\\qquad T_r=\\|\\widehat J_r\\|_F^2",
+      "formulaEn": "\\widehat J_r=J_r/\\sqrt{N_r},\\qquad T_r=\\|\\widehat J_r\\|_F^2",
+      "bullets": [
+        "改变残差数量前，先预测归一化的影响"
+      ],
+      "bulletsEn": [
+        "Predict normalisation effects before changing the residual count"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "预测：重复同一组样本会怎样？",
+            "labelEn": "Predict: what if the same samples are duplicated?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "检查：新位置改变了哪些信息？",
+            "labelEn": "Check: what changes when locations are new?",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-exercise-b0",
+          "text": "如果每个残差点都按相同次数重复，先预测均值归一化残差块的迹。重复行平方的增加被样本数量增加抵消，因此迹不变。",
+          "textEn": "If every residual point is duplicated with the same multiplicity, predict the trace of the mean-normalised residual block. Its trace stays unchanged because the repeated squared rows are divided by the increased count.",
+          "focus": 0,
+          "scene": {
+            "formula": "\\widehat J_r=J_r/\\sqrt{N_r},\\qquad T_r=\\|\\widehat J_r\\|_F^2",
+            "formulaEn": "\\widehat J_r=J_r/\\sqrt{N_r},\\qquad T_r=\\|\\widehat J_r\\|_F^2",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        },
+        {
+          "id": "ntk-exercise-b1",
+          "text": "新的空间位置可能改变敏感度和约束信息，所以不等同于重复样本。修改实验时另存记录，比较场误差、边界误差与核变化。",
+          "textEn": "New spatial locations can change both sensitivities and constraint information, so they are not equivalent to duplicates. Save any modified experiment separately and compare field error, boundary error and kernel drift.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "write",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "formula",
+                "index": 0
+              }
+            ],
+            "expression": "focused"
+          }
+        }
+      ],
+      "integratedEquation": true,
+      "introduceAtStart": true
+    },
+    {
+      "id": "ntk-next",
+      "title": "为什么下一篇要改变输入表示？",
+      "titleEn": "Why change the input representation next?",
+      "eyebrow": "论文 11 / 25",
+      "eyebrowEn": "PAPER 11 / 25",
+      "visual": "steps",
+      "formula": "",
+      "formulaEn": "",
+      "bullets": [
+        "为什么下一篇要改变输入表示？"
+      ],
+      "bulletsEn": [
+        "Why change the input representation next?"
+      ],
+      "sourceIds": [
+        "wang2020ntk"
+      ],
+      "schematic": {
+        "kind": "flow",
+        "nodes": [
+          {
+            "label": "本篇：平衡分量的总体敏感度",
+            "labelEn": "This paper: balance aggregate sensitivities",
+            "detail": "",
+            "detailEn": "",
+            "icon": "gear",
+            "revealAt": 0
+          },
+          {
+            "label": "下一篇：傅里叶特征与频率模式",
+            "labelEn": "Next: Fourier features and frequency modes",
+            "detail": "",
+            "detailEn": "",
+            "icon": "target",
+            "revealAt": 1
+          }
+        ],
+        "links": [
+          {
+            "label": "联系",
+            "labelEn": "Connects"
+          }
+        ]
+      },
+      "beats": [
+        {
+          "id": "ntk-next-b0",
+          "text": "迹权重改变边界与残差目标的总体影响，但较小核模式和有限网络的核变化仍然存在。单靠加权，并没有完整处理频率学习。",
+          "textEn": "Trace weights changed the aggregate influence of boundary and residual objectives, while small kernel modes and finite-network drift remained. Weighting alone is not a complete treatment of frequency learning.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 0,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 0
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 0
+              }
+            ],
+            "expression": "curious"
+          }
+        },
+        {
+          "id": "ntk-next-b1",
+          "text": "下一篇计划研究傅里叶特征与多尺度学习中的特征向量偏置。仍将使用小型 CPU 示例，追问输入表示让哪些空间模式更容易学习。",
+          "textEn": "The next planned paper examines Fourier features and eigenvector bias in multiscale learning. We will again use a small CPU example, asking which spatial patterns the representation makes easier to learn.",
+          "focus": 0,
+          "scene": {
+            "formula": "",
+            "formulaEn": "",
+            "caption": "",
+            "captionEn": "",
+            "gesture": "question",
+            "stage": 1,
+            "targets": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "targetsEn": [
+              {
+                "sentence": 0,
+                "kind": "node",
+                "index": 1
+              },
+              {
+                "sentence": 1,
+                "kind": "node",
+                "index": 1
+              }
+            ],
+            "expression": "curious"
+          }
+        }
+      ],
+      "integratedEquation": false,
+      "introduceAtStart": true
+    }
+  ]
+}

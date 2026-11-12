@@ -1,0 +1,48 @@
+{
+  "id": "wang2020ntk",
+  "paper": {
+    "number": 11,
+    "shortTitle": "Wang 2020 · NTK",
+    "title": "Wang, Yu & Perdikaris (2020 preprint), When and why PINNs fail to train: A neural tangent kernel perspective",
+    "url": "https://arxiv.org/abs/2007.14527",
+    "year": 2020,
+    "scope": "Independent small Poisson rod adaptation: empirical finite-width NTK with mean-normalised output blocks; single hidden layer width32, not original width100/500 or wave benchmarks. Fixed-step SGD with an initial empirical spectral heuristic is not a global stability guarantee or infinite-width convergence proof."
+  },
+  "title": "Paper 11: NTKs and unequal training rates",
+  "titleZh": "论文 11：NTK 与不同步的训练速率",
+  "totalMinutes": 45,
+  "download": "paper-11.zip",
+  "modules": [
+    {
+      "id": "139afec2-2020-4011-8011-000000000011",
+      "index": 0,
+      "title": "论文 11：NTK 与不同步的训练速率",
+      "titleEn": "Paper 11: NTKs and unequal training rates",
+      "file": "1.json",
+      "pages": 25,
+      "sentenceCount": 100,
+      "plannedMinutes": 45
+    }
+  ],
+  "sources": [
+    {
+      "id": "wang2020ntk",
+      "name": "Wang, Yu & Perdikaris (2020 preprint), When and why PINNs fail to train: A neural tangent kernel perspective",
+      "url": "https://arxiv.org/abs/2007.14527",
+      "text": "Sections3–6 introduce the PINN kernel, spectral training dynamics and trace-based loss weights; Algorithm1. Our finite width32 rod uses mean-normalised Jacobian blocks, a smaller grid and2400 SGD steps; not the original wide-network or wave benchmarks."
+    },
+    {
+      "id": "ntk-primary",
+      "name": "Primary HTML: kernel blocks and Algorithm1",
+      "url": "https://arxiv.org/html/2007.14527v1",
+      "text": "We distinguish empirical finite-network measurements from the paper’s infinite-width constant-kernel limit. Positive weights are analysed in symmetric weighted coordinates; trace balance does not establish equality of all convergence modes."
+    },
+    {
+      "id": "ntk-local",
+      "name": "Nine executed CPU controls, saved kernels and failed development pilot",
+      "url": "/courses/pinns-papers/11-wang-2020-ntk/trace.json",
+      "text": "Three paired seeds, unit weights, frozen initial-trace weights and weights refreshed every400 steps. Complete final fields, kernel drift and initial-kernel continuous-flow diagnostics are retained; the earlier unstable pilot is separately disclosed."
+    }
+  ],
+  "downloadSha256": "f2756a5310e85d64d974ab124318ec8315c0142f147ba73f4023795261e65888"
+}

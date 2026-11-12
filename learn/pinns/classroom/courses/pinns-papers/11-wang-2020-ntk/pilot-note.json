@@ -1,0 +1,10 @@
+{
+  "status": "discarded development pilot,not a complete comparison",
+  "initialSpectralStepFactor": 0.5,
+  "failure": "adaptive seed11 produced an ill-conditioned/non-finite empirical kernel during training; eigensolver failed",
+  "completedPolicies": [
+    "unit-11",
+    "frozen-11"
+  ],
+  "revision": "Reduce the predeclared common initial spectral step factor to0.05 for every policy and seed, rerun all controls; no changes based on validation-selected checkpoint."
+}

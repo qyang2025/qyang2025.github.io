@@ -1,0 +1,13 @@
+{
+  "paper": "11",
+  "checks": [
+    {
+      "slideId": "ntk-exercise",
+      "questionEn": "Does duplicating every residual point change the mean-normalised block trace, and does it add physical information?",
+      "questionZh": "把每个残差点重复一遍，会改变均值归一化块的迹吗，会增加物理信息吗？",
+      "answerEn": "With k identical copies of every row, the squared Jacobian sum grows by k while the mean-normalisation denominator also grows by k, so the residual block trace is unchanged. Copies add no new constraint locations or parameter-sensitivity directions. The expanded Gram matrix has a different dimension, including redundant modes, so do not compare average eigenvalues without tracking dimension. New spatial locations can change the trace and the constraint span. Any changed run must use a separate output file and independent field, boundary and residual checks.",
+      "answerZh": "把每一行相同地复制 k 次，雅可比平方和乘以 k，而均值归一化的分母也乘以 k，因此残差块的迹不变。复制没有增加新的约束位置或参数敏感度方向。扩展后的 Gram 矩阵维度不同，并包含冗余模式，所以比较平均特征值时必须同时记录维度。新的空间位置可能改变迹与约束张成空间。修改实验必须另存输出，并独立检查场、边界和残差。",
+      "equation": "\\frac{1}{kN_r}\\sum_{j=1}^{k}\\sum_{i=1}^{N_r}\\|J_i\\|^2=\\frac{1}{N_r}\\sum_{i=1}^{N_r}\\|J_i\\|^2"
+    }
+  ]
+}

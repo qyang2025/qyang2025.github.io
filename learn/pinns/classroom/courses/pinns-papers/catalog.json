@@ -59,6 +59,12 @@
       "number": 10,
       "courseRoot": "courses/pinns-papers/10-sukumar-2021-boundaries",
       "published": true
+    },
+    {
+      "id": "wang2020ntk",
+      "number": 11,
+      "courseRoot": "courses/pinns-papers/11-wang-2020-ntk",
+      "published": true
     }
   ]
 }

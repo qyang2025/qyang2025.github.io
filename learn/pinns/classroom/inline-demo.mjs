@@ -1,7 +1,7 @@
 import {demoAngle} from './demo-timeline.mjs';
 import {mathHtml} from './math.mjs';
 let trace;
-fetch('/demos/pca-trace.json').then(r=>r.json()).then(t=>{trace=t;draw(0);});
+fetch(new URL('./demos/pca-trace.json',import.meta.url)).then(r=>{if(!r.ok)throw Error('Illustration unavailable');return r.json();}).then(t=>{trace=t;draw(0);}).catch(()=>{});
 export function inlineDemoHtml(en){
  const t=(a,b)=>en?a:b;
  return `<div class="scene-content inline-python" data-python-demo><div class="inline-demo-columns"><pre data-diagram-node="0"><code><span>Xc = center(X)</span><span>w = direction(theta)</span><span>z = project(Xc, w)</span><span>variance = sample_variance(z)</span></code></pre><div data-diagram-node="1" class="inline-demo-chart"><svg viewBox="0 0 440 240" aria-label="${t('Python projection result','Python 投影结果')}"></svg><output></output></div></div><div data-formula-step="1" class="board-equation">${mathHtml(String.raw`\operatorname{Var}(z)=4\cos^2\theta+\sin^2\theta`)}</div></div>`;
