@@ -1,4 +1,4 @@
-import {paperDemoMeta} from './paper-demo-contract.mjs?v=paper13c';
+import {paperDemoMeta} from './paper-demo-contract.mjs?v=paper13d';
 import { sentences } from './player.mjs';
 
 export function fallbackTarget(slide, beatIndex, sentenceIndex = 0) {

@@ -1,4 +1,4 @@
-import{mathHtml}from'./math.mjs';import{drawFourier}from'./fourier-demo.mjs?v=paper13c';
+import{mathHtml}from'./math.mjs';import{drawFourier}from'./fourier-demo.mjs?v=paper13d';
 const kinds=['global','raw','local','narrow'],colors=['#cbd7de','#79d4ef','#ffe071','#c7b4ff'];
 export function fbpFrame(t,k,p,seed=11){const a=t.runs[`${k}-${seed}`].frames;return a[Math.floor(Math.max(0,Math.min(1,p))*(a.length-1))];}
 export function fbpWindow(z){return Math.max(0,1-z*z)**3;}

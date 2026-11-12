@@ -11,7 +11,7 @@ export function chooseExpression(scene={},context={}) {
  if(scene.gesture==='write'&&(context.playing||context.speaking))return 'focused';
  return scene.gesture==='question'?'curious':'smile';
 }
-export function easeToward(current,target,deltaMs,tau=180){return current+(target-current)*(1-Math.exp(-Math.max(0,Math.min(100,deltaMs))/tau));}
+export function easeToward(current,target,deltaMs,tau=180){return current+(target-current)*(1-Math.exp(-Math.max(0,Math.min(1500,deltaMs))/tau));}
 
 // Store a content-aware expression plan in the deck; old decks receive one on load.
 export function planExpressions(lesson){

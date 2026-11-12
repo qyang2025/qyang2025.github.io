@@ -12,7 +12,7 @@ export const facePoses={
 export const laserPoseAngles=[10,20,32,45,60,75,90,105,120];
 // Acceleration-limited easing avoids a fast snap when the selected elevation changes.
 export function naturalArmStep(state,target,dt){
- const elapsed=Math.min(.25,Math.max(0,dt/1000)),steps=Math.max(1,Math.ceil(elapsed/.02)),h=elapsed/steps,speed=80*Math.PI/180,acceleration=200*Math.PI/180;
+ const elapsed=Math.min(1.5,Math.max(0,dt/1000)),steps=Math.max(1,Math.ceil(elapsed/.02)),h=elapsed/steps,speed=80*Math.PI/180,acceleration=200*Math.PI/180;
  let next={...state};
  for(let i=0;i<steps;i++){
   const distance=target-next.angle,force=Math.max(-acceleration,Math.min(acceleration,36*distance-12*next.velocity));
@@ -120,9 +120,9 @@ export class ProfessorRig {
     arm.motion||={angle:-new T.Euler().setFromQuaternion(arm.joint.quaternion).z,velocity:0};
     arm.motion=reduced?{angle:-angle,velocity:0}:naturalArmStep(arm.motion,-angle,dt);
     arm.joint.quaternion.setFromEuler(new T.Euler(-.08,0,-arm.motion.angle));
-   }else arm.joint.quaternion.slerp(targetRotation,reduced?1:1-Math.exp(-Math.min(100,Math.max(0,dt))/160));
+   }else arm.joint.quaternion.slerp(targetRotation,reduced?1:1-Math.exp(-Math.min(1500,Math.max(0,dt))/160));
   }
-  this.laser.quaternion.slerp(this.laserAim,reduced?1:1-Math.exp(-Math.min(100,Math.max(0,dt))/130));
+  this.laser.quaternion.slerp(this.laserAim,reduced?1:1-Math.exp(-Math.min(1500,Math.max(0,dt))/130));
   this.laserEmitter.material.emissiveIntensity=this.laserActive&&this.isLaserAligned()?2.5:.3;
   this.canvas.dataset.gestureDegrees=this.arms.map(a=>new T.Euler().setFromQuaternion(a.joint.quaternion).z*180/Math.PI).map(a=>a.toFixed(2)).join(',');
   this.badge.textContent='';

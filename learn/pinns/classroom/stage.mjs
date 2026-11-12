@@ -1,5 +1,5 @@
-import {phrasePresence} from './teaching-presence.mjs?v=paper13c';
-import {ProfessorRig} from './professor-3d.mjs?v=paper13c';
+import {phrasePresence} from './teaching-presence.mjs?v=paper13d';
+import {ProfessorRig} from './professor-3d.mjs?v=paper13d';
 import {poses,chooseExpression,easeToward} from './expression.mjs';
 export function currentScene(slide,beat){return beat.scene||{formula:slide.formula,caption:slide.bullets[beat.focus],gesture:slide.visual==='equation'?'write':'point',stage:beat.focus};}
 export class ProfessorStage {
