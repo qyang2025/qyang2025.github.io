@@ -35,7 +35,7 @@ static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 | 07 | Wu 2023 · Sampling | 25 | 148/148 | 144/144 | [Open](learn/pinns/classroom/?paper=wu2023&language=en) |
 | 08 | Jagtap 2020 · cPINN | 26 | 156/156 | 151/151 | [Open](learn/pinns/classroom/?paper=jagtap2020&language=en) |
 
-Foundation course recordings: English 453/453; Chinese 87/345.
+Foundation course recordings: English 453/453; Chinese 345/345.
 Incomplete recording sets stay in reading mode. A classroom language becomes
 playable only when all of that presentation's clips are available.
 
