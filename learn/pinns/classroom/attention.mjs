@@ -1,4 +1,4 @@
-import {paperDemoMeta} from './paper-demo-contract.mjs?v=paper20a';
+import {paperDemoMeta} from './paper-demo-contract.mjs?v=paper20focus1';
 import { sentences } from './player.mjs';
 
 export function fallbackTarget(slide, beatIndex, sentenceIndex = 0) {
@@ -26,6 +26,16 @@ export function validateTargets(slide) {
   for (const [i,beat] of slide.beats.entries()) for (const [field,text,language] of [['targets',beat.text,'zh'],['targetsEn',beat.textEn,'en']]) {
     const cues=beat.scene?.[field]; if (cues === undefined) continue; // Saved legacy courses.
     const count=sentences(text || beat.text,language).length;
+    const focus=beat.scene?.teachingFocus?.[language];
+    if(focus!==undefined){
+      if(!Array.isArray(focus)||!focus.length||focus[0].sentence!==0)throw Error('Invalid semantic focus timeline');
+      for(const [j,c]of focus.entries()){
+        const detail=c.kind==='detail'&&slide.teachingDetails?.includes(c.detail)&&/^[a-z][a-z0-9-]{0,40}$/.test(c.detail);
+        const node=c.kind==='node'&&(slide.schematic?.nodes?.[c.index]?.revealAt<=i||c.index<customNodes&&(c.index===0||i>=1));
+        const formula=c.kind==='formula'&&!!slide.beats[c.index]?.scene?.formula&&c.index<=i;
+        if(!Number.isInteger(c.sentence)||c.sentence<0||c.sentence>=count||j&&c.sentence<=focus[j-1].sentence||!Number.isInteger(c.index)||c.index<0||!(detail||node||formula||c.kind==='none'&&c.index===0))throw Error('Invalid semantic focus target');
+      }
+    }
     if (!Array.isArray(cues) || !cues.length || cues[0].sentence !== 0) throw new Error('指向序列必须从首句开始');
     for (const [j,cue] of cues.entries()) {
       if (!Number.isInteger(cue.sentence) || cue.sentence < 0 || cue.sentence >= count || (j && cue.sentence <= cues[j-1].sentence) || !Number.isInteger(cue.index) || cue.index < 0) throw new Error('指向句子或目标索引无效');
@@ -36,6 +46,10 @@ export function validateTargets(slide) {
       if (!valid) throw new Error('指向了不存在或尚未显示的图形/公式');
     }
   }
+}
+export function focusSelector(cue={}) {
+ if(cue.kind==='detail'&&/^[a-z][a-z0-9-]{0,40}$/.test(cue.detail||''))return `[data-teaching-detail="${cue.detail}"],.teaching-term-${cue.detail}`;
+ return {node:`[data-diagram-node="${cue.index}"]`,formula:`[data-formula-step="${cue.index}"]`,chart:'.plot-frame',bullet:`[data-focus="${cue.index}"]`}[cue.kind]||':not(*)';
 }
 export function pointerGeometry(hand, pivot, rect) {
   const center={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
@@ -107,7 +121,7 @@ export class TeachingPointer {
     const demo=this.target.closest('[data-paper-demo]');
     if(demo)for(const peer of demo.querySelectorAll('[data-diagram-node]:not(.reveal-pending)'))if(peer!==this.target&&peer.getAttribute('aria-hidden')!=='true')peer.classList.add('paired-target');
     if(this.host.querySelector('#slide')?.dataset.integratedEquation==='true'){
-      const selector=this.cue.kind==='formula'?'[data-diagram-node]:not(.reveal-pending)':'[data-formula-step="0"]:not(.reveal-pending)';
+      const selector=['formula','detail'].includes(this.cue.kind)?'[data-diagram-node]:not(.reveal-pending)':'[data-formula-step="0"]:not(.reveal-pending)';
       for(const peer of this.host.querySelectorAll(selector))if(peer!==this.target&&!peer.hidden&&peer.getAttribute('aria-hidden')!=='true')peer.classList.add('paired-target');
     }
   }
@@ -116,8 +130,8 @@ export class TeachingPointer {
     this.host.querySelectorAll('.paired-target').forEach(e=>e.classList.remove('paired-target'));
     this.host.querySelectorAll('.teaching-target').forEach(e=>e.classList.remove('teaching-target'));
     this.host.classList.toggle('narration-active',this.speaking);
-    const selectors={node:`[data-diagram-node="${this.cue?.index}"]`,formula:`[data-formula-step="${this.cue?.index}"]`,chart:'.plot-frame',bullet:`[data-focus="${this.cue?.index}"]`};
-    this.target=this.active ? this.host.querySelector(selectors[this.cue?.kind] || ':not(*)') : null;
+    this.target=this.active ? this.host.querySelector(focusSelector(this.cue)) : null;
+    for(const scene of this.host.querySelectorAll('[data-paper-demo]'))scene.dataset.teachingDetailActive=this.active&&this.cue?.kind==='detail'?this.cue.detail:'';
     if (this.target?.hidden) this.target=null;
     // A recorded plot and its checkpoint metrics explain the same experimental result.
     const demoUnit=this.target?.closest('[data-paper-demo]');
@@ -125,7 +139,7 @@ export class TeachingPointer {
     this.target?.classList.add('teaching-target');
     // A formula and its explanatory schematic form one teaching unit.
     if(this.target&&this.host.querySelector('#slide')?.dataset.integratedEquation==='true'){
-      const peers=this.cue.kind==='formula'
+      const peers=['formula','detail'].includes(this.cue.kind)
         ? [...this.host.querySelectorAll('[data-diagram-node]:not(.reveal-pending)')]
         : this.cue.kind==='node' ? [...this.host.querySelectorAll('[data-formula-step="0"]:not(.reveal-pending)')] : [];
       peers.filter(e=>!e.hidden&&e.getAttribute('aria-hidden')!=='true').forEach(e=>e.classList.add('paired-target'));
@@ -145,12 +159,24 @@ export class TeachingPointer {
     this.professor.element.style.bottom=this.host.dataset.fixedSlide==='true'?'0px':`${bottom}px`;
     // Sentence cues still highlight the content; character gestures no longer aim at it.
     this.professor.aimAngle=undefined;
+    if(this.active&&this.cue?.kind==='detail'){this.target=this.host.querySelector(focusSelector(this.cue));this.target?.classList.add('teaching-target');}
     if (!this.active || !this.target?.isConnected) {this.overlay.style.display='none';this.professor.setLaserTarget?.(null);this.professor.setLaserPose?.(null);return;}
     const rect=this.target.getBoundingClientRect();
     if(!rect.width||!rect.height){this.overlay.style.display='none';this.professor.setLaserTarget?.(null);this.professor.setLaserPose?.(null);return;}
-    const contentObstacles=[...this.host.querySelectorAll('[data-diagram-node]:not([hidden]),[data-formula-step],.plot-frame,.plot-legend,.plot-note,.schematic-link,.inline-demo-chart output,.axis-math,#slide h2,.slide-eyebrow,.concept-card')].filter(e=>e!==this.target&&!this.target.contains(e)&&getComputedStyle(e).visibility!=='hidden').map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+    const contentObstacles=[...this.host.querySelectorAll('[data-diagram-node]:not([hidden]),[data-formula-step],.plot-frame,.plot-legend,.plot-note,.schematic-link,.inline-demo-chart output,.axis-math,[data-paper-demo] svg text,[data-paper-demo] svg foreignObject,.katex-html .mord,.katex-html .mbin,.katex-html .mrel,#slide h2,.slide-eyebrow,.concept-card')].filter(e=>e!==this.target&&!this.target.contains(e)&&!e.contains(this.target)&&getComputedStyle(e).visibility!=='hidden').map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+    const direct=this.target.matches?.('.curve-anchor');const landing=direct?[{x:rect.left+rect.width/2,y:rect.top+rect.height/2}]:laserLandingPoints(rect,box,contentObstacles);
     const avatarBox=this.professor.element.getBoundingClientRect();const obstacles=[...contentObstacles,...professorProtection(avatarBox)];
-    const signature=[this.cue.kind,this.cue.index,rect.left,rect.top,rect.width,rect.height,...obstacles.flatMap(r=>[r.left,r.top,r.width,r.height])].join('/');if(this.spotSignature!==signature||this.spotTarget!==this.target){this.spotSignature=signature;this.spotTarget=this.target;this.unreachable=false;const poses=this.professor.getLaserPoses?.({x:rect.left+rect.width/2,y:rect.bottom+18},laserLandingPoints(rect,box,obstacles));if(poses&&poses.length===0){this.unreachable=true;this.overlay.style.display='none';this.professor.setLaserTarget?.(null);this.professor.setLaserPose?.(null);return;}const plan=poses?.length?chooseLaserPlan(rect,box,contentObstacles,professorProtection(avatarBox),poses):null;this.lockedSpot=plan?.point||spotlightPosition(rect,box,obstacles,this.professor.getScreenAnchors?.()?.hand);this.lockedArmAngle=plan?.angle;this.overlay.querySelector('.laser-occluders').innerHTML=contentObstacles.map(r=>`<rect x="${r.left-box.left-6}" y="${r.top-box.top-6}" width="${r.width+12}" height="${r.height+12}"/>`).join('');}if(this.unreachable){this.overlay.style.display='none';this.professor.setLaserTarget?.(null);return;}const point=this.lockedSpot;this.overlay.setAttribute('viewBox',`0 0 ${box.width} ${box.height}`);const mask=this.overlay.querySelector('mask');mask.setAttribute('width',box.width);mask.setAttribute('height',box.height);this.overlay.style.display='block';
+    const signature=[this.cue.kind,this.cue.index,rect.left,rect.top,rect.width,rect.height,...obstacles.flatMap(r=>[r.left,r.top,r.width,r.height])].join('/');if(this.spotSignature!==signature||this.spotTarget!==this.target){this.spotSignature=signature;this.spotTarget=this.target;this.unreachable=false;const poses=this.professor.getLaserPoses?.({x:rect.left+rect.width/2,y:rect.bottom+18},landing);if(poses&&poses.length===0){this.unreachable=true;this.overlay.style.display='none';this.professor.setLaserTarget?.(null);this.professor.setLaserPose?.(null);return;}const plan=poses?.length?chooseLaserPlan(rect,box,contentObstacles,professorProtection(avatarBox),poses):null;this.lockedSpot=plan?.point||(direct?{x:landing[0].x-box.left,y:landing[0].y-box.top,direction:'up'}:spotlightPosition(rect,box,obstacles,this.professor.getScreenAnchors?.()?.hand));this.lockedArmAngle=plan?.angle;this.overlay.querySelector('.laser-occluders').innerHTML=contentObstacles.map(r=>`<rect x="${r.left-box.left-6}" y="${r.top-box.top-6}" width="${r.width+12}" height="${r.height+12}"/>`).join('');}if(this.unreachable){this.overlay.style.display='none';this.professor.setLaserTarget?.(null);return;}const point=this.lockedSpot;this.overlay.setAttribute('viewBox',`0 0 ${box.width} ${box.height}`);const mask=this.overlay.querySelector('mask');mask.setAttribute('width',box.width);mask.setAttribute('height',box.height);this.overlay.style.display='block';
+    // Keep the beam behind other plotted curves, without blocking the intended curve.
+    const maskGroup=this.overlay.querySelector('.laser-occluders');
+    maskGroup.querySelectorAll('.curve-mask').forEach(e=>e.remove());
+    const activeClass={'source-curve':'operator-source-curve','temperature-curve':'operator-temperature-curve','reference-curve':'operator-reference-curve'}[this.cue.detail];
+    for(const curve of this.host.querySelectorAll('[data-paper-demo] svg polyline')){
+      if(activeClass&&curve.classList.contains(activeClass))continue;
+      const m=curve.getScreenCTM();if(!m)continue;
+      const points=Array.from(curve.points,p=>`${m.a*p.x+m.c*p.y+m.e-box.left},${m.b*p.x+m.d*p.y+m.f-box.top}`).join(' ');
+      const cover=document.createElementNS('http://www.w3.org/2000/svg','polyline');cover.classList.add('curve-mask');cover.setAttribute('points',points);cover.setAttribute('fill','none');cover.setAttribute('stroke','black');cover.setAttribute('stroke-width','5');maskGroup.append(cover);
+    }
     for(const circle of this.overlay.querySelectorAll('circle')){circle.setAttribute('cx',point.x);circle.setAttribute('cy',point.y);}
     const {x,y,direction}=point;
     this.professor.setLaserPose?.(this.lockedArmAngle);
@@ -163,7 +189,7 @@ export class TeachingPointer {
     beam.style.display='block';
     if(anchors)beam.setAttribute('d',`M${anchors.hand.x-box.left},${anchors.hand.y-box.top} L${x},${y}`);
     this.overlay.querySelector('.focus-arrow').setAttribute('d',direction==='right'?`M${x+8},${y-4} L${x+13},${y} L${x+8},${y+4}Z`:direction==='up'?`M${x-4},${y-8} L${x},${y-13} L${x+4},${y-8}Z`:`M${x-4},${y+8} L${x},${y+13} L${x+4},${y+8}Z`);
-    this.host.dataset.highlightKind=this.cue.kind;this.host.dataset.highlightIndex=this.cue.index;
+    this.host.dataset.highlightDetail=this.cue.detail||'';this.host.dataset.highlightKind=this.cue.kind;this.host.dataset.highlightIndex=this.cue.index;
   }
 
   close() {this.active=false;this.observer.disconnect();window.removeEventListener('scroll',this.update);window.removeEventListener('resize',this.update);this.overlay.remove();}

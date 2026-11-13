@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs';
+import {mathHtml} from './math.mjs?v=paper20focus1';
 export const causalKinds=['causal-physical','causal-training','causal-weights','causal-energy','causal-phase','causal-error','causal-code'];
 const colours={uniform:'#79d4ef',fixed:'#ffe071',annealed:'#ff8e9e'};
 const names={en:{uniform:'Uniform',fixed:'Fixed ε',annealed:'Annealed'},zh:{uniform:'均匀权重',fixed:'固定ε',annealed:'退火ε'}};

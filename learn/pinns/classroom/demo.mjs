@@ -3,7 +3,7 @@ import {withOutline} from './course-outline.mjs';
 import { compactPca } from './compact-pca.mjs';
 import { fallbackTarget } from './attention.mjs';
 import { sentences } from './player.mjs';
-import { normalizeFormula } from './math.mjs';
+import { normalizeFormula } from './math.mjs?v=paper20focus1';
 import { demoSchematic } from './demo-schematics.mjs';
 export const demoSource = {
   id: 'demo-pca', name: 'PCA 教学示例 · 内置讲义',

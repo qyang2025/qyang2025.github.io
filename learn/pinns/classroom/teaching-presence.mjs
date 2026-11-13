@@ -2,6 +2,8 @@
 export function conceptFocus(slide,beat,sentence,language,cue){
  const role=slide.beats[beat].scene?.deliveryRole||(/(?:^|[-_])(bridge|next|limits)(?:$|[-_])/.test(slide.id)?'bridge':'explain');
  if(role==='bridge'||role==='reflect')return{kind:'none',index:0,conceptKey:slide.id+'/audience'};
+ const precise=slide.beats[beat].scene?.teachingFocus?.[language]?.filter(c=>c.sentence<=sentence).at(-1);
+ if(precise)return{...precise,conceptKey:[slide.id,precise.kind,precise.index,precise.detail||''].join('/')};
  let focus=cue;
  if(slide.integratedEquation&&cue.kind==='formula'){
   const nodes=slide.schematic?.nodes||[];
@@ -37,7 +39,13 @@ export function phrasePresence({text='',audioTime=0,duration=0,speaking=false,re
  const stroke=smooth((p-start)/.19)*(1-smooth((p-end)/.20));
  const length=Math.max(0,Math.min(1,(duration-1.4)/3.2));
  const strength=({question:.55,invite:.9,contrast:.72,conclude:.65,explain:.58})[role];
- return{gesture:role==='explain'&&h%4===0?0:stroke*length*strength,nod:stroke*(role==='question'?-.22:role==='conclude'?.45:.2),gaze:stroke,audience:role==='question'?smooth((p-.08)/.5):0,role};
+ return{gesture:role==='explain'&&h%4===0?0:stroke*length*strength,nod:stroke*(role==='question'?-.22:role==='conclude'?.45:.2),gaze:stroke,audience:role==='question'?smooth((p-.08)/.5):(role==='conclude'||h%4===0)?smooth((p-.65)/.22)*.55:0,role};
+}
+// Smooth gaze and free-hand continuity across sentence boundaries and short pauses.
+export function smoothPresence(previous={},target={},dt=16,reduced=false){
+ const out={...target},a=reduced?1:1-Math.exp(-Math.max(0,Math.min(100,dt))/240);
+ for(const k of ['gesture','nod','gaze','audience'])out[k]=(previous[k]||0)+((target[k]||0)-(previous[k]||0))*a;
+ return out;
 }
 export function conversationalRate(text){const role=speechRole(text);return role==='question'?.97:role==='invite'?1.025:role==='conclude'?.985:1;}
 export function conversationalPause(text,base,{beatChanged=false,pageChanged=false}={}){

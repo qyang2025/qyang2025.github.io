@@ -48,3 +48,10 @@
 .lecture-stage .paired-target{outline:1.5px solid #ffe07188!important;background:#ffcf490c!important;box-shadow:none!important}
 @keyframes concept-emphasis{from{filter:brightness(1.12);outline-color:#fff0a0;background:#ffcf4930;box-shadow:0 0 22px #ffc83d55}to{filter:brightness(1);outline-color:#ffe071cc;background:#ffcf4914;box-shadow:0 0 12px #ffc83d22}}
 @media(prefers-reduced-motion:reduce){.lecture-stage .teaching-target{animation:none!important}}
+
+/* Precise mathematical/curve emphasis keeps the rest of the figure legible. */
+.lecture-stage .teaching-math-term.teaching-target{color:#fff1a1!important;background:#ffd34d30!important;border-radius:3px;outline:2px solid #ffe071!important;box-shadow:0 0 9px #ffd34d55!important}
+[data-teaching-detail-active="source-curve"] .operator-source-curve,
+[data-teaching-detail-active="temperature-curve"] .operator-temperature-curve,
+[data-teaching-detail-active="reference-curve"] .operator-reference-curve{stroke-width:5;filter:drop-shadow(0 0 3px #fff3ae)}
+.lecture-stage svg .curve-anchor.teaching-target{outline:none!important;box-shadow:none!important;filter:none!important}

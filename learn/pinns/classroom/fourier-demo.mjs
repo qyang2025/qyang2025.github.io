@@ -1,4 +1,4 @@
-import{mathHtml}from'./math.mjs';
+import{mathHtml}from'./math.mjs?v=paper20focus1';
 const kinds=['plain','low','high','multi'],colors=['#cbd7de','#79d4ef','#c7b4ff','#ffe071'];
 export function fourierFrame(t,k,p,seed=11){const a=t.runs[`${k}-${seed}`].frames;return a[Math.floor(Math.max(0,Math.min(1,p))*(a.length-1))];}
 export function drawFourier(host,t,p,en){const svg=host.querySelector('svg'),out=host.querySelector('output'),kind=host.dataset.paperDemo;if(!svg)return;

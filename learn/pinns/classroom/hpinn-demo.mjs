@@ -1,4 +1,4 @@
-import{mathHtml}from'./math.mjs';
+import{mathHtml}from'./math.mjs?v=paper20focus1';
 const colors=['#cbd7de','#79d4ef','#ffe071'],kinds=['weak','strong','augmented'];
 export function hpinnFrame(t,k,p,seed=11){const a=t.runs[`${k}-${seed}`].frames;return a[Math.floor(Math.max(0,Math.min(1,p))*(a.length-1))];}
 export function drawHpinn(host,t,p,en){const svg=host.querySelector('svg'),out=host.querySelector('output'),kind=host.dataset.paperDemo;if(!svg)return;const tx=(x,y,s,a='middle')=>`<text x="${x}" y="${y}" text-anchor="${a}">${s}</text>`,mx=(s,x,y,axis)=>`<foreignObject data-axis-label="${axis}" x="${x}" y="${y}" width="65" height="36"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`,px=x=>70+470*x,line=(a,py,c,d=false)=>`<polyline points="${t.x.map((x,i)=>`${px(x)},${py(a[i])}`).join(' ')}" fill="none" stroke="${c}" stroke-width="3"${d?' stroke-dasharray="7 5"':''}/>`;const axes=(v='u')=>`<path d="M70 40V190H550" stroke="#d4dce2" stroke-width="2.8" fill="none"/>`+mx(v,15,22,'y')+mx('x',555,179,'x')+tx(70,216,'0')+tx(540,216,'1');

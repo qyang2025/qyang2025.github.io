@@ -1,5 +1,6 @@
 import * as T from './vendor/three/three.module.mjs';
 import {easeToward} from './expression.mjs';
+import {smoothPresence} from './teaching-presence.mjs?v=paper20focus1';
 export const facePoses={
  smile:{brow:0,asym:0,eyes:1,tilt:0,yaw:0,pitch:0,smile:.15,other:0},
  curious:{brow:.15,asym:.23,eyes:1.3,tilt:.2,yaw:-.12,pitch:0,smile:.02,other:.4},
@@ -101,6 +102,7 @@ export class ProfessorRig {
  segment(parent,a,b,r,material){const mesh=new T.Mesh(this.cylinder,material);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.scale.set(r,a.distanceTo(b),r);mesh.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),b.clone().sub(a).normalize());parent.add(mesh);return mesh;}
  resize(){const w=this.element.clientWidth||240,h=this.element.clientHeight||300,aspect=w/h;this.camera.left=-1.45*aspect;this.camera.right=1.45*aspect;this.camera.top=1.45;this.camera.bottom=-1.45;this.camera.updateProjectionMatrix();this.renderer.setSize(w,h,false);}
  update({expression,energy,speaking,time,dt,reduced,blink,presence={gesture:0,nod:0,gaze:0},engaged=speaking}){
+  presence=this.continuousPresence=smoothPresence(this.continuousPresence,presence,dt,reduced);
   const target=facePoses[expression]||facePoses.smile;
   for(const k of Object.keys(target))this.pose[k]=easeToward(this.pose[k],target[k],dt,180);
   const p=this.pose,g=this.intensity,e=energy,audience=presence.audience||0;

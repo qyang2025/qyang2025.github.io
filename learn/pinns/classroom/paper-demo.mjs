@@ -1,23 +1,23 @@
-import{drawOperator}from'./operator-demo.mjs?v=paper20a';
-import{drawSa}from'./sa-demo.mjs?v=paper20a';
-import{drawXpinn}from'./xpinn-demo.mjs?v=paper20a';
-import{drawBpinn}from'./bpinn-demo.mjs?v=paper20a';
-import{drawHpinn}from'./hpinn-demo.mjs?v=paper20a';
-import {drawHfm} from './hfm-demo.mjs?v=paper20a';
-import {drawFbp} from './fbp-demo.mjs?v=paper20a';
-import {drawFourier} from './fourier-demo.mjs?v=paper20a';
-import {reserveAxisGutter} from './plot-layout.mjs?v=paper20a';
-import {drawNtk} from './ntk-demo.mjs?v=paper20a';
-import {drawBoundary} from './boundary-demo.mjs?v=paper20a';
-import {drawVpinn} from './vpinn-demo.mjs?v=paper20a';
-import {drawCpinn} from './cpinn-demo.mjs?v=paper20a';
-import {drawSampling} from './sampling-demo.mjs?v=paper20a';
-import {drawGPinn} from './gpinn-demo.mjs?v=paper20a';
-import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper20a';
-import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper20a';
-import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper20a';
-import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper20a';
-import {mathHtml} from './math.mjs';
+import{drawOperator}from'./operator-demo.mjs?v=paper20focus1';
+import{drawSa}from'./sa-demo.mjs?v=paper20focus1';
+import{drawXpinn}from'./xpinn-demo.mjs?v=paper20focus1';
+import{drawBpinn}from'./bpinn-demo.mjs?v=paper20focus1';
+import{drawHpinn}from'./hpinn-demo.mjs?v=paper20focus1';
+import {drawHfm} from './hfm-demo.mjs?v=paper20focus1';
+import {drawFbp} from './fbp-demo.mjs?v=paper20focus1';
+import {drawFourier} from './fourier-demo.mjs?v=paper20focus1';
+import {reserveAxisGutter} from './plot-layout.mjs?v=paper20focus1';
+import {drawNtk} from './ntk-demo.mjs?v=paper20focus1';
+import {drawBoundary} from './boundary-demo.mjs?v=paper20focus1';
+import {drawVpinn} from './vpinn-demo.mjs?v=paper20focus1';
+import {drawCpinn} from './cpinn-demo.mjs?v=paper20focus1';
+import {drawSampling} from './sampling-demo.mjs?v=paper20focus1';
+import {drawGPinn} from './gpinn-demo.mjs?v=paper20focus1';
+import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper20focus1';
+import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper20focus1';
+import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper20focus1';
+import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=paper20focus1';
 import {sentences} from './player.mjs';
 const traces=new Map(),traceLoads=new Map();
 function loadTrace(key){
@@ -37,7 +37,7 @@ export function paperDemoHtml(slide,en){
  if(kind==='inverse-code')code=['model.lambda1 = nn.Parameter(tensor(0.5))','model.beta = nn.Parameter(tensor(beta0))','lambda2 = softplus(model.beta)','opt = Adam(model.parameters())'];
  if(kind==='inverse-loss-code')code=['pred, ut, ux, uxx = derivatives(model, q)','f = ut + model.lambda1*pred*ux','f = f - model.lambda2*uxx','loss = mse(pred, y) + mean(f*f)'];
  if(paperDemoMeta[kind]?.customCode)code=slide.demoCode;
- return `<div class="scene-content paper-scene" data-paper-demo="${kind}" data-paper-trace="${key}" data-progress="0"><div class="${isCode?'paper-code':'paper-plot'} reveal-pending" data-diagram-node="0">${isCode?`<pre><code>${code.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></pre>`:`<svg viewBox="0 0 640 260" role="img" aria-label="${en?'Physical field or recorded experiment':'物理场或已记录实验'}"></svg>`}</div>${hasMetrics?'<output class="paper-metrics reveal-pending" data-diagram-node="1"></output>':''}${slide.formula?`<div class="formula-box equation-step reveal-pending" data-formula-step="0">${mathHtml(slide.formula)}</div>`:''}</div>`;
+ return `<div class="scene-content paper-scene" data-paper-demo="${kind}" data-paper-trace="${key}" data-progress="0"><div class="${isCode?'paper-code':'paper-plot'} reveal-pending" data-diagram-node="0">${isCode?`<pre><code>${code.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></pre>`:`<svg viewBox="0 0 640 260" role="img" aria-label="${en?'Physical field or recorded experiment':'物理场或已记录实验'}"></svg>`}</div>${hasMetrics?'<output class="paper-metrics reveal-pending" data-diagram-node="1"></output>':''}${slide.formula?`<div class="formula-box equation-step reveal-pending" data-formula-step="0">${mathHtml(slide.formula,true,slide.formulaTerms||[])}</div>`:''}</div>`;
 }
 export function syncPaperDemo(activity,position,slide,language){
  const host=document.querySelector('[data-paper-demo]');if(!host||activity.audioTime===undefined)return;

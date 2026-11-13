@@ -1,4 +1,4 @@
-import {conceptFocus} from './teaching-presence.mjs?v=paper20a';
+import {conceptFocus} from './teaching-presence.mjs?v=paper20focus1';
 import { attentionTarget } from './attention.mjs';
 
 // Opt-in diagnostics for real classroom media. This never advances or simulates audio.
@@ -34,7 +34,7 @@ export class SyncAudit {
     const key=[player.lesson.id,player.lesson.language||'zh',slide.id,beat.id,p.sentence].join('/');this.lastKey=key;
     const cue=conceptFocus(slide,p.beat,p.sentence,player.lesson.language,attentionTarget(slide,p.beat,p.sentence,player.lesson.language));
     const target=document.querySelector('.teaching-target'),audio=document.querySelector('#narration-audio');
-    const matched=cue.kind==='none' ? !target : !!target && (cue.kind==='node' ? Number(target.dataset.diagramNode)===cue.index : cue.kind==='formula' ? Number(target.dataset.formulaStep)===cue.index : cue.kind==='chart' ? target.classList.contains('plot-frame') : Number(target.dataset.focus)===cue.index);
+    const matched=cue.kind==='none' ? !target : !!target && (cue.kind==='node' ? Number(target.dataset.diagramNode)===cue.index : cue.kind==='formula' ? Number(target.dataset.formulaStep)===cue.index : cue.kind==='detail' ? target.dataset.teachingDetail===cue.detail||target.classList.contains('teaching-term-'+cue.detail) : cue.kind==='chart' ? target.classList.contains('plot-frame') : Number(target.dataset.focus)===cue.index);
     const caption=document.querySelector('#caption-text').textContent;
     const errors=[];
     if(caption!==player.displayText()) errors.push('caption-mismatch');
@@ -46,7 +46,7 @@ export class SyncAudit {
     const clip=this.clips.get(key)||{key,lessonId:player.lesson.id,language:player.lesson.language||'zh',page:p.slide+1,slideId:slide.id,beat:p.beat,sentence:p.sentence,text:player.displayText(),samples:0,ended:false,maxTime:0,maxRms:0,targets:[]};
     clip.samples++;clip.maxTime=Math.max(clip.maxTime,activity.audioTime);clip.maxRms=Math.max(clip.maxRms,activity.amplitude||0);
     clip.duration=audio?.duration;clip.rate=audio?.playbackRate;clip.startupMs=Number(audio?.dataset.startupMs);clip.preparationMs=Number(audio?.dataset.preparationMs);clip.mediaStartMs=Number(audio?.dataset.mediaStartMs);clip.waitingEvents=Number(audio?.dataset.waitingEvents);clip.rebufferingEvents=Number(audio?.dataset.rebufferingEvents);clip.audioContextState=audio?.dataset.contextState;clip.maxMouthOpening=Math.max(clip.maxMouthOpening||0,Number(document.querySelector('.professor-3d')?.dataset.mouthOpening||0));
-    if(!clip.targets.some(t=>t.kind===cue.kind&&t.index===cue.index))clip.targets.push({kind:cue.kind,index:cue.index});
+    if(!clip.targets.some(t=>t.kind===cue.kind&&t.index===cue.index))clip.targets.push({kind:cue.kind,index:cue.index,...cue.detail?{detail:cue.detail}:{}});
     clip.armMoved ||= !!document.querySelector('.pointing-arm').style.transform;
     clip.animationStates=[...document.querySelectorAll('.current-step,.node-current')].map(e=>getComputedStyle(e).animationPlayState);
     const demo=document.querySelector('[data-paper-demo]');

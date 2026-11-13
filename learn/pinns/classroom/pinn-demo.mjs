@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs';
+import {mathHtml} from './math.mjs?v=paper20focus1';
 import {sentences} from './player.mjs';
 let traces;
 if(typeof window!=='undefined')fetch('/learn/pinns/classroom/demos/pinns-traces.json').then(r=>r.json()).then(data=>{traces=data;const host=document.querySelector('[data-pinn-demo]');if(host)draw(host,Number(host.dataset.progress||0));});

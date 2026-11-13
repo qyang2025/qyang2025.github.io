@@ -1,4 +1,4 @@
-import{mathHtml}from'./math.mjs';
+import{mathHtml}from'./math.mjs?v=paper20focus1';
 const modes=['full','noisy','data','stripe'],cs=['#79d4ef','#ffe071','#cbd7de','#c7b4ff'];
 export function hfmFrame(t,k,p,seed=11){const f=t.runs[`${k}-${seed}`].frames;return f[Math.floor(Math.max(0,Math.min(1,p))*(f.length-1))];}
 export function tracerValue(x,y,t,stripe=false){const X=x-.8*t,Y=y-.35*t;return stripe?.5+.35*Math.sin(X)*Math.exp(-.02*t):.5+.25*Math.sin(X)*Math.cos(Y)*Math.exp(-.04*t)+.08*Math.cos(2*X)*Math.sin(Y)*Math.exp(-.10*t);}

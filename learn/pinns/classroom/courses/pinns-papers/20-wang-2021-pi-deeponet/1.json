@@ -307,7 +307,7 @@
       "beats": [
         {
           "id": "piop-physical-b0",
-          "text": "上方是带符号热源 f，下方是稳态温度 u。正热源表示相对参考的加热，x 是单位杆上的位置。",
+          "text": "上方是带符号热源 f。下方是稳态温度 u。正热源表示相对参考的加热，x 是单位杆上的位置。",
           "textEn": "The upper curve is the signed source f; the lower curve is its steady temperature u. Positive source means heating relative to the reference. X is position on a unit rod.",
           "focus": 0,
           "scene": {
@@ -353,6 +353,53 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "source-curve"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "temperature-curve"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "source-curve"
+                },
+                {
+                  "sentence": 3,
+                  "index": 0,
+                  "kind": "node"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "source-curve"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "temperature-curve"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "source-curve"
+                }
+              ]
+            },
             "expression": "smile"
           }
         },
@@ -409,6 +456,47 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "none"
+                },
+                {
+                  "sentence": 3,
+                  "index": 0,
+                  "kind": "node"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "none"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "node"
+                }
+              ]
+            },
             "expression": "smile"
           }
         }
@@ -416,7 +504,11 @@
       "integratedEquation": false,
       "paperDemo": "piop-physical",
       "paperTrace": "paper20",
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [
+        "source-curve",
+        "temperature-curve"
+      ]
     },
     {
       "id": "piop-equation",
@@ -1401,6 +1493,32 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "formula"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "formula"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "formula"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "formula"
+                }
+              ]
+            },
             "expression": "focused"
           }
         },
@@ -1442,12 +1560,51 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "cross-term"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "cross-term"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "cross-term"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "cross-term"
+                }
+              ]
+            },
             "expression": "focused"
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [
+        "cross-term"
+      ],
+      "formulaTerms": [
+        {
+          "id": "cross-term",
+          "tex": "2(1-2x)v_x"
+        }
+      ]
     },
     {
       "id": "piop-derivatives",
@@ -2057,6 +2214,44 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "reference-curve"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "node"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "index": 0,
+                  "kind": "detail",
+                  "detail": "reference-curve"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "node"
+                }
+              ]
+            },
             "expression": "smile"
           }
         },
@@ -2108,6 +2303,42 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "index": 1,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "none"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "index": 1,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 1,
+                  "index": 0,
+                  "kind": "node"
+                },
+                {
+                  "sentence": 2,
+                  "index": 0,
+                  "kind": "none"
+                }
+              ]
+            },
             "expression": "smile"
           }
         }
@@ -2116,7 +2347,10 @@
       "paperDemo": "piop-training",
       "paperTrace": "paper20",
       "introduceAtStart": true,
-      "replayStartSentence": 2
+      "replayStartSentence": 2,
+      "teachingDetails": [
+        "reference-curve"
+      ]
     },
     {
       "id": "piop-error",

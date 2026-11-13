@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs';
+import {mathHtml} from './math.mjs?v=paper20focus1';
 import {sentences} from './player.mjs';
 export function heatValue(x,t,alpha=.1){return Math.exp(-alpha*Math.PI**2*t)*Math.sin(Math.PI*x);}
 export function heatTime(slide,position,activity={},language='en'){

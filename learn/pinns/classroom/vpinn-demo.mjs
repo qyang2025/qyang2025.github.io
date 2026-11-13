@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs';
+import {mathHtml} from './math.mjs?v=paper20focus1';
 const modes=['strong','weak-k1','weak-k8','weak-q4'],colours=['#79d4ef','#c7b4ff','#ffe071','#ff8e9e'];
 const labels=en=>en?['Strong','K1 Q32','K8 Q32','K8 Q4']:['强形式','K1 Q32','K8 Q32','K8 Q4'];
 export function legendre(k,x){if(k===0)return 1;if(k===1)return x;let a=1,b=x;for(let n=2;n<=k;n++){const c=((2*n-1)*x*b-(n-1)*a)/n;a=b;b=c;}return b;}

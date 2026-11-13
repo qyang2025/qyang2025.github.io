@@ -1,4 +1,4 @@
-import { mathHtml } from './math.mjs';
+import { mathHtml } from './math.mjs?v=paper20focus1';
 export function lectureChart(project, language = 'zh') {
   const dots = Array.from({length:30},(_,i)=>{const t=(i-14.5)/14.5;return [265+t*171+Math.sin(i*2.4)*17,117-t*61+Math.cos(i*1.7)*24];});
   const guides = project ? dots.map(([x,y])=>{const t=(x-265)*.943+(y-117)*-.332;return `<line x1="${x}" y1="${y}" x2="${265+t*.943}" y2="${117-t*.332}" class="projection-guide"/>`;}).join('') : '';

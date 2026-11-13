@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs';
+import {mathHtml} from './math.mjs?v=paper20focus1';
 const kinds=['soft1','soft100','hard','distance'],colors=['#79d4ef','#c7b4ff','#ffe071','#ff8e9e'];
 export function boundaryFrame(t,k,p,seed=11){const f=t.runs[`${k}-${seed}`].frames;return f[Math.floor(Math.max(0,Math.min(1,p))*(f.length-1))];}
 export function drawBoundary(host,t,p,en){

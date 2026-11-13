@@ -31,11 +31,17 @@ export function assertFormula(value) {
   if (/\\(?:href|url|includegraphics|html\w*|def|gdef|newcommand|renewcommand)\b/.test(tex)) throw new Error('公式包含不支持的命令');
   katex.renderToString(tex, { throwOnError: true, trust: false, strict: 'ignore', maxExpand: 200, maxSize: 15 });
 }
-export function mathHtml(value, displayMode = true) {
+export function mathHtml(value, displayMode = true, terms = []) {
   if (!value) return '';
   try {
     assertFormula(value);
-    return katex.renderToString(normalizeFormula(value), { displayMode, throwOnError: true, trust: false, strict: 'ignore', maxExpand: 200, maxSize: 15 });
+    let tex=normalizeFormula(value);
+    for(const term of terms){
+      if(!/^[a-z][a-z0-9-]{0,40}$/.test(term.id)||!term.tex||tex.split(term.tex).length!==2)throw Error('Invalid mathematical focus term');
+      assertFormula(term.tex);
+      tex=tex.replace(term.tex,()=>`\\htmlClass{teaching-math-term teaching-term-${term.id}}{${term.tex}}`);
+    }
+    return katex.renderToString(tex, { displayMode, throwOnError: true, trust: terms.length?c=>c.command==='\\htmlClass':false, strict: 'ignore', maxExpand: 200, maxSize: 15 });
   } catch {
     return `<span class="math-error" role="alert">公式无法排版，请修正 LaTeX</span>`;
   }

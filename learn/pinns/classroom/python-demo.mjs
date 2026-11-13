@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs';
+import {mathHtml} from './math.mjs?v=paper20focus1';
 export function installPythonDemo({pause,language}){
  const button=document.createElement('button');button.id='python-demo';button.className='button secondary';document.querySelector('.playback').append(button);
  const dialog=document.createElement('dialog');dialog.className='python-demo';document.body.append(dialog);

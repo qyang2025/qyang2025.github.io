@@ -1,21 +1,21 @@
-import {conceptFocus} from './teaching-presence.mjs?v=paper20a';
-import {createLocalClassroomUrl,restoreLecturePosition} from './classroom-handoff.mjs?v=paper20a';
-import {SyncAudit} from './sync-audit.mjs?v=paper20a';
-import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper20a';
+import {conceptFocus} from './teaching-presence.mjs?v=paper20focus1';
+import {createLocalClassroomUrl,restoreLecturePosition} from './classroom-handoff.mjs?v=paper20focus1';
+import {SyncAudit} from './sync-audit.mjs?v=paper20focus1';
+import {paperDemoHtml,syncPaperDemo} from './paper-demo.mjs?v=paper20focus1';
 import {PlaybackControl} from './playback-control.mjs';
 import {heatRodHtml,syncHeatRod} from './heat-rod.mjs';
 import {pinnDemoHtml,syncPinnDemo} from './pinn-demo.mjs';
-import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper20a';
+import {applyProgressiveReveal} from './progressive-reveal.mjs?v=paper20focus1';
 import {inlineDemoHtml} from './inline-demo.mjs';
-import {ClassroomViewport} from './classroom-viewport.mjs?v=paper20a';
-import {lessonSections,isOutline} from './course-outline.mjs?v=paper20a';
-import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper20a';
+import {ClassroomViewport} from './classroom-viewport.mjs?v=paper20focus1';
+import {lessonSections,isOutline} from './course-outline.mjs?v=paper20focus1';
+import {TeachingPointer,attentionTarget} from './attention.mjs?v=paper20focus1';
 import {schematicHtml} from './schematic.mjs';
-import {mathHtml,proseHtml} from './math.mjs';
+import {mathHtml,proseHtml} from './math.mjs?v=paper20focus1';
 import {lectureChart} from './lecture-chart.mjs';
-import {LecturePlayer,sentences} from './player.mjs?v=paper20a';
-import {currentScene,ProfessorStage} from './stage.mjs?v=paper20a';
-import {NeuralSpeech} from './neural-speech.mjs?v=paper20a';
+import {LecturePlayer,sentences} from './player.mjs?v=paper20focus1';
+import {currentScene,ProfessorStage} from './stage.mjs?v=paper20focus1';
+import {NeuralSpeech} from './neural-speech.mjs?v=paper20focus1';
 import {localizeLesson} from './languages.mjs';
 const $=id=>document.getElementById(id),escape=text=>String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requestedPaper=new URLSearchParams(location.search).get('paper')||'';let courseRoot='courses/pinns',courseKey='pinns',paperCatalog=[];
@@ -35,7 +35,7 @@ const speech=new NeuralSpeech({fetcher:async(url,options)=>{
 const audit=new SyncAudit(auditEnabled);
 const player=new LecturePlayer({speech,utterance:text=>({text}),onChange:()=>{if(player.lesson)render();},onError:toast,onActivity:activity=>{
  if(activity.reason==='paused')playback?.release();professor.activity(activity);pointer.activity(activity);
- if(player.lesson){const position=player.displayPosition(),slide=player.lesson.slides[position.slide];syncPaperDemo(activity,position,slide,language);syncHeatRod(activity,position,slide,language);syncPinnDemo(activity,position,slide,language);audit.activity(player,activity);}
+ if(player.lesson){const position=player.displayPosition(),slide=player.lesson.slides[position.slide];syncPaperDemo(activity,position,slide,language);syncHeatRod(activity,position,slide,language);syncPinnDemo(activity,position,slide,language);pointer.update();audit.activity(player,activity);}
 }});
 const playback=new PlaybackControl({onStop:()=>player.pauseAtVisible()});speech.playback=playback;
 function visual(slide, beat) {
@@ -48,7 +48,7 @@ function visual(slide, beat) {
   if(player.lesson.id==='demo' && slide.id==='worked' && slide.beats.indexOf(beat)===1)return inlineDemoHtml(player.lesson.language==='en');
   const graphic = slide.visual === 'scatter' || slide.visual === 'projection'
     ? `<div class="teaching-chart" data-stage="${scene.stage}">${lectureChart(slide.visual === 'projection', player.lesson.language)}${scene.formula ? `<div class="board-equation" data-formula-step="${slide.beats.indexOf(beat)}">${mathHtml(scene.formula)}</div>` : ''}</div>`
-    : slide.beats.slice(0,slide.beats.indexOf(beat)+1).some(b=>b.scene?.formula) ? `<div class="derivation-steps">${slide.beats.map((b,index)=>({b,index})).filter(({b,index}) => index <= slide.beats.indexOf(beat) && b.scene?.formula).map(({b,index},i,a) => `<div data-formula-step="${index}" class="formula-box equation-step ${i === a.length-1 ? 'current-step' : 'prior-step'}">${mathHtml(b.scene.formula)}</div>`).join('')}</div>`
+    : slide.beats.slice(0,slide.beats.indexOf(beat)+1).some(b=>b.scene?.formula) ? `<div class="derivation-steps">${slide.beats.map((b,index)=>({b,index})).filter(({b,index}) => index <= slide.beats.indexOf(beat) && b.scene?.formula).map(({b,index},i,a) => `<div data-formula-step="${index}" class="formula-box equation-step ${i === a.length-1 ? 'current-step' : 'prior-step'}">${mathHtml(b.scene.formula,true,slide.formulaTerms||[])}</div>`).join('')}</div>`
     : slide.schematic && slide.schematic.kind !== 'none' ? '' : `<div class="concept-card" data-focus="${beat.focus}"><span>${player.lesson.language === 'en' ? 'Focus on this idea' : '现在关注这个问题'}</span><strong>${proseHtml(slide.bullets[beat.focus])}</strong></div>`;
   return `<div class="scene-content">${schematicHtml(slide.schematic, slide.beats.indexOf(beat), player.lesson.language)}${graphic}${scene.caption && scene.caption !== slide.bullets[beat.focus] ? `<div class="scene-caption">${proseHtml(scene.caption)}</div>` : ''}</div>`;
 }
