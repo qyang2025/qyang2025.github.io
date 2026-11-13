@@ -70,7 +70,7 @@ export function layoutDiagram(scene){
  const nodes=[...figure.querySelectorAll('.schematic-node')],links=[...figure.querySelectorAll('.schematic-link')],tree=figure.classList.contains('schematic-tree');
  const canvas=document.createElement('canvas').getContext('2d');
  const measure=el=>{const font=getComputedStyle(el);canvas.font=`${font.fontWeight} ${font.fontSize} ${font.fontFamily}`;const clone=el.cloneNode(true);clone.querySelectorAll('.katex-mathml').forEach(x=>x.remove());const text=clone.textContent;const tokens=text.replace(/([\u3400-\u9fff])/g,' $1 ').split(/[ \t\r\n]+/).filter(Boolean);return{full:canvas.measureText(text).width,word:Math.max(0,...tokens.map(w=>canvas.measureText(w).width))};};
- const sizes=nodes.map(node=>{const m=[...node.querySelectorAll('strong,span')].map(measure);return{full:Math.max(0,...m.map(x=>x.full)),word:Math.max(0,...m.map(x=>x.word))};});
+ const sizes=nodes.map(node=>{const m=[...node.querySelectorAll(':scope > strong,:scope > span')].map(measure);return{full:Math.max(0,...m.map(x=>x.full)),word:Math.max(0,...m.map(x=>x.word))};});
  const plan=diagramWidths(sizes,links.map(link=>measure(link.querySelector('span'))));
  const folded=!tree&&nodes.length===4&&plan.needsFold;figure.classList.toggle('schematic-folded',folded);
  nodes.forEach((node,i)=>{node.style.flexBasis=tree?'auto':`${plan.nodes[i]}px`;node.style.flexGrow='0';node.style.flexShrink='0';node.style.minWidth=tree?'0':`${plan.nodes[i]}px`;});
