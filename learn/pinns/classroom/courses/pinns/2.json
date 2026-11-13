@@ -186,10 +186,50 @@
                 "index": 2
               }
             ],
-            "expression": "smile"
+            "expression": "smile",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 2
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 2
+                }
+              ]
+            }
           }
         }
-      ]
+      ],
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-smooth",
@@ -261,7 +301,50 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -316,7 +399,50 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -352,7 +478,9 @@
             "labelEn": "weights $W$ and bias $b$"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-chain",
@@ -424,7 +552,50 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -474,7 +645,45 @@
                 "index": 1
               }
             ],
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -510,7 +719,9 @@
             "labelEn": "chain rule"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-two-gradients",
@@ -592,7 +803,60 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 4,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -647,7 +911,50 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -683,7 +990,9 @@
             "labelEn": "different differentiation variables"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-residual-code",
@@ -755,7 +1064,50 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -810,7 +1162,50 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -846,7 +1241,9 @@
             "labelEn": "retain the derivative graph"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-initial-loss",
@@ -918,7 +1315,50 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -978,7 +1418,55 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 4,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -1014,7 +1502,9 @@
             "labelEn": "mean squared mismatch"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-boundary-loss",
@@ -1096,7 +1586,60 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 4,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1151,7 +1694,50 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -1187,7 +1773,9 @@
             "labelEn": "both remain zero"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-total-loss",
@@ -1269,7 +1857,60 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 4,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1329,7 +1970,55 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -1365,7 +2054,9 @@
             "labelEn": "weighted combination"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "pinn-2-loss-exercise",
@@ -1442,7 +2133,55 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 4,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1502,7 +2241,55 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -1538,7 +2325,9 @@
             "labelEn": "find a counterexample"
           }
         ]
-      }
+      },
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     }
   ]
 }

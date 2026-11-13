@@ -150,10 +150,50 @@
                 "index": 2
               }
             ],
-            "expression": "smile"
+            "expression": "smile",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 2
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 2
+                }
+              ]
+            }
           }
         }
-      ]
+      ],
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "why-sampling",
@@ -247,7 +287,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -296,11 +374,51 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": false
+      "integratedEquation": false,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-physical",
@@ -372,7 +490,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -426,13 +582,60 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 3,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "sampling-physical",
-      "paperTrace": "paper07"
+      "paperTrace": "paper07",
+      "teachingDetails": [
+        "curve-temperature"
+      ],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-equation",
@@ -526,7 +729,47 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -575,11 +818,66 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "formulaTerms": [
+        {
+          "id": "diffusion-term",
+          "tex": "\\nu u_{xx}"
+        },
+        {
+          "id": "transport-term",
+          "tex": "u_x"
+        }
+      ],
+      "teachingDetails": [
+        "diffusion-term",
+        "transport-term"
+      ],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-boundaries",
@@ -673,7 +971,45 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -722,11 +1058,51 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-reference",
@@ -820,7 +1196,45 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -864,11 +1278,46 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-hard-ansatz",
@@ -962,7 +1411,45 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1011,11 +1498,51 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-fixed-controls",
@@ -1104,7 +1631,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1153,11 +1718,51 @@
                 "index": 1
               }
             ],
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": false
+      "integratedEquation": false,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-uniform-replacement",
@@ -1251,7 +1856,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1300,11 +1943,51 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": false
+      "integratedEquation": false,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-residual-indicator",
@@ -1398,7 +2081,45 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1447,11 +2168,51 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-score",
@@ -1545,7 +2306,45 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1594,11 +2393,51 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-normalisation",
@@ -1692,7 +2531,45 @@
                 "index": 0
               }
             ],
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1741,11 +2618,51 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-mixture",
@@ -1834,7 +2751,42 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "uniform-background"
+                },
+                {
+                  "sentence": 2,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "residual-proposal"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1883,11 +2835,64 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "formulaTerms": [
+        {
+          "id": "uniform-background",
+          "tex": "\\frac1{2M}"
+        },
+        {
+          "id": "residual-proposal",
+          "tex": "\\frac{\\rho_j}{2\\sum_m\\rho_m}"
+        }
+      ],
+      "teachingDetails": [
+        "uniform-background",
+        "residual-proposal"
+      ],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-code",
@@ -1959,7 +2964,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2008,7 +3051,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -2020,7 +3101,9 @@
         "prob = score / score.sum()",
         "idx = multinomial(prob, 32, replacement=False)",
         "points = candidates[idx]"
-      ]
+      ],
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-points-replay",
@@ -2093,7 +3176,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2142,13 +3263,53 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "sampling-points",
-      "paperTrace": "paper07"
+      "paperTrace": "paper07",
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-probability-replay",
@@ -2221,7 +3382,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2270,13 +3469,53 @@
                 "index": 1
               }
             ],
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "sampling-probability",
-      "paperTrace": "paper07"
+      "paperTrace": "paper07",
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-cpu-protocol",
@@ -2366,7 +3605,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2415,11 +3692,51 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": false
+      "integratedEquation": false,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-field-replay",
@@ -2492,7 +3809,47 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "curve-reference"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "curve-reference"
+                }
+              ]
+            }
           }
         },
         {
@@ -2541,13 +3898,55 @@
                 "index": 1
               }
             ],
-            "expression": "concerned"
+            "expression": "concerned",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "sampling-training",
-      "paperTrace": "paper07"
+      "paperTrace": "paper07",
+      "teachingDetails": [
+        "curve-reference"
+      ],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-independent-residual",
@@ -2615,7 +4014,40 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2664,13 +4096,53 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "sampling-residual",
-      "paperTrace": "paper07"
+      "paperTrace": "paper07",
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-all-seeds",
@@ -2743,7 +4215,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2792,13 +4302,53 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "sampling-error",
-      "paperTrace": "paper07"
+      "paperTrace": "paper07",
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-cost",
@@ -2888,7 +4438,45 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2937,11 +4525,51 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-validation",
@@ -3036,7 +4664,45 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -3085,11 +4751,51 @@
                 "index": 0
               }
             ],
-            "expression": "focused"
+            "expression": "focused",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": true
+      "integratedEquation": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-limits",
@@ -3178,7 +4884,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -3227,11 +4971,51 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": false
+      "integratedEquation": false,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "sampling-exercise",
@@ -3326,7 +5110,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -3376,11 +5198,51 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": false
+      "integratedEquation": false,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "next-conservative-interfaces",
@@ -3474,7 +5336,45 @@
                 "index": 0
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -3523,11 +5423,51 @@
                 "index": 1
               }
             ],
-            "expression": "curious"
+            "expression": "curious",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
-      "integratedEquation": false
+      "integratedEquation": false,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     }
   ]
 }

@@ -1,4 +1,4 @@
-import {conceptFocus} from './teaching-presence.mjs?v=paper20focus1';
+import {conceptFocus} from './teaching-presence.mjs?v=seriesfocus1';
 import { attentionTarget } from './attention.mjs';
 
 // Opt-in diagnostics for real classroom media. This never advances or simulates audio.

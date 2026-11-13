@@ -20,7 +20,7 @@
       "titleEn": "Paper13: FBPINNs and local spatial representations",
       "file": "1.json",
       "pages": 22,
-      "sentenceCount": 98,
+      "sentenceCount": 100,
       "plannedMinutes": 45
     }
   ],
@@ -44,5 +44,5 @@
       "text": "Four representations, three seeds, equal292 parameter counts, all final checkpoints. Source and reference match the previous lesson, but hard boundaries and architectures differ, preventing a direct ranking against Paper12 results."
     }
   ],
-  "downloadSha256": "10bee293617b4a146218f948a3139fba34b31dcdc9143c2af9ba1bbe79bfe00f"
+  "downloadSha256": "9f1107ff06d0e102c4b2c6f3370a25d15a2116577910472eb3d46fe3675b06cf"
 }

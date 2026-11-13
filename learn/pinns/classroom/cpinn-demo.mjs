@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 const modes=['none','state','flux','full'],colours={none:'#c7b4ff',state:'#79d4ef',flux:'#ff8e9e',full:'#ffe071'},names={en:{none:'None',state:'State',flux:'Flux',full:'Both'},zh:{none:'无耦合',state:'仅温度',flux:'仅通量',full:'两者'}};
 export function cpinnFrame(trace,mode,progress,seed=11){const rows=trace.runs[`${mode}-${seed}`].frames;return rows[Math.min(rows.length-1,Math.floor(Math.max(0,Math.min(1,progress))*(rows.length-1)))];}
 export function drawCpinn(host,trace,progress,en){

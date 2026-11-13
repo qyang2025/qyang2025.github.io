@@ -44,5 +44,5 @@
       "text": "Three seeds, uniform/fixed-epsilon/annealed-epsilon policies, 64 residual times in eight ordered bins, 1298 parameters, hard initial values, 90-second cap and 6000-update ceiling. Actual steps, epsilon events, energy and held-out residuals are disclosed."
     }
   ],
-  "downloadSha256": "45600065f9a68e2ce7c9962f366b2ad052ab1f60972f2cabffbd18af96fcbdda"
+  "downloadSha256": "497f0c3c142faaffdf3b52246c9d72fd60e013cfba436dab8ed3ef9c6683f64b"
 }

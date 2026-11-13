@@ -1,4 +1,4 @@
-import{mathHtml}from'./math.mjs?v=paper20focus1';
+import{mathHtml}from'./math.mjs?v=seriesfocus1';
 export function bpinnFrame(t,k,p){const f=t.cases[k].frames;return f[Math.floor(Math.max(0,Math.min(1,p))*(f.length-1))];}
 export function drawBpinn(host,t,p,en){const svg=host.querySelector('svg'),out=host.querySelector('output'),kind=host.dataset.paperDemo;if(!svg)return;const tx=(x,y,s,a='middle')=>`<text x="${x}" y="${y}" text-anchor="${a}">${s}</text>`,mx=(s,x,y,axis)=>`<foreignObject data-axis-label="${axis}" x="${x}" y="${y}" width="65" height="36"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(s,false)}</div></foreignObject>`,px=x=>70+470*x,py=y=>190-140*y/1.2,line=(a,c,d=false)=>`<polyline points="${t.x.map((x,i)=>`${px(x)},${py(a[i])}`).join(' ')}" fill="none" stroke="${c}" stroke-width="3"${d?' stroke-dasharray="6 5"':''}/>`;const axes=()=>`<path d="M70 40V190H550" fill="none" stroke="#d4dce2" stroke-width="2.8"/>`+mx('u',15,22,'y')+mx('x',555,179,'x')+tx(70,216,'0')+tx(540,216,'1');
  if(kind==='bpinn-physical'){

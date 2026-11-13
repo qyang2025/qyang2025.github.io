@@ -38,5 +38,5 @@
       "text": "Neural concentration, periodic inputs, bounded outputs, two velocity parameters, full/noisy/data-only/stripe controls. Constant flow and constant pressure satisfy Navier-Stokes and continuity by construction. All final velocities, concentration fields and initial values retained."
     }
   ],
-  "downloadSha256": "1e3174d2a0243293800adc388809285b12ff944dc4ba42a68974408b32e3b20f"
+  "downloadSha256": "98978a397d1df0849085127083b535a96137ed0ee09619731fe5ce890666b7e6"
 }

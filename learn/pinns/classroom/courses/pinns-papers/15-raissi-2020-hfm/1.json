@@ -144,10 +144,50 @@
                 "index": 2
               }
             ],
-            "expression": "smile"
+            "expression": "smile",
+            "conversational": true,
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 2
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 2
+                }
+              ]
+            }
           }
         }
-      ]
+      ],
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-bridge",
@@ -233,7 +273,34 @@
             ],
             "conversational": true,
             "deliveryRole": "bridge",
-            "expression": "curious"
+            "expression": "curious",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -274,12 +341,41 @@
             ],
             "conversational": true,
             "deliveryRole": "bridge",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-physical",
@@ -343,7 +439,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -389,14 +512,48 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "hfm-physical",
       "paperTrace": "paper15",
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-unknowns",
@@ -482,7 +639,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -523,12 +707,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-transport",
@@ -592,7 +805,36 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                }
+              ]
+            }
           }
         },
         {
@@ -638,14 +880,68 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "detail",
+                  "index": 0,
+                  "detail": "diffusion-term"
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
       "paperDemo": "hfm-physical",
       "paperTrace": "paper15",
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "formulaTerms": [
+        {
+          "id": "diffusion-term",
+          "tex": "\\kappa(c_{xx}+c_{yy})"
+        },
+        {
+          "id": "transport-term",
+          "tex": "u c_x+v c_y"
+        },
+        {
+          "id": "time-change",
+          "tex": "c_t"
+        }
+      ],
+      "teachingDetails": [
+        "diffusion-term",
+        "transport-term",
+        "time-change"
+      ],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-ns",
@@ -731,7 +1027,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -772,12 +1095,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-family",
@@ -863,7 +1215,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -904,12 +1283,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-data",
@@ -995,7 +1403,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1036,12 +1471,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-network",
@@ -1127,7 +1591,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1173,12 +1664,46 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-code",
@@ -1242,7 +1767,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1283,7 +1835,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
@@ -1297,7 +1876,9 @@
         "r = r - 0.02*(cxx + cyy)",
         "loss = 20*mse(c_data, labels) + mean(r*r)"
       ],
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-loss",
@@ -1383,7 +1964,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1429,12 +2037,59 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "formulaTerms": [
+        {
+          "id": "data-term",
+          "tex": "20L_c"
+        },
+        {
+          "id": "residual-term",
+          "tex": "L_r"
+        }
+      ],
+      "teachingDetails": [
+        "data-term",
+        "residual-term"
+      ],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-controls",
@@ -1520,7 +2175,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1561,12 +2243,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-training",
@@ -1631,7 +2342,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1682,14 +2420,53 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "hfm-training",
       "paperTrace": "paper15",
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-velocity",
@@ -1754,7 +2531,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1795,14 +2599,43 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
       "paperDemo": "hfm-velocity",
       "paperTrace": "paper15",
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-noise",
@@ -1889,7 +2722,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -1930,12 +2790,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-stripes",
@@ -1999,7 +2888,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2040,14 +2956,43 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
       "paperDemo": "hfm-stripes",
       "paperTrace": "paper15",
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-projection",
@@ -2133,7 +3078,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2174,12 +3146,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-rank",
@@ -2265,7 +3266,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2306,12 +3334,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-validation",
@@ -2397,7 +3454,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2438,12 +3522,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "node",
+                  "index": 1
+                },
+                {
+                  "sentence": 1,
+                  "kind": "node",
+                  "index": 1
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-limits",
@@ -2534,7 +3647,39 @@
             ],
             "conversational": true,
             "deliveryRole": "bridge",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 2,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2575,12 +3720,41 @@
             ],
             "conversational": true,
             "deliveryRole": "bridge",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-exercise",
@@ -2666,7 +3840,34 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "encouraging"
+            "expression": "encouraging",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2707,12 +3908,41 @@
             ],
             "conversational": true,
             "deliveryRole": "explain",
-            "expression": "focused"
+            "expression": "focused",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "formula",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "formula",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": true,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     },
     {
       "id": "hfm-next",
@@ -2798,7 +4028,34 @@
             ],
             "conversational": true,
             "deliveryRole": "bridge",
-            "expression": "curious"
+            "expression": "curious",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         },
         {
@@ -2839,12 +4096,41 @@
             ],
             "conversational": true,
             "deliveryRole": "bridge",
-            "expression": "smile"
+            "expression": "smile",
+            "focusPlanSource": "series-precise-v1",
+            "teachingFocus": {
+              "en": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ],
+              "zh": [
+                {
+                  "sentence": 0,
+                  "kind": "none",
+                  "index": 0
+                },
+                {
+                  "sentence": 1,
+                  "kind": "none",
+                  "index": 0
+                }
+              ]
+            }
           }
         }
       ],
       "integratedEquation": false,
-      "introduceAtStart": true
+      "introduceAtStart": true,
+      "teachingDetails": [],
+      "focusPlanVersion": "series-precise-v1"
     }
   ]
 }

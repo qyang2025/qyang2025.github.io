@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 export const transportKinds=['transport-physical','transport-characteristic','transport-training','transport-error','transport-time-error','transport-code'];
 const colours={direct:'#79d4ef',curriculum:'#ff8e9e','curriculum-extra':'#ffe071'};
 const labels={en:{direct:'Direct',curriculum:'Curriculum','curriculum-extra':'Extra budget'},zh:{direct:'直接训练',curriculum:'课程式','curriculum-extra':'额外预算'}};

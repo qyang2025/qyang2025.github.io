@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 export const causalKinds=['causal-physical','causal-training','causal-weights','causal-energy','causal-phase','causal-error','causal-code'];
 const colours={uniform:'#79d4ef',fixed:'#ffe071',annealed:'#ff8e9e'};
 const names={en:{uniform:'Uniform',fixed:'Fixed ε',annealed:'Annealed'},zh:{uniform:'均匀权重',fixed:'固定ε',annealed:'退火ε'}};
@@ -26,7 +26,7 @@ export function drawCausal(host,trace,progress,en){
  }
  if(kind==='causal-energy'){
   const rows=modes.map(m=>trace.runs[`${m}-11`].field.map(p=>p[0]**2+p[1]**2)),low=Math.min(.98,...rows.flat()),high=Math.max(1.02,...rows.flat()),py=v=>185-(v-low)/(high-low)*150,points=row=>row.map((u,i)=>`${60+480*trace.times[i]},${py(u)}`).join(' ');
-  svg.innerHTML=`<path d="M60 25V185H555M60 ${py(1)}H540" fill="none" stroke="#ced8df" stroke-width="2.8" stroke-dasharray="0"/>`+rows.map((row,i)=>`<polyline points="${points(row)}" fill="none" stroke="${colours[modes[i]]}" stroke-width="3"/>`).join('')+text(36,190,low.toFixed(2))+text(36,42,high.toFixed(2))+text(60,213,'0')+text(540,213,'1')+axis('t',565,170)+text(300,22,en?'Normalised energy · reference 1':'归一化能量 · 参考值1')+legend();output.textContent=en?'Energy is validation only, not a training penalty.':'能量只用于验证，不作为训练惩罚。';return;
+  svg.innerHTML=`<path d="M60 25V185H555" fill="none" stroke="#ced8df" stroke-width="2.8"/><path class="energy-reference" d="M60 ${py(1)}H540" fill="none" stroke="#ced8df" stroke-width="2.8"/>`+rows.map((row,i)=>`<polyline points="${points(row)}" fill="none" stroke="${colours[modes[i]]}" stroke-width="3"/>`).join('')+text(36,190,low.toFixed(2))+text(36,42,high.toFixed(2))+text(60,213,'0')+text(540,213,'1')+axis('t',565,170)+text(300,22,en?'Normalised energy · reference 1':'归一化能量 · 参考值1')+legend();output.textContent=en?'Energy is validation only, not a training penalty.':'能量只用于验证，不作为训练惩罚。';return;
  }
  if(kind==='causal-error'){
   const values=Object.values(trace.runs).map(r=>100*r.relativeL2),low=Math.floor(Math.log10(Math.min(...values))),high=Math.max(low+1,Math.ceil(Math.log10(Math.max(...values)))),py=v=>185-(Math.log10(v)-low)/(high-low)*145;

@@ -38,5 +38,5 @@
       "text": "Same 465-parameter architecture and initial states per seed. Data-only, physics-only and hybrid; all final checkpoints, held-out fields, residuals and extrapolation results retained."
     }
   ],
-  "downloadSha256": "2cb166406eb725d2c36196a4f6e42d2f9c6b3cb8c3d93173b31ae81fe76dc165"
+  "downloadSha256": "c98026dade01611abe1bbfe53fa8a25662613616f8fffa7d40f351fd9ba82347"
 }

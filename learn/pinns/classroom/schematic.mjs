@@ -1,4 +1,4 @@
-import { proseHtml, escapeHtml } from './math.mjs?v=paper20focus1';
+import { proseHtml, escapeHtml } from './math.mjs?v=seriesfocus1';
 
 export const schematicKinds = ['none', 'flow', 'compare', 'cycle', 'tree'];
 export const schematicIcons = ['sensor', 'filter', 'vector', 'database', 'gear', 'target', 'warning', 'check', 'rod', 'network', 'field', 'derivative'];

@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 export const gradientKinds=['gradient-physical','gradient-training','gradient-norms','gradient-weight','gradient-error','gradient-code'];
 const colours={unweighted:'#79d4ef',fixed100:'#c7b4ff',adaptive:'#ff8e9e',guarded:'#ffe071'};
 const names={en:{unweighted:'Unit',fixed100:'Fixed 100',adaptive:'Ratio',guarded:'Guarded'},zh:{unweighted:'单位权重',fixed100:'固定100',adaptive:'比值法',guarded:'限幅法'}};

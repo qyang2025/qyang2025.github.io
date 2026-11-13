@@ -38,5 +38,5 @@
       "text": "Same97-parameter network and three paired initialisations. Fixed16,shared16,point16 and fixed64;2000 updates each. Independent1001-point fields and997 held-out residual points. Separate fixed64 seed11 diagnostic uses8000updates. All final outcomes retained."
     }
   ],
-  "downloadSha256": "457a6e407b9f32a3bb5cb738edd5c8de5809f899084a218155539b9d028c9bda"
+  "downloadSha256": "4a0f2f59e98473bf36032223596eedc46eec7c9dc059e5822d1823acddc18d62"
 }

@@ -1,4 +1,4 @@
-import {paperDemoMeta} from './paper-demo-contract.mjs?v=paper20focus1';
+import {paperDemoMeta} from './paper-demo-contract.mjs?v=seriesfocus1';
 import { sentences } from './player.mjs';
 
 export function fallbackTarget(slide, beatIndex, sentenceIndex = 0) {
@@ -33,7 +33,8 @@ export function validateTargets(slide) {
         const detail=c.kind==='detail'&&slide.teachingDetails?.includes(c.detail)&&/^[a-z][a-z0-9-]{0,40}$/.test(c.detail);
         const node=c.kind==='node'&&(slide.schematic?.nodes?.[c.index]?.revealAt<=i||c.index<customNodes&&(c.index===0||i>=1));
         const formula=c.kind==='formula'&&!!slide.beats[c.index]?.scene?.formula&&c.index<=i;
-        if(!Number.isInteger(c.sentence)||c.sentence<0||c.sentence>=count||j&&c.sentence<=focus[j-1].sentence||!Number.isInteger(c.index)||c.index<0||!(detail||node||formula||c.kind==='none'&&c.index===0))throw Error('Invalid semantic focus target');
+        const other=c.kind==='chart'&&c.index===0&&['scatter','projection'].includes(slide.visual)||c.kind==='bullet'&&c.index<=beat.focus&&c.index<slide.bullets.length;
+        if(!Number.isInteger(c.sentence)||c.sentence<0||c.sentence>=count||j&&c.sentence<=focus[j-1].sentence||!Number.isInteger(c.index)||c.index<0||!(detail||node||formula||other||c.kind==='none'&&c.index===0))throw Error('Invalid semantic focus target');
       }
     }
     if (!Array.isArray(cues) || !cues.length || cues[0].sentence !== 0) throw new Error('指向序列必须从首句开始');
@@ -131,7 +132,7 @@ export class TeachingPointer {
     this.host.querySelectorAll('.teaching-target').forEach(e=>e.classList.remove('teaching-target'));
     this.host.classList.toggle('narration-active',this.speaking);
     this.target=this.active ? this.host.querySelector(focusSelector(this.cue)) : null;
-    for(const scene of this.host.querySelectorAll('[data-paper-demo]'))scene.dataset.teachingDetailActive=this.active&&this.cue?.kind==='detail'?this.cue.detail:'';
+    for(const scene of this.host.querySelectorAll('[data-paper-demo],[data-pinn-demo],[data-heat-rod]'))scene.dataset.teachingDetailActive=this.active&&this.cue?.kind==='detail'?this.cue.detail:'';
     if (this.target?.hidden) this.target=null;
     // A recorded plot and its checkpoint metrics explain the same experimental result.
     const demoUnit=this.target?.closest('[data-paper-demo]');
@@ -171,8 +172,8 @@ export class TeachingPointer {
     const maskGroup=this.overlay.querySelector('.laser-occluders');
     maskGroup.querySelectorAll('.curve-mask').forEach(e=>e.remove());
     const activeClass={'source-curve':'operator-source-curve','temperature-curve':'operator-temperature-curve','reference-curve':'operator-reference-curve'}[this.cue.detail];
-    for(const curve of this.host.querySelectorAll('[data-paper-demo] svg polyline')){
-      if(activeClass&&curve.classList.contains(activeClass))continue;
+    for(const curve of this.host.querySelectorAll('[data-paper-demo] svg polyline,[data-pinn-demo] svg polyline')){
+      if(activeClass&&curve.classList.contains(activeClass)||(curve.dataset.focusSeries||'').split(' ').includes(this.cue.detail))continue;
       const m=curve.getScreenCTM();if(!m)continue;
       const points=Array.from(curve.points,p=>`${m.a*p.x+m.c*p.y+m.e-box.left},${m.b*p.x+m.d*p.y+m.f-box.top}`).join(' ');
       const cover=document.createElementNS('http://www.w3.org/2000/svg','polyline');cover.classList.add('curve-mask');cover.setAttribute('points',points);cover.setAttribute('fill','none');cover.setAttribute('stroke','black');cover.setAttribute('stroke-width','5');maskGroup.append(cover);

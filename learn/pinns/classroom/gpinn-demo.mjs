@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 const colours={pinn16:'#79d4ef',gpinn001:'#ffe071',gpinn1:'#ff8e9e',pinn32:'#c7b4ff'};
 const names={en:{pinn16:'PINN 16',pinn32:'PINN 32',gpinn001:'gPINN .01',gpinn1:'gPINN 1'},zh:{pinn16:'PINN 16点',pinn32:'PINN 32点',gpinn001:'gPINN .01',gpinn1:'gPINN 1'}};
 export function gpinnFrame(trace,mode,progress,seed=11){const frames=trace.runs[`${mode}-${seed}`].frames;return frames[Math.min(frames.length-1,Math.floor(Math.max(0,Math.min(1,progress))*(frames.length-1)))];}

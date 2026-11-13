@@ -1,6 +1,6 @@
 import * as T from './vendor/three/three.module.mjs';
 import {easeToward} from './expression.mjs';
-import {smoothPresence} from './teaching-presence.mjs?v=paper20focus1';
+import {smoothPresence} from './teaching-presence.mjs?v=seriesfocus1';
 export const facePoses={
  smile:{brow:0,asym:0,eyes:1,tilt:0,yaw:0,pitch:0,smile:.15,other:0},
  curious:{brow:.15,asym:.23,eyes:1.3,tilt:.2,yaw:-.12,pitch:0,smile:.02,other:.4},

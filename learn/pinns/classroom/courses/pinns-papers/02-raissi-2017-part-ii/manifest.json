@@ -50,5 +50,5 @@
       "text": "256 scattered observations, residual tests at the same coordinates, four CPU threads, float64, 1299 parameters, network seed 11. Synthetic viscosity 0.05 and time end 0.5. Three actual runs, plus independent analytical-reference and observation-placement checks."
     }
   ],
-  "downloadSha256": "55b17a31465f51df692bd4327dd017c9d93c8b322f5edd57d5b06b1aee88887c"
+  "downloadSha256": "6be292c414d21024e0c727da35f5b87186eaf89fc11c0eb503f8e8ad07ab1815"
 }

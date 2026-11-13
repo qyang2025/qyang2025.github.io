@@ -1,4 +1,4 @@
-import{mathHtml}from'./math.mjs?v=paper20focus1';
+import{mathHtml}from'./math.mjs?v=seriesfocus1';
 const colors=['#79d4ef','#ffe071','#cbd7de'],rangeCache=new WeakMap();
 export function operatorFrame(t,k,p,seed=11){const f=t.runs[`${k}-${seed}`].frames;return f[Math.floor(Math.max(0,Math.min(1,p))*(f.length-1))];}
 function models(t){return t.schema.startsWith('pi-')?['data','physics','hybrid']:['deeponet','linear','concat'];}

@@ -1,23 +1,24 @@
-import{drawOperator}from'./operator-demo.mjs?v=paper20focus1';
-import{drawSa}from'./sa-demo.mjs?v=paper20focus1';
-import{drawXpinn}from'./xpinn-demo.mjs?v=paper20focus1';
-import{drawBpinn}from'./bpinn-demo.mjs?v=paper20focus1';
-import{drawHpinn}from'./hpinn-demo.mjs?v=paper20focus1';
-import {drawHfm} from './hfm-demo.mjs?v=paper20focus1';
-import {drawFbp} from './fbp-demo.mjs?v=paper20focus1';
-import {drawFourier} from './fourier-demo.mjs?v=paper20focus1';
-import {reserveAxisGutter} from './plot-layout.mjs?v=paper20focus1';
-import {drawNtk} from './ntk-demo.mjs?v=paper20focus1';
-import {drawBoundary} from './boundary-demo.mjs?v=paper20focus1';
-import {drawVpinn} from './vpinn-demo.mjs?v=paper20focus1';
-import {drawCpinn} from './cpinn-demo.mjs?v=paper20focus1';
-import {drawSampling} from './sampling-demo.mjs?v=paper20focus1';
-import {drawGPinn} from './gpinn-demo.mjs?v=paper20focus1';
-import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=paper20focus1';
-import {drawCausal,causalKinds} from './causal-demo.mjs?v=paper20focus1';
-import {drawTransport,transportKinds} from './transport-demo.mjs?v=paper20focus1';
-import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=paper20focus1';
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import{annotatePlotFocus}from'./plot-focus.mjs?v=seriesfocus1';
+import{drawOperator}from'./operator-demo.mjs?v=seriesfocus1';
+import{drawSa}from'./sa-demo.mjs?v=seriesfocus1';
+import{drawXpinn}from'./xpinn-demo.mjs?v=seriesfocus1';
+import{drawBpinn}from'./bpinn-demo.mjs?v=seriesfocus1';
+import{drawHpinn}from'./hpinn-demo.mjs?v=seriesfocus1';
+import {drawHfm} from './hfm-demo.mjs?v=seriesfocus1';
+import {drawFbp} from './fbp-demo.mjs?v=seriesfocus1';
+import {drawFourier} from './fourier-demo.mjs?v=seriesfocus1';
+import {reserveAxisGutter} from './plot-layout.mjs?v=seriesfocus1';
+import {drawNtk} from './ntk-demo.mjs?v=seriesfocus1';
+import {drawBoundary} from './boundary-demo.mjs?v=seriesfocus1';
+import {drawVpinn} from './vpinn-demo.mjs?v=seriesfocus1';
+import {drawCpinn} from './cpinn-demo.mjs?v=seriesfocus1';
+import {drawSampling} from './sampling-demo.mjs?v=seriesfocus1';
+import {drawGPinn} from './gpinn-demo.mjs?v=seriesfocus1';
+import {paperTraceFiles as traceFiles,paperDemoMeta} from './paper-demo-contract.mjs?v=seriesfocus1';
+import {drawCausal,causalKinds} from './causal-demo.mjs?v=seriesfocus1';
+import {drawTransport,transportKinds} from './transport-demo.mjs?v=seriesfocus1';
+import {drawGradient,gradientKinds} from './gradient-demo.mjs?v=seriesfocus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 import {sentences} from './player.mjs';
 const traces=new Map(),traceLoads=new Map();
 function loadTrace(key){
@@ -47,29 +48,29 @@ export function drawPaperDiagram(host,trace,progress,en){draw(host,progress,trac
 function draw(host,progress,providedTrace,providedLanguage){
  const trace=providedTrace||traces.get(host.dataset.paperTrace||'paper01');if(!trace||paperDemoMeta[host.dataset.paperDemo]?.code)return;
  const kind=host.dataset.paperDemo,en=providedLanguage??(document.querySelector('#slide')?.lang==='en'),svg=host.querySelector('svg');
- if(paperDemoMeta[kind]?.renderer==='hpinn'){drawHpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='bpinn'){drawBpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='xpinn'){drawXpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='sa'){drawSa(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='operator'){drawOperator(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='hfm'){drawHfm(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='fbp'){drawFbp(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='fourier'){drawFourier(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='ntk'){drawNtk(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='boundary'){drawBoundary(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='vpinn'){drawVpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='cpinn'){drawCpinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='sampling'){drawSampling(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(paperDemoMeta[kind]?.renderer==='gpinn'){drawGPinn(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(causalKinds.includes(kind)){drawCausal(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(transportKinds.includes(kind)){drawTransport(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(gradientKinds.includes(kind)){drawGradient(host,trace,progress,en);reserveAxisGutter(svg);return;}
- if(kind.startsWith('inverse-')){drawInverse(host,trace,progress,en);reserveAxisGutter(svg);return;}
+ if(paperDemoMeta[kind]?.renderer==='hpinn'){drawHpinn(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='bpinn'){drawBpinn(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='xpinn'){drawXpinn(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='sa'){drawSa(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='operator'){drawOperator(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='hfm'){drawHfm(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='fbp'){drawFbp(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='fourier'){drawFourier(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='ntk'){drawNtk(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='boundary'){drawBoundary(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='vpinn'){drawVpinn(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='cpinn'){drawCpinn(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='sampling'){drawSampling(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(paperDemoMeta[kind]?.renderer==='gpinn'){drawGPinn(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(causalKinds.includes(kind)){drawCausal(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(transportKinds.includes(kind)){drawTransport(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(gradientKinds.includes(kind)){drawGradient(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
+ if(kind.startsWith('inverse-')){drawInverse(host,trace,progress,en);reserveAxisGutter(svg);annotatePlotFocus(host);return;}
  const axis=(symbol,x,y)=>`<foreignObject data-axis-label="${x<60?'y':x>=540&&y>=140?'x':''}" x="${x}" y="${y}" width="36" height="35"><div xmlns="http://www.w3.org/1999/xhtml" class="paper-axis">${mathHtml(symbol,false)}</div></foreignObject>`;
  if(kind==='samples'){
   const data=[...Array(13)].map((_,i)=>`<circle cx="${60+i*40}" cy="185" r="4" fill="#ffe071"/>`).join('')+[...Array(7)].flatMap((_,i)=>[60,540].map(x=>`<circle cx="${x}" cy="${185-i*22}" r="4" fill="#ffe071"/>`)).join('');
   const physics=[...Array(28)].map((_,i)=>`<circle cx="${80+(i*137)%440}" cy="${42+(i*47)%125}" r="3" fill="#79d4ef"/>`).join('');
-  svg.innerHTML=`<path d="M60 30V185H555" fill="none" stroke="#ced8df" stroke-width="3"/>${data}${physics}${axis('x',565,170)}${axis('t',28,10)}<text x="300" y="217" text-anchor="middle">${en?'Gold: labelled edges · cyan: equation tests':'金色：边界标签 · 蓝色：方程检验点'}</text>`;reserveAxisGutter(svg);return;
+  svg.innerHTML=`<path d="M60 30V185H555" fill="none" stroke="#ced8df" stroke-width="3"/>${data}${physics}${axis('x',565,170)}${axis('t',28,10)}<text x="300" y="217" text-anchor="middle">${en?'Gold: labelled edges · cyan: equation tests':'金色：边界标签 · 蓝色：方程检验点'}</text>`;reserveAxisGutter(svg);annotatePlotFocus(host);return;
  }
  const mainRun=trace.runs.pinn||trace.runs.clean;const frameIndex=Math.min(mainRun.frames.length-1,Math.floor(progress*(mainRun.frames.length-1))),frame=mainRun.frames[frameIndex];
  const timeIndex=Math.min(trace.times.length-1,Math.floor(Math.min(1,progress*2)*(trace.times.length-1)));
@@ -79,7 +80,7 @@ function draw(host,progress,providedTrace,providedLanguage){
  const baseline=trace.runs['data-only'].frames.at(-1);
  svg.innerHTML=`<path d="M60 20V185H555M60 105H550" fill="none" stroke="#ced8df" stroke-width="2.8"/>${physical?path(initial,'#79d4ef',true):path(truth,'#79d4ef')}${path(physical?truth:frame.curve,'#ffe071')}${kind==='comparison'?path(baseline.curve,'#ff8e9e',true):''}${axis('x',565,172)}${axis('u',22,4)}<text x="60" y="209" text-anchor="middle">−1</text><text x="540" y="209" text-anchor="middle">1</text><text x="300" y="22" text-anchor="middle">${physical?`t = ${trace.times[timeIndex].toFixed(3)}`:en?'Final-time field':'终止时刻的场'}</text>${physical?`<path d="M125 244h30" stroke="#79d4ef" stroke-width="3" stroke-dasharray="6 4"/><text x="165" y="251">${en?'Initial':'初始'}</text><path d="M345 244h30" stroke="#ffe071" stroke-width="3"/><text x="385" y="251">${en?'Current':'当前'}</text>`:`<path d="M65 244h25" stroke="#79d4ef" stroke-width="3"/><text x="100" y="251">${en?'Reference':'参考'}</text><path d="M280 244h25" stroke="#ffe071" stroke-width="3"/><text x="315" y="251">PINN</text>${kind==='comparison'?`<path d="M425 244h25" stroke="#ff8e9e" stroke-width="3" stroke-dasharray="6 4"/><text x="460" y="251">${en?'Data only':'纯数据'}</text>`:''}`}`;
  const output=host.querySelector('output');if(output)output.textContent=en?`Adam ${frame.step}${frame.phase==='lbfgs'?' + L-BFGS':''} · relative error ${(frame.relativeL2*100).toFixed(2)}%`:`Adam ${frame.step}${frame.phase==='lbfgs'?' + L-BFGS':''} · 相对误差 ${(frame.relativeL2*100).toFixed(2)}%`;
- reserveAxisGutter(svg);host.dataset.trainingStep=String(frame.step);host.dataset.physicalTime=String(trace.times[timeIndex]);
+ reserveAxisGutter(svg);annotatePlotFocus(host);host.dataset.trainingStep=String(frame.step);host.dataset.physicalTime=String(trace.times[timeIndex]);
 }
 function drawInverse(host,trace,progress,en){
  const kind=host.dataset.paperDemo,svg=host.querySelector('svg');

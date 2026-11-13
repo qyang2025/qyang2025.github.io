@@ -38,7 +38,7 @@ static HTML, JavaScript and cached Ogg audio; GitHub Pages needs no local API.
 | 10 | Sukumar 2021 · exact boundaries | 25 | 102/102 | 102/102 | [Open](learn/pinns/classroom/?paper=sukumar2021&language=en) |
 | 11 | Wang 2020 · NTK | 25 | 100/100 | 102/102 | [Open](learn/pinns/classroom/?paper=wang2020ntk&language=en) |
 | 12 | Wang2020 · Fourier features | 23 | 95/95 | 95/95 | [Open](learn/pinns/classroom/?paper=wang2020fourier&language=en) |
-| 13 | Moseley2021 · FBPINNs | 22 | 98/98 | 96/96 | [Open](learn/pinns/classroom/?paper=moseley2021&language=en) |
+| 13 | Moseley2021 · FBPINNs | 22 | 100/100 | 98/98 | [Open](learn/pinns/classroom/?paper=moseley2021&language=en) |
 | 14 | Yang2020 · B-PINNs | 22 | 94/94 | 87/87 | [Open](learn/pinns/classroom/?paper=yang2020bpinns&language=en) |
 | 15 | Raissi2020 · HFM | 22 | 93/93 | 88/88 | [Open](learn/pinns/classroom/?paper=raissi2020hfm&language=en) |
 | 16 | Lu2021 · hPINNs inverse design | 23 | 111/111 | 107/107 | [Open](learn/pinns/classroom/?paper=lu2021hpinns&language=en) |

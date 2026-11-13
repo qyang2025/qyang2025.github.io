@@ -38,5 +38,5 @@
       "text": "24training functions x12query labels,9fixed forcing sensors,16held-out input functions,8amplitude-extrapolation cases and a new fourth-frequency case.465-parameter nonlinear DeepONet,240-parameter linear-branch control and481-parameter concatenation baseline;all final runs retained."
     }
   ],
-  "downloadSha256": "42772df600a8d4e9bfcb4fef483d0224b870288e0e155ab91190b78ba53fb6e9"
+  "downloadSha256": "7df9e2d49f1026f1f91b5d082e4b5319a6dfca83b24fb01976098a5a36297832"
 }

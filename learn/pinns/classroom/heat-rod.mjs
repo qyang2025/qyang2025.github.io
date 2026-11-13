@@ -1,4 +1,5 @@
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import{annotatePlotFocus}from'./plot-focus.mjs?v=seriesfocus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 import {sentences} from './player.mjs';
 export function heatValue(x,t,alpha=.1){return Math.exp(-alpha*Math.PI**2*t)*Math.sin(Math.PI*x);}
 export function heatTime(slide,position,activity={},language='en'){
@@ -28,5 +29,5 @@ export function syncHeatRod(activity,position,slide,language){
  const timeLabel=host.querySelector('[data-rod-time]');if(timeLabel)timeLabel.textContent=t.toFixed(2);
  host.querySelectorAll('.rod-cells rect').forEach((cell,i)=>{const u=heatValue(i/40,t);cell.setAttribute('fill',`rgb(${Math.round(35+220*u)},${Math.round(112+45*u)},${Math.round(185-120*u)})`);});
  const path=time=>Array.from({length:101},(_,i)=>`${i?'L':'M'}${40+515*i/100},${170-62*heatValue(i/100,time)}`).join(' ');
- host.querySelector('.rod-start')?.setAttribute('d',path(0));host.querySelector('.rod-profile')?.setAttribute('d',path(t));
+ host.querySelector('.rod-start')?.setAttribute('d',path(0));host.querySelector('.rod-profile')?.setAttribute('d',path(t));annotatePlotFocus(host,'heat-rod');
 }

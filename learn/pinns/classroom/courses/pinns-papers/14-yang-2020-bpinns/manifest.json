@@ -38,5 +38,5 @@
       "text": "Eleven-dimensional neural-weight/log-diffusivity posterior, known Gaussian observation noise, exact endpoints, low/high paired noise. Fixed invertible Hessian-based coordinate transform is sampling preconditioning,not a Gaussian posterior approximation. Failed and divergent original attempts preserved; final chains have no divergences but observable and weight convergence limitations remain."
     }
   ],
-  "downloadSha256": "55fe3b9d1280880ca77fd0e68943731c02ce3f8a6a0a51d3f74574097d5ca080"
+  "downloadSha256": "17a8147e22ea4820af2d9f39c15ff19cbb5731cfab5e4103f66a702f8427f8bd"
 }

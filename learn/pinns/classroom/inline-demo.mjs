@@ -1,5 +1,5 @@
 import {demoAngle} from './demo-timeline.mjs';
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 let trace;
 fetch(new URL('./demos/pca-trace.json',import.meta.url)).then(r=>{if(!r.ok)throw Error('Illustration unavailable');return r.json();}).then(t=>{trace=t;draw(0);}).catch(()=>{});
 export function inlineDemoHtml(en){

@@ -1,4 +1,4 @@
-import {mathHtml}from'./math.mjs?v=paper20focus1';
+import {mathHtml}from'./math.mjs?v=seriesfocus1';
 const modes=['unit','frozen','adaptive'],cs=['#79d4ef','#ffe071','#c7b4ff'];
 export function ntkFrame(t,k,p,seed=11){const f=t.runs[`${k}-${seed}`].frames;return f[Math.floor(Math.max(0,Math.min(1,p))*(f.length-1))];}
 export function drawNtk(host,t,p,en){const svg=host.querySelector('svg'),out=host.querySelector('output'),kind=host.dataset.paperDemo;if(!svg)return;

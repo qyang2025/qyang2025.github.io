@@ -44,5 +44,5 @@
       "text": "Known heat diffusivity.1; exact endpoint values and initial profile. Global193 parameters versus decomposed194; paired uncoupled,value-only and XPINN controls. All three seeds,final checkpoints,field errors and held-out residuals retained."
     }
   ],
-  "downloadSha256": "e5f965c95d2ce6921e98099be920fabe48f4cff97481cc3783ed2dc69f7cebe0"
+  "downloadSha256": "880390f60aa0990fdf574bd00d8fcd72c0af6e889370d2fc28ee1503603838d0"
 }

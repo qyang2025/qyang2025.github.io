@@ -1,4 +1,4 @@
-import {mathHtml} from './math.mjs?v=paper20focus1';
+import {mathHtml} from './math.mjs?v=seriesfocus1';
 const colours={grid:'#79d4ef',random:'#c7b4ff',resample:'#ff8e9e',rad:'#ffe071'},names={en:{grid:'Grid',random:'Random',resample:'Resample',rad:'RAD'},zh:{grid:'固定网格',random:'固定随机',resample:'均匀重采样',rad:'残差重采样'}};
 export function samplingFrame(trace,mode,progress,seed=11){const rows=trace.runs[`${mode}-${seed}`].frames;return rows[Math.min(rows.length-1,Math.floor(Math.max(0,Math.min(1,progress))*(rows.length-1)))];}
 export function samplingEvent(trace,progress,seed=11){const run=trace.runs[`rad-${seed}`],rows=run.resamplingEvents;if(!rows.length)return {step:0,points:run.initialPoints,probabilities:trace.candidates.map(()=>1/trace.candidates.length),layerPoints:run.initialPoints.filter(x=>x>.9).length};return rows[Math.min(rows.length-1,Math.floor(Math.max(0,Math.min(1,progress))*(rows.length-1)))];}

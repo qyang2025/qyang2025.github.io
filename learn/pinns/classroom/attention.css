@@ -55,3 +55,5 @@
 [data-teaching-detail-active="temperature-curve"] .operator-temperature-curve,
 [data-teaching-detail-active="reference-curve"] .operator-reference-curve{stroke-width:5;filter:drop-shadow(0 0 3px #fff3ae)}
 .lecture-stage svg .curve-anchor.teaching-target{outline:none!important;box-shadow:none!important;filter:none!important}
+
+.lecture-stage svg .focused-curve{stroke-width:5;filter:drop-shadow(0 0 3px #fff3ae)}
